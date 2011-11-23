@@ -6,6 +6,7 @@ class Model_Validator_Attribute_SameAs extends Model_Validator_Attribute_Abstrac
 {
 	public static function validate ($model, $field, $value, $input)
 	{
-		return $model->sfield ($field) === $input->receive ($value);
+		return (isset ($input [$value]) &&
+			$model->sfield ($field) === $input [$value]);
 	}
 }
