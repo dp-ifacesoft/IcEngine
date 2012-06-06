@@ -341,6 +341,7 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		}
 
 		if ($parent->controller) {
+			Loader::load($parent->controller . '_Category');
 			return $this->replaceAction(
 				$parent->controller . '_Category', 'save'
 			);
