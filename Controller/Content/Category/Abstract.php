@@ -341,10 +341,11 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 		}
 
 		if ($parent->controller) {
-			Loader::load($parent->controller . '_Category');
-			return $this->replaceAction(
-				$parent->controller . '_Category', 'save'
-			);
+			if (Loader::tryLoad('Controller_' . $parent->controller . '_Category')) {
+				return $this->replaceAction(
+					$parent->controller . '_Category', 'save'
+				);
+			}
 		}
 
 		// Параметры для передачи в фабрик методы

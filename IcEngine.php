@@ -4,7 +4,7 @@
  * @desc Класс необходимый для инициализации фреймворка.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
- * 
+ *
  */
 class IcEngine
 {
@@ -145,14 +145,14 @@ class IcEngine
         if(substr($path, -10, 10) != 'Mobile.php'){
             Loader::load('Config_Manager');
         }
-		
+
 		Loader::multiLoad (
 			'Bootstrap_Abstract',
 			'Bootstrap_Manager'
 		);
 
 		require $path;
-	
+
 		$name = basename ($path, '.php');
 		self::$_bootstrap = Bootstrap_Manager::get ($name, $path);
 	}
@@ -283,9 +283,17 @@ class IcEngine
 
 	public static function shutdownHandler ()
 	{
-		if (!error_get_last ())
+		$error = error_get_last();
+		if (!$error)
 		{
 			Resource_Manager::save ();
+		} else {
+			$errno = $error['type'];
+			if ($errno == E_ERROR || $errno == E_USER_ERROR) {
+				if (!headers_sent ()) {
+					header('HTTP/1.0 500 Internal Server Error');
+				}
+			}
 		}
 	}
 
