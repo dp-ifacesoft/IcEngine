@@ -32,7 +32,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeChange (Query_Abstract $query, Query_Options $options)
 	{
-		if (!mysql_query ($this->_sql))
+		if (!mysql_query ($this->_sql, $this->_linkIdentifier))
 		{
 			$this->_errno = mysql_errno ($this->_linkIdentifier);
 			$this->_error = mysql_error ($this->_linkIdentifier);
