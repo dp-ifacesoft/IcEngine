@@ -206,9 +206,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 		$query_key = 'query_' . md5 (json_encode ($query->parts ()));
 		$this->_sql = $this->_cacher->get ($query_key);
+
 		if (!$this->_sql)
 		{
 			$this->_sql = $clone->translate ('Mysql');
+
 			$this->_cacher->set ($query_key, $this->_sql);
 		}
 		$result = null;

@@ -2,49 +2,49 @@
 
 class Request_File
 {
-	
+
 	/**
 	 * Элемент массива $_FILES
 	 * @var array
 	 */
 	public $file;
-	
+
 	/**
 	 * Имя исходного файла
 	 * @var string
 	 */
 	public $name;
-	
+
 	/**
 	 * Расширение исходного файла
 	 * @var extension
 	 */
 	public $extension;
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	public $type;
-	
+
 	/**
 	 * Размер
 	 * @var integer
 	 */
 	public $size;
-	
+
 	/**
 	 * Имя временного файла
 	 * @var string
 	 */
 	public $tmp_name;
-	
+
 	/**
 	 * Ошибки загрузки
 	 * @var integer
 	 */
 	public $error;
-	
+
 	/**
 	 * Путь к конечному файлу на сервере
 	 * @var string
@@ -52,7 +52,7 @@ class Request_File
 	public $destination = false;
 
 	/**
-	 * 
+	 *
 	 * @param array $file элемент из $_FILES
 	 */
 	public function __construct (array $file)
@@ -63,10 +63,10 @@ class Request_File
 		$this->size		= $file ['size'];
 		$this->tmp_name	= $file ['tmp_name'];
 		$this->error	= $file ['error'];
-		
+
 		$this->extension = strtolower (substr (strrchr ($this->name, '.'), 1));
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -82,7 +82,7 @@ class Request_File
 	{
 		return $this->error != UPLOAD_ERR_NO_FILE;
 	}
-	
+
 	/**
 	 * Сохранить файл в $destination
 	 * @param string $destination Путь к файлу
@@ -91,11 +91,11 @@ class Request_File
 	function save ($destination)
 	{
 		$this->destination = $destination;
-		return move_uploaded_file ($this->tmp_name, $destination);
+		return copy($this->tmp_name, $destination);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $path
 	 * @param boolean|string $extension true - сохранить расширение, false - без расширения, str - переданное расширение
 	 * @return string|false Имя файла, false - в случае неудачи
@@ -113,7 +113,7 @@ class Request_File
 			// добавляем переданное расширение
 			$fn .= '.' . $extension;
 		}
-		
+
 		if ($this->save ($path . $fn))
 		{
 			return $fn;
@@ -123,5 +123,5 @@ class Request_File
 			return false;
 		}
 	}
-	
+
 }

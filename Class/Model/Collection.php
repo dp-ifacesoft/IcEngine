@@ -898,7 +898,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			$query->limit (
 				$this->_paginator->pageLimit,
 				$this->_paginator->offset ());
-		}      
+		}
 
 		$scheme_options = Model_Scheme::modelOptions ($this->modelName ());
 		if ($scheme_options)
@@ -1138,13 +1138,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @desc Изменить паджинатор коллекции
 	 * @param Paginator $paginator
 	 */
-	public function setPaginator (Paginator $paginator)
+	public function setPaginator ($paginator)
 	{
 		$this->_paginator = $paginator;
-		$this->_paginator->fullCount =
-			is_array($this->_items) ?
-				count ($this->_items) :
-				0;
+		if ($paginator) {
+			$this->_paginator->fullCount =
+				is_array($this->_items) ?
+					count ($this->_items) :
+					0;
+		}
 	}
 
 	/**
