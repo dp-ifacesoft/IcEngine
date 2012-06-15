@@ -1065,6 +1065,23 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
+	 * Возращает индекс первого вхождения модели в коллекцию
+	 *
+	 * @param Model $model
+	 * @param integer $offset Смещение поиска от начала коллекции
+	 * @return integer - если модель найна, false - в противном случае
+	 */
+	public function search($model, $offset = 0)
+	{
+		foreach ($this as $i => $item) {
+			if ($item === $model && $i >= $offset) {
+				return $i;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @desc Установить select-часть запроса коллекции
 	 * @param string|array $columns
 	 * @return Model_Collection
