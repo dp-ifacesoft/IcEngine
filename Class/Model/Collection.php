@@ -1073,7 +1073,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function search($model, $offset = 0)
 	{
-		foreach ($this as $i => $item) {
+		foreach ($this->items() as $i => $item) {
 			if ($item === $model && $i >= $offset) {
 				return $i;
 			}
