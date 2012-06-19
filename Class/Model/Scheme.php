@@ -373,7 +373,7 @@ abstract class Model_Scheme
 				Loader::load ('Helper_Data_Source');
 				$config = Config_Manager::get('Model_Mapper_' . $model_name);
 				$fields = array();
-				if ($config) {
+				if ($config && $config->fields) {
 					$tmp = $config->fields->__toArray();
 					if ($tmp) {
 						foreach ($tmp as $name => $values) {
