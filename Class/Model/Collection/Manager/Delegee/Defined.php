@@ -46,8 +46,10 @@ class Model_Collection_Manager_Delegee_Defined
 		}
 
 		$collection = $collection
-			->filter ($filter)
-			->sort (implode (',', $sort));
+			->filter ($filter);
+		if ($collection->count() && $sort) {
+			$collection->sort (implode (',', $sort));
+		}
 
 		$items = array ();
 
