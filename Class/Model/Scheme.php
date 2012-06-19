@@ -123,8 +123,7 @@ abstract class Model_Scheme
 
 			$auto_inc = false;
 
-			if ($field ['Extra'] == 'auto_increment')
-			{
+			if (!empty($field ['Extra']) || !empty($field['Auto_Increment'])) {
 				$auto_inc = true;
 			}
 
@@ -135,18 +134,20 @@ abstract class Model_Scheme
 				$size = substr ($type, $br_pos);
 				$type = substr ($type, 0, $br_pos);
 				$size = (int) trim ($size, '()');
+			} elseif (!empty($field['Size'])) {
+				$size = $field['Size'];
 			}
 
 			$collation = null;
 
-			if ($field ['Collation'])
+			if (!empty($field ['Collation']))
 			{
 				$collation = $field ['Collation'];
 			}
 
-			$comment = $field ['Comment'];
+			$comment = isset($field ['Comment']) ? $field ['Comment'] : 0;
 
-			$default = $field ['Default'];
+			$default = isset($field ['Default']) ? $field ['Default'] : null;
 
 			$s = array (
 				'type'		=> $type,
@@ -370,20 +371,41 @@ abstract class Model_Scheme
 			if (empty ($scheme ['fields']))
 			{
 				Loader::load ('Helper_Data_Source');
+				$config = Config_Manager::get('Model_Mapper_' . $model_name);
+				$fields = array();
+				if ($config) {
+					$tmp = $config->fields->__toArray();
+					if ($tmp) {
+						foreach ($tmp as $name => $values) {
+							$fields[$name] = array(
+								'Field' => $name,
+								'Type'	=> $values[0]
+							);
+							foreach ($values[1] as $key => $value) {
+								if (is_numeric($key)) {
+									$key = $value;
+									$value = true;
+								}
+								$fields[$name][$key] = $value;
+							}
+						}
+					}
+				} else {
+					$table = self::table ($model_name);
 
-				$table = self::table ($model_name);
+					$fields = Helper_Data_Source::fields (
+						'`' . $table . '`',
+						self::dataSource($model_name)
+					);
+				}
 
-				$fields = Helper_Data_Source::fields (
-                    '`' . $table . '`',
-                    self::dataSource($model_name)
-                );
-
-				$fields = self::_makeScheme ($fields);
-
-				$scheme = array (
-					'fields'	=> $fields,
-					'keys'		=> array ()
-				);
+				if ($fields) {
+					$fields = self::_makeScheme ($fields);
+					$scheme = array (
+						'fields'	=> $fields,
+						'keys'		=> array ()
+					);
+				}
 
 			}
 

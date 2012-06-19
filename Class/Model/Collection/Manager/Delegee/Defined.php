@@ -14,6 +14,7 @@ class Model_Collection_Manager_Delegee_Defined
 		Loader::load ($model_name);
 
 		$rows = $model_name::$rows;
+
 		$collection->reset ();
 
 		foreach ($rows as $row)
@@ -28,7 +29,10 @@ class Model_Collection_Manager_Delegee_Defined
 		foreach ($where as $w)
 		{
 			$field = rtrim ($w [Query::WHERE], '?');
-
+			if (strpos($field, '.') !== false) {
+				list(,$field) = explode('.', $field, 2);
+				$field = trim($field, '`');
+			}
 			$filter [$field] = $w [Query::VALUE];
 		}
 
@@ -49,7 +53,7 @@ class Model_Collection_Manager_Delegee_Defined
 
 		foreach ($collection as $item)
 		{
-			$items [] = $item ['id'];
+			$items []['id'] = $item ['id'];
 		}
 
 		return array (
