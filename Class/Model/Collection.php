@@ -374,12 +374,21 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$columns = (array) $name;
 		$result = array();
-		foreach ($this->items() as $item) {
+		foreach ($this->items() as $i => $item) {
 			foreach ($columns as $column) {
-				$result[$column] = $item->field($column);
+				$result[$i][$column] = $item->field($column);
 			}
 		}
-		return count(array_keys($result)) == 1 ? reset($result) : $result;
+		if (count($columns) > 1)
+		{
+			return $result;
+		} else {
+			$tmp = array();
+			foreach ($result as $r) {
+				$tmp[] = $r[$name];
+			}
+			return $tmp;
+		}
 	}
 
 	/**
