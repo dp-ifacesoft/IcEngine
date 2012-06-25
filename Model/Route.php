@@ -125,7 +125,7 @@ class Route extends Model_Child
 	 */
 	public static function byUrl ($url)
 	{
-		$url = '/' . ltrim ($url, '/');
+		$url = '/' . trim ($url, '/');
 		if (strpos($url, '.') === false) {
 			$url .= '/';
 		}
