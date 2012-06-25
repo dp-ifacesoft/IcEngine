@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Фронт контроллер.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -15,14 +15,14 @@ class Controller_Front extends Controller_Abstract
 	{
 		Loader::load ('Router');
 		Loader::load ('Controller_Dispatcher');
-		
+
 		/**
 		 * @desc Начинаем роутинг.
 		 * @var route
 		 */
 		$route = Router::getRoute ();
-		
-		try 
+
+		try
 		{
 			/**
 			 * @desc Начинаем цикл диспетчеризации и получаем список
@@ -42,13 +42,13 @@ class Controller_Front extends Controller_Abstract
 				$actions,
 				$this->getInput ()
 			);
-			
+
 			/**
 			 * @desc Выполненяем задания.
 			 * @var array <Controller_Task>
 			 */
 			$tasks = Controller_Manager::runTasks ($tasks);
-			
+
 			$this->_output->send ('tasks', $tasks);
 		}
 		catch (Zend_Exception $e)
@@ -57,5 +57,5 @@ class Controller_Front extends Controller_Abstract
 			Error::render ($e);
 		}
 	}
-	
+
 }

@@ -28,19 +28,17 @@ class Router
 	 */
 	public static function getRoute ()
 	{
-		if (is_null (self::$_route))
-		{
+		if (is_null (self::$_route)) {
 			$url = Request::uri ();
             Loader::load ('Route');
 			$url = $url ?: '/';
-			self::$_route = Route::byUrl ($url);
-			if (!self::$_route)
-			{
+			self::$_route = Route::byUrl($url);
+			if (!self::$_route) {
 				return;
 			}
 			$tempVars = array();
 			preg_match_all(
-				'#' . self::$_route['pattern'] . '#', $url, $tempVars
+				'#' . self::$_route['pattern'] . '#u', $url, $tempVars
 			);
 			$vars = array();
 			for ($i = 1, $count = sizeof($tempVars); $i <= $count; $i++) {
@@ -68,25 +66,27 @@ class Router
 					Request::param($param, $value);
 				}
 			}
-			$gets = Request::stringGet ();
-			if ($gets)
-			{
-				$gets = (array) explode ('&', $gets);
-				foreach ($gets as $get)
-				{
-					if (strpos ($get, '=') === false)
-					{
-						$_REQUEST ['get'] = $_GET ['get'] = 1;
-					}
-					else
-					{
-						$tmp = explode ('=', $get);
-						$_REQUEST [$tmp [0]] = $_GET [$tmp [0]] = $tmp [1];
-					}
-				}
-			}
+			self::stringGet();
 		}
 		return self::$_route;
+	}
+
+	/**
+	 * Отдать в $_REQUEST то, что прилетело из get
+	 */
+	public static function stringGet()
+	{
+		$gets = Request::stringGet();
+		if ($gets) {
+			$gets = (array) explode('&', $gets);
+			foreach ($gets as $get) {
+				$tmp = explode('=', $get);
+				if (!isset($tmp[1])) {
+					$tmp[1] = 1;
+				}
+				$_REQUEST [$tmp [0]] = $_GET [$tmp [0]] = $tmp[1];
+			}
+		}
 	}
 
 }
