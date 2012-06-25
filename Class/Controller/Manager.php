@@ -97,7 +97,7 @@ class Controller_Manager extends Manager_Abstract
 		$config = self::config ();
 		$cfg = $config ['actions'][$controller . '::' . $action];
 		$cfg = $cfg ? $cfg : $config ['actions'] [$controller];
-
+		
 		if (isset ($cfg ['cache_config']))
 		{
 			list ($class_name, $method) = explode ('::', $cfg ['cache_config']);

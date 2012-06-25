@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @desc Исполнитель.
  * Предназначени для запуска функций/методов и кэширования результатов
  * их работы.
@@ -9,21 +9,21 @@
  * @package IcEngine
  *
  */
-class Executor 
+class Executor
 {
-	
+
 	/**
 	 * @desc Разделитель частей при формировании ключа для кэширования.
 	 * @var string
 	 */
 	const DELIM = '/';
-	
+
 	/**
 	 * @desc Кэшер
 	 * @var Data_Provider_Abstract
 	 */
 	protected static $_cacher;
-	
+
 	/**
 	 * @desc Конфиг.
 	 * @var array
@@ -45,10 +45,10 @@ class Executor
 		 * @desc Провайдер поставки тэгов
 		 */
 		'tag_provider'		=> null,
-		
+
 		'tags'				=> array ()
 	);
-	
+
 	/**
 	 * @desc Возвращает название функции.
 	 * @param function $function Функция.
@@ -56,24 +56,24 @@ class Executor
 	 */
 	protected static function _functionName ($function)
 	{
-		if (is_array ($function)) 
+		if (is_array ($function))
 		{
 			if (is_object ($function [0]))
 			{
 				return get_class ($function [0]) . self::DELIM . $function [1];
 			}
-			
+
 			return $function [0] . self::DELIM . $function [1];
 		}
-		
+
 		if (is_string ($function))
 		{
 			return $function;
 		}
-		
+
 		return md5 ($function);
 	}
-	
+
 	/**
 	 * @desc Возвращает ключ для кэширования
 	 * @param function $function Кэшируемая функция.
@@ -83,15 +83,15 @@ class Executor
 	protected static function _getCacheKey ($function, array $args)
 	{
 		$key = self::_functionName ($function) . self::DELIM;
-		
+
 		if ($args)
 		{
 			$key .= md5 (json_encode ($args));
 		}
-		
+
 		return $key;
 	}
-	
+
 	/**
 	 * @desc Выполнение функции подлежащей кэшированию.
 	 * @param function $function Функция.
@@ -99,65 +99,47 @@ class Executor
 	 * @param Objective $options Опции кэширования.
 	 * @return mixed Результат выполнения функции.
 	 */
-	protected static function _executeCaching ($function, array $args, 
+	protected static function _executeCaching ($function, array $args,
 		Objective $options)
 	{
 		$key = self::_getCacheKey ($function, $args);
-		
+
 		$expiration = (int) $options->expiration;
-		
+
 		$cache = self::getCacher ()->get ($key);
-		
+
 		$tag_valid = true;
-		
+
 		if (
-			$options->current_tags && 
+			$options->current_tags &&
 			(
-				!isset ($cache ['t']) || 
+				!isset ($cache ['t']) ||
 				array_diff ($options->current_tags->__toArray (), $cache ['t'])
 			)
 		)
 		{
 			$tag_valid = false;
 		}
-		
+
 		if ($cache)
 		{
 			if (
 				(
-					$cache ['a'] + $expiration > time () || 
+					$cache ['a'] + $expiration > time () ||
 					$expiration == 0
-				) && 
+				) &&
 				$tag_valid
 			)
 			{
-				//file_put_contents (
-				//	rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/cache/tracet',
-				//	'cached' . ' ' . json_encode ($args) . PHP_EOL,
-				//	FILE_APPEND
-				//);
 				return $cache ['v'];
 			}
-			
+
 			if (!self::$_cacher->lock ($key, 5, 1, 1))
 			{
-				//file_put_contents (
-				//	rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/cache/tracet',
-                                //      'cached' . ' ' . json_encode ($args) . PHP_EOL,
-                                //        FILE_APPEND
-				//);
-
 				// ключ уже заблокирова параллельным процессом
 				return $cache ['v'];
 			}
 		}
-
-		//file_put_contents (
-		//	rtrim ($_SERVER ['DOCUMENT_ROOT'], '/') . '/cache/tracet',
-                //       	'uncached' . ' ' . json_encode ($args) . PHP_EOL,
-                //        FILE_APPEND
-		//
-		//);
 
 		$value = self::_executeUncaching ($function, $args);
 
@@ -165,9 +147,9 @@ class Executor
 			'v' => $value,
 			'a' => time ()
 		);
-		
+
 		$tags = array ();
-		
+
 		if ($options->current_tags)
 		{
 			foreach ($options->current_tags as $tag => $e)
@@ -175,25 +157,25 @@ class Executor
 				$tags [$tag] = $e;
 			}
 		}
-		
+
 		if ($tags)
 		{
 			$cache_value ['t'] = $tags;
 		}
-		
+
 		self::$_cacher->set (
-			$key, 
+			$key,
 			$cache_value
 		);
-		
+
 		if ($cache)
 		{
 			self::$_cacher->unlock ($key);
 		}
-		
+
 		return $value;
 	}
-	
+
 	/**
 	 * @desc Выполнение функции без кэширования.
 	 * @param function $function Функция.
@@ -204,7 +186,7 @@ class Executor
 	{
 		return call_user_func_array ($function, $args);
 	}
-	
+
 	/**
 	 * @desc Возвращает конфиг. Загружет, если он не был загружен ранее.
 	 * @return Objective
@@ -217,7 +199,7 @@ class Executor
 		}
 		return self::$config;
 	}
-	
+
 	/**
 	 * @desc Выполняет переданную функцию.
 	 * @param function $function Функция.
@@ -226,7 +208,7 @@ class Executor
 	 * 		Если не переданы, будут использованы настройки из конфига.
 	 * @return mixed Результат выполнения функции.
 	 */
-	public static function execute ($function, array $args = array (), 
+	public static function execute ($function, array $args = array (),
 		$options = null)
 	{
 		// Переданы опции
@@ -234,7 +216,7 @@ class Executor
 		{
 			return self::_executeCaching ($function, $args, $options);
 		}
-		
+
 		// опции заданы в конфиге
 		$fn = self::_functionName ($function);
 		if (self::config ()->functions && self::$config->functions [$fn])
@@ -244,11 +226,11 @@ class Executor
 				self::$config->functions [$fn]
 			);
 		}
-		
+
 		// без кэширования
 		return self::_executeUncaching ($function, $args);
 	}
-	
+
 	/**
 	 * @desc Возвращает текущий кэшер.
 	 * @return Data_Provider_Abstract|null
@@ -271,7 +253,7 @@ class Executor
 		}
 		return self::$_cacher;
 	}
-	
+
 	/**
 	 * @desc Устаналвивает кэшер.
 	 * @param Data_Provider_Abstract $cacher
@@ -280,11 +262,11 @@ class Executor
 	{
 		self::$_cacher = $cacher;
 	}
-	
+
 }
 
 /**
- * 
+ *
  * @desc Исполнитель.
  * Предназначени для запуска функций/методов и кэширования результатов
  * их работы.
@@ -294,19 +276,19 @@ class Executor
  */
 class Executor1
 {
-	
+
 	/**
 	 * @desc Разделитель частей при формировании ключа для кэширования.
 	 * @var string
 	 */
 	const DELIM = '/';
-	
+
 	/**
 	 * @desc Кэшер
 	 * @var Data_Provider_Abstract
 	 */
 	protected static $_cacher;
-	
+
 	/**
 	 * @desc Конфиг.
 	 * @var array
@@ -328,10 +310,10 @@ class Executor1
 		 * @desc Провайдер поставки тэгов
 		 */
 		'tag_provider'		=> null,
-		
+
 		'tags'				=> array ()
 	);
-	
+
 	/**
 	 * @desc Возвращает название функции.
 	 * @param function $function Функция.
@@ -339,24 +321,24 @@ class Executor1
 	 */
 	protected static function _functionName ($function)
 	{
-		if (is_array ($function)) 
+		if (is_array ($function))
 		{
 			if (is_object ($function [0]))
 			{
 				return get_class ($function [0]) . self::DELIM . $function [1];
 			}
-			
+
 			return $function [0] . self::DELIM . $function [1];
 		}
-		
+
 		if (is_string ($function))
 		{
 			return $function;
 		}
-		
+
 		return md5 ($function);
 	}
-	
+
 	/**
 	 * @desc Возвращает ключ для кэширования
 	 * @param function $function Кэшируемая функция.
@@ -366,21 +348,21 @@ class Executor1
 	protected static function _getCacheKey ($function, array $args)
 	{
 		$key = self::_functionName ($function) . self::DELIM;
-		
+
 		if ($args)
 		{
 			$arg = array_shift ($args);
 			$key .= md5 (json_encode ($arg));
-			
+
 			if ($args)
 			{
 				$key .= self::DELIM . md5 (json_encode ($args));
 			}
 		}
-		
+
 		return $key;
 	}
-	
+
 	/**
 	 * @desc Выполнение функции подлежащей кэшированию.
 	 * @param function $function Функция.
@@ -388,57 +370,57 @@ class Executor1
 	 * @param Objective $options Опции кэширования.
 	 * @return mixed Результат выполнения функции.
 	 */
-	protected static function _executeCaching ($function, array $args, 
+	protected static function _executeCaching ($function, array $args,
 		Objective $options)
 	{
 		$key = self::_getCacheKey ($function, $args);
-		
+
 		$expiration = (int) $options->expiration;
-		
+
 		$cache = self::getCacher ()->get ($key);
-		
+
 		$tag_valid = true;
-		
+
 		if (
-			$options->current_tags && 
+			$options->current_tags &&
 			(
-				!isset ($cache ['t']) || 
+				!isset ($cache ['t']) ||
 				array_diff ($options->current_tags->__toArray (), $cache ['t'])
 			)
 		)
 		{
 			$tag_valid = false;
 		}
-		
+
 		if ($cache)
 		{
 			if (
 				(
-					$cache ['a'] + $expiration > time () || 
+					$cache ['a'] + $expiration > time () ||
 					$expiration == 0
-				) && 
+				) &&
 				$tag_valid
 			)
 			{
 				return $cache ['v'];
 			}
-			
+
 			if (!self::$_cacher->lock ($key, 5, 1, 1))
 			{
 				// ключ уже заблокирова параллельным процессом
 				return $cache ['v'];
 			}
 		}
-		
+
 		$value = self::_executeUncaching ($function, $args);
-		
+
 		$cache_value = array (
 			'v' => $value,
 			'a' => time ()
 		);
-		
+
 		$tags = array ();
-		
+
 		if ($options->current_tags)
 		{
 			foreach ($options->current_tags as $tag => $e)
@@ -446,25 +428,25 @@ class Executor1
 				$tags [$tag] = $e;
 			}
 		}
-		
+
 		if ($tags)
 		{
 			$cache_value ['t'] = $tags;
 		}
-		
+
 		self::$_cacher->set (
-			$key, 
+			$key,
 			$cache_value
 		);
-		
+
 		if ($cache)
 		{
 			self::$_cacher->unlock ($key);
 		}
-		
+
 		return $value;
 	}
-	
+
 	/**
 	 * @desc Выполнение функции без кэширования.
 	 * @param function $function Функция.
@@ -475,7 +457,7 @@ class Executor1
 	{
 		return call_user_func_array ($function, $args);
 	}
-	
+
 	/**
 	 * @desc Возвращает конфиг. Загружет, если он не был загружен ранее.
 	 * @return Objective
@@ -488,7 +470,7 @@ class Executor1
 		}
 		return self::$config;
 	}
-	
+
 	/**
 	 * @desc Выполняет переданную функцию.
 	 * @param function $function Функция.
@@ -497,7 +479,7 @@ class Executor1
 	 * 		Если не переданы, будут использованы настройки из конфига.
 	 * @return mixed Результат выполнения функции.
 	 */
-	public static function execute ($function, array $args = array (), 
+	public static function execute ($function, array $args = array (),
 		$options = null)
 	{
 		// Переданы опции
@@ -505,7 +487,7 @@ class Executor1
 		{
 			return self::_executeCaching ($function, $args, $options);
 		}
-		
+
 		// опции заданы в конфиге
 		$fn = self::_functionName ($function);
 		if (self::config ()->functions && self::$config->functions [$fn])
@@ -515,11 +497,11 @@ class Executor1
 				self::$config->functions [$fn]
 			);
 		}
-		
+
 		// без кэширования
 		return self::_executeUncaching ($function, $args);
 	}
-	
+
 	/**
 	 * @desc Возвращает текущий кэшер.
 	 * @return Data_Provider_Abstract|null
@@ -542,7 +524,7 @@ class Executor1
 		}
 		return self::$_cacher;
 	}
-	
+
 	/**
 	 * @desc Устаналвивает кэшер.
 	 * @param Data_Provider_Abstract $cacher
@@ -551,5 +533,5 @@ class Executor1
 	{
 		self::$_cacher = $cacher;
 	}
-	
+
 }
