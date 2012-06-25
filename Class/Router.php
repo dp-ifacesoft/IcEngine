@@ -42,6 +42,9 @@ class Router
 			);
 			$vars = array();
 			for ($i = 1, $count = sizeof($tempVars); $i <= $count; $i++) {
+				if (!$tempVars[$i][0]) {
+					continue;
+				}
 				$vars[] = $tempVars[$i][0];
 			}
 			$parts = array();
