@@ -45,7 +45,7 @@ class Temp_Content extends Model
 	 *
 	 * @return type
 	 */
-	public function attr ()
+	public function attr ($key)
 	{
 		if (is_null ($this->_data)) {
 			$this->_data = json_decode ($this->data, true);

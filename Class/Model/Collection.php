@@ -495,7 +495,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			->reset ();
 
 		$first_fields = array ();
-
+		$args = func_get_args();
+		if (count($args) == 2) {
+			$fields = array($args[0] => $args[1]);
+		}
 		foreach ($fields as $field => $value)
 		{
 			$s = substr ($field, -2, 2);
