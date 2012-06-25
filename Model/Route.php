@@ -126,7 +126,9 @@ class Route extends Model_Child
 	public static function byUrl ($url)
 	{
 		$url = '/' . ltrim ($url, '/');
-
+		if (strpos($url, '.') === false) {
+			$url .= '/';
+		}
 		/*
 		 * Заменяем /12345678/ на /?/.
 		 * Операция применяется дважды, т.к. если в запросе
