@@ -14,18 +14,12 @@ class Router
 	 */
 	private static $_route;
 
-    private static $_urls = array ();
-    
 	/**
 	 * @desc Обнулить текущий роут
 	 */
 	public static function clearRoute ()
 	{
 		self::$_route = null;
-        foreach (self::$_urls as $url)
-        {
-            Resource_Manager::set ('Route_Cache', $url, null);
-        }
 	}
 
 	/**
@@ -38,15 +32,46 @@ class Router
 		{
 			$url = Request::uri ();
             Loader::load ('Route');
-            
-            self::$_urls [] = Route::pattern ('/' . trim ($url, '/') . '/');
-
+			$url = $url ?: '/';
+			self::$_route = Route::byUrl ($url);
+			if (!self::$_route)
+			{
+				return;
+			}
+			$tempVars = array();
+			preg_match_all(
+				'#' . self::$_route['pattern'] . '#', $url, $tempVars
+			);
+			$vars = array();
+			for ($i = 1, $count = sizeof($tempVars); $i <= $count; $i++) {
+				$vars[] = $tempVars[$i][0];
+			}
+			$parts = array();
+			preg_match_all(
+				'#(\:([\w\d]+)|{([\w\d]+)})#', self::$_route['route'], $parts
+			);
+			$parts = array_merge($parts[2], $parts[3]);
+			for ($i = 1, $count = sizeof($parts); $i <= $count; $i++) {
+				if (!$parts[$i]) {
+					unset($parts[$i]);
+				}
+			}
+			$parts = array_values($parts);
+			for ($i = 0, $count = sizeof($parts); $i <= $count; $i++) {
+				Request::param(
+					$parts[$i],
+					isset($vars[$i]) ? $vars[$i] : null
+ 				);
+			}
+			if (isset(self::$_route->params)) {
+				foreach (self::$_route->params as $param => $value) {
+					Request::param($param, $value);
+				}
+			}
 			$gets = Request::stringGet ();
-
 			if ($gets)
 			{
 				$gets = (array) explode ('&', $gets);
-
 				foreach ($gets as $get)
 				{
 					if (strpos ($get, '=') === false)
@@ -58,43 +83,6 @@ class Router
 						$tmp = explode ('=', $get);
 						$_REQUEST [$tmp [0]] = $_GET [$tmp [0]] = $tmp [1];
 					}
-				}
-			}
-
-			$url = $url ? $url : '/';
-
-			$route = (array) explode ('/', trim ($url, '/'));
-			
-			
-			self::$_route = Route::byUrl ($url);
-
-			if (!self::$_route)
-			{
-				return;
-			}
-
-			$parts = (array) explode ('/', trim (self::$_route->route, '/'));
-
-			$len = min (sizeof ($route), sizeof ($parts));
-
-			for ($i = 0; $i < $len; $i++)
-			{
-				$st = strpos ($parts [$i], ':');
-				
-				if ($st !== false)
-				{
-					Request::param (
-						substr ($parts [$i], $st + 1),
-						isset ($route [$i]) ? substr ($route [$i], $st) : 0
-					);
-				}
-			}
-
-			if (isset (self::$_route->params))
-			{
-				foreach (self::$_route->params as $param => $value)
-				{
-					Request::param ($param, $value);
 				}
 			}
 		}

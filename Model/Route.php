@@ -2,15 +2,15 @@
 
 Loader::load ('Model_Child');
 /**
- * 
- * @desc Роут. 
+ *
+ * @desc Роут.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
  *
  */
 class Route extends Model_Child
 {
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -99,25 +99,25 @@ class Route extends Model_Child
 			)
 		)
 	);
-	
+
 	/**
 	 * @desc Метод для получения ссылки на страницу.
 	 * @var string
 	 */
 	const MODEL_METHOD_GET_LINK			= 'getRouteLink';
-	
+
 	/**
 	 * @desc Метод для получения страниц одного уровня с текущей.
 	 * @var string
 	 */
 	const MODEL_METHOD_GET_SIBLINGS		= 'getRouteSiblings';
-	
+
 	/**
 	 * @desc Метод для получения названия текущей страницы.
 	 * @var string
 	 */
 	const MODEL_METHOD_GET_TITLE		= 'getRouteTitle';
-	
+
 	/**
 	 * @desc Получить роут по урлу
 	 * @param string $url
@@ -126,7 +126,7 @@ class Route extends Model_Child
 	public static function byUrl ($url)
 	{
 		$url = '/' . trim ($url, '/') . '/';
-		
+
 		/*
 		 * Заменяем /12345678/ на /?/.
 		 * Операция применяется дважды, т.к. если в запросе
@@ -135,31 +135,30 @@ class Route extends Model_Child
 		 * через раз - "/content/?/456/?/", и только после второго
 		 * полностью - "/content/?/?/?/".
 		 * Это позволяет привести все запросы с переменными к одному,
-		 * который будет закеширован. 
-		 */ 
+		 * который будет закеширован.
+		 */
 		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $url);
 		$pattern = preg_replace ('#/[0-9]{1,}/#i', '/?/', $pattern);
-//		fb ($pattern);
 		$router = Resource_Manager::get ('Route_Cache', $pattern);
-		
+
 		if ($router !== null)
 		{
 			return $router ? new self ($router) : null;
 		}
-		
+
 		$config = Config_Manager::get (
 			__CLASS__,
 			array (
 				'use_default_source'	=> true
 			)
 		);
-		
+
 		$row = null;
-		
+
 		if ($config ['use_config_source'])
 		{
 			foreach ($config ['routes'] as $id => $route)
-			{								
+			{
 				if (
 					preg_match ('#' . $route ['pattern'] . '#', $pattern) &&
 					(
@@ -173,43 +172,20 @@ class Route extends Model_Child
 						$route->__toArray ()
 					);
 					$row ['id'] = $id;
-//					echo 'change';
 				}
 			}
 		}
-//		fb($row);
-		if (!$row && $config ['use_default_source'])
-		{
-			$select = Query::instance ()
-				->select (array (
-					'Route' => array ('id', 'route', 'View_Render__id')
-				))
-				->select (array (
-					'View_Render' => array ('name' => 'viewRenderName')
-				))
-				->from ('Route')
-				->from ('View_Render')
-				->where ('? RLIKE template', $pattern)
-				->where ('Route.View_Render__id = View_Render.id')
-				->where ('Route.active=1')
-				->order (array ('weight' => Query::DESC))
-				->limit (1);
-		
-			$row = DDS::execute ($select)->getResult ()->asRow ();
-		}
-//		fb($row);
-//		var_dump(DDS::getDataSource()->getQuery('Mysql'), $row);
 		if (!$row)
 		{
 			Resource_Manager::set ('Route_Cache', $pattern, false);
 			return null;
 		}
-		
+
 		Resource_Manager::set ('Route_Cache', $pattern, $row);
-		
+
 		return new self ($row);
 	}
-	
+
 	/**
 	 * @desc Получение ссылки на роут
 	 * @return string
@@ -226,17 +202,17 @@ class Route extends Model_Child
 				 $this
 			 );
 		}
-		
+
 		$route = '/';
 		$parts = trim ($this->route, '\\/');
-		
+
 		if (!$parts)
 		{
 			return '/';
 		}
-		
+
 		$parts = explode ('/', $parts);
-		
+
 		foreach ($parts as $part)
 		{
 			$params = explode (':', $part);
@@ -249,10 +225,10 @@ class Route extends Model_Child
 				$route .= $part . '/';
 			}
 		}
-		
+
 		return $route;
 	}
-	
+
 	/**
 	 * @desc Формирует ссылку на страницу до части, включающей $stop_key.
 	 * Значение для части $stop_key берется из текущего адреса, либо
@@ -271,14 +247,14 @@ class Route extends Model_Child
 		{
 			$stop_value = Request::param ($stop_key);
 		}
-		
+
 		$route = trim ($this->route, '\\/');
-		
+
 		if (!$route)
 		{
 			return '/';
 		}
-		
+
 		$link = '/';
 		$route = explode ('/', $route);
 		foreach ($route as $part)
@@ -301,10 +277,10 @@ class Route extends Model_Child
 				$link .= $part . '/';
 			}
 		}
-		
+
 		return $link;
 	}
-	
+
 	/**
 	 * @desc Сформировать роут экшины, привязаннык роуту.
 	 * @return Route_Action_Collection
@@ -316,17 +292,17 @@ class Route extends Model_Child
 		if (isset ($this->_fields ['actions']))
 		{
 			$i = 0;
-			
+
 			$route_action_collection = Model_Collection_Manager::create (
 				'Route_Action'
 			)
 				->reset ();
-			
-			$actions =	
+
+			$actions =
 				is_object ($this->_fields ['actions']) ?
 				$this->_fields ['actions']->__toArray () :
 				(array) $this->_fields ['actions'];
-			
+
 			foreach ($actions as $action => $assign)
 			{
 				if (is_numeric ($action))
@@ -342,12 +318,12 @@ class Route extends Model_Child
 						$action = key ($assign);
 					}
 				}
-				
+
 				$tmp = explode ('/', $action);
-				
+
 				$controller = $tmp [0];
 				$action = !empty ($tmp [1]) ? $tmp [1] : 'index';
-				
+
 				$route_action = new Route_Action (array (
 					'Controller_Action'	=> new Controller_Action (array (
 						'controller'	=> $controller,
@@ -357,7 +333,7 @@ class Route extends Model_Child
 					'sort'				=> ++$i,
 					'assign'			=> $assign
 				));
-				
+
 				$route_action_collection->add ($route_action);
 			}
 		}
@@ -370,10 +346,10 @@ class Route extends Model_Child
 					->order ('sort')
 			);
 		}
-		
+
 		return $route_action_collection;
 	}
-	
+
 	/**
 	 * @desc Заголовок части хлебной крошки.
 	 * @return string
@@ -392,7 +368,7 @@ class Route extends Model_Child
 		}
 		return $this->title;
 	}
-	
+
 	/**
 	 * @desc Получение роутов, находящихся на одном уровне с этим.
 	 * @return array
@@ -409,16 +385,16 @@ class Route extends Model_Child
 				$this
 			);
 		}
-		
+
 		$siblings = new Route_Collection ();
 		$siblings
 			->where ('parentId', $this->parentId)
 			->where ('id!=?', $this->id)
 			->where ('visible=1')
 			->where ('active=1');
-		
+
 		$result = array ();
-			
+
 		foreach ($siblings as $sibling)
 		{
 			$result [] = array (
@@ -426,10 +402,10 @@ class Route extends Model_Child
 				'link'	=> $sibling->link ()
 			);
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Возвращает объект рендера для роутера.
 	 * @return View_Render_Abstract
@@ -437,21 +413,12 @@ class Route extends Model_Child
 	public function viewRender ()
 	{
 		$render = $this->View_Render;
-		
+
 		if (!$render && isset ($this->_fields ['viewRenderName']))
 		{
 			$render = View_Render_Manager::byName ($this->_fields ['viewRenderName']);
 		}
-		
+
 		return $render;
 	}
-    
-    /**
-     * @desc ересь какая-то, проверить удалить
-     * @return boolean 
-     */
-    public static function pattern (){
-        return false;
-    }
-
 }
