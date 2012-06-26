@@ -53,9 +53,9 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 //					"\n",
 //					$resource->content ()
 //				);
-			$packer = new JavaScriptPacker ($resource->content (), 0);
-			$result .= $packer->pack ();
-			//$result .= $resource->content();
+			//$packer = new JavaScriptPacker ($resource->content (), 0);
+			//$result .= $packer->pack ();
+			$result .= $resource->content();
 
 		}
 

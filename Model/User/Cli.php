@@ -1,14 +1,14 @@
 <?php
 /**
- * 
+ *
  * @desc Пользователь для консоли
  * @package IcEngine
  * @author Юрий Шведов
- * 
+ *
  */
 class User_Cli extends User_Abstract
-{	
-	
+{
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -27,13 +27,13 @@ class User_Cli extends User_Abstract
 			'password'	=> ''
 		)
 	);
-	
+
 	/**
 	 * @desc Экземпляр пользователя консоли
 	 * @var User_Cli
 	 */
 	protected static $_instance;
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
@@ -42,7 +42,7 @@ class User_Cli extends User_Abstract
 	{
 		$this->_loaded = true;
 	}
-	
+
 	/**
 	 * @desc Создает и возвращает экземпляр модели гостя.
 	 * @return User_Guest
@@ -55,33 +55,41 @@ class User_Cli extends User_Abstract
 		}
 		return self::$_instance;
 	}
-	
+
 	/**
-	 * @desc 
+	 * @inheritdoc
+	 */
+	public function hasRole($role)
+	{
+		return false;
+	}
+
+	/**
+	 * @desc
 	 * @return integer
 	 */
 	public static function id ()
 	{
 		return -1;
 	}
-	
+
 	public function isAdmin ()
 	{
 		return true;
 	}
-	
+
 	/**
 	 * @desc Инициализирует модель гостя.
 	 * Модель будет добавлена в менеджер ресурсов.
-	 * @param mixed $session_id Идентификатор сессии. Не имеет значения, 
-	 * параметр необходим для совместимости с User::init (). 
+	 * @param mixed $session_id Идентификатор сессии. Не имеет значения,
+	 * параметр необходим для совместимости с User::init ().
 	 */
 	public static function init ($session_id = null)
 	{
 		$instance = self::getInstance ();
 		Resource_Manager::set ('Model', $instance->resourceKey (), $instance);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::modelName()
@@ -90,5 +98,5 @@ class User_Cli extends User_Abstract
 	{
 		return 'User';
 	}
-	
+
 }

@@ -42,7 +42,7 @@ class Router
 			);
 			$vars = array();
 			for ($i = 1, $count = sizeof($tempVars); $i <= $count; $i++) {
-				if (!$tempVars[$i][0]) {
+				if (empty($tempVars[$i][0])) {
 					continue;
 				}
 				$vars[] = $tempVars[$i][0];
@@ -53,12 +53,12 @@ class Router
 			);
 			$parts = array_merge($parts[2], $parts[3]);
 			for ($i = 1, $count = sizeof($parts); $i <= $count; $i++) {
-				if (!$parts[$i]) {
+				if (empty($parts[$i])) {
 					unset($parts[$i]);
 				}
 			}
 			$parts = array_values($parts);
-			for ($i = 0, $count = sizeof($parts); $i <= $count; $i++) {
+			for ($i = 0, $count = sizeof($parts); $i < $count; $i++) {
 				Request::param(
 					$parts[$i],
 					isset($vars[$i]) ? $vars[$i] : null
