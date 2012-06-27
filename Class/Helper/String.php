@@ -483,6 +483,19 @@ class Helper_String
 	}
 
 	/**
+	 * Преобразовать первую букву к верхнему регистру (для UTF-8)
+	 *
+	 * @param string $str
+	 * @return string
+	 */
+	public static function ucfirst($str)
+	{
+		return mb_strtoupper(
+			mb_substr($str, 0, 1, 'UTF-8'), 'UTF-8'
+		) . mb_substr($str, 1, mb_strlen($str, 'UTF-8') - 1, 'UTF-8');
+	}
+
+	/**
 	 *
 	 * @desc utf8 -> win1251
 	 * @param string|array $var
