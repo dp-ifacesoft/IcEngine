@@ -66,6 +66,9 @@ class Router
 			}
 			if (isset(self::$_route->params)) {
 				foreach (self::$_route->params as $param => $value) {
+					if (Request::param($param)) {
+						continue;
+					}
 					Request::param($param, $value);
 				}
 			}

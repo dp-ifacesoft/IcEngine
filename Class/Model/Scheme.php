@@ -364,14 +364,18 @@ abstract class Model_Scheme
 
 			if (!$scheme)
 			{
+				if (!Loader::tryLoad($model_name)) {
+					return;
+				}
 				Loader::load ($model_name);
 				$scheme = $model_name::scheme ();
 			}
-
+			$comment = null;
 			if (empty ($scheme ['fields']))
 			{
 				Loader::load ('Helper_Data_Source');
 				$config = Config_Manager::get('Model_Mapper_' . $model_name);
+				$comment = $config->comment;
 				$fields = array();
 				if ($config && $config->fields) {
 					$tmp = $config->fields->__toArray();
@@ -402,6 +406,7 @@ abstract class Model_Scheme
 				if ($fields) {
 					$fields = self::_makeScheme ($fields);
 					$scheme = array (
+						'comment'	=> $comment,
 						'fields'	=> $fields,
 						'keys'		=> array ()
 					);
