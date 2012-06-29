@@ -495,6 +495,13 @@ class Helper_String
 		) . mb_substr($str, 1, mb_strlen($str, 'UTF-8') - 1, 'UTF-8');
 	}
 
+	public static function lcfirst($str)
+	{
+		return mb_strtolower(
+			mb_substr($str, 0, 1, 'UTF-8'), 'UTF-8'
+		) . mb_substr($str, 1, mb_strlen($str, 'UTF-8') - 1, 'UTF-8');
+	}
+
 	/**
 	 *
 	 * @desc utf8 -> win1251
