@@ -7,13 +7,13 @@
  */
 class Controller_Admin_Database extends Controller_Abstract
 {
-	
-	protected function getAdminConfig ($class_name) 
+
+	protected function getAdminConfig ($class_name)
 	{
 		$config = Config_Manager::get ('Model_Mapper_' . $class_name);
 		return $config ['admin_panel'];
 	}
-	
+
 	/**
 	 * @desc Config
 	 * @var array|Objective
