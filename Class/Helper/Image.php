@@ -230,6 +230,33 @@ class Helper_Image
 	}
 
 	/**
+	 * @desc Простая загрузка изображения по ссылке
+	 * @param string $table
+	 * @param integer $row_id
+	 * @param string $type
+	 * @param array $sizing
+	 * @return Component_Image|null
+	 */
+	public static function uploadByUrl ($url, $table, $rowId, $type, $sizing = null)
+	{
+		Loader::load('Helper_Image');
+			
+		$info = getimagesize($url);
+		if (!$info) {
+			return;
+		}
+				
+		$_FILES['image'] = array(
+			'name'		=> $url,
+			'tmp_name'	=> $url,
+			'type'		=> $info['mime'],
+			'size'		=> 1,
+			'error'		=> false
+		);
+		return Helper_Image::uploadSimple($table, $rowId, $type);
+	}
+	
+	/**
 	 * @desc Простая загрузка изображения.
 	 * @param string $table
 	 * @param integer $row_id
@@ -241,6 +268,8 @@ class Helper_Image
 	{
 		//$this->_log ('test');
 		$file = Request::fileByIndex (0);
+		
+		file_put_contents('/home/markov/er/file.txt', print_r($file, true));
 
 		$host = Helper_Site_Location::getLocation ();
 		if ($host == 'localhost')
