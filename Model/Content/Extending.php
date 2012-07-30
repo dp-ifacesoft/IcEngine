@@ -14,6 +14,14 @@ class Content_Extending extends Content_Abstract
 {
 
 	/**
+	 * Действие после удаления
+	 */
+	public function _afterDelete()
+	{
+
+	}
+
+	/**
 	 * @desc Возвращает контент, к которому привязано.
 	 * @return Content
 	 */
