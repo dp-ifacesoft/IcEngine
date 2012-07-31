@@ -224,14 +224,27 @@ class Helper_Date
 	 * @param integer $date Дата.
 	 * @return intger Номер недели.
 	 */
-	public static function eraHourNum ($date = false)
+	public static function eraHourNum($date = false)
 	{
-		if ($date === null)
-		{
-			$date = time ();
+		if ($date === null) {
+			$date = time();
 		}
 
-		return self::eraDayNum ($date) * 24 + (int) date('H', $date);
+		return self::eraDayNum($date) * 24 + (int) date('H', $date);
+	}
+
+	/**
+	 * @desc Возвращает номер минуты от начала эры
+	 * @param integer $date Дата.
+	 * @return intger Номер недели.
+	 */
+	public static function eraMinNum($delta, $date = false)
+	{
+		if ($date === null) {
+			$date = time();
+		}
+		return ((self::eraDayNum ($date) * 24 + (int) date('H', $date)) * 60 +
+			(int) date('i', $date)) * ((int) (60 / $delta));
 	}
 
 	/**
