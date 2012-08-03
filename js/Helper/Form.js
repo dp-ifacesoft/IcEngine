@@ -57,7 +57,8 @@ var Helper_Form = {
 			$fields.filter (filter);
 		}
 
-		var data = {};
+		var data = {}, placeholder, value,
+			errorRequired = false;
 
 		$fields.each (function () {
 
@@ -83,7 +84,6 @@ var Helper_Form = {
 				} else if (lastObject) {
 					_isObject = true;
 				}
-
                 if (_isArray) {
                     if (!(_name in data)) {
                         data[_name] = [];
@@ -134,7 +134,6 @@ var Helper_Form = {
                 }
             }
 
-
 			if (this.tagName.toLowerCase () == 'input')
 			{
 				if (this.type == "file")
@@ -155,8 +154,27 @@ var Helper_Form = {
 						_setValue (this.name, $(this).val ());
 					}
 				}
+				// обычные input[name=text]
 				else
 				{
+					if($(this).attr('required'))
+					{
+						value = $(this).val();
+						placeholder = $(this).attr('placeholder');
+						if(!value.length || value == placeholder)
+						{
+							$(this).addClass('errorRequired');
+							$(this).attr('required');
+							errorRequired = true;
+						}
+						else
+						{
+							$(this).removeClass('errorRequired');
+						}
+						//if (!('errorRequired' in data)) {
+							data['errorRequired'] = errorRequired;
+						//}
+					}
 					if ($(this).attr ('placeholder') == $(this).val ())
 					{
 						_setValue (this.name, '');
@@ -179,7 +197,20 @@ var Helper_Form = {
 				}
 			}
 		});
+
 		return data;
+	},
+
+	/**
+	 * Тоже самое что и asArray, но с проверкой Required полей
+	 * по-хорошему надо бы перепилить asArray, но тогда на всём сайте
+	 * все формы править
+	 */
+	asArrayWCheck: function ($form, filter)
+	{
+		var result;
+		result = this.asArray ($form, filter);
+		return !result['errorRequired'] ? result : false;
 	},
 
 	defaultCallback: function ($form, result)
