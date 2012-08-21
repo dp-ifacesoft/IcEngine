@@ -7,6 +7,9 @@
  */
 class Model_Option_User extends Model_Option
 {
+	/**
+	 * @inheritdoc
+	 */
 	public function before()
 	{
 		$this->query
