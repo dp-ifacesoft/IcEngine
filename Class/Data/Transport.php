@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Транспорт данных
  * @author Юрий
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Data_Transport
 {
-	
+
 	/**
 	 * @desc Фильтры применяемые только на вход транспорта.
 	 * @var Filter_Collection
 	 */
 	protected $_inputFilters;
-	
+
 	/**
 	 * @desc Фильтры применяемые только на выход транспорта.
 	 * @var Filter_Collection
@@ -32,13 +32,13 @@ class Data_Transport
      * @var Data_Validator_Collection
      */
 	protected $_validators;
-	
+
 	/**
 	 * Стек начатых транзакций
 	 * @var array
 	 */
 	protected $_transactions = array ();
-	
+
 	/**
 	 * @desc Возвращает экземпляр коллекции фильтров
 	 */
@@ -47,7 +47,7 @@ class Data_Transport
 		$this->resetFilters ();
 		$this->resetValidators ();
 	}
-	
+
     /**
      * @param Data_Provider_Abstract $provider
      * @return Data_Transport
@@ -57,7 +57,7 @@ class Data_Transport
 		$this->_providers [] = $provider;
 		return $this;
 	}
-	
+
 	/**
 	 * Начинает новую транзакцию
 	 * @return Data_Transport_Transaction
@@ -66,13 +66,13 @@ class Data_Transport
 	public function beginTransaction ()
 	{
 	    Loader::load ('Data_Transport_Transaction');
-		
+
 	    $transaction = new Data_Transport_Transaction ($this);
 	    $this->_transactions [] = $transaction;
-		
+
 	    return $transaction;
 	}
-	
+
 	/**
 	 * @return Data_Transport_Transaction
 	 * 		Текущая транзакция
@@ -81,7 +81,7 @@ class Data_Transport
 	{
 	    return end ($this->_transactions);
 	}
-	
+
 	/**
 	 * Заканчивает текущую транзакцию
 	 * @return Data_Transport_Transaction
@@ -91,7 +91,7 @@ class Data_Transport
 	{
 	    return array_pop ($this->_transactions);
 	}
-	
+
     /**
      * @desc Входные фильтры.
      * @return Filter_Collection
@@ -100,17 +100,18 @@ class Data_Transport
 	{
 		return $this->_inputFilters;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $index
 	 * @return Data_Provider_Abstract
 	 */
 	public function getProvider ($index)
 	{
-		return $this->_providers [$index];
+		return isset($this->_providers [$index])
+			? $this->_providers [$index] : null;
 	}
-	
+
     /**
      *
      * @return array
@@ -131,33 +132,33 @@ class Data_Transport
 
 	/**
 	 * @desc Композит на массив провайдеров
-	 * @return Composite 
+	 * @return Composite
 	 */
 	public function providers ()
 	{
 		Loader::load ('Composite');
-		
+
 		return new Composite ($this->_providers);
 	}
-	
+
 	/**
 	 * @desc Инициализация или сброс фильтров.
 	 */
 	public function resetFilters ()
 	{
 		Loader::load ('Filter_Collection');
-		
+
 		$this->_inputFilters = new Filter_Collection ();
 		$this->_outputFilters = new Filter_Collection ();
 	}
-	
+
 	/**
 	 * @desc Инициализация или сброс валидаторов.
 	 */
 	public function resetValidators ()
 	{
 		Loader::load ('Data_Validator_Collection');
-		
+
 		$this->_validators = new Data_Validator_Collection ();
 	}
 
@@ -168,17 +169,17 @@ class Data_Transport
 	{
 		return $this->_outputFilters;
 	}
-	
+
     /**
      * @desc Получение данных.
      * @param mixed $_
      * @return mixed
      */
 	public function receive ()
-	{	
+	{
 		$keys = func_get_args ();
 		$results = array ();
-	
+
 		if ($this->_transactions)
 		{
 			$buffer = end ($this->_transactions)->buffer ();
@@ -215,10 +216,10 @@ class Data_Transport
 				$results [] = $data;
 			}
 		}
-		
+
 		return count ($results) == 1 ? $results [0] : $results;
 	}
-	
+
 	/**
 	 * @desc Получает все значения из всех провайдеров.
 	 * Не рекомендуется использовать.
@@ -230,7 +231,7 @@ class Data_Transport
 		{
 			return end ($this->_transactions)->buffer ();
 		}
-		
+
 		$result = array ();
 		foreach ($this->_providers as $provider)
 		{
@@ -279,7 +280,7 @@ class Data_Transport
 				func_get_arg (0) => $this->receive (func_get_arg (0))
 			);
 		}
-		
+
 		return array_combine (
 			func_get_args (),
 			call_user_func_array (
@@ -288,7 +289,7 @@ class Data_Transport
 			)
 		);
 	}
-	
+
 	/**
 	 * @desc Очистка данных всех провайдеров и сброс транзаций.
 	 * @return Data_Transport
@@ -321,9 +322,9 @@ class Data_Transport
 		}
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|array $key
 	 * @param mixed $data
 	 * @return Data_Transport
@@ -334,7 +335,7 @@ class Data_Transport
 		{
 			$key = array ($key => $data);
 		}
-		
+
 		foreach ($key as $k => $v)
 		{
             if($v){
@@ -345,7 +346,7 @@ class Data_Transport
                 }
             }
 		}
-		
+
 		return $this;
 	}
 
@@ -358,6 +359,6 @@ class Data_Transport
 	{
 		$this->_providers = array_merge ($this->_providers, (array) $providers);
 		return $this;
-	} 
-	
+	}
+
 }
