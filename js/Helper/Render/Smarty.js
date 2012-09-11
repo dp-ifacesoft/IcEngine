@@ -16,14 +16,14 @@ var Helper_Render_Smarty;
     }
 
     var UNDEFINED;
-    if (Array.prototype.pop == null) // IE 5.x fix 
+    if (Array.prototype.pop == null) // IE 5.x fix
     {
         Array.prototype.pop = function() {
             if (this.length === 0) {return UNDEFINED;}
             return this[--this.length];
         };
     }
-    if (Array.prototype.push == null) // IE 5.x fix 
+    if (Array.prototype.push == null) // IE 5.x fix
     {
         Array.prototype.push = function() {
             for (var i = 0; i < arguments.length; ++i) {this[this.length] = arguments[i];}
@@ -38,16 +38,16 @@ var Helper_Render_Smarty;
             optEtc = Helper_Render_Smarty.parseTemplate_etc;
 		}
         var funcSrc = parse(tmplContent, optTmplName, optEtc);
-		
+
         var func = Helper_Render_Smarty.evalEx(funcSrc, optTmplName, 1);
-		
+
         if (func != null)
 		{
             return new optEtc.Template(optTmplName, tmplContent, funcSrc, func, optEtc);
 		}
         return null;
     };
-    
+
     try
     {
         String.prototype.process = function (context, optFlags)
@@ -64,7 +64,7 @@ var Helper_Render_Smarty;
     {
     	// Swallow exception, such as when String.prototype is sealed.
     };
-    
+
     Helper_Render_Smarty.parseTemplate_etc = {};            // Exposed for extensibility.
     Helper_Render_Smarty.parseTemplate_etc.statementTag = 'foreachelse|foreach|if|elseif|else|assign|macro';
     Helper_Render_Smarty.parseTemplate_etc.statementDef = { // Lookup table for statement tags.
@@ -72,11 +72,27 @@ var Helper_Render_Smarty;
         "if"     : {
 			delta:  1,
 			prefix: "if (",
-//			prefixFunc : function(stmtParts, state, tmplName, etc) {
-//				stmtParts.splice (0, 1);
-//				var condition = stmtParts.join (' ');
-//				return condition;
-//			},
+			prefixFunc : function(stmtParts, state, tmplName, etc) {
+				var i;
+				for (i = 1; i < stmtParts.length; i++) {
+					if (!(/[\$a-zA-Z]/.test(stmtParts[i].substr(0, 1)))) {
+						continue;
+					}
+					var vars = /\$([\S]+)/.exec(stmtParts[i]), j;
+					if (!vars) {
+						continue;
+					}
+					for(j = 1; j < vars.length; j++) {
+						if (typeof window['$' + vars[j]] != 'undefined') {
+							continue;
+						}
+						stmtParts[i] = stmtParts[i].replace(
+							'$' + vars[j], vars[j]
+						);
+					}
+				}
+				return ['if('].join('');
+			},
 			suffix: ") {",
 			paramMin: 1
 		},
@@ -94,15 +110,15 @@ var Helper_Render_Smarty;
 		// foreach
         "foreach"    : {
 			delta:  1,
-			paramMin: 2, 
+			paramMin: 2,
 			prefixFunc : function(stmtParts, state, tmplName, etc)
 			{
 				var token = stmtParts.join (' ').replace (' = ', '=', 'g');
-				
+
 				var parts = token.split (' ');
 				var foreach = parts [0];
 				var from = parts [1];
-				
+
 				if (from.indexOf ('=') > 0)
 				{
 					fromVar = from.split ('=')[1];
@@ -112,16 +128,16 @@ var Helper_Render_Smarty;
 				{
 					throw new etc.ParseError(tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
 				}
-				
+
 				fromVar = fromVar.substr (1, fromVar.length - 1);
-				
+
 				if (!fromVar)
 				{
 					throw new etc.ParseError(tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
 				}
-				
+
 				var item = parts [2];
-				
+
 				if (item.indexOf ('=') > 0)
 				{
 					iterVar = item.split ('=')[1];
@@ -131,22 +147,22 @@ var Helper_Render_Smarty;
 				{
 					throw new etc.ParseError (tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
 				}
-                		
+
 				if (iterVar.substr (0,1) == '"' || iterVar.substr (0,1) == "'")
 				{
 					iterVar = iterVar.substr (1, iterVar.length - 2);
 				}
-				
+
 				if (from != "from" || item != 'item')
 				{
 					throw new etc.ParseError (tmplName, state.line, "bad for loop statement: " + stmtParts.join(' '));
 				}
-				
+
 				var keyVar = '__KEY__';
 				var nameVar = '__NAME__';
-				
+
 				var sts = ['key', 'name'];
-				
+
 				for (var i = 0, l = sts.length; i < l; ++i)
 				{
 					for (var j in sts)
@@ -169,24 +185,24 @@ var Helper_Render_Smarty;
 						}
 					}
 				}
-				
+
 				var listVar = "__LIST__" + iterVar;
-				
+
 				return [ "var ", listVar, " = ", fromVar, ";",
 					"var c=0;",
 					"for(var i in ", listVar,"){c++;};",
 					// Fix from Ross Shaull for hash looping, make sure that we have an array of loop lengths to treat like a stack.
 					"var __LENGTH_STACK__;",
-					"if (typeof(__LENGTH_STACK__) == 'undefined' || !__LENGTH_STACK__.length) __LENGTH_STACK__ = new Array();", 
+					"if (typeof(__LENGTH_STACK__) == 'undefined' || !__LENGTH_STACK__.length) __LENGTH_STACK__ = new Array();",
 					"__LENGTH_STACK__[__LENGTH_STACK__.length] = 0;", // Push a new for-loop onto the stack of loop lengths.
 					"if ((", listVar, ") != null) { ",
-					"var ", iterVar, "_ct = 0;",       // iterVar_ct variable, added by B. Bittman     
+					"var ", iterVar, "_ct = 0;",       // iterVar_ct variable, added by B. Bittman
 					"for (var ", iterVar, "_index in ", listVar, ") { ",
 					keyVar, "=", iterVar, "_index;",
 					"if(!smarty){var smarty={section:{},foreach:{}};};",
 					"if(!smarty.foreach.", nameVar, "){smarty.foreach.", nameVar, "={last:0,first:1,iteration:1};};",
 					iterVar, "_ct++;",
-					"smarty.foreach.", nameVar, ".iteration=", iterVar, "_ct;", 
+					"smarty.foreach.", nameVar, ".iteration=", iterVar, "_ct;",
 					"if(", iterVar, "_ct", ">0){smarty.foreach.",nameVar, ".first=0;};",
 					"if(", iterVar, "_ct==c){smarty.foreach.",nameVar, ".last=1;};",
 					"if (typeof(", listVar, "[", iterVar, "_index]) == 'function') {continue;}", // IE 5.x fix from Igor Poteryaev.
@@ -210,7 +226,7 @@ var Helper_Render_Smarty;
 			{
 				var var_index = 1;
 				var var_name = '';
-				
+
 				if (stmtParts [1].indexOf ('var=') < 0)
 				{
 					var_index = 3;
@@ -220,7 +236,7 @@ var Helper_Render_Smarty;
 				{
 					var_name = stmtParts [1].substr (4);
 				}
-				
+
 				if (
 					var_name.substr (0, 1) == "'" ||
 					var_name.substr (0, 1) == '"'
@@ -228,35 +244,35 @@ var Helper_Render_Smarty;
 				{
 					var_name = var_name.substr (1, var_name.length - 2);
 				}
-				
+
 				var value = '';
-				
+
 				if (stmtParts [var_index + 1].substr (0, 6) == 'value=')
 				{
-					value = 
+					value =
 						stmtParts [var_index + 1].substr (6) + " " +
 						stmtParts.slice (var_index + 2).join (" ");
-						
+
 				}
 				else
 				{
 					value = stmtParts.slice (var_index + 2).join (" ");
 				}
-				
+
 				if (value.substr (0, 1) == "'")
 				{
 					value = '"' + value.substr (1, value.length - 2) + '"';
 				}
-				
+
                 return [ "View_Render.assign('", var_name, "', ", value, ");"].join ('');
             }
         },
 		"macro"   : {
-			delta:  1, 
+			delta:  1,
 			prefixFunc : function(stmtParts, state, tmplName, etc)
 			{
 				var macroName = stmtParts[1].split('(')[0];
-				return [ "var ", macroName, " = function", 
+				return [ "var ", macroName, " = function",
 					stmtParts.slice(1).join(' ').substring(macroName.length),
 					"{ var _OUT_arr = []; var _OUT = { write: function(m) { if (m) _OUT_arr.push(m); } }; " ].join('');
 			}
@@ -266,44 +282,44 @@ var Helper_Render_Smarty;
 			prefix: " return _OUT_arr.join(''); };"
 		}
 	};
-	
+
 	Helper_Render_Smarty.parseTemplate_etc.modifierDef = {
 		// Quote string with slashes
 		"addslashes": function (str)
-		{    
+		{
 			return str.replace(/(["'\\])/g, "\\$1").replace('/\0/g', "\\0");
 		},
 		"eat"        : function (v)    { return ""; },
 		"escape"     : function (s)    { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); },
 		"capitalize" : function (s)    { return String(s).toUpperCase(); },
 		"default"    : function (s, d) {	return s ? s : d; },
-		// Convert special characters to HTML entities  
+		// Convert special characters to HTML entities
 		"htmlspecialchars": function (string, quote_style, charset, double_encode)
 		{
 			// version: 1103.1210
-			// discuss at: http://phpjs.org/functions/htmlspecialchars    
+			// discuss at: http://phpjs.org/functions/htmlspecialchars
 			// +   original by: Mirek Slugen
 			// +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
 			// +   bugfixed by: Nathan
 			// +   bugfixed by: Arno
-			// +    revised by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)    
+			// +    revised by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
 			// +    bugfixed by: Brett Zamir (http://brett-zamir.me)
 			// +      input by: Ratheous
 			// +      input by: Mailfaker (http://www.weedem.fr/)
 			// +      reimplemented by: Brett Zamir (http://brett-zamir.me)
-			// +      input by: felix    
+			// +      input by: felix
 			// +    bugfixed by: Brett Zamir (http://brett-zamir.me)
 			// %        note 1: charset argument not supported
 			// *     example 1: htmlspecialchars("<a href='test'>Test</a>", 'ENT_QUOTES');
 			// *     returns 1: '&lt;a href=&#039;test&#039;&gt;Test&lt;/a&gt;'
-			// *     example 2: htmlspecialchars("ab\"c'd", ['ENT_NOQUOTES', 'ENT_QUOTES']);    
+			// *     example 2: htmlspecialchars("ab\"c'd", ['ENT_NOQUOTES', 'ENT_QUOTES']);
 			// *     returns 2: 'ab"c&#039;d'
 			// *     example 3: htmlspecialchars("my "&entity;" is still here", null, null, false);
 			// *     returns 3: 'my &quot;&entity;&quot; is still here'
 			var optTemp = 0,
 				i = 0,
 				noquotes = false;
-			
+
 			if (typeof quote_style === 'undefined' || quote_style === null)
 			{
 				quote_style = 2;
@@ -311,7 +327,7 @@ var Helper_Render_Smarty;
 			string = string.toString ();
 			// Put this first to avoid double-encoding
 			if (double_encode !== false)
-			{ 
+			{
 				string = string.replace (/&/g, '&amp;');
 			}
 			string = string.replace (/</g, '&lt;').replace (/>/g, '&gt;');
@@ -328,11 +344,11 @@ var Helper_Render_Smarty;
 			}
 			// Allow for a single string or an array of string flags
 			if (typeof quote_style !== 'number')
-			{ 
+			{
 				quote_style = [].concat (quote_style);
 				for (i = 0; i < quote_style.length; i++)
 				{
-					// Resolve string input to bitwise e.g. 'PATHINFO_EXTENSION' becomes 4            
+					// Resolve string input to bitwise e.g. 'PATHINFO_EXTENSION' becomes 4
 					if (OPTS [quote_style [i]] === 0)
 					{
 						noquotes = true;
@@ -340,7 +356,7 @@ var Helper_Render_Smarty;
 					else if (OPTS [quote_style [i]])
 					{
 						optTemp = optTemp | OPTS [quote_style [i]];
-					}        
+					}
 				}
 				quote_style = optTemp;
 			}
@@ -352,11 +368,11 @@ var Helper_Render_Smarty;
 			{
 				string = string.replace(/"/g, '&quot;');
 			}
-			
+
 			return string;
 		}
     };
-    
+
     Helper_Render_Smarty.parseTemplate_etc.modifierDef.h = Helper_Render_Smarty.parseTemplate_etc.modifierDef.escape;
 
     Helper_Render_Smarty.parseTemplate_etc.Template = function (tmplName, tmplContent, funcSrc, func, etc)
@@ -367,17 +383,17 @@ var Helper_Render_Smarty;
             {
                 context = {};
             }
-            
+
             if (context._MODIFIERS == null)
             {
                 context._MODIFIERS = {};
             }
-            
+
             if (context.defined == null)
             {
                 context.defined = function(str) {return (context[str] != undefined);};
             }
-            
+
             for (var k in etc.modifierDef)
             {
                 if (context._MODIFIERS[k] == null)
@@ -385,7 +401,7 @@ var Helper_Render_Smarty;
                     context._MODIFIERS[k] = etc.modifierDef[k];
                 }
             }
-            
+
             if (flags == null)
             {
                 flags = {};
@@ -413,11 +429,11 @@ var Helper_Render_Smarty;
             return resultArr.join ("");
         };
         this.name       = tmplName;
-        this.source     = tmplContent; 
+        this.source     = tmplContent;
         this.sourceFunc = funcSrc;
         this.toString   = function() {return "Helper_Render_Smarty.Template [" + tmplName + "]";};
     };
-    
+
     Helper_Render_Smarty.parseTemplate_etc.ParseError = function(name, line, message)
     {
         this.name    = name;
@@ -425,12 +441,12 @@ var Helper_Render_Smarty;
         this.message = message;
 		console.log (this);
     };
-    
+
     Helper_Render_Smarty.parseTemplate_etc.ParseError.prototype.toString = function()
-    { 
+    {
         return ("Helper_Render_Smarty template ParseError in " + this.name + ": line " + this.line + ", " + this.message);
     };
-    
+
     var parse = function(body, tmplName, etc)
     {
 		// remove comments
@@ -453,7 +469,7 @@ var Helper_Render_Smarty;
                 var blockrx = stmt.match(/^\{(cdata|minify|eval)/); // From B. Bittman, minify/eval/cdata implementation.
                 if (blockrx)
                 {
-                    var blockType = blockrx [1]; 
+                    var blockType = blockrx [1];
                     var blockMarkerBeg = begStmt + blockType.length + 1;
                     var blockMarkerEnd = body.indexOf ('}', blockMarkerBeg);
                     if (blockMarkerEnd >= 0)
@@ -466,15 +482,15 @@ var Helper_Render_Smarty;
                         else
                         {
                             blockMarker = body.substring (blockMarkerBeg + 1, blockMarkerEnd);
-                        }                        
-                        
+                        }
+
                         var blockEnd = body.indexOf(blockMarker, blockMarkerEnd + 1);
                         if (blockEnd >= 0)
-                        {                            
+                        {
                             emitSectionText (body.substring (endStmtPrev + 1, begStmt), funcText);
-                            
+
                             var blockText = body.substring (blockMarkerEnd + 1, blockEnd);
-                            
+
                             if (blockType == 'cdata')
                             {
                                 emitText(blockText, funcText);
@@ -492,7 +508,7 @@ var Helper_Render_Smarty;
                             }
                             begStmt = endStmtPrev = blockEnd + blockMarker.length - 1;
                         }
-                    }                        
+                    }
                 } else if (
                 	body.charAt(begStmt - 1) != '$' &&		// Not an expression or backslashed,
                     body.charAt(begStmt - 1) != '\\'		// so check if it is a statement tag.
@@ -510,7 +526,7 @@ var Helper_Render_Smarty;
             {
                 break;
             }
-            var endStmt = body.indexOf("}", begStmt + 1); // In "a{for}c", endStmt will be 5.
+            endStmt = body.indexOf("}", begStmt + 1); // In "a{for}c", endStmt will be 5.
             if (endStmt < 0)
             {
                 break;
@@ -527,7 +543,7 @@ var Helper_Render_Smarty;
         funcText.push("}}; Helper_Render_Smarty_Template_TEMP");
         return funcText.join("");
     };
-    
+
     var emitStatement = function(stmtStr, state, funcText, tmplName, etc) {
         var parts = stmtStr.slice(1, -1).split(' ');
         var stmt = etc.statementDef[parts[0]]; // Here, parts[0] == for/if/else/...
@@ -541,16 +557,16 @@ var Helper_Render_Smarty;
             if (state.stack.length <= 0)
                 throw new etc.ParseError(tmplName, state.line, "close tag does not match any previous statement: " + stmtStr);
             state.stack.pop();
-        } 
+        }
         if (stmt.delta > 0)
             state.stack.push(stmtStr);
-        
+
         if (stmt.paramMin != null &&
             stmt.paramMin >= parts.length)
             throw new etc.ParseError(tmplName, state.line, "statement needs more parameters: " + stmtStr);
         if (stmt.prefixFunc != null)
             funcText.push(stmt.prefixFunc(parts, state, tmplName, etc));
-        else 
+        else
             funcText.push(stmt.prefix);
         if (stmt.suffix != null) {
             if (parts.length <= 1) {
@@ -607,7 +623,7 @@ var Helper_Render_Smarty;
             funcText.push('");');
         }
     };
-    
+
     var emitSectionTextLine = function(line, funcText) {
         var endMarkPrev = '}';
         var endExprPrev = -1;
@@ -628,7 +644,7 @@ var Helper_Render_Smarty;
 			{
                 break;
 			}
-            emitText(line.substring(endExprPrev + endMarkPrev.length, begExpr), funcText);                
+            emitText(line.substring(endExprPrev + endMarkPrev.length, begExpr), funcText);
             // Example: exprs == 'firstName|default:"John Doe"|capitalize'.split('|')
             var exprArr = line.substring(begExpr + begMark.length, endExpr).replace(/\|\|/g, "#@@#").split('|');
 			for (var k in exprArr)
@@ -639,14 +655,14 @@ var Helper_Render_Smarty;
 				}
             }
             funcText.push('_OUT.write(');
-            emitExpression(exprArr, exprArr.length - 1, funcText); 
+            emitExpression(exprArr, exprArr.length - 1, funcText);
             funcText.push(');');
             endExprPrev = endExpr;
             endMarkPrev = endMark;
         }
-        emitText(line.substring(endExprPrev + endMarkPrev.length), funcText); 
+        emitText(line.substring(endExprPrev + endMarkPrev.length), funcText);
     };
-    
+
     var emitText = function(text, funcText) {
         if (text == null || text.length <= 0)
 		{
@@ -659,7 +675,7 @@ var Helper_Render_Smarty;
         funcText.push(text);
         funcText.push('");');
     };
-    
+
     var emitExpression = function(exprArr, index, funcText) {
         // Ex: foo|a:x|b:y1,y2|c:z1,z2 is emitted as c(b(a(foo,x),y1,y2),z1,z2)
         var expr = exprArr[index]; // Ex: exprArr == [firstName,capitalize,default:"John Doe"]

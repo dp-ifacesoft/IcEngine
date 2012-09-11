@@ -97,7 +97,7 @@ class Controller_Manager extends Manager_Abstract
 		$config = self::config ();
 		$cfg = $config ['actions'][$controller . '::' . $action];
 		$cfg = $cfg ? $cfg : $config ['actions'] [$controller];
-		
+
 		if (isset ($cfg ['cache_config']))
 		{
 			list ($class_name, $method) = explode ('::', $cfg ['cache_config']);
@@ -232,7 +232,6 @@ class Controller_Manager extends Manager_Abstract
 
 			$params = $reflection->getParameters ();
 			$c_input = $controller->getInput ();
-
 			if ($params)
 			{
 				foreach ($params as &$param)
@@ -248,6 +247,12 @@ class Controller_Manager extends Manager_Abstract
 						if ($reflection_param && $reflection_param->isOptional ())
 						{
 							$param_value = $reflection_param->getDefaultValue ();
+							if ($c_input && $c_input->getProvider(0)) {
+								$c_input->getProvider(0)->set(
+									$param->name,
+									$param_value
+								);
+							}
 						}
 					}
 					$param = $param_value;

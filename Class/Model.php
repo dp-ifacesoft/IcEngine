@@ -1008,7 +1008,6 @@ abstract class Model implements ArrayAccess
 		{
 			$this->_updatedFields [$key] = true;
 		}
-
 		$this->set ($data);
 
 		return $this->save ($hard);

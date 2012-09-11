@@ -310,6 +310,7 @@ class Model_Manager extends Manager_Abstract
 		);
 
 		$result->set ($row);
+		
 		return $result;
 	}
 
