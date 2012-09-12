@@ -73,7 +73,7 @@ class Route extends Model_Child
 			if (empty($route['route'])) {
 				continue;
 			}
-			$pattern = '#^' . $route['route'] . '#';
+			$pattern = '#^' . $route['route'] . '$#';
 			if (!empty($route['patterns'])) {
 				foreach ($route['patterns'] as $var => $routeData) {
 					$replace = $routeData['pattern'];

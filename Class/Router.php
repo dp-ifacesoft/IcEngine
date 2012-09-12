@@ -63,6 +63,7 @@ class Router
 			}
 		}
 		self::setParamsFromRequest();
+		return $route;
 	}
 
 	/**
