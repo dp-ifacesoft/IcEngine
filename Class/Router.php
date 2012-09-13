@@ -36,7 +36,7 @@ class Router
 		$url = Request::uri();
 		$route = Route::byUrl($url);
 		self::$route = $route;
-		if (!self::$route) {
+		if (!self::$route || !isset(self::$route['route'])) {
 			return;
 		}
 		if (!empty($route['params'])) {
@@ -45,7 +45,8 @@ class Router
 			}
 		}
 		$firstParamPos = strpos($route['route'], '{');
-		if ($firstParamPos !== false && $route['patterns']) {
+		if ($firstParamPos !== false && isset($route['patterns']) &&
+			isset($route['pattern'])) {
 			$baseMatches = array();
 			preg_match_all($route['pattern'], $url, $baseMatches);
 			if (!empty($baseMatches[0][0])) {
