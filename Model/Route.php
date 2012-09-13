@@ -89,7 +89,7 @@ class Route extends Model_Child
 			}
 		}
 		Resource_Manager::set('Route_Cache', $pattern, $row);
-		return new self($row);
+		return $row ? new self($row) : null;
 	}
 
 	/**
