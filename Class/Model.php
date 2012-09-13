@@ -609,7 +609,10 @@ abstract class Model implements ArrayAccess
 			$this->load ();
 		}
 
-		return array_key_exists ($field, $this->_fields);
+		if ($this->_fields) {
+			return array_key_exists ($field, $this->_fields);
+		}
+		return false;
 	}
 
 	public function getJoint ($model)
