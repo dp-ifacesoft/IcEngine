@@ -217,6 +217,7 @@ abstract class Model implements ArrayAccess
 		{
 			$this->load ();
 			if (
+				$this->_fields &&
 				!array_key_exists ($field, $this->_fields) &&
 				array_key_exists ($join_field, $this->_fields)
 			)
