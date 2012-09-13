@@ -52,6 +52,9 @@ class Router
 			if (!empty($baseMatches[0][0])) {
 				$keys = array_keys($route['patterns']);
 				foreach ($baseMatches as $i => $data) {
+					if (!$i) {
+						continue;
+					}
 					if (!empty($data[0])) {
 						Request::param($keys[$i - 1], $data[0]);
 					} else {
