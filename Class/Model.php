@@ -198,7 +198,7 @@ abstract class Model implements ArrayAccess
 			return $this->_generic->$field;
 		}
 
-		if (array_key_exists ($field, $this->_fields))
+		if ($this->_fields && array_key_exists ($field, $this->_fields))
 		{
 			return $this->_fields [$field];
 		}
@@ -208,7 +208,7 @@ abstract class Model implements ArrayAccess
 			return $this->_joints [$field];
 		}
 
-		if (array_key_exists ($join_field, $this->_fields))
+		if ($this->_fields && array_key_exists ($join_field, $this->_fields))
 		{
 			return $this->_joint ($field, $this->_fields [$join_field]);
 		}
