@@ -58,10 +58,7 @@ class Route extends Model_Child
 	 */
 	public static function byUrl ($url)
 	{
-		$url = '/' . trim($url, '/');
-		if (strpos($url, '.') === false) {
-			$url .= '/';
-		}
+		$url = '/' . ltrim($url, '/');
 		$route = Resource_Manager::get('Route_Cache', $url);
 		if ($route) {
 			return $route ? new self($route) : null;
