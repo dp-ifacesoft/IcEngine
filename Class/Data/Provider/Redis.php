@@ -38,7 +38,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 * в версии Redis под windows стояло жесткое ограничение на 15 значений.
 	 * @var integer
 	 */
-	public $mget_limit = 15;
+	public $mget_limit = 0;
 
 	/**
 	 *

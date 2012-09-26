@@ -673,7 +673,7 @@ class Redis_Wrapper
 		return $this->requestByServer ($server, 'UNSUBSCRIBE ' . $channel);
 	}
 
-	public function publish ($channel, $message, $server)
+	public function publish ($channel, $message, $server = '*')
 	{
 		return $this->requestByServer ($server, 'PUBLISH ' . $channel . '"' .
 			urlencode (json_encode ($message)) . '"');
