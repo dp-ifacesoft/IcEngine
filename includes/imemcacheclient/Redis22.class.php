@@ -675,7 +675,7 @@ class Redis_Wrapper
 
 	public function publish ($channel, $message, $server = '*')
 	{
-		return $this->requestByServer ($server, 'PUBLISH ' . $channel . '"' .
+		return $this->requestByServer ($server, 'PUBLISH ' . $channel . ' "' .
 			urlencode (json_encode ($message)) . '"');
 	}
 
