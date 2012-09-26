@@ -121,7 +121,17 @@ class Executor
 			$tag_valid = false;
 		}
 
-		if ($cache && !$options->forceRecache)
+		$validInput = true;
+		if ($options->inputArgs) {
+			$input = Data_Transport_Manager::get('default_input');
+			foreach ($options->inputArgs as $arg) {
+				if (!is_null($input->receive($arg))) {
+					$validInput = false;
+					break;
+				}
+			}
+		}
+		if ($cache && !$options->forceRecache && $validInput)
 		{
 			if (
 				(
