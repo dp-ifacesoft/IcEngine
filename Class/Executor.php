@@ -156,8 +156,8 @@ class Executor
 		$end = microtime(true);
 		$delta = $end - $start;
 		$provider = Data_Provider_Manager::get('ControllerLog');
-		$key = 'log_' . uniqid();
-		$provider->set($key, array(
+		$logKey = 'log_' . uniqid();
+		$provider->set($logKey, array(
 			'function'	=> $function,
 			'args'		=> $args,
 			'delta'		=> $delta,
