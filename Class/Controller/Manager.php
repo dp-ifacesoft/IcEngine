@@ -150,7 +150,7 @@ class Controller_Manager extends Manager_Abstract
 	 * @param Controller_Task $task [optional] Задание
 	 * @return Controller_Task
 	 */
-	public static function call ($name, $method, $input,
+	public static function call ($name, $method, $input = array(),
 		$task = null)
 	{
 		return self::callUncached ($name, $method, $input, $task);
