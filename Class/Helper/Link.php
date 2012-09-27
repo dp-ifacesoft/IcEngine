@@ -176,64 +176,106 @@ class Helper_Link
 	}
 
 	/**
-	 * Возвращает коллекцию связанных с $model моделей типа $linked_model_name.
-	 *
+	 * @desc Возвращает коллекцию связанных с $model моделей
+	 * типа $linked_model_name.
 	 * @param Model $model1
 	 * @param string $model2
 	 * @return Model_Collection
 	 */
-	public static function linkedItems (Model $model1, $model2)
+	public static function linkedItems (Model $model, $linked_model_name)
 	{
-		$table1 = $model1->table();
-		$table2 = $model2;
-		if (strcmp($table1, $table2) > 0)
+	    $collection_class = $linked_model_name . '_Collection';
+
+		$table1 = $model->modelName ();
+		$table2 = $linked_model_name;
+
+		if (strcmp ($table1, $table2) > 0)
 		{
 			$tmp = $table1;
 			$table1 = $table2;
 			$table2 = $tmp;
 		}
-		$scheme = Model_Scheme::linkScheme($table1, $table2);
-		$ids = array();
-		if (!$scheme) {
-			$dir = strcmp($model1->modelName(), $model2) > 0
-				? 'from' : 'to';
-			$otherDir = $dir == 'to' ? 'from' : 'to';
-			$query = Query::instance()
-				->select($dir . 'RowId')
-				->from('Link')
-				->where($dir . 'Table', $model2)
-				->where($otherDir . 'RowId', $model1->key())
-				->where($otherDir . 'Table', $model1->table());
-			$ids = DDS::execute($query)->getResult()->asColumn();
-		} else {
-			$link_class = $scheme['link'];
-			$query = Query::factory('Select');
-			$column = null;
-			if (strcmp($model1->table(), $model2) > 0) {
-				$column = $scheme['fromKey'];
-				$query
-					->from($link_class)
-					->where($scheme['toKey'], $model1->key());
-			} else {
-				$column = $scheme['toKey'];
-				$query
-					->from($link_class)
-					->where($scheme['fromKey'], $model1->key());
-			}
-			$query->select($column);
 
-			if (!empty($scheme['addict'])) {
-				foreach ($scheme['addict'] as $field => $value) {
-					$query->where ($field, $value);
+		$scheme = Model_Scheme::linkScheme (
+			$table1,
+			$table2
+		);
+
+		if (!$scheme)
+		{   
+			Loader::load ($collection_class);
+
+			$result = new $collection_class ();
+
+			$key_field_2 = Model_Scheme::keyField ($linked_model_name);
+
+			if (strcmp ($model->modelName (), $linked_model_name) > 0)
+			{
+				$result
+					->query ()
+						->from ('Link')
+						->where ('Link.fromTable', $linked_model_name)
+						->where ("Link.fromRowId=`$linked_model_name`.`$key_field_2`")
+						->where ('Link.toTable', $model->modelName ())
+						->where ('Link.toRowId', $model->key ());
+			}
+			else
+			{
+				$result
+					->query ()
+						->from ('Link')
+						->where ('Link.fromTable', $model->modelName ())
+						->where ('Link.fromRowId', $model->key ())
+						->where ('Link.toTable', $linked_model_name)
+						->where ("Link.toRowId=`$linked_model_name`.`$key_field_2`");
+			}
+		}
+		else
+		{
+			$link_class = $scheme ['link'];
+
+			$query = Query::factory ('Select');
+
+			$column = null;
+
+			if (strcmp ($model->modelName (), $linked_model_name) > 0)
+			{
+				$column = $scheme ['fromKey'];
+
+				$query
+					->from ($link_class)
+					->where ($scheme ['toKey'], $model->key ());
+			}
+			else
+			{
+				$column = $scheme ['toKey'];
+
+				$query
+					->from ($link_class)
+					->where ($scheme ['fromKey'], $model->key ());
+			}
+
+			$query
+				->select ($column);
+
+			if (!empty ($scheme ['addict']))
+			{
+				foreach ($scheme ['addict'] as $field => $value)
+				{
+					$query
+						->where ($field, $value);
 				}
 			}
-			$ids = DDS::execute($query)->getResult ()->asColumn($column);
+
+			$ids = DDS::execute ($query)->getResult ()->asColumn ($column);
+
+
+			$result = Model_Collection_Manager::byQuery (
+				$linked_model_name,
+				Query::instance ()
+					->where (Model_Scheme::keyField ($linked_model_name), $ids)
+			);
 		}
-		$result = Model_Collection_Manager::create($model2)
-			->addOptions(array(
-				'name'	=> '::Key',
-				'key'	=> $ids
-			));
 	    return $result;
 	}
 
