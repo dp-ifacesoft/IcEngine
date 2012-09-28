@@ -146,7 +146,8 @@ class Helper_Date
      * @param type $format
      * @return type
      */
-	public static function datetime ($string, $showYear = false, $format = 0)
+	public static function datetime ($string, $showYear = false, $format = 0,
+		$showTime = false)
 	{
 		$year = strtok($string, "-");
 		$month = strtok("-");
@@ -178,14 +179,15 @@ class Helper_Date
 			case "12": $month = "декабря";
 				break;
 		}
-
+		$_date = explode(' ', $string);
+		$hour = strtok($_date[1], ':');
+		$minute = strtok(':');
         if(!$format){
-            return intval($day) . "&nbsp;" . $month . (($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;г.") : "");
+            return intval($day) . "&nbsp;" . $month .
+				(($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;г.") : "") .
+			($showTime ? "&nbsp;" . $hour . ':' . $minute : '');
         }elseif ($format == 1) {
             $return = intval($day) . "&nbsp;" . $month . (($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;года") : "");
-            $_date = explode(' ', $string);
-            $hour = strtok($_date[1], ':');
-            $minute = strtok(':');
             $return .= ' ' . $hour . ':' . $minute;
             return $return;
         }
