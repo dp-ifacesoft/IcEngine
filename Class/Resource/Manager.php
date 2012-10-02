@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер ресурсов
  * @author Юрий
  * @package IcEngine
@@ -8,26 +8,26 @@
  */
 class Resource_Manager
 {
-	
+
 	/**
 	 * @desc Транспорты для ресурсов по типам.
 	 * @var array
 	 */
 	protected static $_transports = array ();
-	
+
 	/**
 	 * @desc Загруженные ресурсы
 	 * @var array
 	 */
 	protected static $_resources = array ();
-	
+
 	/**
 	 * @desc Обновленные в процессе ресурсы.
 	 * Необходимо для предотвращения постоянной записи неизменяемых ресурсов.
 	 * @var array <boolean>
 	 */
 	protected static $_updatedResources = array ();
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -44,9 +44,9 @@ class Resource_Manager
 		 */
 		'Resource_Manager'	=> array ()
 	);
-	
-	
-	
+
+
+
 	/**
 	 * @desc Возвращает транспорт согласно конфигу.
 	 * @param Objective $conf
@@ -55,18 +55,18 @@ class Resource_Manager
 	protected static function _initTransport (Objective $conf)
 	{
 		Loader::load ('Data_Transport');
-		
+
 		$transport = new Data_Transport ();
-		
+
 		$providers = $conf->providers;
-		
+
 		if ($providers)
 		{
 			if (is_string ($providers))
 			{
 				$providers = array ($providers);
 			}
-			
+
 			Loader::load ('Data_Provider_Manager');
 			foreach ($providers as $name)
 			{
@@ -74,9 +74,9 @@ class Resource_Manager
 					Data_Provider_Manager::get ($name)
 				);
 			}
-			
+
 			Loader::load ('Filter_Manager');
-			
+
 			// Входные фильтры
 			if ($conf->inputFilters)
 			{
@@ -87,7 +87,7 @@ class Resource_Manager
 					);
 				}
 			}
-			
+
 			// Выходные фильтры
 			if ($conf->outputFilters)
 			{
@@ -99,10 +99,10 @@ class Resource_Manager
 				}
 			}
 		}
-		
+
 		return $transport;
 	}
-	
+
 	/**
 	 * @desc Возвращает конфиг. Загружает, если он не был загружен ранее.
 	 * @return Objective
@@ -113,10 +113,10 @@ class Resource_Manager
 		{
 			self::$config = Config_Manager::getReal (__CLASS__, self::$config);
 		}
-		
+
 		return self::$config;
 	}
-	
+
 	/**
 	 * @desc Возвращает Ресурс указанного типа по идентификатору.
 	 * @param string $type Тип ресурса.
@@ -124,16 +124,25 @@ class Resource_Manager
 	 * @return mixed
 	 */
 	public static function get ($type, $name)
-	{	
+	{
 		if (!isset (self::$_resources [$type][$name]))
 		{
 			self::$_resources [$type][$name] =
-				self::transport ($type)->receive ($name); 
+				self::transport ($type)->receive ($name);
 		}
-				
+
 		return self::$_resources [$type][$name];
 	}
-	
+
+	/**
+	 * @desc Получить обновленные ресурсы
+	 * @param string $type
+	 */
+	public static function getUpdated ($type)
+	{
+		return self::$_resources [$type];
+	}
+
 	/**
 	 * @desc Слить объекты хранилища
 	 */
@@ -150,7 +159,7 @@ class Resource_Manager
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Сохраняет ресурс
 	 * @param string $type
@@ -162,7 +171,18 @@ class Resource_Manager
 		self::$_updatedResources [$type][$name] = true;
 		self::$_resources [$type][$name] = $resource;
 	}
-	
+
+	/**
+	 * @desc Обновить ресурс
+	 * @param string $type
+	 * @param string $name
+	 * @param mixed $updated
+	 */
+	public static function setUpdated ($type, $name, $updated)
+	{
+		self::$_updatedResources [$type][$name] = $updated;
+	}
+
 	/**
 	 * @desc Возвращает транспорт для ресурсов указанного типа.
 	 * @param string $type Тип ресурса.
@@ -173,13 +193,13 @@ class Resource_Manager
 		if (!isset (self::$_transports [$type]))
 		{
 			$conf = self::config ()->$type;
-			self::$_transports [$type] = 
+			self::$_transports [$type] =
 				$conf ?
 				self::_initTransport ($conf) :
 				self::_initTransport (self::$config->default);
 		}
-		
+
 		return self::$_transports [$type];
 	}
-	
+
 }

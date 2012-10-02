@@ -9,14 +9,18 @@ class Helper_Data_Source
 	 * @param string $field
 	 * @return Objective
 	 */
-	public static function field ($table, $field)
+	public static function field ($table, $field, $ds = null)
 	{
+        if (!$ds) {
+            $ds = DDS::getDataSource();
+        }
+
 		$query = Query::instance ()
 			->show ('FULL COLUMNS')
 			->from ($table)
 			->where ('Field', $field);
 
-		$status = DDS::execute (
+		$status = $ds->execute (
 			$query
 		)
 			->getResult ()
@@ -30,13 +34,17 @@ class Helper_Data_Source
 	 * @param string $table
 	 * @return Objective
 	 */
-	public static function fields ($table)
+	public static function fields ($table, $ds = null)
 	{
+        if (!$ds) {
+            $ds = DDS::getDataSource();
+        }
+
 		$query = Query::instance ()
 			->show ('FULL COLUMNS')
 			->from ($table);
 
-		$status = DDS::execute (
+		$status = $ds->execute (
 			$query
 		)
 			->getResult ()
@@ -52,14 +60,18 @@ class Helper_Data_Source
  	 * @desc Получить информацию по таблице
  	 * @return Objective
  	 */
-	public static function table ($table)
+	public static function table ($table, $ds = null)
  	{
+        if (!$ds) {
+            $ds = DDS::getDataSource();
+        }
+        
  		$query = Query::instance ()
  			->show ('TABLE STATUS')
 			->where ('Name', $table)
 			->resetPart (Query::FROM);
 
- 		$status = DDS::execute (
+ 		$status = $ds->execute (
  			$query
  		)
 			->getResult ()
@@ -75,13 +87,17 @@ class Helper_Data_Source
 	 * @desc Получить список таблиц текущей базы данных
 	 * @return Objective
 	 */
-	public static function tables ()
+	public static function tables ($ds = null)
 	{
+        if (!$ds) {
+            $ds = DDS::getDataSource();
+        }
+        
 		$query = Query::instance ()
 			->show ('TABLE STATUS')
 			->resetPart (Query::FROM);
 
-		$status = DDS::execute (
+		$status = $ds->execute (
 			$query
 		)
 			->getResult ()

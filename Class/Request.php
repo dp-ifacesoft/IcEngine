@@ -105,7 +105,10 @@ class Request
 	 */
 	public static function isGet ()
 	{
-		return !empty ($_GET);
+		return !empty ($_GET) || (
+			isset ($_SERVER ['REQUEST_METHOD']) &&
+			$_SERVER ['REQUEST_METHOD'] == 'GET'
+		) ;
 	}
 
 	/**
@@ -134,6 +137,15 @@ class Request
 			isset ($_SERVER ['REQUEST_METHOD']) &&
 			$_SERVER ['REQUEST_METHOD'] == 'POST'
 		);
+	}
+
+	public static function isSsi ()
+	{
+		return (
+                        isset ($_SERVER ['REQUEST_METHOD']) &&
+                        $_SERVER ['REQUEST_METHOD'] == 'ssi'
+                );
+
 	}
 
 	/**
@@ -398,9 +410,25 @@ class Request
 			session_id ($_GET ['PHPSESSID']);
 		}
 
+		if (!isset ($_COOKIE))
+		{
+			$_COOKIE = array ();
+		}
+
 		if (!isset ($_SESSION))
 		{
 			session_start ();
+			//$_SESSION ['session_start'] = time ();
+			//setcookie ('PHPSESSID', session_id (), 3600, '.vipgeo.ru', '/');
+			//$_COOKIE ['PHPSESSID'] = session_id ();
+			//print_r ($_SESSION); print_r ($_COOKIE);
+		}
+
+		if (!isset ($_COOKIE ['PHPSESSID']))
+		{
+			setcookie ('PHPSESSID', session_id (), 3600);
+                        $_COOKIE ['PHPSESSID'] = session_id ();
+
 		}
 
 		return session_id ();

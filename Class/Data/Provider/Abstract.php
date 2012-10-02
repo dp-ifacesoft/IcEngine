@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактный класс провайдера данных.
  * @author Goorus
  * @package IcEngine
@@ -8,47 +8,47 @@
  */
 class Data_Provider_Abstract
 {
-    
+
 	/**
 	 * Локи установленные текущим экземпляром скрипта.
-	 * Хранятся для снятия в конце работы. 
+	 * Хранятся для снятия в конце работы.
 	 * @var array
 	 */
 	public $locks			= array ();
-	
+
 	/**
 	 * @desc Трейсер
 	 * @var Tracer_Abstract
 	 */
 	public $tracer;
-	
+
 	/**
 	 * @desc Префикс ключей.
 	 * @var string
 	 */
 	public $prefix			= '';
-	
+
 	/**
 	 * Префикс удаленных записей.
-	 * При удалении записи, ее можно пометить как удаленную, 
+	 * При удалении записи, ее можно пометить как удаленную,
 	 * а позже проверить состояние.
 	 * @var string
 	 */
 	public $prefixDeleted	= '_dld_';
-	
+
 	/**
 	 * Префикс для локов.
 	 * При локе ключа, создается новый ключ с указанным префиксом.
 	 * @var string
 	 */
 	public $prefixLock		= '_lck\\';
-	
+
 	/**
 	 * @desc Префикс для тегов.
 	 * @var string
 	 */
 	public $prefixTag		= '_tag\\';
-	
+
 	/**
 	 * @desc Создает и возвращает провайдер данных.
 	 * @param array $config Параметры провайдера.
@@ -59,13 +59,13 @@ class Data_Provider_Abstract
 		{
 			return;
 		}
-		
+
 		foreach ($config as $opt_name => $opt_value)
 		{
 			$this->setOption ($opt_name, $opt_value);
 		}
 	}
-	
+
 	/**
 	 * @desc Установка параметров.
 	 * @param string $key Параметр.
@@ -84,7 +84,7 @@ class Data_Provider_Abstract
 			$this->prefix = $value;
 		}
 	}
-	
+
 	public function _valDump ($value)
 	{
 		if (is_bool ($value) || is_numeric($value))
@@ -102,14 +102,14 @@ class Data_Provider_Abstract
 		if (is_null ($value))
 		{
 			return 'null';
-		} 
+		}
 		return gettype ($value) . '(' . strlen ($value) . ') "' . substr ($value, 0, 30) . '"';
 	}
-	
+
 	/**
      * Если ключа $key не существует, он будет создан, а функция вернет true.
      * Если ключ уже существует, верентся false.
-     * 
+     *
      * @param string $key Ключ
      * @param mixed $value Значение
      * @param integer $expiration Время жизни ключа в секундах
@@ -123,13 +123,13 @@ class Data_Provider_Abstract
 			$this->tracer->add ('add', $key, $expiration);
 		}
 	}
-	
+
 	/**
      * Добавление значения к ключу.
      * @param string $key
      * 		Ключ
      * @param string $value
-     * 		Строка, которая будет добавлена к текущему значению ключа 
+     * 		Строка, которая будет добавлена к текущему значению ключа
 	 */
 	public function append ($key, $value)
 	{
@@ -137,11 +137,11 @@ class Data_Provider_Abstract
 		{
 			$this->tracer->add ('append', $key);
 		}
-		
+
 		$v = $this->get ($key);
 		return $this->set ($key, $value . $v);
 	}
-	
+
 	/**
 	 * Проверка доступности провайдера.
 	 * @return boolean
@@ -150,7 +150,7 @@ class Data_Provider_Abstract
 	{
 		return true;
 	}
-	
+
 	/**
 	 * Проверка тегов на актуальность
 	 * @param array $tags
@@ -164,23 +164,23 @@ class Data_Provider_Abstract
 		{
 			return true;
 		}
-		
+
 		$tags_keys = array_keys ($tags);
 		$tags_vals = array_values ($tags);
-		
+
 		foreach ($tags_keys as &$key)
 		{
 			$key = $this->prefixTag . $key;
 		}
-		
+
 		$current_values = $this->getMulti ($tags_keys, true);
-		
+
 		if (count ($tags_keys) != count ($current_values))
 		{
 		    debug_print_backtrace ();
 		    return false;
 		}
-		
+
 		for ($i = 0, $count = count ($tags_vals); $i < $count; $i++)
 		{
 			if ($tags_vals [$i] != $current_values [$i])
@@ -188,10 +188,10 @@ class Data_Provider_Abstract
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
      * Уменьшает значение ключа на указанную величину
      * @param string $key
@@ -205,14 +205,14 @@ class Data_Provider_Abstract
 		{
 			$this->tracer->add ('decrement', $key, $value);
 		}
-		
+
 		$current = $this->get ($key);
 		$this->set ($key, $current - $value);
 	}
-	
+
 	/**
      * Удаление одного или нескольких ключей
-     * 
+     *
      * @param string|array $keys
      * 		Ключ или массив ключей
      * @param integer $time
@@ -220,18 +220,18 @@ class Data_Provider_Abstract
      * @param boolean $set_deleted
      *  	Пометить ключ как удаленный.
      *  	Если true, будет создан новый ключ, существование ключа будет
-     * 		возможно проверить методом isDeleted 
+     * 		возможно проверить методом isDeleted
  	 */
 	public function delete ($keys, $time = 0, $set_deleted = false)
 	{
 		$keys = (array) $keys;
-		
+
 		if ($this->tracer)
 		{
 			$this->tracer->add ('delete', implode (',', $keys));
 		}
 	}
-	
+
 	/**
      * @desc Удаление одного или нескольких ключей.
      * @param string $pattern Маска ключа.
@@ -253,7 +253,7 @@ class Data_Provider_Abstract
 		);
 		return count ($keys);
 	}
-	
+
 	/**
      * @desc Очистка кеша. Все ключи будут удалены.
      * Внимание! В большинстве случаев это приводит к полной очистке кэша,
@@ -269,7 +269,7 @@ class Data_Provider_Abstract
 			$this->tracer->add ('flush', $delay);
 		}
 	}
-	
+
 	/**
      * Получение значения ключа
      * @param string $key
@@ -286,13 +286,13 @@ class Data_Provider_Abstract
 		{
 			$this->tracer->add ('get', $key);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Получение всех значений провайдера.
-	 * <b>Внимание</b>: реализовано не для всех провайдеров. 
+	 * <b>Внимание</b>: реализовано не для всех провайдеров.
 	 * @return array
 	 * 		Массив пар (ключ => значение)
 	 */
@@ -300,7 +300,7 @@ class Data_Provider_Abstract
 	{
 		return $this->getMulti ($this->keys ('*'));
 	}
-	
+
 	/**
      * Получение значений нескольких ключей
      * @param array $keys
@@ -317,9 +317,9 @@ class Data_Provider_Abstract
 		{
 			$this->tracer->add ('getMulti', implode (',', $keys));
 		}
-		
+
 		$result = array();
-		
+
 		if ($numeric_index)
 		{
 			foreach ($keys as $i => $key)
@@ -334,10 +334,10 @@ class Data_Provider_Abstract
 				$result [$key] = $this->get ($key);
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
      * Статистика по провайдеру
      * @return array
@@ -345,9 +345,9 @@ class Data_Provider_Abstract
  	 */
 	public function getStats ()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Установка и получение значений тегов.
 	 * @param array $tags
@@ -378,7 +378,7 @@ class Data_Provider_Abstract
 		}
 		return $result;
 	}
-	
+
 	/**
      * @desc Увеличение значения ключа на указанную величину
      * @param string $key Ключ
@@ -392,7 +392,7 @@ class Data_Provider_Abstract
 			$this->tracer->add ('increment', $key);
 		}
 	}
-	
+
 	/**
 	 * @desc Проверяет, помечен ли ключ как удаленный.
 	 * @param string $key Ключ
@@ -403,30 +403,30 @@ class Data_Provider_Abstract
 	{
 		return $this->get ($this->prefixDeleted . $key);
 	}
-	
+
 	/**
 	 * Попытка блокировки. После выполнения необходимых операций обязательно
 	 * вызвать delete с результатом этого метода, иначе возможно "подвисание"
 	 * параллельных процессов, работающих с этим же ключом.
-	 * 
+	 *
 	 * @param string $key
 	 * 		Ключ
 	 * @param integer $expiration
 	 * 		Максимальное время блокировки в секундах.
 	 * 		Если скрипт самостоятельно не удалит ключ блокировки, по истечение
-	 * 		этого времени, он будет считаться незаблокированным. 
+	 * 		этого времени, он будет считаться незаблокированным.
 	 * @param integer $repeats
-	 * 		Количество попыток блокировки, после которого 
+	 * 		Количество попыток блокировки, после которого
 	 * 		метод вернет false.
 	 * @param integer $interval
 	 * 		Интервал между попытками блокировки ключа (в милисекундах).
 	 * @return string|false
-	 * 		Ключ блокировки или false в случае неудачи 
+	 * 		Ключ блокировки или false в случае неудачи
 	 */
 	public function lock ($key, $expiration = 30, $repeats = 5, $interval = 500)
 	{
 		$lock_key = $this->prefixLock . $key;
-		
+
 		do {
 			$r = $this->add ($lock_key, time (), $expiration);
 			if ($r)
@@ -435,15 +435,15 @@ class Data_Provider_Abstract
 			}
 			usleep ($interval * 1000);
 		} while (--$repeats > 0);
-		
+
 		if ($lock_key)
 		{
 			$this->locks [$lock_key] = time () + $expiration;
 		}
-		
+
 		return $lock_key;
 	}
-	
+
 	/**
 	 * @desc Декодирование ключа.
 	 * @param string $key
@@ -453,7 +453,7 @@ class Data_Provider_Abstract
 	{
 		return substr ($key, strlen ($this->prefix));
 	}
-	
+
 	/**
 	 * @desc Кодирование ключа для корректного сохранения в редисе.
 	 * @param string $key
@@ -463,12 +463,12 @@ class Data_Provider_Abstract
 	{
 		return $this->prefix . $key;
 	}
-	
+
 	/**
      * @desc Получение массива ключей, соответствующих маске
      * @param string $pattern
      * 		Маска.
-     * 		Примеры: 
+     * 		Примеры:
      * 		1) "image_*"
      * 		2) "user_*_phone"
      * 		3) "*"
@@ -483,7 +483,7 @@ class Data_Provider_Abstract
 		}
 		return array ();
 	}
-	
+
 	public function mset (array $values)
 	{
 		foreach ($values as $k => $v)
@@ -491,11 +491,11 @@ class Data_Provider_Abstract
 			$this->set ($k, $v);
 		}
 	}
-	
+
 	/**
-     * @desc Добавляет в начало 
+     * @desc Добавляет в начало
      * @param string $key Ключ
-     * @param string $value Строка, которая будет добавлена к текущему 
+     * @param string $value Строка, которая будет добавлена к текущему
 	 * значению ключа.
 	 */
 	public function prepend ($key, $value)
@@ -504,11 +504,24 @@ class Data_Provider_Abstract
 		{
 			$this->tracer->add ('prepend', $key);
 		}
-		
+
 		$v = $this->get ($key);
 		$this->set ($key, $v . $value);
 	}
-	
+
+	/**
+	 * @desc Публикация сообщения в канал
+	 * @param string $channel
+	 * @param string $message
+	 */
+	public function publish ($channel, $message)
+	{
+		if ($this->tracer)
+		{
+			$this->tracer->add ('pusblich', $channel . '/' . $message);
+		}
+	}
+
 	/**
      * @desc Устанавливает значение ключа.
      * Дополнительных проверок не выполняется.
@@ -524,7 +537,7 @@ class Data_Provider_Abstract
 			$this->tracer->add ('set', $key);
 		}
 	}
-	
+
 	/**
 	 * @desc Установка параметров.
 	 * @param string|array $key Параметр.
@@ -542,7 +555,19 @@ class Data_Provider_Abstract
 			$this->_setOption ($k, $v);
 		}
 	}
-	
+
+	/**
+	 * @desc Подписка на канал
+	 * @param string $channel
+	 */
+	public function subscribe ($channel)
+	{
+		if ($this->tracer)
+		{
+			$this->tracer->add ('subscribe', $channel);
+		}
+	}
+
 	/**
 	 * Удаление тега.
 	 * Все связанные ключи будут считаться недействительными.
@@ -553,7 +578,7 @@ class Data_Provider_Abstract
 	{
 		$this->delete ($this->prefixTag . $tag);
 	}
-	
+
 	/**
 	 * Снятие блокировки с ключа
 	 * @param string $key
@@ -564,7 +589,7 @@ class Data_Provider_Abstract
 		$lock_key = $this->prefixLock . $key;
 		$this->delete ($lock_key);
 	}
-	
+
 	/**
 	 * Удаление оставшихся локов скрипта.
 	 */
@@ -578,5 +603,17 @@ class Data_Provider_Abstract
 			}
 		}
 	}
-	
+
+	/**
+	 * @desc Отписаться канала
+	 * @param string $channel
+	 */
+	public function unsubscribe ($channel)
+	{
+		if ($this->tracer)
+		{
+			$this->tracer->add ('unsubscribe', $channel);
+		}
+	}
+
 }

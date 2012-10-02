@@ -53,7 +53,11 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	 */
 	public function _escape ($value)
 	{
-		return Helper_Mysql::escape ($value);
+		if (strpos($value, '(') === false) {
+			return Helper_Mysql::escape ($value);
+		} else {
+			return $value;
+		}
 	}
 
 	/**
@@ -88,7 +92,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	{
 		return $query->part (Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
 	}
-	
+
 	/**
 	 * @desc Рендерит часть distinct
 	 * @param Query_Abstract $query
@@ -250,7 +254,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		return  
 			self::SQL_HAVING . ' ' . $having;
 	}
-	
+
 	/**
 	 * @desc Рендерит mysql терм если он массив
 	 * @param array $value
@@ -308,10 +312,12 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		$columns = array ();
 		foreach ($orders as $order)
 		{
-			$field = explode (self::SQL_DOT, $order [0]);
-			$field = array_map (array($this, '_escape'), $field);
-			$field = implode (self::SQL_DOT, $field);
-
+			$field = $order[0];
+			if (strpos($field, '(') === false) {
+				$field = explode (self::SQL_DOT, $order [0]);
+				$field = array_map (array($this, '_escape'), $field);
+				$field = implode (self::SQL_DOT, $field);
+			}
 			if ($order [1] == self::SQL_DESC)
 			{
 				$columns [] = $field . ' ' . self::SQL_DESC;
@@ -321,7 +327,6 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 				$columns [] = $field;
 			}
 		}
-
 		return 'ORDER BY ' . implode (self::SQL_COMMA, $columns);
 	}
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Помощник для перевода текста в транслит
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,11 +8,11 @@
  */
 class Helper_Translit
 {
-	
+
 	/**
 	 * @desc Заменяет символы в строке согласно переданным наборам.
 	 * @param string $value Исходая строка.
-	 * @param string|array $to Символы, которые будут вставлены на места 
+	 * @param string|array $to Символы, которые будут вставлены на места
 	 * заменяемых.
 	 * @param string $from [optional] Символы, которые будут заменены.
 	 * Если этот аргумент не передан, в $to ожидается ассоциативный
@@ -36,21 +36,21 @@ class Helper_Translit
 			{
 				$value = str_replace (
 					mb_substr ($to, $i, 1, 'UTF-8'),
-					mb_substr ($from, $i, 1, 'UTF-8'), 
+					mb_substr ($from, $i, 1, 'UTF-8'),
 					$value
 				);
 			}
 		}
 		return $value;
 	}
-	
+
 	/**
 	 * @desc для перевода СМС.
 	 * @param string $string
 	 * @author Sergey
 	 * @return string
 	 */
-	public static function rus2translit ($string) 
+	public static function rus2translit ($string)
 	{
 		$converter = array (
 			'а' => 'a',   'б' => 'b',   'в' => 'v',
@@ -64,7 +64,7 @@ class Helper_Translit
 			'ч' => 'ch',  'ш' => 'sh',  'щ' => 'sch',
 			'ь' => '\'',  'ы' => 'y',   'ъ' => '\'',
 			'э' => 'e',   'ю' => 'yu',  'я' => 'ya',
-			
+
 			'А' => 'A',   'Б' => 'B',   'В' => 'V',
 			'Г' => 'G',   'Д' => 'D',   'Е' => 'E',
 			'Ё' => 'E',   'Ж' => 'Zh',  'З' => 'Z',
@@ -85,7 +85,7 @@ class Helper_Translit
 		$str = trim ($str, "-");
 		return $str;
 	}
-	
+
 	/**
 	 * @desc Перевод строки в транслит
 	 * @param string $value Исходна стока
@@ -97,20 +97,20 @@ class Helper_Translit
 	public static function translit ($value, $lang = null)
 	{
 		$value = trim ($value);
-		
+
 		$value = str_replace (
 			array ("\r", "\n", "\t", ',', '(', ')', '[', ']', '{', '}'),
 			'',
 			$value
-		
+
 		);
-		
+
 		if (!isset ($lang))
 		{
 			$regexpRus = '/^[а-яА-Я]+/';
 			$lang = preg_match ($regexpRus, $value) ? 'ru' : 'en';
 		}
-		
+
 
 		if ($lang == 'en')
 		{
@@ -150,10 +150,10 @@ class Helper_Translit
 			$value = self::u_strtr ($value, "abvgdeziyklmnoprstufh_", "абвгдезийклмнопрстуфх ");
 			$value = self::u_strtr ($value, "ABVGDEZIYKLMNOPRSTUFH_", "АБВГДЕЗИЙКЛМНОПРСТУФХ ");
 		}
-			
+
 		return $value;
 	}
-	
+
 	/**
 	 * @desc Формирует из названия статьи ссылку.
 	 * @param string $value Исходное название

@@ -198,7 +198,7 @@ abstract class Model implements ArrayAccess
 			return $this->_generic->$field;
 		}
 
-		if (array_key_exists ($field, $this->_fields))
+		if ($this->_fields && array_key_exists ($field, $this->_fields))
 		{
 			return $this->_fields [$field];
 		}
@@ -208,7 +208,7 @@ abstract class Model implements ArrayAccess
 			return $this->_joints [$field];
 		}
 
-		if (array_key_exists ($join_field, $this->_fields))
+		if ($this->_fields && array_key_exists ($join_field, $this->_fields))
 		{
 			return $this->_joint ($field, $this->_fields [$join_field]);
 		}
@@ -217,6 +217,7 @@ abstract class Model implements ArrayAccess
 		{
 			$this->load ();
 			if (
+				$this->_fields &&
 				!array_key_exists ($field, $this->_fields) &&
 				array_key_exists ($join_field, $this->_fields)
 			)
@@ -622,7 +623,10 @@ abstract class Model implements ArrayAccess
 			$this->load ();
 		}
 
-		return array_key_exists ($field, $this->_fields);
+		if ($this->_fields) {
+			return array_key_exists ($field, $this->_fields);
+		}
+		return false;
 	}
 
 	public function getJoint ($model)
@@ -996,7 +1000,7 @@ abstract class Model implements ArrayAccess
 	 * @param array $data Массив пар (поле => значение).
 	 * @return Model Эта модель.
 	 */
-	public function update (array $data)
+	public function update (array $data, $hard = false)
 	{
 		if ($this->_generic)
 		{
@@ -1030,10 +1034,9 @@ abstract class Model implements ArrayAccess
 		{
 			$this->_updatedFields [$key] = true;
 		}
-
 		$this->set ($data);
 
-		return $this->save ();
+		return $this->save ($hard);
 	}
 
 	/**

@@ -189,6 +189,18 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 
 		if (!$user)
 		{
+			$aes = Crypt_Manager::get('AES');
+			$passwordAES = $aes->encode($password);
+			$user = Model_Manager::byQuery (
+				'User',
+				Query::instance ()
+					->where ('login', $login)
+					->where ('`password`', $passwordAES)
+			);
+		}
+
+		if (!$user)
+		{
 			return $this->_sendError (
 				'password incorrect',
 				'Data_Validator_Authorization_Password/invalid'
@@ -230,6 +242,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		$activation = $this->_authorization ()->sendActivationSms (array (
 			'login'		=> $login,
 			'password'	=> $password,
+			'passwordAES'	=> $passwordAES,
 			'phone'		=> $user->phone,
 			'user'		=> $user,
 			'provider'	=> $provider,

@@ -181,7 +181,9 @@
 
 $().ready(function(){
 
-	$(":input[placeholder], textarea[placeholder]").placeholder();	
+	if (typeof $(":input[placeholder], textarea[placeholder]").placeholder !== 'undefined') {
+	    $(":input[placeholder], textarea[placeholder]").placeholder();	
+	}
 	//$(":input[placeholder], textarea[placeholder]").placeholder({container: true});
 	
 });

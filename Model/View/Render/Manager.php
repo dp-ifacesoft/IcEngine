@@ -90,7 +90,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 			Loader::load ('View_Render');
 			
 			$config = self::config ();
-		
+
 			self::pushViewByName ($config ['default_view']);
 			//self::$_view = new View_Render (array('name' => self::$_defaultView));
 		} 

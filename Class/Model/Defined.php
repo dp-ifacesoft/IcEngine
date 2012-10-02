@@ -7,13 +7,13 @@
  */
 class Model_Defined extends Model
 {
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @var array
 	 */
     public static $rows = array ();
-    
+
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::delete
@@ -22,7 +22,7 @@ class Model_Defined extends Model
 	{
 		throw new Exception ('It\'s a defined model');
 	}
-	
+
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::save
@@ -31,12 +31,12 @@ class Model_Defined extends Model
 	{
 		throw new Exception ('It\'s a defined model');
 	}
-	
+
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::update
 	 */
-	public function update (array $data)
+	public function update (array $data, $hard = false)
 	{
 		throw new Exception ('It\'s a defined model');
 	}

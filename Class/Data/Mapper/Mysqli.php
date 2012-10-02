@@ -210,7 +210,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		$clone->setPart (Query::WHERE, $where);
 
 		$this->_sql = $clone->translate ('Mysql');
-
+		
 		$result = null;
 		$this->_errno = 0;
 		$this->_error = '';

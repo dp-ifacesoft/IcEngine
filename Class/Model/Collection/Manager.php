@@ -8,7 +8,6 @@
  */
 abstract class Model_Collection_Manager extends Manager_Abstract
 {
-
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -206,7 +205,6 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 				$pack ['items'][$i]->set ($addicts [$i]);
 			}
 		}
-
 		$collection->setItems ($pack ['items']);
 
 		// В менеджере ресурсов сохраняем клона коллеции

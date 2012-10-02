@@ -76,7 +76,7 @@ class Paginator
 	{
 		$this->pages = array ();
 		$pages_count = $this->pagesCount ();
-		
+
 		if ($pages_count <= 1)
 		{
 			return ;

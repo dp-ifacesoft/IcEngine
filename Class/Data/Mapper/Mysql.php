@@ -148,8 +148,8 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 				$touched_rows = Mysql::affectedRows ();
 				break;
 		}
-		$errno = mysql_errno ();
-		$error = mysql_error ();
+		$errno = mysql_errno ($this->_linkIdentifier);
+		$error = mysql_error ($this->_linkIdentifier);
 
 		if (!empty ($errno))
 		{

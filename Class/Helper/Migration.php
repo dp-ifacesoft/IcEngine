@@ -297,6 +297,7 @@ class Helper_Migration
 	public static function getQueue ($base = 'default')
 	{
 		$tmp = self::getMigrations ($base);
+
 		$result = array ();
 		if (!$tmp)
 		{

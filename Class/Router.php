@@ -1,102 +1,92 @@
 <?php
+
 /**
+ * Механизм определения роута по адресу
  *
- * @desc Механизм определения роута по адресу
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Router
 {
-
 	/**
+	 * Текущий роут
+	 *
 	 * @var Route
 	 */
-	private static $_route;
+	private static $route;
 
 	/**
-	 * @desc Обнулить текущий роут
+	 * Обнулить текущий роут
 	 */
-	public static function clearRoute ()
+	public static function clearRoute()
 	{
-		self::$_route = null;
+		self::$route = null;
 	}
 
 	/**
-	 * @desc Разбирает запрос и извлекат параметры согласно
+	 * Разбирает запрос и извлекат параметры согласно
+	 *
 	 * @return Route
 	 */
-	public static function getRoute ()
+	public static function getRoute()
 	{
-		if (is_null (self::$_route))
-		{
-			$url = Request::uri ();
-
-			$gets = Request::stringGet ();
-
-			if ($gets)
-			{
-				$gets = explode ('&', $gets);
-
-				foreach ($gets as $get)
-				{
-					if (strpos ($get, '=') === false)
-					{
-						$_REQUEST [$get] = $_GET [$get] = 1;
+		if (!is_null(self::$route)) {
+			return self::$route;
+		}
+		Loader::load ('Route');
+		$url = Request::uri();
+		$route = Route::byUrl($url);
+		self::$route = $route;
+		if (!self::$route || !isset(self::$route['route'])) {
+			return;
+		}
+		if (!empty($route['params'])) {
+			foreach ($route['params'] as $paramName => $paramValue) {
+				Request::param($paramName, $paramValue);
+			}
+		}
+		$firstParamPos = strpos($route['route'], '{');
+		if ($firstParamPos !== false && isset($route['patterns']) &&
+			isset($route['pattern'])) {
+			$baseMatches = array();
+			preg_match_all($route['pattern'], $url, $baseMatches);
+			if (!empty($baseMatches[0][0])) {
+				$keys = array_keys($route['patterns']);
+				foreach ($baseMatches as $i => $data) {
+					if (!$i) {
+						continue;
 					}
-					else
-					{
-						$tmp = explode ('=', $get);
-						$_REQUEST [$tmp [0]] = $_GET [$tmp [0]] = $tmp [1];
+					if (!empty($data[0])) {
+						Request::param($keys[$i - 1], $data[0]);
+					} else {
+						$part = $route['patterns'][$keys[$i - 1]];
+						if (isset($part['default'])) {
+							Request::param($keys[$i - 1], $part['default']);
+						}
 					}
-				}
-			}
-
-			$url = $url ? $url : '/';
-
-			$route = (array) explode ('/', trim ($url, '/'));
-
-			Loader::load ('Route');
-			self::$_route = Route::byUrl ($url);
-
-			if (!self::$_route)
-			{
-				return;
-			}
-
-			$parts = (array) explode ('/', trim (self::$_route->route, '/'));
-
-			$len = min (sizeof ($route), sizeof ($parts));
-
-			for ($i = 0; $i < $len; $i++)
-			{
-				$st = strpos ($parts [$i], ':');
-
-				if ($st !== false)
-				{
-					Request::param (
-						substr ($parts [$i], $st + 1),
-						isset ($route [$i]) ? substr ($route [$i], $st) : 0
-					);
-				}
-			}
-
-			if (isset (self::$_route->params))
-			{
-				foreach (self::$_route->params as $param => $value)
-				{
-					Request::param ($param, $value);
-				}
-			}
-			if (isset(self::$_route->afterGetRoute))
-			{
-				$parts = explode("/",self::$_route->afterGetRoute);
-				if (count($parts)==2 && $parts[0] && $parts[1]) {
-					$task = Controller_Manager::call($parts[0], $parts[1], array('route' => self::$_route, 'url' => $url ) );
 				}
 			}
 		}
-		return self::$_route;
+		self::setParamsFromRequest();
+		return $route;
+	}
+
+	/**
+	 * Отдать в $_REQUEST то, что прилетело из get
+	 */
+	public static function setParamsFromRequest()
+	{
+		$gets = Request::stringGet();
+		if ($gets) {
+			$gets = (array) explode('&', $gets);
+			foreach ($gets as $get) {
+				$tmp = explode('=', $get);
+				if (!isset($tmp[1])) {
+					$tmp[1] = 1;
+				}
+				$_REQUEST [$tmp[0]] = $_GET [$tmp[0]] = $tmp[1];
+				Request::param($tmp[0], $tmp[1]);
+			}
+		}
 	}
 
 }

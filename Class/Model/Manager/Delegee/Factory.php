@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Класс для создания моделей через фабрики.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Model_Manager_Delegee_Factory
 {
-	
+
 	/**
 	 * @desc Фабрики моделей
 	 * @var array
 	 */
 	protected static $_factories;
-	
+
 	/**
 	 * @desc Находит фабрику модели
 	 * @param Model $model Модель.
@@ -37,7 +37,7 @@ class Model_Manager_Delegee_Factory
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Получение данных модели
 	 * @param string $model Название модели
@@ -57,22 +57,22 @@ class Model_Manager_Delegee_Factory
 				Loader::load ($abstract);
 			}
 		}
-		
+
 		$dmodel = self::$_factories [$factory_name]
 			->delegateClass ($model, $key, $object);
-		
+
 		Loader::load ($dmodel);
 
 		$result = new $dmodel (array ());
-		
+
 		$result->setModelFactory (self::$_factories [$factory_name]);
-		
+
 		if (is_array ($object) && $object)
 		{
 			$result->set ($object);
 		}
-		
+
 		return $result;
 	}
-	
+
 }

@@ -22,7 +22,6 @@ class Config_Php extends Config_Array
 		{
 			include $path;
 		}
-		
 		if (isset ($config))
 		{
 			parent::__construct ($config);

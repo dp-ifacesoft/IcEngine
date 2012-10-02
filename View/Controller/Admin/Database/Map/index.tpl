@@ -11,137 +11,140 @@
 		if (!mapLoaded)
 		{
 			editor.init (
-				'#' + cont_id, 
-				{{$long}}, 
-	{{$lat}}, 
+				'#' + cont_id,
+				{{$long}},
+				{{$lat}},
 				11
 			);
-			
+
 			mapLoaded = true;
 		}
 	}
-	
+
 	{{assign var="cdir" value=$smarty.current_dir}}
-	
+
 	var this_record_layer = {
-		objects: [	
+		objects: [
 			{{if $geo_points->count()}}
-	{{include file="$cdir/includes/points.tpl"
+				{{include file="$cdir/includes/points.tpl"
 					type="Placemark"
 					source=$geo_points
-	}}
-			
-	{{if $geo_polylines->count() || $geo_polygons->count()}},{{/if}}
-			
-	{{/if}}			
-			
-	{{if $geo_polylines->count()}}
-	{{include file="$cdir/includes/points.tpl"
+				}}
+
+				{{if $geo_polylines->count() || $geo_polygons->count()}},{{/if}}
+
+			{{/if}}
+
+			{{if $geo_polylines->count()}}
+				{{include file="$cdir/includes/points.tpl"
 					type="Polyline"
 					source=$geo_polylines
-	}}
-				
-	{{if $geo_polygons->count()}},{{/if}}
-			
-	{{/if}}
-				
-	{{if $geo_polygons->count()}}
-	{{include file="$cdir/includes/points.tpl"
+				}}
+
+				{{if $geo_polygons->count()}},{{/if}}
+
+			{{/if}}
+
+			{{if $geo_polygons->count()}}
+				{{include file="$cdir/includes/points.tpl"
 					type="Polygon"
 					source=$geo_polygons
-	}}
-	{{/if}}
+				}}
+			{{/if}}
 		],
-		
+
 		styles: [
-	{{include file="$cdir/includes/styles.tpl"
-				source=$styles	
-	}}
+			{{include file="$cdir/includes/styles.tpl"
+				source=$styles
+			}}
 		]
 	};
-	
-	var editor = 
+
+	var editor =
 	{
 		// predifined placemarks styles
 		predefinedStyles : [
 			{{foreach from=$style_collection item="style" name="style"}} {
 				style:'{{$style->name}}',
-				url:'{{$style->data}}'
+				url:'{{if isset($style->data)}}{{$style->data}}{{/if}}'
 			},
-	{{if !$smarty.foreach.style.iteration}},{{/if}}
-	{{/foreach}}
+			{{if !$smarty.foreach.style.iteration}},{{/if}}
+			{{/foreach}}
 		],
-	{{include file="$cdir/includes/js.tpl"}}
+		{{include file="$cdir/includes/js.tpl"}}
 	}
-	
-	$(function ()
-	{
-		ShowMap ('editor', '{{$table}}', {{$row_id}});
 
-		setTimeout (
-			function ()
-	{
-				$('#editor').prependTo ($('#tab-geo'));
-	},
-			1000
-		);
-	});
+	$(function ()
+ 	{
+		var mapTimer = setInterval (
+ 			function ()
+ 			{
+				if ($('li.ui-state-active a[href="#tab-geo"]').length)
+				{
+					$('#editor').prependTo ($('#tab-geo'));
+					ShowMap ('editor', '{{$table}}', {{$row_id}});
+					clearInterval (mapTimer);
+				}
+ 			},
+			300
+ 		);
+ 	});
 </script>
 {/dblbracer}
 
-<style>
-	#editor {
-float:left;
-width: 70%;
-	}
-	#editor-edit {
-float:right;
-width: 30%;
-	}
+<div id="editor" style="height:600px"></div>
 
-	#editor-edit * {
-margin: 5px;
-	}
-	#editor-clear {
-clear:both;
-	}
-</style>
+<div id="tab-geo">
+	<p style="margin-top:10px">Редактирование объекта:</p>
 
-<div id="editor" style="height:600px"></div> 
+	<div id="toolsBox" style="background-color:#f3f3f3; padding:10px; border:solid 1px #333">
+        <form action="javascript:return false;" onsubmit="return false;">
+            <div id="tools" style="padding:2pt;">
+                <div class="layer" style="display:none; background-color:#f3f3f3;margin:0;/*padding:5px;*/">
+                    <input class="save" type="hidden" value="Сохранить слой" style="width:185px;" />
 
-<div id="tab-geo"> 
-	<div id="editor-edit">
-		<p>Редактирование объекта:</p>
+                    <input type="text" name="layerName" class="layerName" size="30" style="width:185px;" />
+                    <input type="text" name="layerContent" class="layerContent" />
+                </div>
+                <div class="baloon">
+					<table border="0" cellpadding="5" cellspacing="0" width="100%">
+						<tr>
+							<td width="120" align="left" valign="top">
+								Имя
+							</td>
+							<td align="left" valign="top">
+								<input type="text" name="name" class="overlayName" style="width:100%" />
+							</td>
+						</tr>
+						<tr>
+							<td width="120" align="left" valign="top">
+								Описание
+							</td>
+							<td align="left" valign="top">
+								<textarea name="desc" class="overlayDescription mceNoEditor" style="width:100%; height:100px"></textarea>
+							</td>
 
-		<div id="toolsBox" style="background-color:#f3f3f3;"> 
-			<form action="javascript:return false;" onsubmit="return false;"> 
-				<div id="tools" style="padding:2pt;"> 
-					<p class="layer" style="background-color:#f3f3f3;margin:0;/*padding:5px;*/"> 
-						<input class="save" type="hidden" value="Сохранить слой" style="width:185px;" /> 
-					<p><span id = "saveGeoObject" class = "pseudo-link">Cохранить геоданные</span></p>
-					<div><input type="text" name="layerName" class="layerName" size="30" style="width:185px;" /></div>
-					<div><input type="text" name="layerContent" class="layerContent" /></div>
-					</p> 
-					<p class="baloon"> 
-					<p>Имя <input type="text" name="name" class="overlayName" size="30" style="width:185px;" /></p>    
-					<p>Описание <textarea name="desc" class="overlayDescription mceNoEditor" rows="2" cols="30" style="width:185px;"></textarea></p> 
+						</tr>
+					</table>
 
-					</p> 
-					<table style="width:185px;" class="remover"> 
-						<tbody> 
-							<tr> 
-								<td colspan="2">Объект</td> 
-							</tr> 
 
-							<tr> 
-								<td style="text-align:left;"><input class="show" type="button" value="Показать" /></td> 
-								<td style="text-align:right;"><input class="remove" type="button" value="Удалить" /></td> 
-							</tr> 
-						</tbody> 
-					</table> 
-				</div> 
-			</form> 
-		</div> 
-	</div>
-	<div id="editor-clear">&nbsp;</div>
-</div> 
+					<p style="margin:10px 0"><span id = "saveGeoObject" class = "pseudo-link" style="border-bottom:dashed 1px; color:#aaa">Cохранить геоданные</span></p>
+
+				</div>
+                <table style="width:185px;" class="remover">
+                    <tbody>
+						<tr>
+							<td colspan="2">Объект</td>
+						</tr>
+
+						<tr>
+							<td style="text-align:left;"><input class="show" type="button" value="Показать" /></td>
+							<td style="text-align:right;"><input class="remove" type="button" value="Удалить" /></td>
+						</tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+
+</div>

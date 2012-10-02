@@ -272,6 +272,12 @@ class Controller_Content_Abstract extends Controller_Abstract
 			$category,
 			$this->__contentModel ()
 		);
+        
+        $user = User::getCurrent();
+        
+        if(!($user && $user->hasRole('editor'))){
+            $content_collection->where('active', 1);
+        }
 
 		$parent_url = rtrim ($parent->url, '/') . '.html';
 
@@ -759,7 +765,7 @@ class Controller_Content_Abstract extends Controller_Abstract
 				'/not_found'
 			);
 		}
-
+    
 		$content = Model_Manager::byKey (
 			$image->table,
 			$image->rowId
@@ -795,10 +801,10 @@ class Controller_Content_Abstract extends Controller_Abstract
 			!User::getCurrent ()->isAdmin () &&
 			(
 				!$resource_addContent ||
-				!$resource_addContent->userCan ($user)
+				!$resource_addContent->userCan (User::getCurrent())
 			)
 		)
-		{
+		{       
 			return $this->_sendError (
 				'not_found',
 				__METHOD__,

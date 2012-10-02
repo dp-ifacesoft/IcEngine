@@ -40,7 +40,7 @@ class Helper_Test
 	/**
 	 * @desc Тестируем контроллер
 	 */
-	protected static function _testController ($model_name, PHPUnit_Framework_TestCase $test, array $situation)
+	protected static function _testController ($model_name, array $situation)
 	{
 		$input = $situation ['input'];
 		$output = $situation ['output'];
@@ -48,7 +48,8 @@ class Helper_Test
 			$controller, $action,
 			$input, array ('with_buffer' => true)
 		);
-		$test->assertTrue (!empty ($result ['buffer']));
+		$tests = array ();
+		$tests [] = array (!empty ($result ['buffer']), null, 'assertEqual');
 		$buffer = $result ['buffer'];
 		foreach ($buffer as $var => $value)
 		{
@@ -80,36 +81,45 @@ class Helper_Test
 			);
 			if ($value instanceof Model)
 			{
-				self::_testModel (
-					$value->modelName (),
-					$test,
-					$sit
+				$tests = array_merge (
+					$tests,
+					self::_testModel (
+						$value->modelName (),
+						$test,
+						$sit
+					)
 				);
 			}
 			elseif ($value instanceof Model_Collection)
 			{
-				self::_testCollection (
-					$value->modelName (),
-					$test,
-					$sit
+				$tests = array_merge (
+					$tests,
+					self::_testCollection (
+						$value->modelName (),
+						$test,
+						$sit
+					)
 				);
 			}
 			else
 			{
-				self::_testScalar (
-					$model_name,
-					$test,
-					$sit
+				$tests = array_merge (
+					$tests,
+					self::_testScalar (
+						$model_name,
+						$test,
+						$sit
+					)
 				);
 			}
 		}
+		return $tests;
 	}
 
 	/**
 	 * @desc Тестируем на скаляр
 	 */
-	protected static function _testScalar ($model_name, PHPUnit_Framework_TestCase $test,
-		array $situation)
+	protected static function _testScalar ($model_name, array $situation)
 	{
 		$params = array ();
 		$name = $situation ['input'];
@@ -141,16 +151,18 @@ class Helper_Test
 			$value = $name ($situation ['input_arg']);
 		}
 		$output = $situation ['output']['value'];
-		$test->assertEquals ($value, $output);
+		$tests = array ();
+		$tests [] = array ($value, $output);
+		return $tests;
 	}
 
 	/**
 	 * @desc Тестируем коллекцию
 	 */
-	protected static function _testCollection ($model_name, PHPUnit_Framework_TestCase $test,
-		array $situation)
+	protected static function _testCollection ($model_name, array $situation)
 	{
 		$input = $situation ['input'];
+		$tests = array ();
 		if (!is_array ($input))
 		{
 			$input = array ($input);
@@ -212,28 +224,29 @@ class Helper_Test
 			);
 			$output->add ($model);
 		}
-		$test->assertEquals (
+		$tests [] = array (
 			$collection->count (),
-			$output->count ()
+			$output->count (),
+			'assertEqual'
 		);
 		foreach ($collection as $i => $ci)
 		{
 			$co = $output->item ($i);
 			foreach ($fields as $f)
 			{
-				echo $f . PHP_EOL;
-				$test->assertEquals ($ci->sfield ($f), $co->sfield ($f));
+				$tests [] = array ($ci->sfield ($f), $co->sfield ($f));
 			}
 		}
+		return $tests;
 	}
 
 	/**
 	 * @desc Тестируем модель
 	 */
-	protected static function _testModel ($model_name, PHPUnit_Framework_TestCase $test,
-		array $situation)
+	protected static function _testModel ($model_name, array $situation)
 	{
 		$input = $situation ['input'];
+		$tests = array ();
 		if (!is_array ($input))
 		{
 			$input = array ($input);
@@ -307,12 +320,12 @@ class Helper_Test
 		);
 		foreach ($fields as $f)
 		{
-			echo $f . PHP_EOL;
-			$test->assertEquals (
+			$tests [] = array (
 				$model->sfield ($f),
 				$output->sfield ($f)
 			);
 		}
+		return $tests;
 	}
 
 	/**
@@ -330,10 +343,26 @@ class Helper_Test
 		foreach ($situations as $sit)
 		{
 			self::createModels ($method);
+			$method = !empty ($sit->method) ? $sit->method : 'assertEquals';
 			$model_name = !empty ($sit ['model_name']) ? $sit ['model_name'] : null;
 			$type = $sit ['type'];
 			$method_name = '_test' . ucfirst ($type);
-			self::$method_name ($model_name, $test, $sit);
+			$tests = self::$method_name ($model_name, $sit);
+			if ($tests)
+			{
+				foreach ($tests as $data)
+				{
+					$call_method = $method;
+					if (isset ($data [2]))
+					{
+						$call_method = $data [2];
+						unset ($data [2]);
+					}
+					call_user_func_array (
+						array ($test, $call_method), $data
+					);
+				}
+			}
 		}
 
 		DDS::setDataSource (Data_Source_Manager::get ('default'));
@@ -361,8 +390,7 @@ class Helper_Test
 		{
 			foreach ($data ['models'] as $model_name => $suite)
 			{
-				$query = Query::instance ()
-					->truncateTable ($model_name);
+				$query = Query::instance ()->truncateTable ($model_name);
 				DDS::execute ($query);
 				foreach ($suite as $model)
 				{
@@ -386,8 +414,19 @@ class Helper_Test
 			return;
 		}
 		$models = $data ['models'];
-		foreach ($models as $model_name => $values)
+		Loader::load ('Helper_Data_Source');
+		foreach (array_keys ($models) as $model_name)
 		{
+			echo $model_name . PHP_EOL;
+			$table = Model_Scheme::table ($model_name);
+			echo $table . PHP_EOL;
+			$info = Helper_Data_Source::table ($table);
+			if ($info)
+			{
+				$query = Query::instance ()->dropTable ($model_name);
+				echo $query->translate () . PHP_EOL;
+				DDS::execute ($query);
+			}
 			Controller_Manager::call (
 				'Model', 'create',
 				array (

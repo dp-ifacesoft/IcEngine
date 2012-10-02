@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Помощник для работы со строками
  * @author Юрий Шведов
  * @package IcEngine
@@ -26,7 +26,7 @@ class Helper_String
 	    "\xD1\x8B" => "\xFB", "\xD1\x8C" => "\xFC", "\xD1\x8D" => "\xFD", "\xD1\x8E" => "\xFE", "\xD1\x8F" => "\xFF",
 	    "\xD1\x96" => "\xB3", "\xD1\x97" => "\xBF", "\xD1\x94" => "\xBA", "\xD1\x9E" => "\xA2"
 	);
-	
+
 	protected static $_win1251utf8 = array
     (
 	    "\xC0" => "\xD0\x90", "\xC1" => "\xD0\x91", "\xC2" => "\xD0\x92", "\xC3" => "\xD0\x93", "\xC4" => "\xD0\x94",
@@ -45,11 +45,11 @@ class Helper_String
 	    "\xFB" => "\xD1\x8B", "\xFC" => "\xD1\x8C", "\xFD" => "\xD1\x8D", "\xFE" => "\xD1\x8E", "\xFF" => "\xD1\x8F",
 	    "\xB3" => "\xD1\x96", "\xBF" => "\xD1\x97", "\xBA" => "\xD1\x94", "\xA2" => "\xD1\x9E"
 	);
-	
+
 	/**
 	 * @desc Возвращает символы после первого вхождения $substr до конца строки.
 	 * Если $substr не найден, возвращается вся строка целиком.
-	 * 
+	 *
 	 * @param string $str Исходная строка.
 	 * @param string $substr Подстрока.
 	 * @return string Подстрока, после вхождения $substr.
@@ -63,7 +63,7 @@ class Helper_String
 		}
 		return $str;
 	}
-	
+
 	/**
 	 * @desc Переводи строку из неопределенной кодировки в заданную.
 	 * @param string $str Исходная строка.
@@ -74,25 +74,25 @@ class Helper_String
 	{
 		// 'auto' расширяется в 'ASCII, JIS, UTF-8, EUC-JP, SJIS'
 		$charset = mb_detect_encoding($str, 'auto');
-		
+
 		if ($charset == $output_charset)
 		{
 			return $str;
 		}
-	
+
 		if (empty($charset))
 		{
 			// Неопределно - стопудово windows-1251
 			return iconv ('windows-1251', $output_charset, $str);
 		}
-	
+
 		return iconv ($charset, $output_charset, $str);
 	}
-	
+
 	/**
 	 * @desc Возвращает символы с начала строки до первого вхождения $substr.
 	 * Если $substr не найден, возвращается вся строка целиком.
-	 * 
+	 *
 	 * @param string $str Исходная строка.
 	 * @param string $substr Подстрока.
 	 * @return string Подстрока, до вхождения $substr.
@@ -106,7 +106,7 @@ class Helper_String
 		}
 		return $str;
 	}
-	
+
 	/**
 	 * @desc Возвращает true, если строка $str начинается с $subStr.
 	 * @param string $str Строка.
@@ -117,7 +117,7 @@ class Helper_String
 	{
 		return (strncmp ($str, $substr, strlen ($substr)) == 0);
 	}
-	
+
 	/**
 	 * @desc Возврщает подстроку между $start и $end
 	 * @param string $string
@@ -140,7 +140,7 @@ class Helper_String
 		$len = strpos ($string, $end, $ini) - $ini;
 		return substr ($string, $ini, $len);
 	}
-	
+
 	/**
 	 * Приводит строку к кодировке utf-8.
 	 * Для конвертирования используется внешний модуль a.charset.php
@@ -153,10 +153,10 @@ class Helper_String
 	public static function charset_x_utf8 ($str)
 	{
 		Loader::requireOnce ('a.charset.php', 'includes');
-	
+
 		return iconv ('windows-1251', 'utf-8', charset_x_win ($str));
 	}
-	
+
 	/**
 	 * Приводит строку к кодировке windows-1251.
 	 * Для конвертирования используется внешний модуль a.charset.php
@@ -169,10 +169,10 @@ class Helper_String
 	public static function charset_x_windows1251 ($str)
 	{
 		Loader::requireOnce ('a.charset.php', 'includes');
-	
+
 		return charset_x_win ($str);
 	}
-	
+
 	/**
 	 * @desc Проверяет, что строка заканчивается на $substr
 	 * @param string $str
@@ -182,15 +182,15 @@ class Helper_String
 	public static function end ($str, $substr)
 	{
 		$len = strlen ($substr);
-		
+
 		if (strlen ($str) < $len)
 		{
 			return false;
 		}
-		
+
 		return substr ($str, -$len) == $substr;
 	}
-	
+
 	/**
 	 * @desc Возвращает только цифры из строки
 	 * @param string $str Исходная строка.
@@ -199,7 +199,7 @@ class Helper_String
 	public static function extractNums ($str)
 	{
 		$res = '';
-		
+
 		for ($i = 0; $i < strlen ($str); $i++)
 		{
 			if (is_numeric ($str[$i]))
@@ -207,23 +207,23 @@ class Helper_String
 				$res .= $str[$i];
 			}
 		}
-		
+
 		return $res;
 	}
-	
+
 	/**
 	 * Расшифровка строки "1,2-5" в "1,2,3,4,5"
-	 * 
+	 *
 	 * @param string $str
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function idsExtract ($str)
 	{
 		$ids = array ();
-		
+
 		$str = explode (',', $str);
-		
+
 		foreach ($str as $s)
 		{
 			$p = strpos ($s, '-');
@@ -241,13 +241,13 @@ class Helper_String
 				$ids[] = (int) $s;
 			}
 		}
-		
+
 		return array_unique ($ids);
 	}
-	
+
 	/**
 	 * Ищет числовые значения с прификсами
-	 * 
+	 *
 	 * @param string $str
 	 * 		Строка вида "a1b222ccc33"
 	 * @return array
@@ -259,12 +259,12 @@ class Helper_String
 	public static function prefixedInts ($str)
 	{
 	    $last = strlen ($str) - 1;
-	    
+
 	    $pref = '';    // Текущий префикс
 	    $int = '';     // Текущее число
 
 	    $result = array ();
-	    
+
 	    for ($i = 0; $i <= $last; $i++)
 	    {
 	        if (ctype_digit ($str [$i]))
@@ -285,15 +285,15 @@ class Helper_String
 	            $pref .= $str [$i];
 	        }
 	    }
-	    
+
 	    if ($pref !== '' && $int !== '')
 	    {
 	        $result [$pref] = $int;
 	    }
-	    
+
 	    return $result;
 	}
-	
+
 	/**
 	 * Получение превью для текста.
 	 * @param string $text
@@ -301,21 +301,24 @@ class Helper_String
 	 * 		Ориентировочно ожидаемая длина превью.
 	 * @return string
 	 */
-	public static function smartPreview ($text, $length = 100)
+	public static function smartPreview ($text, $length = 150)
 	{
 		$text =  stripslashes ($text) . ' ';
-		
+
 		if (!isset ($text {$length}))
 		{
 			return $text;
 		}
-		
+
 		$space_pos = strpos ($text, ' ', $length);
+		if (!$space_pos) {
+			$space_pos = $length;
+		}
 		$result = substr ($text, 0, $space_pos);
 		return $result;
 	}
-	
-	
+
+
 	/**
 	 * @desc Перевод строки в число.
 	 * @param string $string Исходная строка.
@@ -334,12 +337,12 @@ class Helper_String
 		{
 			$str = (string) $str;
 		}
-		
+
 		$int = '';
 		$concat_flag = true;
 		for ($i = 0, $length = strlen ($str); $i < $length; ++$i)
 		{
-			if (is_numeric ($str [$i]) && $concat_flag) 
+			if (is_numeric ($str [$i]) && $concat_flag)
 			{
 				$int .= $str [$i];
 			}
@@ -355,7 +358,7 @@ class Helper_String
 				}
 			}
 		}
-	
+
 		if (is_numeric ($int))
 		{
 			if ($str [0] == '-')
@@ -372,12 +375,12 @@ class Helper_String
 			return $def;
 		}
 	}
-	
+
 	/**
 	 * Возвращает строку, усеченную до заданной длины с учетом кодировки.
 	 * Гарантируется, что в конце строки не останется части мультибайтового символа.
 	 * 10x to Drupal
-	 * 
+	 *
 	 * @param string $string
 	 * 		Исходная строка
 	 * @param integer $len
@@ -392,12 +395,12 @@ class Helper_String
 	public static function truncateUtf8($string, $len, $wordsafe = false, $dots = false)
 	{
 		$slen = strlen ($string);
-		
+
 		if ($slen <= $len)
 		{
 			return $string;
 		}
-		
+
 		if ($wordsafe)
 		{
 			$end = $len;
@@ -415,24 +418,24 @@ class Helper_String
 		while ($len > 0 && $p < strlen ($string))
 		{
 			if (ord ($string[$p]) >= 0x80 && ord ($string[$p]) < 0xC0)
-			{				
+			{
 				$p++;
 			}
 			$len--;
 			$p++;
 		};
 		if (
-			$p < strlen ($string) && 
+			$p < strlen ($string) &&
 			ord ($string[$p]) >= 0x80 && ord ($string[$p]) < 0xC0
 		)
 		{
 			$p++;
 		}
-		
+
 		return substr ($string, 0, $p) . ($dots ? ' ...' : '');
 	}
 	/**
-	 * 
+	 *
 	 * Extended stripslashes
 	 * @param string|array $value
 	 */
@@ -441,7 +444,7 @@ class Helper_String
 	    return is_array($value) ? array_map('Helper_String::stripslashes_deep', $value) : stripslashes($value);
 	}
 	/**
-	 * 
+	 *
 	 * Extended trim
 	 * @param string|array $value
 	 */
@@ -450,7 +453,7 @@ class Helper_String
 	    return is_array($value) ? array_map('Helper_String::trim_deep', $value) : trim($value);
 	}
 	/**
-	 * 
+	 *
 	 * Extended htmlspecialchars
 	 * @param string|array $value
 	 */
@@ -458,9 +461,9 @@ class Helper_String
 	{
 	    return is_array($value) ? array_map('Helper_String::htmlspecialchars_deep', $value) : htmlspecialchars($value);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * Extended mysql_real_escape_string
 	 * @param string|array $value
 	 */
@@ -468,9 +471,9 @@ class Helper_String
 	{
 	    return is_array($value) ? array_map('Helper_String::mysql_real_escape_string_deep', $value) : mysql_real_escape_string($value);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|array $var
 	 */
 	public static function secure($var)
@@ -481,9 +484,29 @@ class Helper_String
 	    $result = self::mysql_real_escape_string_deep($result);
 		return $result;
 	}
-	
+
 	/**
-	 * 
+	 * Преобразовать первую букву к верхнему регистру (для UTF-8)
+	 *
+	 * @param string $str
+	 * @return string
+	 */
+	public static function ucfirst($str)
+	{
+		return mb_strtoupper(
+			mb_substr($str, 0, 1, 'UTF-8'), 'UTF-8'
+		) . mb_substr($str, 1, mb_strlen($str, 'UTF-8') - 1, 'UTF-8');
+	}
+
+	public static function lcfirst($str)
+	{
+		return mb_strtolower(
+			mb_substr($str, 0, 1, 'UTF-8'), 'UTF-8'
+		) . mb_substr($str, 1, mb_strlen($str, 'UTF-8') - 1, 'UTF-8');
+	}
+
+	/**
+	 *
 	 * @desc utf8 -> win1251
 	 * @param string|array $var
 	 */
@@ -509,9 +532,9 @@ class Helper_String
 	        return strtr($var, self::$_utf8win1251);
 	    }
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @desc win1251 -> utf8
 	 * @param string|array $var
 	 * @return utf-8
@@ -537,20 +560,6 @@ class Helper_String
 	    {
 	        return strtr($var, self::$_win1251utf8);
 	    }
-	}
-	
-	public static function stripAllTags($text)
-	{
-		// strip html tags
-		$text = strip_tags($text);
-		
-		// strip bb codes
-		$text = preg_replace("/[[\/\!]*?(b|i|u|s|center|ul|ol|li||table|tr|th|td|youtube|url|quote|code|img|color|size)[^\[\]]*?]/si", "", $text);
-		
-		// strip plain http links
-		$text = preg_replace('~((http|https|ftp|file)://([-\w]+\.[-\w\.]+)+\w(:\d+)?(/([-\w/_\.]*(\?\S+)?)?)*)~',"",$text);
-
-		return $text;
 	}
 }
 

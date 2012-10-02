@@ -38,7 +38,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 * в версии Redis под windows стояло жесткое ограничение на 15 значений.
 	 * @var integer
 	 */
-	public $mget_limit = 15;
+	public $mget_limit = 0;
 
 	/**
 	 *
@@ -187,7 +187,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			{
 				unset ($this->locks [$keys]);
 			}
-           
+
 			return $this->conn->delete ($this->keyEncode ($keys), $time);
 		}
 
@@ -259,6 +259,15 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
 
 		return $this->conn->get ($this->keyEncode ($key), $plain);
+	}
+
+	/**
+	 * @desc Получить соединение (сокет)
+	 * @return resource
+	 */
+	public function getConnection ()
+	{
+		return $this->conn->getConnection ('tcp://127.0.0.1:6379');
 	}
 
 	/**
@@ -398,6 +407,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	}
 
 	/**
+	 * @see Data_Provider_Abstract::publish()
+	 */
+	public function publish ($channel, $message)
+	{
+		return $this->conn->publish ($channel, $message);
+	}
+
+	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
 	 */
@@ -415,4 +432,19 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		return $this->conn->set ($this->keyEncode ($key), $value, $expiration, $tags);
 	}
 
+	/**
+	 * @see Data_Provider_Abstract::subscribe()
+	 */
+	public function subscribe ($channel)
+	{
+		return $this->conn->subscribe ($channel);
+	}
+
+	/**
+	 * @see Data_Provider_Abstract::unsubscribe()
+	 */
+	public function unsubscribe ($channel)
+	{
+		return $this->conn->unsubscribe ($channel);
+	}
 }

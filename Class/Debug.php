@@ -16,7 +16,7 @@ function internal_exception_handler_ignore ($exception)
 }
 
 /**
- * 
+ *
  * @desc Класс для отладки.
  * @author Гурус
  * @package IcEngine
@@ -24,13 +24,13 @@ function internal_exception_handler_ignore ($exception)
  */
 class Debug
 {
-	
+
 	const ERROR_HANDLER_HIDE = 'hide';
-	
+
 	const ERROR_HANDLER_IGNORE = 'ignore';
-	
+
 	const EXCEPTION_HANDLER_IGNORE = 'ignore';
-	
+
 	/**
 	 * @desc Пресеты конфигов (можно задавать одним названием).
 	 * @var array
@@ -49,117 +49,117 @@ class Debug
 			'echo_active'		=> true
 		)
 	);
-	
+
 	public static $config = array (
-		
+
 		/**
 		 * @desc Ведение лога в БД.
 		 * @var boolean
 		 */
 		'database_active'			=> false,
-		
+
 		/**
 		 * @desc Название таблицы логов в БД.
 		 * @var string
 		 */
 		'database_table'			=> 'log',
-		
+
 		/**
 		 * @desc Остановить выполнение скрипта при ошибке.
 		 * @var boolean
 		 */
 		'die_on_error'				=> true,
-		
+
 		/**
 		 * @desc Отображение в браузер, вывод через stdOut.
 		 * @var boolean
 		 */
 		'echo_active'				=> false,
-		
+
 		/**
 		 * @desc Отображение в файл.
 		 * @var boolean
 		 */
 		'file_active'				=> false,
-		
+
 		/**
 		 * @desc Файл для записи сообщений об ошибках.
 		 * @var string
 		 */
 		'file_error'				=> 'error.txt',
-	
+
 		/**
 		 * @desc Файл для записи сообщений о варнингах.
 		 * @var string
 		 */
 		'file_warn'					=> 'warning.txt',
-		
+
 		/**
 		 * @desc Файл для записи прочих сообщений.
 		 * @var string
 		 */
 		'file_log'					=> 'notice.txt',
-		
+
 		/**
 		 * @desc Отображение в FireBug
 		 * @var boolean
 		 */
 		'firebug_active'			=> false,
-		
+
 		/**
-		 * @desc Следим за количеством дебаг сообщений, чтобы 
+		 * @desc Следим за количеством дебаг сообщений, чтобы
 		 * длина заголовка не превысила максимально допустимую,
 		 * иначе на странице вместо текста будет "X-Wf-1-1-1-32: 201|...."
-		 * 
+		 *
 		 * @var integer
 		 */
 		'firebug_messages_limit'	=> 11,
-		
+
 		/**
 		 * @desc Игнорировать варнинг open basedir.
 		 * @var boolean
 		 */
 		'ignore_open_basedir_warning'	=> true,
-		
+
 		/**
 		 * @desc Игнорировать варнинг при unlink.
 		 * @var boolean
 		 */
 		'ignore_unlink_warning'			=> true,
-		
+
 		/**
 		 * @desc Вывод на экран трасировки.
 		 * @var boolean
 		 */
 		'print_backtrace'				=> false,
-		
+
 		/**
 		 * @desc Стандартный лог PHP.
 		 * @var boolean
 		 */
 		'phplog'						=> true
 	);
-	
+
 	/**
 	 * @desc Количество выведенных сообщений.
-	 * Важно ограничить вывод через FirePHP, чтобы длина заголовка не 
+	 * Важно ограничить вывод через FirePHP, чтобы длина заголовка не
 	 * превысила 1024
 	 * @var integer
 	 */
 	public static $debug_messages_count = 0;
-	
+
 	/**
 	 * @desc Время подключения класса дебага.
 	 * @var integer
 	 */
 	public static $startTime;
-	
+
 	/**
 	 * @desc Время последнего замера времени.
 	 * @var integer
 	 */
 	public static $lastTime;
-	
+
 	/**
 	 * @desc Скрытие всех возникающих ошибок.
 	 */
@@ -169,10 +169,10 @@ class Debug
 		ini_set ('display_errors', $default_display);
 		ini_set ('html_errors', $default_display);
 		ini_set ('track_errors', true);
-		
+
 		set_error_handler ('internal_error_handler_hide');
 	}
-	
+
 	/**
 	 * @desc Внутренний обработчик ошибок.
 	 * @param string $errno Код ошибки.
@@ -200,44 +200,112 @@ class Debug
 		{
 			return false;
 		}
-		
+
+		if ($errno == E_ERROR || $errno == E_USER_ERROR) {
+			if (!headers_sent ()) {
+				header('HTTP/1.0 500 Internal Server Error');
+			}
+			$filename = rtrim(IcEngine::root (), '/') . '/log/error.log';
+			$lines = array();
+			$needLog = false;
+			$exists = false;
+			if (is_file($filename)) {
+				$lines = file($filename);
+				$now = time();
+				foreach ($lines as $line) {
+					list($time, $date, $file, $line, $message) =
+						explode('|', $line);
+					if ($file == $errfile && $line == $errline) {
+						$exists = true;
+						if ($now - $time >= 3600) {
+							$needLog = true;
+							break;
+						}
+					}
+				}
+			}
+
+			$validError = true;
+			if (strpos($errstr, 'smarty') !== false) {
+				$validError = false;
+			}
+			$validError = false;
+
+			if ($validError && ($needLog || !$exists)) {
+				file_put_contents(
+					$filename,
+					time() . '|' . date('Y-m-d H:i:s') . '|' .
+						$errfile . '|' . $errline. '|' .
+						$errstr . PHP_EOL,
+					FILE_APPEND
+				);
+				$pnos = array(
+					'79505795261',
+					'79133271039',
+					'79049937511',
+					'79511784601',
+					'79045796469'
+				);
+				require_once IcEngine::root() . 'Ice/includes/LittlesmsOriginal.class.php';
+
+				$client = new LittleSMSoriginal (
+					'forguest',
+					'tUUm3vW3Zkrqa7JgggNAFxXFeVUPOmpo',
+					false
+				);
+				Loader::load('Helper_Site_Location');
+				foreach ($pnos as $pno) {
+					$text =
+						Helper_Site_Location::getLocation() . PHP_EOL .
+						date('Y-m-d H:i:s') . PHP_EOL .
+						$errfile . ' ' . $errline;
+					$client->sendSMS (
+						$pno,
+						$text,
+						'Vipgeo'
+					);
+				}
+			}
+
+		}
+
 		if (self::$config ['print_backtrace'])
 		{
 			echo '<pre>';
 			debug_print_backtrace ();
 			echo '</pre>';
 		}
-		
+
 		$debug = array_slice (debug_backtrace (), 1, 10);
 		self::removeUninterestingObjects ($debug);
-		
+
 		$log_text =
 			(
-				isset ($_SERVER ['HTTP_HOST']) ? 
+				isset ($_SERVER ['HTTP_HOST']) ?
 				$_SERVER ['HTTP_HOST'] :
 				'empty host'
 			) .
 			(
-				isset ($_SERVER ['REQUEST_URI']) ? 
+				isset ($_SERVER ['REQUEST_URI']) ?
 				$_SERVER ['REQUEST_URI'] :
 				'/empty uri'
-			) . 
+			) .
 			(
 				isset ($_SERVER ['HTTP_REFERER']) ?
 				"\r\nreferer: " . $_SERVER ['HTTP_REFERER']  :
 				''
 			) .
 			"\r\n" .
-			'[' . $errno . ':' . $errfile . '@' . $errline . '] ' . 
+			'[' . $errno . ':' . $errfile . '@' . $errline . '] ' .
 			$errstr . "\r\n";
-		
+
 		foreach ($debug as $debug_step)
 		{
 			if (isset ($debug_step ['file']))
 			{
-				$log_text .= 
-					'[' . $debug_step ['file'] . '@' . 
-					$debug_step ['line'] . ':' . 
+				$log_text .=
+					'[' . $debug_step ['file'] . '@' .
+					$debug_step ['line'] . ':' .
 					$debug_step ['function'] . ']' . "\r\n";
 			}
 			else
@@ -245,20 +313,20 @@ class Debug
 				break;
 			}
 		}
-		
+
 		self::log ($log_text, $errno);
-	
+
 		if (
-			($errno == E_ERROR || $errno == E_USER_ERROR) && 
+			($errno == E_ERROR || $errno == E_USER_ERROR) &&
 			self::$config ['die_on_error']
 		)
 		{
 			die ("<b>Terminated on fatal error.</b><br />" . $log_text);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * @desc Включение внутреннего обработчика ошибок.
 	 * @param mixed $config Настройки.
@@ -269,24 +337,24 @@ class Debug
 		{
 			self::disable ();
 		}
-		
+
 		error_reporting (E_ALL | E_STRICT);
-		
+
 		ini_set ('display_errors', false);
 		ini_set ('html_errors', true);
 		ini_set ('track_errors', true);
 
 		$memory_start = function_exists ('memory_get_usage') ? memory_get_usage(true) : 0;
-		
+
 		foreach (func_get_args () as $cfg)
 		{
 			self::setOptions ($cfg);
 		}
-		
+
 		set_error_handler (array (__CLASS__, 'errorHandler'));
 		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
 	}
-	
+
 	/**
 	 * @desc Форматированный вывод по средствам print_r.
 	 * @param mixed $var
@@ -294,15 +362,15 @@ class Debug
 	public static function printr ($var)
 	{
 		echo '<pre>';
-		
+
 		foreach (func_get_args () as $arg)
 		{
 			echo print_r ($arg, true);
 		}
-		
+
 		echo '</pre>';
 	}
-	
+
 	/**
 	 * @desc Форматированный вывод переменных по средствам var_export.
 	 * @param mixed $var Переменная
@@ -310,7 +378,7 @@ class Debug
 	public static function vardump ($var)
 	{
 		echo '<pre>';
-		
+
 		foreach (func_get_args () as $var)
 		{
 			echo str_replace (
@@ -322,20 +390,20 @@ class Debug
 				var_export ($var, true)
 			) . "\n";
 		}
-		
+
 		echo '</pre>';
 	}
-	
+
 	public static function popErrorHandler ()
 	{
 		restore_error_handler ();
 	}
-	
+
 	public static function popExceptionHandler ()
 	{
 		restore_exception_handler ();
 	}
-	
+
 	/**
 	 * @desc Установка внутреннего обработчика ошибок.
 	 * @param string $type Тип обработчика.
@@ -344,7 +412,7 @@ class Debug
 	{
 		set_error_handler ('internal_error_handler_' . $type);
 	}
-	
+
 	/**
 	 * @desc Установка внутреннего обработчика исключений.
 	 * @param string $type Тип обработчика.
@@ -353,14 +421,14 @@ class Debug
 	{
 		set_exception_handler ('internal_exception_handler_' . $type);
 	}
-	
+
 	/**
 	 * @desc Удаление объекта БД из лога, иначе
 	 * логин/пароль от базы могут быть отправлены пользователю
-	 */ 
+	 */
 	public static function removeUninterestingObjects (array &$debug_trace)
 	{
-		// du - debug_unit 
+		// du - debug_unit
 		foreach ($debug_trace as &$du)
 		{
 			if (
@@ -377,7 +445,7 @@ class Debug
 			}
 		}
 	}
-	
+
 	/**
 	 * @desc Установка настроек для дебага.
 	 * @param array|Config_Abstract $config Конфиг.
@@ -406,20 +474,20 @@ class Debug
 				);
 			}
 		}
-		
+
 		if (is_object ($config) && $config instanceof Objective)
 		{
 			$config = $config->__toArray ();
 		}
-		
+
 		if (!$config)
 		{
 			return;
 		}
-		
+
 		self::$config = array_merge (self::$config, $config);
 	}
-	
+
 	/**
 	 * @desc Устанавливает режим отображения ошибок.
 	 * @param boolean|string|null $database Таблица БД. Если передано null,
@@ -448,16 +516,16 @@ class Debug
 		{
 			self::$config ['database_active'] = false;
 		}
-		
+
 		// Браузер
 		self::$config ['echo_active'] = (bool) $echo;
-		
+
 		// FireBug
 		self::$config ['firebug_active'] = (
 			(is_null ($firebug) && function_exists ('fb')) ||
 			$firebug
 		);
-		
+
 		// Файл
 		if (is_string ($file))
 		{
@@ -471,7 +539,7 @@ class Debug
 			self::$config ['file_active'] = false;
 		}
 	}
-	
+
 	/**
 	 * @desc Обработчик завершения работы скрипта
 	 */
@@ -483,7 +551,7 @@ class Debug
 			self::errorHandler ($e ['type'], $e ['message'], $e ['file'], $e ['line']);
 		}
 	}
-	
+
 	/**
 	 * @desc Отображение в лог нового события.
 	 * @param mixed $text Отладочная информация.
@@ -501,7 +569,7 @@ class Debug
 				E_NOTICE		=> 'log',
 				E_USER_NOTICE	=> 'log'
 			);
-			
+
 			if (isset ($error_type_convertor [$type]))
 			{
 				$type = $error_type_convertor [$type];
@@ -513,13 +581,13 @@ class Debug
 		}
 		$time = date ('Y-m-d H:i:s');
 		$text = is_scalar ($text) ? $text : var_export ($text, true);
-		
+
 		// В стандартный лог
 		if (self::$config ['phplog'])
 		{
 			error_log ($text . PHP_EOL, E_USER_ERROR, 3);
 		}
-		
+
 		// В файл
 		if (self::$config ['file_active'])
 		{
@@ -531,7 +599,7 @@ class Debug
 			{
 				$f = self::$config ['file_log'];
 			}
-			
+
 			if ($f && is_writable($f))
 			{
 				$fh = fopen ($f, 'ab');
@@ -541,7 +609,7 @@ class Debug
 				echo $time . ' ' . $type . ' ' .  $text;
 			}
 		}
-		
+
 		// В базу
 		if (self::$config ['database_active'] && DDS::inited ())
 		{
@@ -556,7 +624,7 @@ class Debug
 				))
 			);
 		}
-		
+
 		// FirePHP
 		$limit = self::$config ['firebug_messages_limit'];
 		if (
@@ -568,14 +636,14 @@ class Debug
 		{
 			fb ($text, $type);
 		}
-		
+
 		// В браузер
 		if (self::$config ['echo_active'])
 		{
 			echo "<pre>$type $text</pre>";
 		}
 	}
-	
+
 	/**
 	 * @desc Отображение в лог значения переменной.
 	 * @param mixed $var Переменная.
@@ -603,16 +671,16 @@ class Debug
 	{
 		$trace = array_slice (debug_backtrace (), 0, 1);
 		$text = $trace [0]['file'] . '@' . $trace [0]['line'] . ': ';
-		
+
 		$now = microtime (true);
 		$text .= round ($now - self::$lastTime, 5);
 		self::$lastTime = $now;
-		
+
 		if (func_num_args ())
 		{
 			$text .= ' - ' . implode (', ', func_get_args ());
 		}
-		
+
 		if (function_exists ('fb') && !headers_sent ())
 		{
 			fb ($text);
@@ -622,7 +690,7 @@ class Debug
 			echo $text;
 		}
 	}
-	
+
 	/**
 	 * @desc вывод в лог времени загрузки фаилов.
 	 * @author Yury Shvedov
@@ -634,14 +702,14 @@ class Debug
 	{
 		$trace = array_slice (debug_backtrace (), 0, 1);
 		$text = $trace [0]['file'] . '@' . $trace [0]['line'] . ': ';
-		
+
 		$text .= round (microtime (true) - self::$startTime, 5);
-		
+
 		if (func_num_args ())
 		{
 			$text .= ' - ' . implode (', ', func_get_args ());
 		}
-		
+
 		if (function_exists ('fb') && !headers_sent ())
 		{
 			fb ($text);
@@ -651,7 +719,7 @@ class Debug
 			echo $text;
 		}
 	}
-	
+
 }
 
 Debug::$startTime = microtime (true);

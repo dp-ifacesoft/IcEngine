@@ -38,7 +38,7 @@ class Redis_Wrapper
 		$this->servers [$host . ':' . $port] = $weight;
 	}
 
-	private function getConnection ($addr)
+	public function getConnection ($addr)
 	{
 		if (isset ($this->pool [$addr]))
 		{
@@ -52,10 +52,10 @@ class Redis_Wrapper
 		{
 			$path = $addr;
 		}
-		if ($conn = fsockopen ($path))
+		if (($conn = fsockopen ($path)) !== false)
 		{
 			$this->pool [$addr] = $conn;
-			return $addr;
+			return $conn;
 		}
 		return FALSE;
 	}
@@ -208,7 +208,7 @@ class Redis_Wrapper
 		}
 		if ($data [0] != '$')
 		{
-			trigger_error ('Unknown response prefix for \'' . $k . $data . '\'', 
+			trigger_error ('Unknown response prefix for \'' . $k . $data . '\'',
 			E_USER_WARNING);
 			return FALSE;
 		}
@@ -216,8 +216,8 @@ class Redis_Wrapper
 		$end = $this->read ($k, 2);
 		if ($end != "\r\n")
 		{
-			trigger_error ('Unknown response end: \'' . $end . '\'', 
-			E_USER_WARNING); 
+			trigger_error ('Unknown response end: \'' . $end . '\'',
+			E_USER_WARNING);
 			return FALSE;
 		}
 		return $data;
@@ -231,7 +231,7 @@ class Redis_Wrapper
 	public function get ($key, $plain = FALSE)
 	{
 		$r = $this->requestByKey ($key, 'GET ' . $key);
-		
+
 		if (!$r)
 		{
 			return null;
@@ -243,14 +243,14 @@ class Redis_Wrapper
 	public function set ($key, $value, $TTL = NULL)
 	{
 		$value = json_encode ($value);
-		
+
 		$k = $this->getConnectionByKey ($key);
-		
+
 		$rn = "\r\n";
-		
+
 		if (!$TTL)
 		{
-			$m = 
+			$m =
 				'*3' . $rn .
 				'$3' . $rn . 'SET' . $rn .
 				'$' . strlen ($key) . $rn . $key . $rn .
@@ -259,7 +259,7 @@ class Redis_Wrapper
 		}
 		else
 		{
-			$m = 
+			$m =
 				'*4' . $rn .
 				'$5' . $rn . 'SETEX' . $rn .
 				'$' . strlen ($key) . $rn . $key . $rn .
@@ -268,7 +268,7 @@ class Redis_Wrapper
 			$r = $this->write ($k, $m);
 		}
 		$r = $this->getResponse ($k);
-		
+
 		return $r;
 	}
 
@@ -288,11 +288,11 @@ class Redis_Wrapper
 		{
 			$value = json_encode ($value);
 		}
-		
+
 		$value = urlencode ($value);
 		if (!$TTL)
 		{
-			$r = $this->requestByKey ($key, 
+			$r = $this->requestByKey ($key,
 			'SET ' . $key . ' "' . $value . '"');
 		}
 		else
@@ -329,11 +329,11 @@ class Redis_Wrapper
 		if ($byserver !== NULL)
 		{
 			$result = array ();
-			$values = $this->requestByServer ($byserver, 
+			$values = $this->requestByServer ($byserver,
 			'MGET ' . implode (' ', $keys));
 			foreach ($keys as $i => &$k)
 			{
-				$result [$k] = isset ($values [$i]) ? json_decode ($values [$i], 
+				$result [$k] = isset ($values [$i]) ? json_decode ($values [$i],
 				TRUE) : NULL;
 			}
 			return $result;
@@ -393,7 +393,7 @@ class Redis_Wrapper
 		}
 		return $this->requestByKey ($key, 'DECRBY ' . $key . ' ' . $number);
 	}
-	
+
 	/**
 	 * @desc Удаление одного или нескольких ключей.
 	 * @param string|array $keys
@@ -402,28 +402,28 @@ class Redis_Wrapper
 	public function delete ($keys)
 	{
 		$keys = (array) $keys;
-		
+
 		$k = $this->getConnectionByKey (reset ($keys));
-		
+
 		$rn = "\r\n";
 		$words_count = count ($keys) + 1;
-		
-		$m = 
+
+		$m =
 			'*' . $words_count . $rn .
 			'$3' . $rn .
 			'DEL' . $rn;
-		
+
 		foreach ($keys as $key)
 		{
 			$m .= '$' . strlen ($key) . $rn . $key . $rn;
 		}
-		
+
 		$this->write ($k, $m);
-		
+
 		$r = $this->getResponse ($k);
-		
+
 		return $r;
-		
+
 	}
 
 	public function exists ($key)
@@ -477,7 +477,7 @@ class Redis_Wrapper
 
 	public function push ($key, $value, $right = TRUE)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		($right ? 'RPUSH' : 'LPUSH') . ' ' . $key . ' ' . strlen ($value) .
 		 "\r\n" . $value);
 	}
@@ -494,7 +494,7 @@ class Redis_Wrapper
 
 	public function cpush ($maxsize, $key, $value, $right = TRUE)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		($right ? 'CRPUSH' : 'CLPUSH') . ' ' . $maxsize . ' ' . $key . ' ' .
 		 strlen ($value) . "\r\n" . $value);
 	}
@@ -549,37 +549,37 @@ class Redis_Wrapper
 
 	public function sort ($key, $query = NULL)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		'SORT ' . $key . ($query === NULL ? '' : ' ' . $query));
 	}
 
 	public function lset ($key, $value, $index)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		'LSET ' . $key . ' ' . $index . ' ' . strlen ($value) . "\r\n" . $value);
 	}
 
 	public function lrem ($key, $count, $value)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		'LREM ' . $key . ' ' . $count . ' ' . strlen ($value) . "\r\n" . $value);
 	}
 
 	public function sadd ($key, $value)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		'SADD ' . $key . ' ' . strlen ($value) . "\r\n" . $value);
 	}
 
 	public function srem ($key, $value)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		'SREM ' . $key . ' ' . strlen ($value) . "\r\n" . $value);
 	}
 
 	public function sismember ($key, $value)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		'SISMEMBER ' . $key . ' ' . strlen ($value) . "\r\n" . $value);
 	}
 
@@ -590,7 +590,7 @@ class Redis_Wrapper
 
 	public function sinterstore ($keys, $bykey)
 	{
-		return $this->requestByKey ($bykey, 
+		return $this->requestByKey ($bykey,
 		'SINTERSTORE ' . $bykey . ' ' . implode (' ', $keys));
 	}
 
@@ -606,7 +606,7 @@ class Redis_Wrapper
 
 	public function smove ($srckey, $dstkey, $member)
 	{
-		return $this->requestByKey ($key, 
+		return $this->requestByKey ($key,
 		'SMOVE ' . $srckey . ' ' . $dstkey . ' ' . $member);
 	}
 
@@ -662,4 +662,22 @@ class Redis_Wrapper
 		}
 		return $result;
 	}
+
+	public function subscribe ($channel, $server = '*')
+	{
+		return $this->requestByServer ($server, 'SUBSCRIBE ' . $channel);
+	}
+
+	public function unsubscribe ($channel, $server = '*')
+	{
+		return $this->requestByServer ($server, 'UNSUBSCRIBE ' . $channel);
+	}
+
+	public function publish ($channel, $message, $server = '*')
+	{
+		return $this->requestByServer ($server, 'PUBLISH ' . $channel . ' "' .
+			urlencode (json_encode ($message)) . '"');
+	}
+
+
 }

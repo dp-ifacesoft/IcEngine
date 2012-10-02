@@ -31,3 +31,11 @@
 	{/if}
 
 </div>
+
+<script type="text/javascript">
+	$(function () {
+		$("input[name='resources[]']").live ('change', function () {
+			Controller_Admin_Acl.saveOneResource ($(this).val(), $(this).is(':checked'), $("input[name='role_id']").val());
+		});
+	});
+</script>

@@ -26,7 +26,7 @@ class Controller_View_Resource extends Controller_Abstract
 			'params',
 			'name'
 		);
-		
+
 		$vars = array ();
 		
 		if ($params)
@@ -38,7 +38,7 @@ class Controller_View_Resource extends Controller_Abstract
 		}
 		
 		$reses = array ();
-		
+		//var_dump($type . __FILE__);die;
 		Loader::load ('View_Resource_Manager');
 		
 		foreach ($config->targets as $name => $target)
@@ -72,7 +72,7 @@ class Controller_View_Resource extends Controller_Abstract
 				foreach ($src_files as $src_file)
 				{
 					$src_file = strtr ($src_file, $vars);
-					
+					//echo $src_file . ' ' . $src_dir . '<br />';
 					$res = array_merge (
 						$res,
 						View_Resource_Manager::patternLoad (
@@ -97,6 +97,7 @@ class Controller_View_Resource extends Controller_Abstract
 			
 			$dst_file = strtr ($target->file, $vars);
 			$packer->pushConfig ($packer_config);
+            
 			$packer->pack ($res, $dst_file, $packer_config);
 			$packer->popConfig ();
 			

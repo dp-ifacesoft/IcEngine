@@ -59,6 +59,19 @@ class Model_Field
 	}
 
 	/**
+	 * Изменение атрибута поля
+	 *
+	 * @param string $attr
+	 * @param string $value
+	 * @return Model_Field
+	 */
+	public function setAttr($attr, $value)
+	{
+		$this->_attrs[$attr] = $value;
+		return $this;
+	}
+
+	/**
 	 * @desc Устанавливает атрибут поля "AUTO_INCREMENT"
 	 * @param boolean $value
 	 * @return Model_Field

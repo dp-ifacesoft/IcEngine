@@ -24,7 +24,7 @@ class Controller_Paginator extends Controller_Abstract
 			'template',
 			'tpl'
 		);
-		
+
 	    /* @var $paginator Paginator */
 		$paginator->buildPages ();
 		

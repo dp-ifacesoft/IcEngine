@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Хелпер для работы с датами.
  * @author Юрий
  * @package IcEngine
@@ -8,31 +8,31 @@
  */
 class Helper_Date
 {
-    
+
 	/**
 	 * @desc Нулевая дата
 	 * @var string
 	 */
 	const NULL_DATE = '0000-00-00';
-	
+
 	/**
 	 * @desc Unix формат представления даты.
 	 * @var string
 	 */
     const UNIX_DATE_FORMAT = 'Y-m-d';
-    
+
     /**
      * @desc Unix формат представления даты и времени.
      * @var string
      */
     const UNIX_FORMAT = 'Y-m-d H:i:s';
-    
+
     /**
      * @desc Unix формат времени
      * @var string
      */
     const UNIX_TIME_FORMAT = 'H:i:s';
-	
+
     /**
      * @desc Названия дней недели
      * @var array
@@ -59,7 +59,7 @@ class Helper_Date
             7 => 'Вс'
         )
     );
-    
+
     /**
      * @desc Русские названия месяцев.
      * @var array
@@ -94,7 +94,7 @@ class Helper_Date
 			12 => 'декабря'
 		)
 	);
-	
+
 	/**
 	 * @desc Сравнение двух дат в формате UNIX.
 	 * @param string $now
@@ -108,7 +108,7 @@ class Helper_Date
 	{
 		return strcmp ($now, $then); // :D
 	}
-    
+
     /**
      * @desc Получение даты по номеру недели в году
      * @param integer $week_number Номер недели в году в формате ISO-8601.
@@ -122,7 +122,7 @@ class Helper_Date
         $week = sprintf ('%02d', $week);
         return strtotime ($year . 'W' . $week . '1 00:00:00');
     }
-    
+
     /**
      * @desc Количество дней в месяце.
      * @param integer $month Месяц (от 1 до 12)
@@ -137,35 +137,62 @@ class Helper_Date
     	}
     	return 31 - (($month - 1) % 7 % 2) - (($month == 2) << !!($year % 4));
     }
-	
-	/**
-	 * @desc дата [число] [месяц] [год], например 14 апреля 2011 г.
-	 * @param type $string
-	 * @param type $showYear
-	 * @return type 
-	 */
-	public static function datetime ($string, $showYear = true, $showMonth = true, $showDay = true)
+
+    /**
+     * format = 1 : 15 мая 2012 года 10:40
+     *
+     * @param type $string
+     * @param type $showYear
+     * @param type $format
+     * @return type
+     */
+	public static function datetime ($string, $showYear = false, $format = 0,
+		$showTime = false)
 	{
 		$year = strtok($string, "-");
 		$month = strtok("-");
 		$day = strtok("-");
-		
-		$date = '';
-		if ($showDay) {
-			$date .= intval($day);
+		switch ($month)
+		{
+			case "1": $month = "января";
+				break;
+			case "2": $month = "февраля";
+				break;
+			case "3": $month = "марта";
+				break;
+			case "4": $month = "апреля";
+				break;
+			case "5": $month = "мая";
+				break;
+			case "6": $month = "июня";
+				break;
+			case "7": $month = "июля";
+				break;
+			case "8": $month = "августа";
+				break;
+			case "9": $month = "сентября";
+				break;
+			case "10": $month = "октября";
+				break;
+			case "11": $month = "ноября";
+				break;
+			case "12": $month = "декабря";
+				break;
 		}
-		if ($showMonth) {
-			$monthArr = $showDay 
-				? array(1 => "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря")
-				: array(1 => "январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь");
-			$date .= '&nbsp;' . $monthArr[intval($month)];
-		}
-		if ($year != date("Y") || $showYear) {
-			$date .= '&nbsp;' . $year . '&nbsp;г.';
-		}
-		return  $date;
+		$_date = explode(' ', $string);
+		$hour = strtok($_date[1], ':');
+		$minute = strtok(':');
+        if(!$format){
+            return intval($day) . "&nbsp;" . $month .
+				(($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;г.") : "") .
+			($showTime ? "&nbsp;" . $hour . ':' . $minute : '');
+        }elseif ($format == 1) {
+            $return = intval($day) . "&nbsp;" . $month . (($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;года") : "");
+            $return .= ' ' . $hour . ':' . $minute;
+            return $return;
+        }
 	}
-    
+
 	/**
 	 * @desc Возвращает номер дня от начала эры.
 	 * @param integer $date Дата.
@@ -177,11 +204,11 @@ class Helper_Date
 		{
 			$date = time ();
 		}
-		
+
 		$d = date ('d', $date);
 		$m = date ('m', $date);
 		$y = date ('Y', $date);
-		
+
 		if ($m > 2)
 		{
 			$m++;
@@ -193,7 +220,35 @@ class Helper_Date
 		}
 		return (int) (365.25 * $y + 30.6 * $m + $d);
 	}
-	
+
+	/**
+	 * @desc Возвращает номер часа от начала эры
+	 * @param integer $date Дата.
+	 * @return intger Номер недели.
+	 */
+	public static function eraHourNum($date = false)
+	{
+		if ($date === null) {
+			$date = time();
+		}
+
+		return self::eraDayNum($date) * 24 + (int) date('H', $date);
+	}
+
+	/**
+	 * @desc Возвращает номер минуты от начала эры
+	 * @param integer $date Дата.
+	 * @return intger Номер недели.
+	 */
+	public static function eraMinNum($delta, $date = false)
+	{
+		if ($date === null) {
+			$date = time();
+		}
+		return ((self::eraDayNum ($date) * 24 + (int) date('H', $date)) * 60 +
+			(int) date('i', $date)) * ((int) (60 / $delta));
+	}
+
 	/**
 	 * @desc Возвращает номер недели от начала эры
 	 * @param integer $date Дата.
@@ -203,7 +258,7 @@ class Helper_Date
 	{
 		return (int) (self::eraDayNum ($date) / 7);
 	}
-	
+
 	/**
 	 * @desc Получение времени с точностью до микросекунд
 	 * @return float
@@ -215,11 +270,11 @@ class Helper_Date
 		$usec = substr ($usec, 0, 6);
 		return (float) ((float) $usec + $sec);
 	}
-	
+
 	/**
 	 * @desc Возвращает максимальную из дат
 	 * @param DateTime $a
-	 * @param DateTime $b 
+	 * @param DateTime $b
 	 * @return DateTime
 	 */
 	public static function max ($a, $b)
@@ -232,7 +287,7 @@ class Helper_Date
 			}
 			$a = self::parseDateTime ($a);
 		}
-		
+
 		if (!($b instanceof DateTime))
 		{
 			if ($b == null)
@@ -241,16 +296,16 @@ class Helper_Date
 			}
 			$b = self::parseDateTime ($b);
 		}
-		
+
 		$diff = $a->diff ($b);
-		
+
 		return $diff->invert ? $a : $b;
 	}
-	
+
 	/**
 	 * @desc Возвращает минимальную из дат
 	 * @param DateTime $a
-	 * @param DateTime $b 
+	 * @param DateTime $b
 	 * @return DateTime
 	 */
 	public static function min ($a, $b)
@@ -263,7 +318,7 @@ class Helper_Date
 			}
 			$a = self::parseDateTime ($a);
 		}
-		
+
 		if (!($b instanceof DateTime))
 		{
 			if ($b == null)
@@ -272,12 +327,12 @@ class Helper_Date
 			}
 			$b = self::parseDateTime ($b);
 		}
-		
+
 		$diff = $a->diff ($b);
-		
+
 		return $diff->invert ? $b : $a;
 	}
-	
+
 	/**
 	 * @desc Сравнение месяцев двух дат.
 	 * @param integer $date1 Первая дата.
@@ -288,19 +343,19 @@ class Helper_Date
 	{
 		return date ('m', $date1) == date ('m', $date2);
 	}
-	
+
 	/**
 	 * @desc Возвращает название месяца.
 	 * @param integer $month_num Номер месяца (от 1 до 12).
-	 * @param integer $form Возвращаемая форма. 1 - именительный патеж, 
+	 * @param integer $form Возвращаемая форма. 1 - именительный патеж,
 	 * 2 - родительный.
 	 * @return string Название месяца.
 	 */
 	public static function monthName ($month_num, $form = 1)
-	{	
+	{
 		return self::$monthesRu [$form][(int) $month_num];
 	}
-	
+
 	/**
 	 * @desc Возвращает следующее время согласно периоду
 	 * @param integer $time Исходная метка времени (unix timestamp)
@@ -345,10 +400,10 @@ class Helper_Date
 				break;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @desc Получение даты и времени из строки.
 	 * @param mixed $date
@@ -362,15 +417,15 @@ class Helper_Date
 			$dt->setTimezone (new DateTimeZone (date_default_timezone_get ()));
 			return $dt;
 		}
-		
+
 		if (strlen ($str) < 8)
 		{
 			return null;
 		}
 		$n = 0;
-		
+
 		$arr = array_fill (0, 6, '');
-		
+
 		for ($i = 0; $i < strlen ($str); ++$i)
 		{
 			if (strpos ('-0123456789', $str [$i]) == 0)
@@ -386,14 +441,14 @@ class Helper_Date
 				$arr [$n] .= $str [$i];
 			}
 		}
-	
+
 		for ($i = $n; $i <= 5; ++$i)
 		{
 			$arr [$i] = (int) $arr [$i];
 		}
-		
+
 		$str = implode ('.', $arr);
-		
+
 		if (strlen ($arr [0]) == 4)
 		{
 			// Y-m-d H:i:s
@@ -414,10 +469,10 @@ class Helper_Date
 			// H:i:s d.m.Y
 			return DateTime::createFromFormat ('H.i.s.d.m.Y', $str);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * @desc Разница между датами в секундах.
 	 * @param string $now
@@ -425,11 +480,11 @@ class Helper_Date
 	 */
 	public static function secondsBetween ($now, $then = null)
 	{
-		return 
-			self::strToTimestamp ($then, time ()) - 
+		return
+			self::strToTimestamp ($then, time ()) -
 			self::strToTimestamp ($now, 0);
 	}
-	
+
 	/**
 	 * @desc Получение даты и времени из строки.
 	 * В качестве исходной строки может выступать запись
@@ -437,7 +492,7 @@ class Helper_Date
 	 * и порядка данных.
 	 * @param string|integer $str Строка с датой или unix timestamp.
 	 * @param integer $default Возвращаемое значение по умолчанию.
-	 * @return integer Опередленная дата или $def, если дату определить 
+	 * @return integer Опередленная дата или $def, если дату определить
 	 * не удалось.
 	 */
 	public static function strToTimestamp($str, $default = 0)
@@ -451,12 +506,12 @@ class Helper_Date
 			return $default;
 		}
 		$n = 0;
-		
+
 		$arr = array (
 			'', '', '',
 			'', '', ''
 		);
-		
+
 		for ($i = 0; $i < strlen ($str); ++$i)
 		{
 			if (strpos ('-0123456789', $str [$i]) == 0)
@@ -472,12 +527,12 @@ class Helper_Date
 				$arr [$n] .= $str [$i];
 			}
 		}
-	
+
 		for ($i = $n; $i <= 5; ++$i)
 		{
 			$arr [$i] = (int) $arr [$i];
 		}
-	
+
 		if (strlen ($arr[0]) == 4)
 		{
 			// Y-m-d H:i:s
@@ -498,10 +553,10 @@ class Helper_Date
 			// H:i:s d.m.Y
 			return mktime ($arr[0], $arr[1], $arr[2], $arr[4], $arr[3], min(2040, $arr[5]));
 		}
-		
+
 		return $default;
 	} # function str_to_timestamp
-	
+
 	/**
 	 * @desc Перевод строки в unix timestamp
 	 * @param string $str Исходная строка.
@@ -519,9 +574,9 @@ class Helper_Date
 		{
 			return $def;
 		}
-	
+
 		$n = 0;
-	
+
 		$arr = array ('', '', '');
 		for ($i = 0; $i < strlen ($str); ++$i)
 		{
@@ -532,15 +587,15 @@ class Helper_Date
 					$n++;
 				}
 			}
-			else 
+			else
 			{
 				$arr [$n] .= $str [$i];
 			}
 		}
-	
+
 		return mktime ((int) $arr [0], (int) $arr [1], (int) $arr [2]);
 	}
-	
+
 	/**
 	 * @desc Преобразует дату в "24 февраля 2010" (?) года.
 	 * Без года, если дата соответсвует текущему году.
@@ -550,7 +605,7 @@ class Helper_Date
 	public static function toCasualDate ($date)
 	{
 		$date = date ('Y-m-d', strtotime ($date));
-		
+
 		if ($date >= 0)
 		{
 			list (
@@ -558,20 +613,20 @@ class Helper_Date
 				$month,
 				$day
 			) = explode ('-', $date);
-			
+
 			$currentYear = date ('Y');
-			
-			$result = 
-				(int) $day . 
-				'&nbsp' . 
+
+			$result =
+				(int) $day .
+				'&nbsp' .
 				self::$monthesRu [2][(int) $month] .
 				($year != $currentYear ? ' ' . $year : '');
-				
+
 			return $result;
-			
+
 		}
 	}
-	
+
 	/**
 	 * @descs Разбирает дату и возвращает DateTime.
 	 * @param string $date Дата в формате UNIX.
@@ -581,7 +636,7 @@ class Helper_Date
 	{
 		return DateTime::createFromFormat (self::UNIX_FORMAT, $date);
 	}
-	
+
 	/**
 	 * @desc Перевод даты из любого распознаваемого форматав формат в Unix.
 	 * @param string $date [optional] Если параметр не будет передан или будет
@@ -595,7 +650,10 @@ class Helper_Date
 			return date (self::UNIX_FORMAT);
 		}
 		$date = self::parseDateTime ($date);
+		if (!$date) {
+			return null;
+		}
 		return $date->format (self::UNIX_FORMAT);
 	}
-	
+
 }

@@ -90,8 +90,7 @@ class Loader
 	 */
 	public static function getPathes ($type)
 	{
-		return
-			isset (self::$_pathes [$type]) ?
+		return  isset (self::$_pathes [$type]) ?
 			self::$_pathes [$type] :
 			array ();
 	}

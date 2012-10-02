@@ -130,11 +130,11 @@ class Registration extends Model
 	{
 		return User::create (array_merge (
 			array (
-				'email'			=> $data ['email'],
-				'password'		=> $data ['password'],
-				'name'		=>  $data['name'],
-				'surname'		=>  $data['surname'],
-				'Sex__id'		=>  $data['Sex__id'],
+				'email'			=> $data['email'],
+				'password'		=> $data['password'],
+				'name'			=> $data['name'],
+				'surname'		=> $data['surname'],
+				'Sex__id'		=> $data['Sex__id'],
 				'active'		=> $this->config ()->autoactive
 			),
 			$data

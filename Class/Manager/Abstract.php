@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактный класс менеджера
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -8,7 +8,11 @@
  */
 abstract class Manager_Abstract
 {
-	
+	/**
+	 * @var array
+	 */
+	protected static $_config;
+
 	/**
 	 * @desc Конфиги менеджера
 	 * @return Objective
@@ -24,5 +28,5 @@ abstract class Manager_Abstract
 		}
 		return static::$_config;
 	}
-	
+
 }

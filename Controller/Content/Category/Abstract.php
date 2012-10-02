@@ -340,6 +340,14 @@ class Controller_Content_Category_Abstract extends Controller_Abstract
 			return $this->replaceAction ('Error', 'notFound');
 		}
 
+		if ($parent->controller) {
+			if (Loader::tryLoad('Controller_' . $parent->controller . '_Category')) {
+				return $this->replaceAction(
+					$parent->controller . '_Category', 'save'
+				);
+			}
+		}
+
 		// Параметры для передачи в фабрик методы
 		$params = array (
 			'parent'				=> $parent,

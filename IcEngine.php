@@ -127,8 +127,6 @@ class IcEngine
 
 		self::initLoader ();
 
-		Loader::load ('Config_Manager');
-
 		if ($bootstap)
 		{
 			self::initBootstrap ($bootstap);
@@ -143,6 +141,11 @@ class IcEngine
 	 */
 	public static function initBootstrap ($path)
 	{
+		//для мобильной версии, конфиг не грузим
+        if(substr($path, -10, 10) != 'Mobile.php'){
+            Loader::load('Config_Manager');
+        }
+
 		Loader::multiLoad (
 			'Bootstrap_Abstract',
 			'Bootstrap_Manager'
@@ -280,9 +283,17 @@ class IcEngine
 
 	public static function shutdownHandler ()
 	{
-		if (!error_get_last ())
+		$error = error_get_last();
+		if (!$error)
 		{
 			Resource_Manager::save ();
+		} else {
+			$errno = $error['type'];
+			if ($errno == E_ERROR || $errno == E_USER_ERROR) {
+				if (!headers_sent ()) {
+					header('HTTP/1.0 500 Internal Server Error');
+				}
+			}
 		}
 	}
 

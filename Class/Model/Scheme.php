@@ -108,73 +108,58 @@ abstract class Model_Scheme
 	 * @param array $fields
 	 * @return array
 	 */
-	private static function _makeScheme ($fields)
+	public static function makeScheme($fields)
 	{
-		$scheme = array ();
-
-		if (!$fields)
-		{
+		$scheme = array();
+		if (!$fields) {
 			return;
 		}
-
-		foreach ($fields as $field)
-		{
+		foreach ($fields as $field) {
 			$size = null;
-
 			$auto_inc = false;
-
-			if ($field ['Extra'] == 'auto_increment')
-			{
+			if (!empty($field ['Extra']) || !empty($field['Auto_Increment'])) {
 				$auto_inc = true;
 			}
-
-			$type = $field ['Type'];
-			$br_pos = strpos ($type, '(');
-			if ($br_pos !== false)
-			{
-				$size = substr ($type, $br_pos);
-				$type = substr ($type, 0, $br_pos);
-				$size = (int) trim ($size, '()');
+			$type = $field['Type'];
+			$br_pos = strpos($type, '(');
+			if ($br_pos !== false) {
+				$size = (int) trim(substr ($type, $br_pos), '()');
+				$type = substr($type, 0, $br_pos);
+			} elseif (!empty($field['Size'])) {
+				$size = $field['Size'];
 			}
-
-			$collation = null;
-
-			if ($field ['Collation'])
-			{
-				$collation = $field ['Collation'];
-			}
-
-			$comment = $field ['Comment'];
-
-			$default = $field ['Default'];
-
+			$comment = isset($field['Comment']) ? $field['Comment'] : '';
+			$default = isset($field['Default']) ? $field['Default'] : null;
 			$s = array (
-				'type'		=> $type,
+				'type'		=> ucfirst($type),
 				'comment'	=> $comment
 			);
-
-			if ($auto_inc)
-			{
-				$s ['auto_inc'] = true;
+			if ($auto_inc) {
+				$s['auto_inc'] = true;
 			}
-
-			if (
-				$type == 'varchar' ||
-				strpos ($type, 'text') !== false
-			)
-			{
-				$s ['collation'] = $collation;
+			if (strpos(strtolower($type), 'text') === false &&
+				strpos(strtolower($type), 'date') === false) {
+				$s['size'] = $size;
+				if (!$auto_inc) {
+					if (strpos(strtolower($type), 'int') !== false) {
+						if (!is_null($default) && is_numeric($default)) {
+							$s['default'] = $default;
+						}
+					} else {
+						if (!is_null($default)) {
+							if (strpos(strtolower($type), 'varchar') === false) {
+								$s['default'] = $default;
+							} else {
+								if (strlen($default)) {
+									$s['default'] = $default;
+								}
+							}
+						}
+					}
+				}
 			}
-
-			if (strpos ($type, 'text') === false)
-			{
-				$s ['size'] = $size;
-				$s ['default'] = $default;
-			}
-
-			$field = $field ['Field'];
-
-			$scheme [$field] = $s;
+			$field = $field['Field'];
+			$scheme[$field] = $s;
 		}
 
 		return $scheme;
@@ -363,24 +348,53 @@ abstract class Model_Scheme
 
 			if (!$scheme)
 			{
+				if (!Loader::tryLoad($model_name)) {
+					return;
+				}
 				Loader::load ($model_name);
 				$scheme = $model_name::scheme ();
 			}
-
+			$comment = null;
 			if (empty ($scheme ['fields']))
 			{
 				Loader::load ('Helper_Data_Source');
+				$config = Config_Manager::get('Model_Mapper_' . $model_name);
+				$comment = $config->comment;
+				$fields = array();
+				if ($config && $config->fields) {
+					$tmp = $config->fields->__toArray();
+					if ($tmp) {
+						foreach ($tmp as $name => $values) {
+							$fields[$name] = array(
+								'Field' => $name,
+								'Type'	=> $values[0]
+							);
+							foreach ($values[1] as $key => $value) {
+								if (is_numeric($key)) {
+									$key = $value;
+									$value = true;
+								}
+								$fields[$name][$key] = $value;
+							}
+						}
+					}
+				} else {
+					$table = self::table ($model_name);
 
-				$table = self::table ($model_name);
+					$fields = Helper_Data_Source::fields (
+						'`' . $table . '`',
+						self::dataSource($model_name)
+					);
+				}
 
-				$fields = Helper_Data_Source::fields ('`' . $table . '`');
-
-				$fields = self::_makeScheme ($fields);
-
-				$scheme = array (
-					'fields'	=> $fields,
-					'keys'		=> array ()
-				);
+				if ($fields) {
+					$fields = self::makeScheme ($fields);
+					$scheme = array (
+						'comment'	=> $comment,
+						'fields'	=> $fields,
+						'keys'		=> array ()
+					);
+				}
 
 			}
 

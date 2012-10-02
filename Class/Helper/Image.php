@@ -230,6 +230,33 @@ class Helper_Image
 	}
 
 	/**
+	 * @desc Простая загрузка изображения по ссылке
+	 * @param string $table
+	 * @param integer $row_id
+	 * @param string $type
+	 * @param array $sizing
+	 * @return Component_Image|null
+	 */
+	public static function uploadByUrl ($url, $table, $rowId, $type, $sizing = null)
+	{
+		Loader::load('Helper_Image');
+			
+		$info = getimagesize($url);
+		if (!$info) {
+			return;
+		}
+				
+		$_FILES['image'] = array(
+			'name'		=> $url,
+			'tmp_name'	=> $url,
+			'type'		=> $info['mime'],
+			'size'		=> 1,
+			'error'		=> false
+		);
+		return Helper_Image::uploadSimple($table, $rowId, $type);
+	}
+	
+	/**
 	 * @desc Простая загрузка изображения.
 	 * @param string $table
 	 * @param integer $row_id
@@ -247,7 +274,7 @@ class Helper_Image
 		{
 			$host = '';
 		}
-		elseif($host)
+		else
 		{
 			$host = 'http://' . $host;
 		}
@@ -266,11 +293,11 @@ class Helper_Image
 			'rowId'			=> $row_id,
 			'date'			=> Helper_Date::toUnix (),
 			'name'			=> $type,
-//			'author'		=> '',
-//			'text'			=> '',
-//			'largeUrl'		=> '',
-//			'smallUrl'		=> '',
-//			'originalUrl'	=> '',
+			'author'		=> '',
+			'text'			=> '',
+			'largeUrl'		=> '',
+			'smallUrl'		=> '',
+			'originalUrl'	=> '',
 			'User__id'		=> User::id ()
 		));
 		$image->save ();
@@ -390,6 +417,7 @@ class Helper_Image
 			}
 		}
 
+
 		$sizing ['sizes'] [self::ORIGINAL] = array (
 			'width'		=> $info [0],
 			'height'	=> $info [1]
@@ -403,7 +431,8 @@ class Helper_Image
 			$tmp = array (
 				$key . 'Url'	=> str_replace (
 					self::$config ['upload_path'],
-					$host . self::$config ['upload_url'],
+					//$host . self::$config ['upload_url'],
+					self::$config ['upload_url'],
 					$filenames [$key]
 				),
 				$key . 'Width'	=> $size ['width'],
@@ -413,7 +442,7 @@ class Helper_Image
 			$i++;
 		}
 
-		$image->attr ($attributes);
+		$image->update($attributes);
 
 		return $image;
 	}

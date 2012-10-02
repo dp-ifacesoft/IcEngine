@@ -106,6 +106,18 @@ editor ('extended');
 															</tr>
 															{/foreach}
 															</table>
+
+	{if $rowPlugins.General}
+		<div class="pluginRow" name="plugin" key="{$plugin.pluginId}">
+		{foreach item=plugin from=$rowPlugins.General}
+			{Controller
+				call=$plugin.call
+				plugin=$plugin
+			}
+		{/foreach}
+		</div>
+	{/if}
+
 															<p><input type="submit" value="Применить" />
 
 																{if $plugins}

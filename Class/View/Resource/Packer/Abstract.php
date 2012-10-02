@@ -234,7 +234,7 @@ abstract class View_Resource_Packer_Abstract
 				$packages
 			);
 		}
-		
+        
 		if ($result_file)
 		{
 			$this->saveValidState ($resources, $result_file);

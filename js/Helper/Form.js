@@ -44,9 +44,10 @@ var Helper_Form = {
 	 * @desc Все поля формы как поля объекта
 	 * @param jQuery $form Форма.
 	 * @param string filter jQuery selector.
+	 * @param boolean check проверять ли required
 	 * @returns object Объект, содержащий данные с формы.
 	 */
-	asArray: function ($form, filter)
+	asArray: function ($form, filter, check)
 	{
 		$fields =
 			$form.find ('input,select,textarea')
@@ -56,42 +57,83 @@ var Helper_Form = {
 		{
 			$fields.filter (filter);
 		}
-
-		var data = {};
+		if (!check) {
+			check = false;
+		}
+		var data = {}, placeholder, value,
+			errorRequired = false;
 
 		$fields.each (function () {
 
             /**
-             * для корректной обработки select:multiple и параметров с именем "param[]"
-             * @author red
+             * для корректной обработки select:multiple и
+			 * параметров с именем "param[]"
+             *
+			 * @author red
              */
-            function _setValue (name, value) {
+            function _setValue (name, value, lastObject, attrName) {
                 var _name = name;
                 var _isArray = false;
-				if (!name)
-				{
-					return;
-				}	
-                if (name.slice (-2) == '[]') {
-                    _name = name.slice (0, -2);
+				var _isObject = false;
+				var i;
+
+                if (name.slice(-2) == '[]') {
+                    _name = name.slice(0, -2);
                     _isArray = true;
-                }
-                if (typeof (value) == 'object') {
+                } else if (typeof value == 'object') {
                     _isArray = true;
-                }
+                } else if (/\[([^\]]+)\]/.test(name)) {
+					_isObject = true;
+				} else if (lastObject) {
+					_isObject = true;
+				}
 
                 if (_isArray) {
-                    if (! (_name in data)) {
+                    if (!(_name in data)) {
                         data[_name] = [];
                     }
-                    if( typeof (value) == 'object' ) {
-						console.log(_name+' '+_isArray+' '+value);
-                        for (i in value) { data[_name].push (value[i]); }
+                    if (typeof value == 'object' ) {
+                        for (i in value) {
+							data[_name].push (value[i]);
+						}
                     } else {
                         data[_name].push (value);
                     }
-                }
-                else {
+                } else if (_isObject) {
+					var pos;
+					if (!lastObject) {
+						pos = name.indexOf('[');
+						_name = name.substr(0, pos);
+						name = name.substr(pos);
+						if (!(_name in data)) {
+							data[_name] = {};
+						}
+						_setValue(name, value, data[_name]);
+					} else {
+						if (name) {
+							pos = name.indexOf('[');
+							var endPos = name.indexOf(']');
+							_name = name.substr(pos + 1, endPos - pos - 1);
+							attrName = null;
+							if (endPos + 1 < name.length) {
+								name = name.substr(endPos + 1);
+							} else {
+								name = '';
+								attrName = _name;
+							}
+							if (!(_name in lastObject)) {
+								lastObject[_name] = {};
+							}
+							if (!attrName) {
+								_setValue(name, value, lastObject[_name]);
+							} else {
+								_setValue(name, value, lastObject, _name);
+							}
+						} else {
+							lastObject[attrName] = value;
+						}
+					}
+				} else {
                     data[_name] = value;
                 }
             }
@@ -117,8 +159,24 @@ var Helper_Form = {
 						_setValue (this.name, $(this).val ());
 					}
 				}
+				// обычные input[name=text]
 				else
 				{
+					if(check && $(this).attr('required') && $(this).is(':visible'))
+					{
+						value = $(this).val();
+						placeholder = $(this).attr('placeholder');
+						if(!value.length || value == placeholder)
+						{
+							$(this).addClass('errorRequired');
+							$(this).attr('required');
+							errorRequired = true;
+						}
+						else
+						{
+							$(this).removeClass('errorRequired');
+						}
+					}
 					if ($(this).attr ('placeholder') == $(this).val ())
 					{
 						_setValue (this.name, '');
@@ -128,20 +186,66 @@ var Helper_Form = {
 						_setValue (this.name, $(this).val ());
 					}
 				}
-			}
-			else
-			{
-				if ($(this).attr ('placeholder') == $(this).val ())
-				{
-					_setValue (this.name, '');
+			} else {
+				//можно на наследование переделать всё это, вверху input ещё
+				if (check && this.tagName.toLowerCase () == 'textarea') {
+					if ($(this).attr('required')) {
+						if ($(this).is(':visible')) {
+							if ($(this).val() == '') {
+								$(this).addClass('errorRequired');
+								errorRequired = true;
+							} else {
+								$(this).removeClass('errorRequired');
+							}
+						} else {
+							if ($(this).attr('id') &&
+								$('#' + $(this).attr('id') + '_tbl').length &&
+								$('#' + $(this).attr('id') + '_tbl').is(':visible')) {
+									if (Controller_TinyMce.getVal({'id': $(this).attr('id')}) == '') {
+										$('#' + $(this).attr('id') + '_tbl')
+											.addClass('errorRequired');
+										errorRequired = true;
+									} else {
+										$('#' + $(this).attr('id') + '_tbl')
+											.removeClass('errorRequired');
+									}
+								}
+						}
+
+					}
 				}
-				else
-				{
+				if (this.tagName.toLowerCase() == 'select') {
+					if($(this).attr('required')) {
+						value = $(this).val();
+						if (!value || value == 0) {
+							$(this).addClass('errorRequired');
+							errorRequired = true;
+						} else {
+							$(this).removeClass('errorRequired');
+						}
+					}
+				}
+				if ($(this).attr ('placeholder') == $(this).val ()) {
+					_setValue (this.name, '');
+				} else {
 					_setValue (this.name, $(this).val ());
 				}
 			}
 		});
+		data['errorRequired'] = errorRequired;
 		return data;
+	},
+
+	/**
+	 * Тоже самое что и asArray, но с проверкой Required полей
+	 * по-хорошему надо бы перепилить asArray, но тогда на всём сайте
+	 * все формы править
+	 */
+	asArrayWCheck: function ($form, filter)
+	{
+		var result;
+		result = this.asArray ($form, filter, true);
+		return !result['errorRequired'] ? result : false;
 	},
 
 	defaultCallback: function ($form, result)
@@ -215,46 +319,41 @@ var Helper_Form = {
 	},
 
 	/**
-	 * @desc Отправка формы по умолчанию
-	 * @param jQuery $form Форма или элемент формы.
-	 * @param string action Название контроллера и экшена.
+	 * Отправка формы по умолчанию
+	 *
+	 * @param $form jQuery Форма или элемент формы.
+	 * @param action string Название контроллера и экшена.
 	 */
-	defaultSubmit: function ($form, action)
-	{
-		$form = $form.closest ('form');
-		function callback (result)
-		{
-			Helper_Form.defaultCallback ($form, result);
-//			if (result && result.html)
-//			{
-//				$form.find ('.result-msg').html (result.html);
-//				$form.find ('.result-msg').show ();
-//			}
-//			if (result && result.redirect)
-//			{
-//				window.location.href = result.redirect;
-//			}
+	defaultSubmit: function($form, action) {
+		var $e = $form;
+		$form = $form.closest('form');
+		var data = {};
+		var callback = function(result) {
+			Helper_Form.defaultCallback($form, result);
+		};
+		var p1;
+		if ($form.length) {
+			data = Helper_Form.asArray($form);
+			if (!action) {
+				action = $form.attr('onsubmit');
+				p1 = action.indexOf('(');
+				var p2 = action.indexOf(' ');
+				action = action.substring (
+					"Controller_".length,
+					(0 < p2 && p2 < p1) ? p2 : p1
+				);
+				action = action.replace(".", "/");
+			}
+		} else {
+			var funcName = $e.attr('onclick');
+			p1 = funcName.indexOf('(');
+			action = funcName.substring("Controller_".length, p1);
+			action = action.replace('.', '/');
+			callback = function(result) {
+
+			};
 		}
-
-		if (!action)
-		{
-			action = $form.attr ('onsubmit');
-
-			var p1 = action.indexOf ('(');
-			var p2 = action.indexOf (' ');
-
-			action = action.substring (
-				"Controller_".length,
-				(0 < p2 && p2 < p1) ? p2 : p1
-			);
-			action = action.replace (".", "/");
-		}
-
-		Controller.call (
-			action,
-			Helper_Form.asArray ($form),
-			callback, true
-		);
+		Controller.call(action, data, callback, true);
 	},
 
 	/**
@@ -300,8 +399,8 @@ var Helper_Form = {
 		$owner.bind ('mousemove', function (event) {
 			var $input = $(event.currentTarget).data ('input_file_upload');
 
-			var y = event.pageY - $owner.offset ().top - ($input.height() / 2) + 'px';
-			var x = event.pageX - $owner.offset ().left - ($input.width() / 1.2)-15 + 'px';
+			var y = event.pageY - $owner.offset ().top - 5 + 'px';
+			var x = event.pageX - $owner.offset ().left - 170 + 'px';
 
 			$input.css ({left: x, top: y});
 		});

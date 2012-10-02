@@ -1,25 +1,23 @@
-var layers = 
+var layers =
 {
 	data : [],
 
-	init: function (layersDivId, mapDivId, longitude, latitude, zoom) 
+	init: function (layersDivId, mapDivId, longitude, latitude, zoom)
 	{
 		// ya map:
 		this.map = new YMaps.Map (YMaps.jQuery (mapDivId) [0]);
 
 		this.map.setCenter (
-			new YMaps.GeoPoint (longitude, latitude), 
-			zoom, 
+			new YMaps.GeoPoint (longitude, latitude),
+			zoom,
 			YMaps.MapType.MAP
-			);
+		);
 
 		this.map.addControl (new YMaps.Zoom ());
 		this.map.addControl (new YMaps.ToolBar ());
 		this.map.addControl (new YMaps.ScaleLine ());
 
-		this.map.enableScrollZoom ({
-			smooth:true
-		});
+		this.map.enableScrollZoom ({smooth:true});
 
 		this.map.enableHotKeys ();
 
@@ -32,12 +30,12 @@ var layers =
 			resultsPerPage: 5,
 			width: 400
 		})).onAddToMap (
-			this.map, 
+			this.map,
 			new YMaps.ControlPosition (
-				YMaps.ControlPosition.TOP_RIGHT, 
+				YMaps.ControlPosition.TOP_RIGHT,
 				new YMaps.Point (0, 0)
-				)
-			);
+			)
+		);
 
 		// layers:
 		this.layersDivId = layersDivId;
@@ -46,7 +44,7 @@ var layers =
 	},
 
 	// show list of registred layers
-	showLayerList: function () 
+	showLayerList: function ()
 	{
 		var elm = YMaps.jQuery (this.layersDivId);
 
@@ -54,11 +52,11 @@ var layers =
 
 		var form = YMaps.jQuery ('<form action="javascript:return false;"' +
 			'onsubmit="return false;"/>'
-			);
+		);
 
 		form.appendTo (elm);
 
-		for (var i = 0; i < this.data.length; i++) 
+		for (var i = 0; i < this.data.length; i++)
 		{
 			var layerId = "layer" + i;
 			var layerName = this.data [i].name;
@@ -66,10 +64,10 @@ var layers =
 			var box = YMaps.jQuery ('<div class="layer"/>');
 
 			var checkbox = YMaps.jQuery ('<input type="checkbox"' +
-				'id="' + layerId + '" name="' + layerId + 
+				'id="' + layerId + '" name="' + layerId +
 				'" value="' + layerName + '"/>');
 
-			var label = YMaps.jQuery ('<label for="' + layerId + '">' + 
+			var label = YMaps.jQuery ('<label for="' + layerId + '">' +
 				layerName + '</label>');
 
 			checkbox.appendTo (box);
@@ -78,13 +76,13 @@ var layers =
 
 			box.appendTo(form);
 
-			checkbox.change (function() 
+			checkbox.change (function()
 			{
-				if (this.checked) 
+				if (this.checked)
 				{
 					layers.show (this.value);
-				} 
-				else 
+				}
+				else
 				{
 					layers.hide (this.value);
 				}
@@ -95,27 +93,27 @@ var layers =
 	},
 
 	// creates overlay from object description
-	createMapOverlay: function (objectDesc) 
+	createMapOverlay: function (objectDesc)
 	{
 		//type, point, style, description
 		var points = objectDesc.points;
 
-		if (points.length > 0) 
+		if (points.length > 0)
 		{
-			for (var i = 0; i < points.length; i++) 
+			for (var i = 0; i < points.length; i++)
 			{
 				points [i] = new YMaps.GeoPoint (
-					points [i].lng, 
+					points [i].lng,
 					points [i].lat
-					);
+				);
 			}
-		} 
-		else 
+		}
+		else
 		{
 			points = new YMaps.GeoPoint (
-				points.lng, 
+				points.lng,
 				points.lat
-				);
+			);
 		}
 
 		if (points.length == 0)
@@ -124,20 +122,20 @@ var layers =
 		}
 
 		var allowObjects = ['Placemark', 'Polyline', 'Polygon'],
-		index = YMaps.jQuery.inArray (objectDesc.type, allowObjects),
-		constructor = allowObjects [(index == -1) ? 0 : index];
+			index = YMaps.jQuery.inArray (objectDesc.type, allowObjects),
+			constructor = allowObjects [(index == -1) ? 0 : index];
 
 		var description = objectDesc.description || "";
 
-		var object = new YMaps [constructor] 
+		var object = new YMaps [constructor]
 		(
-			points, 
+			points,
 			{
-				style: objectDesc.style, 
-				hasBalloon : !!description, 
+				style: objectDesc.style,
+				hasBalloon : !!description,
 				hasHint: !!objectDesc.name
 			}
-			);
+		);
 
 		object.description = description;
 
@@ -147,27 +145,26 @@ var layers =
 	},
 
 	// constructs new layer from description and adds it
-	add: function (layerDesc) 
+	add: function (layerDesc)
 	{
 		var layer = {
-			name: layerDesc.name, 
-			center: layerDesc.center, 
-			content: []
+			name: layerDesc.name,
+			center: layerDesc.center, content: []
 		};
-		
+
 		var i;
 
 		// import styles
-		for (i = 0; i < layerDesc.styles.length; i++) 
+		for (i = 0; i < layerDesc.styles.length; i++)
 		{
 			YMaps.Styles.add (
-				layerDesc.styles [i].name, 
+				layerDesc.styles [i].name,
 				layerDesc.styles [i].style
-				);
+			);
 		}
 
 		// import objects
-		for (i = 0; i < layerDesc.objects.length; i++) 
+		for (i = 0; i < layerDesc.objects.length; i++)
 		{
 			var o = this.createMapOverlay (layerDesc.objects [i]);
 
@@ -182,7 +179,7 @@ var layers =
 	},
 
 	// gets layer with name
-	get: function (name) 
+	get: function (name)
 	{
 		for (var i = 0; i < this.data.length; i++)
 		{
@@ -195,11 +192,11 @@ var layers =
 	},
 
 	// show layer with name
-	show: function(name) 
+	show: function(name)
 	{
 		var layer = this.get (name);
 
-		if (layer.show) 
+		if (layer.show)
 		{
 			return;
 		}
@@ -212,27 +209,27 @@ var layers =
 		layer.show = true;
 
 		var point = new YMaps.GeoPoint (
-			layer.center.lng, 
+			layer.center.lng,
 			layer.center.lat
-			);
+		);
 
-		this.map.setZoom 
+		this.map.setZoom
 		(
-			layer.center.zoom, 
+			layer.center.zoom,
 			{
 				smooth:true,
-				position:point, 
+				position:point,
 				centering:true
 			}
-			);
+		);
 	},
 
 	// hide layer with name
-	hide: function (name) 
+	hide: function (name)
 	{
 		var layer = this.get (name);
 
-		if (!layer.show) 
+		if (!layer.show)
 		{
 			return;
 		}
@@ -246,14 +243,14 @@ var layers =
 	}
 };
 
-function encodePoints (points) 
+function encodePoints (points)
 {
 	var array = [],                     // Временный массив для точек
-	prev = new YMaps.Point (0, 0),    // Предыдущая точка
-	coef = 1000000;                 // Коэффициент
+		prev = new YMaps.Point (0, 0),    // Предыдущая точка
+		coef = 1000000;                 // Коэффициент
 
 	// Обработка точек
-	for (var i = 0, geoVector, currentPoint; i < points.length; i++) 
+	for (var i = 0, geoVector, currentPoint; i < points.length; i++)
 	{
 		currentPoint = points[i].copy ();
 
@@ -262,9 +259,9 @@ function encodePoints (points)
 
 		// Умножение каждой координаты точки на коэффициент и кодирование
 		array = array.concat (
-			Base64.encode4bytes (geoVector.getX () * coef), 
+			Base64.encode4bytes (geoVector.getX () * coef),
 			Base64.encode4bytes (geoVector.getY() * coef)
-			);
+		);
 
 		prev = currentPoint;
 	}
@@ -275,27 +272,25 @@ function encodePoints (points)
 
 $(document).ready (function ()
 {
+    if (typeof $('#saveGeoObject').live !== 'undefined')
+    {
 	$('#saveGeoObject').live ('click', function ()
 	{
 		var geo_layers = editor.getObjectDescriptions ();
 
-		alert ('Объект/ы сохранены!');
+		Controller.call (
+			'Admin_Database_Map/save',
+			{
+				table: table,
+				row_id: row_id,
+				data: geo_layers
+			},
+			function (result)
+			{
 
-		if (geo_layers.length > 0)
-		{
-			Controller.call (
-				'Admin_Database_Map/save',
-				{
-					table: table,
-					row_id: row_id,
-					data: geo_layers
-				},
-				function (result)
-				{
-					
-				},
-				false
-				);
-		}
+			},
+			false
+		);
 	});
+    }
 });

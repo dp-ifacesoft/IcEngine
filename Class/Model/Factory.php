@@ -1,8 +1,8 @@
 <?php
 /**
- * 
+ *
  * @desc Модель, необходимая для организации фабрик.
- * Используется в случаях, когда модели могут быть реализованы 
+ * Используется в случаях, когда модели могут быть реализованы
  * разными классами.
  * @author Юрий Шведов
  * @package IcEngine
@@ -10,9 +10,9 @@
  */
 class Model_Factory extends Model
 {
-	
+
 	/**
-	 * @desc Возвращает название класса, который будет использоваться 
+	 * @desc Возвращает название класса, который будет использоваться
 	 * в качестве модели.
 	 * @param string $model Название модели.
 	 * @param string $key Первичный ключ.
@@ -25,22 +25,22 @@ class Model_Factory extends Model
 	    {
 		    return $model . '_' . $object ['name'];
 	    }
-	    
-		return $model . '_' . DDS::execute (
-		    Query::instance ()
-			    ->select ('name')
-			    ->from ($this->table ())
-			    ->where ('id=?', $key)
-		)->getResult ()->asValue ();
+		$query =  Query::instance ()
+			->select ('name')
+			->from ($this->table())
+			->where ('id', $key);
+	    $delegateName = DDS::execute ($query)->getResult ()->asValue();
+		$delegateName = $delegateName ?: 'Abstract';
+		return $model . '_' . $delegateName;
 	}
-	
+
 	/**
 	 * @desc Возвращает таблицу
 	 * @return string
 	 */
 	public function table ()
 	{
-		return get_class ($this);
+		return get_class($this);
 	}
-	
+
 }
