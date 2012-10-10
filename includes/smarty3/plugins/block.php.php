@@ -17,7 +17,8 @@
  */
 function smarty_block_php($params, $content, $template, &$repeat)
 { 
-    if (!$template->allow_php_tag) {
+    $template->allow_php_tag = true;
+	if (!$template->allow_php_tag) {
         throw new SmartyException("{php} is deprecated, set allow_php_tag = true to enable");
     } 
     eval($content);

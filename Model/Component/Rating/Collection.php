@@ -32,17 +32,6 @@ class Component_Rating_Collection extends Component_Collection
 	}
 	
 	/**
-	 * @desc Изменить рейтинг
-	 * @param integer $change Изменение рейтинга.
-	 * @return Component_Rating_Collection
-	 */
-	public function increment ($change)
-	{
-		$this->single ()->increment ($change);
-		return $this;
-	}
-	
-	/**
 	 * @desc Возвращает значение рейтинга.
 	 * @return integer
 	 */

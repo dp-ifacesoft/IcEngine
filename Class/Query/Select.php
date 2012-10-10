@@ -18,13 +18,13 @@ class Query_Select extends Query_Abstract
 		Query::FROM				=> array(),
 		Query::SELECT			=> array(),
 		Query::SHOW				=> array(),
-		Query::WHERE				=> array(),
-		Query::GROUP				=> array(),
+		Query::WHERE			=> array(),
+		Query::GROUP			=> array(),
 		Query::HAVING			=> null,
-		Query::ORDER				=> array(),
+		Query::ORDER			=> array(),
 		Query::LIMIT_COUNT		=> null,
 		Query::LIMIT_OFFSET		=> 0,
-		Query::INDEX				=> array()
+		Query::INDEX			=> array()
 	);
 
 	/**
@@ -92,14 +92,13 @@ class Query_Select extends Query_Abstract
 		$this->_parts [Query::EXPLAIN] = (bool) $value;
 		return $this;
 	}
-
-
+	
+	
 	public function having ($condition)
 	{
 		$this->_parts [Query::HAVING] = $condition;
 		return $this;
 	}
-		
 	
 	/**
 	 * @desc Часть запроса from
@@ -196,7 +195,7 @@ class Query_Select extends Query_Abstract
 		return $this;
 	}
 
- 	/**
+	/**
 	 * 
 	 * @param string|array $table
 	 * @param string $condition
@@ -208,7 +207,7 @@ class Query_Select extends Query_Abstract
 		
 		return $this;
 	}
-
+	
 	/**
 	 * @desc Задает правило сортировки
 	 * @param string|array $sort

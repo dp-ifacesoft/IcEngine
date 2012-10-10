@@ -1,0 +1,1 @@
+{if is_object($value) || is_array($value)}{$renderer->getListItemById($value.0)}{else}{$renderer->getListItemById($value)}{/if}

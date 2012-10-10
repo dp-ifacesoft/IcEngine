@@ -405,6 +405,19 @@ abstract class Model implements ArrayAccess
 	}
 
 	/**
+	 * @desc Вoзращает пустой компонент модели 
+	 * @param type  
+	 */
+	public function createComponent($type) {
+		return Model_Manager::create(
+				'Component_' . $type, array (
+					'table' => $this->modelName(),
+					'row_id' => $this->key()
+				)
+		);
+	}
+	
+	/**
 	 * @desc Возвращает коллекцию связанных компонентов или
 	 * элемент коллекции с указанным индексом.
 	 * @param string $type Тип компонентов.
@@ -862,8 +875,17 @@ abstract class Model implements ArrayAccess
 	public function title ()
 	{
 		$model = is_null ($this->_generic) ? $this : $this->_generic;
-
 		return $model->name;
+	}
+	
+	/**
+	 * @desc Возвращает url сущности
+	 * @return string
+	 */
+	public function url ()
+	{
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		return '/' . $model->modelName() . '/' . $model->key() . '/';
 	}
 
 	/**
@@ -1079,5 +1101,47 @@ abstract class Model implements ArrayAccess
 
 		return $this;
 	}
+	
+	public function saveCarefully()
+	{
+		$pseudos = array ();
+		
+		// Список существующий в модели полей
+		$scheme = Model_Scheme::fieldsNames ($this->modelName ());
+		
+		foreach ($this->_fields as $name => $value)
+		{
+			if (array_search ($name, $scheme) === false)
+			{
+				// Псевдополе
+				$pseudos [$name] = $value;
+				unset ($this->_fields [$name]);
+			}
+		}
+		
+		$this->save ();
+		
+		$this->_fields = array_merge (
+		$this->_fields,
+		$pseudos
+		);
+		
+		return $this;
+	}
 
+	/**
+	 * @param Model_Component $component .
+	 * @return Model первая модель с show=1.
+	 */
+	public function componentShow ($component)
+	{
+		$components = $this->component($component)->filter(array('show'=>1));
+		if ($components && $components->count())
+		{	
+			return $components->first();
+		}
+		
+		return false;		
+	}
+	
 }

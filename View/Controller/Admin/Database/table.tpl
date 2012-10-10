@@ -2,11 +2,11 @@
 
 <h2>Записи</h2>
 
-<p class="control"><a class="add" href="/cp/row/{$table}/0/">+ Добавить</a></p>
+	<p><a href="/cp/row/{$table}/0/{if isset($limitator)}?limitator={$limitator}{/if}">Добавить</a></p>
 
 {if $collection}
 
-	{if $search_fields}
+	{if $search_fields && count($search_fields)>0}
 	<div id="search" class="box white radius10">
 		<form method="get" action="/cp/table/{$table}/">
 			<div style="height:250px; overflow:auto">
@@ -110,7 +110,7 @@
 					{/if}
 					{/if}
 					{if $field == $title || ($links && in_array($field,$links))}
-					<a href="/cp/row/{$table}/{$row->key()}/" style="
+					<a href="/cp/row/{$table}/{$row->key()}/{if isset($limitator)}?limitator={$limitator}{/if}" style="
 						{if $link_styles}
 							{foreach from=$link_styles item="column" key="c"}
 								{foreach from=$column item="style" key="v"}
@@ -131,7 +131,7 @@
 			{/foreach}
 		</tbody>
 	</table>
-	{if $limitator}
+	{if isset($limitator)}
 	<p><a href="/cp/table/{$table}/">Все записи</a></p>
 	{/if}
 	{/if}

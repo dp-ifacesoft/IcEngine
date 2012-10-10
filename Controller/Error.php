@@ -18,13 +18,7 @@ class Controller_Error extends Controller_Abstract
 	 */
 	public function accessDenied ()
 	{
-		$this->_output->send (array (
-			'error'	=> 'access denied',
-			'data'	=> array (
-				'error' => 'access denied'
-			)
-		));
-		return $this->replaceAction ('Authorization', 'accessDenied');
+		$this->replaceAction ('Authorization', 'accessDenied');
 	}
 
 	/**

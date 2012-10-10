@@ -58,19 +58,23 @@ class Controller_Yandex_Map extends Controller_Abstract
 	
 	/**
 	 * @desc Добавляет строку подключения скрипта яндекс карт.
+	 * @param $mode - покдючаемые модули через тильду
+	 * @example regions~metro
 	 */
-	public function includeScript ()
+	public function includeScript ($mode = '')
 	{
 		list (
 			$domain,
 			$hide_errors,
 			$load_by_require,
-			$wizard
+			$wizard,
+			$mode	
 		) = $this->_input->receive (
 			'domain',
 			'hide_errors',
 			'load_by_require',
-			'wizard'
+			'wizard',
+			'mode'	
 		);
 		
 		$key = $this->_getKey ($domain);
@@ -78,6 +82,7 @@ class Controller_Yandex_Map extends Controller_Abstract
 		$config = $this->config ();
 		
 		$this->_output->send (array (
+			'mode'				=> $mode,
 			'hide_errors'		=> 
 				is_null ($hide_errors) ?
 					$config ['hide_errors'] :

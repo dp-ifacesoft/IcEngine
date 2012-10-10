@@ -30,6 +30,11 @@ class Data_Validator_Registration_Password
 	public function validateEx ($field, $data, $scheme)
 	{
 		$length = strlen ($data->$field);
+		
+		if (!$scheme->$field) {
+			return __CLASS__ . '/' . self::BAD;
+		}
+		
 		$param = $scheme->$field->__toArray ();
 
 		$min = isset ($param ['minLength']) ? $param ['minLength'] : 6;

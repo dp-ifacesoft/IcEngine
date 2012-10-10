@@ -46,6 +46,16 @@ class Helper_Image_Resize
 		{
 			return false;
 		}
+		if (false && class_exists('Imagick'))
+		{
+			$img = new Imagick($input);	
+			$img->thumbnailImage($w, $h, TRUE);
+			$img->writeImage($output);
+			$img->clear();
+			$img->destroy();
+			return array($width,$height);
+		}
+		
 		$info = getimagesize ($input);
 		$image = '';
 		$final_width = 0;
@@ -235,7 +245,8 @@ class Helper_Image_Resize
 			default:
 				return false;
 		}
-		
+		imagedestroy($image);
+		imagedestroy($image_resized);
 		return array ($final_width, $final_height, $info [2]);
 	}
 	

@@ -22,12 +22,12 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	const SQL_ESCAPE		= '`';
 	const SQL_FROM			= 'FROM';
 	const SQL_GROUP_BY		= 'GROUP BY';
-	const SQL_HAVING		= 'HAVING';
 	const SQL_IN			= 'IN';
 	const SQL_INSERT		= 'INSERT';
 	const SQL_INNER_JOIN	= 'INNER JOIN';
 	const SQL_LEFT_JOIN		= 'LEFT JOIN';
 	const SQL_RIGHT_JOIN	= 'RIGHT JOIN';
+	const SQL_HAVING		= 'HAVING';
 	const SQL_LIMIT			= 'LIMIT';
 	const SQL_LIKE			= 'LIKE';
 	const SQL_ON			= 'ON';
@@ -81,6 +81,11 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 		return self::SQL_CALC_FOUND_ROWS;
 	}
 
+	/**
+	 * @desc Рендерит часть explain
+	 * @param Query_Abstract $query
+	 * @return string
+	 */
 	protected function _partExplain (Query_Abstract $query)
 	{
 		return $query->part (Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
@@ -239,13 +244,13 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 	public function _renderHaving (Query_Abstract $query)
 	{
 		$having = $query->part (Query::HAVING);
-
+		
 		if (empty ($having))
 		{
 			return '';
 		}
-		return
-		self::SQL_HAVING . ' ' . $having;
+		return  
+			self::SQL_HAVING . ' ' . $having;
 	}
 
 	/**

@@ -1,0 +1,1 @@
+<input type="text" name="{$parent}{$field->name}-new-value" placeholder="Ваше значение" maxlength="128" />

@@ -68,15 +68,17 @@ class Helper_Header
 	 */
 	public static function setStatus ($status, $set_code = true)
 	{
-		foreach (self::$statuses [$status] as $text)
-		{
-			if ($set_code)
+		if (!headers_sent()) {
+			foreach (self::$statuses [$status] as $text)
 			{
-				header ($text, true, $status);
-			}
-			else
-			{
-				header ($text);
+				if ($set_code)
+				{
+					header ($text, true, $status);
+				}
+				else
+				{
+					header ($text);
+				}
 			}
 		}
 	}

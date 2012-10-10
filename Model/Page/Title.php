@@ -58,14 +58,20 @@ class Page_Title extends Model_Child
 	 * @param string $page
 	 * @return Page_Title
 	 */
-	public static function byAddress ($host, $page)
+	public static function byAddress ($host = '', $page = '')
 	{
+		if (!$host)
+			$host = Request::host();
+		if (!$page)
+			$page = Request::uri();
+		$city_id = City::getCityIdByHost($host);
 		$query = Query::instance ()
-			->where ('(? RLIKE `host` OR `host`="")', $host)
+			->where ('City__id', array(0,$city_id))
 			->where ('? RLIKE `pattern`', $page)
 			->order (array (
 				'rate'		=> Query::DESC,
-				'`host`=""'	=> Query::ASC
+				'`host`=""'	=> Query::ASC,
+				'`City__id`=0' =>Query::ASC
 			))
 			->limit (1);
 

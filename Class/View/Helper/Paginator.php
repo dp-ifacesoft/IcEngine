@@ -37,7 +37,7 @@ class View_Helper_Paginator extends View_Helper_Abstract
 		
 		if (isset ($params ['tpl']))
 		{
-			$template = 'Widget/Paginator/' . $params ['tpl'] . '.tpl';
+			$template = 'Widget/Paginator/' . $params ['tpl'];
 		}
 		
 		return $this->_view->fetch ($template);

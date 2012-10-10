@@ -298,7 +298,7 @@ class Controller_Form extends Controller_Abstract
 		$collection = Model_Collection_Manager::byQuery (
 			$model_name,
 			Query::instance ()
-			->where ("$key_field IN (?)", $ids)
+			->where ("$key_field", $ids)
 		);
 
 		$collection->delete ();

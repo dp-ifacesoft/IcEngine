@@ -49,14 +49,14 @@ class View_Render_Front extends View_Render_Abstract
 		$transaction = $task->getTransaction ();
 		$this->assign ($transaction->buffer ());
 		$tasks = $transaction->receive ('tasks');
-		
-		foreach ($tasks as $t)
-		{
-			$render = $t->getViewRender ();
-			$result = $render->render ($t);
-			$this->assign ($t->getAssignVar (), $result);
+		if ($tasks) {
+			foreach ($tasks as $t)
+			{
+				$render = $t->getViewRender ();
+				$result = $render->render ($t);
+				$this->assign ($t->getAssignVar (), $result);
+			}
 		}
-		
 		$config = $this->config ();
 		$render = View_Render_Manager::byName ($config ['layout_render']);
 		

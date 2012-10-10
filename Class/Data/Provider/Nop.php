@@ -1,6 +1,6 @@
 <?php
 
-class Data_Provide_Nop extends Data_Provider_Abstract
+class Data_Provider_Nop extends Data_Provider_Abstract
 {
 	public function get ($key, $plain = false)
 	{

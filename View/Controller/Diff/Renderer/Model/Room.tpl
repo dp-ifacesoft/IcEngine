@@ -1,0 +1,1 @@
+<h5 style="margin-bottom:0;"><a href="/cp/row/{Model_Scheme::table($field->modelName())}/{$field->id}">Комната #{$field->id}</a></h5>

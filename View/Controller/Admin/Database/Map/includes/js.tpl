@@ -12,7 +12,10 @@
 
         // ya map:
 		var mapEditor = this;
-
+				$('#tabs a').each(function() {
+					if ($(this).attr('href') == '#tab-geo') {
+						$(this).bind('click', function() {
+							setTimeout(function () {
 		YMaps.load (function ()
 		{
 			mapEditor.map = new YMaps.Map (YMaps.jQuery (mapDivId) [0]);
@@ -74,6 +77,11 @@
 
             mapEditor.importLayer(this_record_layer);
 		});
+		} , 500);
+			
+				});
+			}
+		});
     },
 
     // enable editing mode for overlay
@@ -109,8 +117,8 @@
 		
         this.setDescription (overlay);
 
-        this.overlayName.focus ();
-        this.overlayName.select ();
+        //this.overlayName.focus ();
+        //this.overlayName.select ();
     },
 
     // apply all changes & stop editing mode for current overlay
@@ -543,8 +551,8 @@
 	{
         this.placemarkControl.show ();
         this.lineStyleControl.hide ();
-        this.overlayName.focus ();
-        this.overlayName.select ();
+        //this.overlayName.focus ();
+        //this.overlayName.select ();
     },
 
     // hides PlacemarkSelectorControl pane & show LineStyleControl pane
@@ -552,8 +560,8 @@
 	{
         this.placemarkControl.hide ();
         this.lineStyleControl.show ();
-        this.overlayName.focus ();
-        this.overlayName.select ();
+        //this.overlayName.focus ();
+        //this.overlayName.select ();
     },
 
     // constructs LineStyleControl DOM & adds it to the pane

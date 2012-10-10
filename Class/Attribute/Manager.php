@@ -205,7 +205,7 @@ class Attribute_Manager extends Manager_Abstract
 						'table'	=> $table,
 						'rowId'	=> $row,
 						'key'	=> $k,
-						'value'	=> json_encode ($v)
+						'value'	=> addslashes(json_encode ($v))
 					))
 			);
 

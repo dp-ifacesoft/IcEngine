@@ -286,8 +286,18 @@ class View_Resource_Manager extends Manager_Abstract
 	{
 		$base_dir = str_replace ('\\', '/', $base_dir);
 		$base_dir = rtrim ($base_dir, '/') . '/' ;
-		$base_url = '/';
+		$diff = '';
 
+                if (strpos ($base_dir, IcEngine::root ()) !== false)
+                {
+                        $diff = str_replace (
+                                IcEngine::root (),
+                                '',
+                                $base_dir
+                        );
+
+                }
+        $base_url = '/' . $diff;
 		$result = array ();
 
 		$options = array (
@@ -330,6 +340,11 @@ class View_Resource_Manager extends Manager_Abstract
 
 			for ($dir = reset ($list); $dir !== false; $dir = next ($list))
 			{
+				if (!is_dir($base_dir . $dir)) {
+					fb('failed to open dir: No such file or directory ('. $base_dir . $dir . ')');
+					break;
+				}
+
 				$subdirs = scandir ($base_dir . $dir);
 				$path = $dir ? $dir . '/' : '';
 

@@ -1,4 +1,5 @@
 <?php
+Loader::load ('Component_Collection');
 /**
  * 
  * @desc Коллекция логов баланса.
@@ -6,7 +7,7 @@
  * @package IcEngine
  *
  */
-class Component_Balance_Log_Collection extends Model_Collection
+class Component_Balance_Log_Collection extends Component_Collection
 {
 	
 }
