@@ -79,22 +79,14 @@ class Config_Manager
 	/**
 	 * Получить конфиг по пути, результат не кешируется
 	 */
-	public static function byPath($path)
+	public static function byPath($modelName, $moduleName = 'Ice')
 	{
-		$first = $path;
-		$path = str_replace('_', '/', $path);
-		$filename =
-				IcEngine::root() . (strstr($first, '__') ?
-					str_replace(
-						'_',
-						'/',
-						str_replace('__', '/Config/', $first)
-					) : self::$_pathToConfig[0] . $path) .
-				'.php';
+		$filename = IcEngine::root() .
+			$moduleName . '/Config/' . str_replace('_', '/', $modelName) .
+			'.php';
 		if (is_file($filename)) {
 			$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
 			$class = 'Config_' . $ext;
-
 			$result = new $class ($filename);
 			return $result;
 		}

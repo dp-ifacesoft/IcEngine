@@ -70,27 +70,15 @@ class Controller_Task
 			$this->_viewRender = $action->Route->viewRender ();
 
 			$action = $action->Controller_Action;
-		}
-		else
-		{
+		} else {
 			$this->_viewRender = View_Render_Manager::getView ();
 		}
-
 		$this->_controllerAction = $action;
-		$moduleCollection = Model_Collection_Manager::create(
-			'Module'
-		);
-		if ($action)
-		{
-			foreach ($moduleCollection->items() as $module) {
-				$filename = $module->name . '/View/Controller/' .
-					str_replace ('_', '/', $action->controller) . '/' .
-					$action->action;
-				$this->_template = $filename;
-				if (file_exists ($filename . '.tpl')) {
-					break;
-				}
-			}
+		if ($action) {
+			$this->_template =
+				'Controller/' .
+				str_replace('_', '/', $action->controller) . '/' .
+				$action->action;
 		}
 	}
 

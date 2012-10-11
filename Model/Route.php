@@ -139,7 +139,7 @@ class Route extends Model_Child
 					$currentRoutes[$route['route']] = 1;
 				}
 				foreach ($moduleCollection as $module) {
-					$moduleConfig = Config_Manager::byPath($module->name . '__Route');
+					$moduleConfig = Config_Manager::byPath('Route', $module->name);
 					if (!$moduleConfig) {
 						continue;
 					}

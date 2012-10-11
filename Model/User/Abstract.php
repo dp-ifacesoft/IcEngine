@@ -202,6 +202,22 @@ class User_Abstract extends Model
 	}
 
 	/**
+	 * Проверяет есть ли у юзера доступ к содержимому, админских блоков и т д
+	 * @return boolean
+	 */
+	public function accessToAdmin()
+	{
+		if (self::id() > 0) {
+			$user = self::getCurrent();
+			if ($user->hasRole('editor') ||
+				$user->hasRole('admin')) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @desc Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
 	 * @param Acl_Role|string $role Роль или название роли
 	 * @param $_

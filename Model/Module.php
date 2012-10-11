@@ -28,4 +28,25 @@ class Module extends Model_Defined
 			)
 		)
 	);
+
+	public static function notMain()
+	{
+		$out = array();
+		foreach (self::$rows as $row) {
+			if (!$row['isMain']) {
+				$out[] = $row;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Получить путь модуля
+
+	 * @return string
+	 */
+	public function path()
+	{
+		return $this->name . '/';
+	}
 }
