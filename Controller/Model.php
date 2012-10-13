@@ -417,7 +417,7 @@ class Controller_Model extends Controller_Abstract
 					'author'	=> $author,
 					'comment'	=> $comment,
 					'fields'	=> $result_fields,
-					'indexes'	=> $result_indexes
+					'indexes'	=> $result_keys
 				)
 			);
 
