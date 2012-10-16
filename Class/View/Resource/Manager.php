@@ -338,14 +338,13 @@ class View_Resource_Manager extends Manager_Abstract
 
 			$files = array ();
 
-			for ($dir = reset ($list); $dir !== false; $dir = next ($list))
-			{
+			for ($dir = reset($list); $dir !== false; $dir = next($list)) {
 				if (!is_dir($base_dir . $dir)) {
 					fb('failed to open dir: No such file or directory ('. $base_dir . $dir . ')');
 					break;
 				}
 
-				$subdirs = scandir ($base_dir . $dir);
+				$subdirs = scandir($base_dir . $dir);
 				$path = $dir ? $dir . '/' : '';
 
 				for ($j = 0, $count = sizeof ($subdirs); $j < $count; $j++)

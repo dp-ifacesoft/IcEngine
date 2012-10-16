@@ -29,6 +29,10 @@ class Module_Manager extends Manager_Abstract
 		Loader::addPath ('Controller', $module_dir . 'Controller/');
 		Loader::addPath ('includes', $module_dir . 'includes/');
 		Config_Manager::addPath ($module_dir . 'Config/');
+		if ($module_name != 'Ice') {
+			Config_Manager::addPath (IcEngine::root() . 'Ice/Config/Module/' .
+				$module_name . '/');
+		}
 		$view = View_Render_Manager::getView ();
 		$view->addTemplatesPath ($module_dir . 'View');
 		self::$_modules[$module_name] = array();
