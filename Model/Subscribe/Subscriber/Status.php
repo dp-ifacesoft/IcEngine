@@ -10,20 +10,18 @@ class Subscribe_Subscriber_Status extends Model
 	 */
 	public static function forSession ($session_id, $status, $limit = null)
 	{
-		Loader::load ('Subscribe_Subscriber_Status_Collection');
-		
 		$query = Query::instance ()
 				->select ('*')
 				->from ('Subscribe_Subscriber_Status')
 				->where ('status', $status)
 				->where ('Subscribe_Session__id', $session_id)
-				->limit ($limit);  
-		
+				->limit ($limit);
+
 		$collection = new Subscribe_Subscriber_Status_Collection;
-				
+
 		return $collection->fromQuery ($query);
 	}
-	
+
 	/**
 	 * @desc Изменить статус
 	 * @param integer $status

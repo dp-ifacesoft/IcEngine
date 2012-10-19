@@ -42,8 +42,6 @@ class User_Abstract extends Model
 				'::',
 				$config ['login_callback']
 			);
-
-			Loader::load ($class);
 			call_user_func (
 				array ($class, $method),
 				$this
@@ -171,6 +169,22 @@ class User_Abstract extends Model
 	}
 
 	/**
+	 * Проверяет есть ли у юзера доступ к содержимому, админских блоков и т д
+	 * @return boolean
+	 */
+	public function accessToAdmin()
+	{
+		if (self::id() > 0) {
+			$user = self::getCurrent();
+			if ($user->hasRole('editor') ||
+				$user->hasRole('admin')) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @desc Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
 	 * @param Acl_Role|string $role Роль или название роли
 	 * @param $_
@@ -203,7 +217,6 @@ class User_Abstract extends Model
 	 */
 	public function hasRoleWithType ($type_id)
 	{
-		Loader::load ('Helper_Link');
 		$collection = Helper_Link::linkedItems (
 			$this,
 			'Acl_Role'
@@ -246,7 +259,6 @@ class User_Abstract extends Model
 				$config ['logout_callback']
 			);
 
-			Loader::load ($class);
 			call_user_func (
 				array ($class, $method),
 				$this
@@ -260,8 +272,6 @@ class User_Abstract extends Model
 	 */
 	public function personalRole ()
 	{
-		Loader::load ('Acl_Role_Type_Personal');
-
 		$role_name = 'User' . $this->id . 'Personal';
 
 		$role = Acl_Role::byTypeNName (
@@ -291,7 +301,6 @@ class User_Abstract extends Model
 	 */
 	public function role ($role_type_id, $autocreate = false)
 	{
-		Loader::load ('Helper_Link');
 		$role = Helper_Link::linkedItems (
 			$this,
 			'Acl_Role'

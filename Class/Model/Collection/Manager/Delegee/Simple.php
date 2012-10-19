@@ -26,8 +26,6 @@ class Model_Collection_Manager_Delegee_Simple
 			$collection->data ('foundRows', $query_result->foundRows ());
 		}
 
-		Loader::load ('Helper_Data_Source');
-
 		$scheme = Model_Scheme::getScheme ($model);
 
 		$fields = array_keys ($scheme ['fields']);

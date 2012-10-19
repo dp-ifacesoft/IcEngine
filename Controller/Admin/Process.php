@@ -1,15 +1,15 @@
 <?php
 /**
- * 
+ *
  * @desc
  * @author Юрий Шведов
- * 
+ *
  */
 class Controller_Admin_Process extends Controller_Abstract
 {
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @var Config
 	 */
 	protected $_config = array (
@@ -23,7 +23,7 @@ class Controller_Admin_Process extends Controller_Abstract
 			5	=> 'stoped'
 		)
 	);
-	
+
 	/**
 	 * @desc Проверяет доступность ресурса для текущего пользователя
 	 * @param string $model
@@ -34,10 +34,10 @@ class Controller_Admin_Process extends Controller_Abstract
 	{
 		$resource = 'Table/' . Model_Scheme::table ($model) . '/' . $field;
 		$resource = Acl_Resource::byNameCheck ($resource);
-		
+
 		return $resource && $resource->userCan (User::getCurrent ());
 	}
-	
+
 	/**
 	 * @desc Вовзращает строковое представление статуса
 	 * @param integer $status
@@ -47,7 +47,7 @@ class Controller_Admin_Process extends Controller_Abstract
 	{
 		return $this->config ()->titles [$status];
 	}
-	
+
 	/**
 	 * @desc Вывод текущего состояния с возможностью редактирвоанияs
 	 * @param Model $model
@@ -59,28 +59,28 @@ class Controller_Admin_Process extends Controller_Abstract
 		{
 			$field = 'status';
 		}
-		
+
 		$title = $this->_titleOf ($model->$field);
-		
+
 		$this->_output->send (array (
 			'model'		=> $model,
 			'field'		=> $field,
 			'status'	=> $model->$field,
 			'title'		=> $title
 		));
-		
+
 		if (!$this->_hasAccess ($model->modelName (), $field))
 		{
 			$this->_task->setClassTpl (__METHOD__, 'disabled');
 		}
 	}
-	
+
 	/**
 	 *
 	 * @param string $model
 	 * @param integer $key
 	 * @param string $field
-	 * @param integer $status 
+	 * @param integer $status
 	 */
 	public function change ($model, $key, $field, $status)
 	{
@@ -89,14 +89,12 @@ class Controller_Admin_Process extends Controller_Abstract
 			$this->replaceAction ('Error', 'accessDenied');
 			return;
 		}
-		
+
 		$model = Model_Manager::byKey ($model, $key);
-		
+
 		$model->update (array (
 			$field	=> $status
 		));
-		
-		Loader::load ('Admin_Log');
 
 		$log = new Admin_Log (array (
 			'User__id'		=> User::id (),
@@ -109,7 +107,7 @@ class Controller_Admin_Process extends Controller_Abstract
 		));
 
 		$log->save ();
-		
+
 		$this->_output->send (array (
 			'model'	=> $model,
 			'data'	=> array (
@@ -118,5 +116,5 @@ class Controller_Admin_Process extends Controller_Abstract
 			)
 		));
 	}
-	
+
 }

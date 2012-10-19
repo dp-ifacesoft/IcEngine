@@ -69,29 +69,6 @@ class Controller_Abstract
         return (bool) count ($this->_errors);
     }
 
-	/**
-	 * @desc Метод выполняется после вызова метода $action из диспетчера
-	 * @param string $action Вызываемый метод.
-	 */
-	public function _afterAction ($action)
-	{
-		Message_Queue::push (
-			'after::' . get_class ($this) . '::' . $action
-		);
-	}
-
-	/**
-	 * @desc Метод выполняется перед вызовом метода $action из диспетчера
-	 * @param string $action Вызываемый метод.
-	 */
-	public function _beforeAction ($action)
-	{
-		$this->_currentAction = get_class ($this) . '::' . $action;
-		Message_Queue::push (
-			'before::' . $this->_currentAction
-		);
-	}
-
 	public function _helperReturn () {}
 
 	/**
@@ -100,7 +77,6 @@ class Controller_Abstract
 	 */
 	public function _inputTempContent ()
 	{
-		Loader::load ('Temp_Content');
 		$tc = Temp_Content::byUtcode ($this->_input->receive ('utcode'));
 
 		if (!$tc)
@@ -125,12 +101,9 @@ class Controller_Abstract
 	 */
 	public function _inputFormData ($scheme, $use_tc = null, $by_parts = true)
 	{
-		Loader::load ('Helper_Form');
-
 		// временный контент
 		if ($use_tc)
 		{
-			Loader::load ('Temp_Content');
 			if (!($use_tc instanceof Temp_Content))
 			{
 				$use_tc = Temp_Content::byUtcode (
@@ -196,7 +169,6 @@ class Controller_Abstract
 	public function _savePostModel (Temp_Content $tc, $scheme,
 		$model_class = null)
 	{
-		Loader::load ('Helper_Form');
 		$data = Helper_Form::receiveFields ($this->_input, $scheme);
 
 		Helper_Form::filter ($data, $scheme);
@@ -390,14 +362,13 @@ class Controller_Abstract
 			$other->setInput ($this->_input);
 			$other->setOutput ($this->_output);
 			$other->setTask ($this->_task);
-
-            $other->_beforeAction ($action);
+           // $other->_beforeAction ($action);
 
             // _beforeAction не генерировал ошибки, можно продолжать
             if (! $other->hasErrors ())
             {
                 $other->$action ();
-                $other->_afterAction ($action);
+                //$other->_afterAction ($action);
             }
 		}
 	}

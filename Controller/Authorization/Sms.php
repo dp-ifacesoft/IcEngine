@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Контроллер авторизации
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class Controller_Authorization_Sms extends Controller_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -36,7 +36,7 @@ class Controller_Authorization_Sms extends Controller_Abstract
 		// Авторегистрация
 		'sms_auto_registration'		=> false
 	);
-	
+
 	/**
 	 * @desc Возвращает адрес для редиректа
 	 * @return string
@@ -44,14 +44,13 @@ class Controller_Authorization_Sms extends Controller_Abstract
 	protected function _redirect ()
 	{
 		$redirect = $this->_input->receive ('redirect');
-		Loader::load ('Helper_Uri');
 		return Helper_Uri::validRedirect (
-			$redirect ? 
-				$redirect : 
+			$redirect ?
+				$redirect :
 				self::DEFAULT_REDIRECT
 		);
 	}
-	
+
 	/**
 	 * @desc Авторизация
 	 */
@@ -63,7 +62,7 @@ class Controller_Authorization_Sms extends Controller_Abstract
 			$this->_task->setClassTpl (__METHOD__, 'fail');
 			return;
 		}
-		
+
 		list (
 			$phone,
 			$activation_id,
@@ -73,37 +72,36 @@ class Controller_Authorization_Sms extends Controller_Abstract
 			'sms_session_id',
 			'sms_session_code'
 		);
-		
-		Loader::load ('Helper_Phone');
+
 		$phone = Helper_Phone::parseMobile ($phone);
 		$code = $this->config ()->sms_auth_prefix . $clear_code;
-		
+
 		$activation = Model_Manager::byKey ('Activation', $activation_id);
-		
+
 		if (!$activation || $activation->code != $code)
 		{
-			$this->_sendError ('incorrect code', 'incorrect_code'); 
+			$this->_sendError ('incorrect code', 'incorrect_code');
 			return;
 		}
-		
+
 		if ($activation->finished)
 		{
 			$this->_sendError ('expired', 'expired');
 			return ;
 		}
-		
-		
+
+
 		$exp = Helper_Date::cmpUnix (
 			date ('Y-m-d H:i:s'),
 			$activation->expirationTime
 		);
-		
+
 		if ($exp > 0)
 		{
 			$this->_sendError ('expired', 'expired');
 			return ;
 		}
-		
+
 		// Можно авторизовать
 		/**
 		 * @var User $user
@@ -113,13 +111,13 @@ class Controller_Authorization_Sms extends Controller_Abstract
 			Query::instance ()
 				->where ('phone', $phone)
 		);
-		
+
 		if (!$user)
 		{
 			// Пользователья не существует
 			return $this->_sendError ('user not found', 'userNotFound');
 		}
-		
+
 		// пользователь зарегистрирован, авторизуем
 		$user->authorize ();
 		$this->_output->send ('data', array (
@@ -130,18 +128,17 @@ class Controller_Authorization_Sms extends Controller_Abstract
 			'redirect'	=> $this->_redirect ()
 		));
 	}
-	
+
 	/**
 	 * @desc Авторизация или регистрация через СМС
 	 * @param string $phone Номер телефона
-	 * @param string $sms_session_id Id активации. 
+	 * @param string $sms_session_id Id активации.
 	 * @param string $sms_session_code Код, пришедший по смс.
 	 */
 	public function loginOrReg ()
 	{
-		Loader::load ('Helper_Phone');
 		$phone = Helper_Phone::parseMobile ($this->_input->receive ('phone'));
-		
+
 		/**
 		 * @var User $user
 		 */
@@ -150,16 +147,16 @@ class Controller_Authorization_Sms extends Controller_Abstract
 			Query::instance ()
 			->where ('phone', $phone)
 		);
-		
+
 		if (!$user)
 		{
 			// Пользователья не существует
 			return $this->replaceAction ($this, 'register');
 		}
-		
+
 		return $this->replaceAction ($this, 'login');
 	}
-	
+
 	/**
 	 * @desc Регистрация по номеру телефона
 	 */
@@ -174,10 +171,9 @@ class Controller_Authorization_Sms extends Controller_Abstract
 			);
 			return ;
 		}
-		
-		Loader::load ('Helper_Phone');
+
 		$phone = Helper_Phone::parseMobile ($this->_input->receive ('phone'));
-		
+
 		$user = new User (array (
 			'name'		=> $phone,
 			'email'		=> '',
@@ -186,9 +182,9 @@ class Controller_Authorization_Sms extends Controller_Abstract
 			'ip'		=> Request::ip (),
 			'phone'		=> $phone
 		));
-		
+
 		$user->save ();
-		
+
 		// пользователь зарегистрирован, авторизуем
 		$user->authorize ();
 		$this->_output->send ('data', array (
@@ -199,5 +195,5 @@ class Controller_Authorization_Sms extends Controller_Abstract
 			'redirect'	=> $this->_redirect ()
 		));
 	}
-	
+
 }

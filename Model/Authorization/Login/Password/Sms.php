@@ -1,5 +1,5 @@
 <?php
-Loader::load ('Authorization_Abstract');
+
 /**
  *
  * @desc Аавторизация через отправку пользователю СМС сообщения с кодом.
@@ -82,7 +82,6 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			$config ['authorization_callback']
 		);
 
-		Loader::load ($class);
 		call_user_func (
 			array ($class, $method),
 			$user
@@ -115,8 +114,6 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		// Приводим к нижнему регистру
 		$login = strtolower ($login);
 		$cfg = $cfg_users [$login];
-
-		Loader::load ('Crypt_Manager');
 
 		return
 			$cfg &&
@@ -246,7 +243,6 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function isValidLogin ($login)
 	{
-		Loader::load ('Data_Validator_Manager');
 		return Data_Validator_Manager::validate (
 			$this->config ()->login_validator,
 			$login
@@ -304,7 +300,6 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 
 		$config = $this->config ();
 
-		Loader::load ('Helper_Activation');
 		$activation_code = Helper_Activation::generateNumeric (
 			$config ['code_min_length'],
 			$config ['code_max_length']
@@ -339,7 +334,6 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		}
 		else
 		{
-			Loader::load ('Activation');
 			$exp_time = time () + $config ['sms_expiration'];
 			$activation = Activation::create (array (
 				'finished'			=> -2,
@@ -361,7 +355,6 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 				->where ('name', $provider ? $provider : $config ['sms_provider'])
 		);
 
-		Loader::load ('Mail_Message');
 		$message = Mail_Message::create (
 			$config ['sms_mail_template'],
 			$user->phone,

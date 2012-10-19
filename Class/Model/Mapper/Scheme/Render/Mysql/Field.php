@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Render_Abstract');
-
 /**
  * @desc Рендер для полей
  * @author Илья Колесников

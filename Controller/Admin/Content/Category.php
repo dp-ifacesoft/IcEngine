@@ -101,7 +101,6 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 				'id'	=> (int) $category_id
 			));
 
-		Loader::load ('Paginator');
 		$paginator = new Paginator ($page);
 		$contents->setPaginator ($paginator);
 
@@ -126,7 +125,6 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 		$categories = Model_Collection_Manager::create ('Content_Category')
 			->addOptions ('Root');
 
-		Loader::load ('Paginator');
 		//$categories->setPaginator (Paginator::fromInput ($this->_input));
 
 		$this->_output->send (array (

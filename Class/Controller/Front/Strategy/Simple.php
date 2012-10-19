@@ -2,8 +2,6 @@
 
 namespace Ice;
 
-Loader::load ('Controller_Front_Strategy_Abstract');
-
 /**
  * @desc Стратегия фронтконтроллера по умолчанию
  * @author Илья Колесников

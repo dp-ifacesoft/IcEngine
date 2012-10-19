@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Select');
-
 /**
  * @desc Запрос типа delete
  * @author goorus, morph

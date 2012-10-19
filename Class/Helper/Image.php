@@ -219,7 +219,6 @@ class Helper_Image
 		if (!isset ($sizing))
 		{
 			self::$code = 400;
-			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Type unsupported.', 400);
 			return;
 		}
@@ -239,13 +238,11 @@ class Helper_Image
 	 */
 	public static function uploadByUrl ($url, $table, $rowId, $type, $sizing = null)
 	{
-		Loader::load('Helper_Image');
-			
 		$info = getimagesize($url);
 		if (!$info) {
 			return;
 		}
-				
+
 		$_FILES['image'] = array(
 			'name'		=> $url,
 			'tmp_name'	=> $url,
@@ -255,7 +252,7 @@ class Helper_Image
 		);
 		return Helper_Image::uploadSimple($table, $rowId, $type);
 	}
-	
+
 	/**
 	 * @desc Простая загрузка изображения.
 	 * @param string $table
@@ -268,7 +265,7 @@ class Helper_Image
 	{
 		//$this->_log ('test');
 		$file = Request::fileByIndex (0);
-	
+
 		$host = Helper_Site_Location::getLocation ();
 		if ($host == 'localhost')
 		{
@@ -290,7 +287,6 @@ class Helper_Image
 			$sizing = self::_sizing ($type);
 		}
 
-		Loader::load ('Component_Image');
 		$image = new Component_Image (array (
 			'table'			=> $table,
 			'rowId'			=> $row_id,
@@ -333,7 +329,6 @@ class Helper_Image
 			return self::_error ('unable_get_size');
 		}
 
-		Loader::load ('Helper_Image_Resize');
    	 	$info = Helper_Image_Resize::resize (
    	 		$original, $original,
    	 		$info [0], $info [1]

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Представитель модели.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,26 +8,25 @@
  */
 class Model_Factory_Delegate extends Model
 {
-	
+
 	/**
 	 * @desc Фабрика
 	 * @var Model_Factory
 	 */
 	protected $_modelFactory;
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @param array $fields
 	 * @param Model $model [optional]
 	 */
 	public function __construct (array $fields = array (), $model = null)
 	{
 		// Находим фабрику
-		Loader::load ('Model_Manager_Delegee_Factory');
 		$this->_modelFactory = Model_Manager_Delegee_Factory::factory ($this);
 		parent::__construct ($fields, $model);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::modelName()
@@ -36,7 +35,7 @@ class Model_Factory_Delegate extends Model
 	{
 		return get_class ($this->_modelFactory);
 	}
-	
+
 	/**
 	 * @desc Задает фабрику.
 	 * @param Model_Factory $factory Экземпляр фабрики.
@@ -45,7 +44,7 @@ class Model_Factory_Delegate extends Model
 	{
 		$this->_modelFactory = $factory;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::table()
@@ -54,5 +53,5 @@ class Model_Factory_Delegate extends Model
 	{
 		return $this->_modelFactory->table ();
 	}
-	
+
 }

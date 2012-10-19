@@ -1,23 +1,22 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактный класс какого-либо API
  * @author Юрий Шведов
  * @package IcEngine
- * 
+ *
  */
 class Api_Abstract extends Model_Factory_Delegate
 {
-	
+
 	public function log ($text)
 	{
-		Loader::load ('Api_Log');
 		$log = new Api_Log (array (
-			
+
 		));
 		$log->save ();
 	}
-	
+
 	/**
 	 * @desc Возвращает данные о связи пользователя с API
 	 * @param User $user Пользователь
@@ -33,5 +32,5 @@ class Api_Abstract extends Model_Factory_Delegate
 			)
 		);
 	}
-	
+
 }

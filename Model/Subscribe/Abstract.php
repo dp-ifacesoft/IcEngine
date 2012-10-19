@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактная модель рассылки
  * @author Юрий Шведов
  * @package IcEngine
@@ -17,9 +17,9 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 		// Провайдер сообщений
 		'mail_provider'					=> 'Mimemail'
 	);
-    
+
 	/**
-	 * 
+	 *
 	 * @param stirng $code
 	 * @return string
 	 */
@@ -27,17 +27,17 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	{
 	    return 'http://www.vipgeo.ru/subscribe/activate/' . $code;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $code
 	 * @return string
 	 */
 	protected function _confirmUnsubscribeHref ($code)
 	{
-	    return 'http://www.vipgeo.ru/subscribe/deactivate/' . $code; 
+	    return 'http://www.vipgeo.ru/subscribe/deactivate/' . $code;
 	}
-	
+
 	/**
 	 * @desc Создает сессию рассылки. Готовит статусы для отправки
 	 * @param Model_Collection $subscribers
@@ -45,13 +45,9 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	 * @param string $comment
 	 * @return Model
 	 */
-	public function createSession (Model_Collection $subscribers, 
+	public function createSession (Model_Collection $subscribers,
 		$mail_template = null, $comment = '')
 	{
-		Loader::load ('Subscribe_Session');
-		Loader::load ('Helper_Process');
-		Loader::load ('Subscribe_Subscriber_Status');
-		
 		$session = new Subscribe_Session (array (
 			'Subscribe__id'			=> $this->key (),
 			'beginDate'				=> Helper_Date::toUnix (),
@@ -64,7 +60,7 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 		));
 
 		$session->save ();
-				
+
 		foreach ($subscribers as $subscriber)
 		{
 			$status = new Subscribe_Subscriber_Status (array (
@@ -75,21 +71,19 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 			));
 			$status->save ();
 		}
-		
+
 		return $session;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Subscribe_Subscriber $subscriber
 	 */
 	public function sendSubscribeConfirmation (
 	    Subscribe_Subscriber $subscriber)
 	{
 	    $join = self::subscriberJoin ($subscriber, true)->regenCode ();
-	    
-	    Loader::load ('Mail_Message');
-	    
+
 	    $mail = Mail_Message::create (
 	    	$this->config ()->confirm_subscribe_template,
 	        $subscriber->contact,
@@ -103,20 +97,19 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	        User::id (),
 	        $this->config ()->mail_provider
 	    );
-	    
+
 	    $mail->send ();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Subscribe_Subscriber $subscriber
 	 */
 	public function sendUnsubscribeConfirmation (
 	    Subscribe_Subscriber $subscriber)
 	{
 	    $join = self::subscriberJoin ($subscriber, true)->regenCode ();
-	    
-	    Loader::load ('Mail_Message');
+
 	    $mail = Mail_Message::create (
 	    	$this->config ()->confirm_unsubscribe_template,
 	        $subscriber->contact,
@@ -130,12 +123,12 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 	        User::id (),
 	        $this->config ()->mail_provider
 	    );
-	    
+
 	    $mail->send ();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Background_Process $daemon
 	 * @return Abstract
 	 */
@@ -144,9 +137,9 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 		$this->_daemon = $daemon;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Subscribe_Provider_Abstract $provider
 	 * @return Abstract
 	 */
@@ -155,9 +148,9 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 		$this->_provider = $provider;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Subscribe_Render_Abstract $render
 	 * @return Abstract
 	 */
@@ -166,9 +159,9 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 		$this->_render = $render;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Subscribe_Subscriber $subscriber
 	 * @param boolean $autocreate
 	 * @return Subscribe_Subscriber_Join|null
@@ -182,10 +175,9 @@ abstract class Subscribe_Abstract extends Model_Factory_Delegate
 		        ->where ('Subscribe__id', $this->id)
 		        ->where ('Subscribe_Subscriber__id', $subscriber->id)
 	    );
-	    
+
 	    if (!$join && $autocreate)
 	    {
-	        Loader::load ('Subscribe_Subscriber_Join');
 	        $join = new Subscribe_Subscriber_Join (array (
 	            'Subscribe__id'               => $this->id,
 	            'Subscribe_Subscriber__id'    => $subscriber->id,

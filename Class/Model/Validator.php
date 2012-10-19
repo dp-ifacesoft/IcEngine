@@ -7,8 +7,6 @@ class Model_Validator
 {
 	public static function validate ($model, $scheme, $input)
 	{
-		Loader::load ('Model_Validator_Attribute');
-
 		$validate = array ();
 		$error = false;
 

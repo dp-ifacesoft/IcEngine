@@ -76,7 +76,6 @@ class Data_Provider_Abstract
 		if ($key == 'tracer')
 		{
 			$class = 'Tracer_' . $value;
-			Loader::load ($class);
 			$this->tracer = new $class ();
 		}
 		elseif ($key == 'prefix')

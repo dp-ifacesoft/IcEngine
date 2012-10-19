@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Part_Abstract');
-
 /**
  * @desc Часть схемы моделей, отвечающая за индексы
  * @author Илья Колесников
@@ -21,7 +19,6 @@ class Model_Mapper_Scheme_Part_Index extends Model_Mapper_Scheme_Part_Abstract
 	 */
 	public static function set ($name, $fields)
 	{
-		Loader::load ('Model_Mapper_Scheme_Index');
 		$index = Model_Mapper_Scheme_Index::byName ($name);
 		$index->setFields ((array) $fields);
 		return $index;

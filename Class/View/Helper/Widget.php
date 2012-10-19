@@ -2,17 +2,17 @@
 
 class View_Helper_Widget extends View_Helper_Abstract
 {
-	
+
 	/**
-	 * Метод виджета по умолчанию. 
-	 * 
+	 * Метод виджета по умолчанию.
+	 *
 	 * @var string
 	 */
 	const DEFAULT_METHOD = 'index';
-	
+
 //	{Widget call="Page"} = {Widget call="Page->index"}
 //	{Widget call="Page->get" var="var"}
-	
+
 	/**
 	 * Вызывает метод виджета.
 	 * @param array $params
@@ -21,7 +21,7 @@ class View_Helper_Widget extends View_Helper_Abstract
 	 * 		Может быть передано в виде:
 	 * 		1) Widget::staticMethod
 	 * 			Вызов статического метода.
-	 * 			Будет вызван статический метод класса. Объект виджета создан 
+	 * 			Будет вызван статический метод класса. Объект виджета создан
 	 * 			не будет.
 	 * 			Пример: {Widget call="Widget::staticMethod"}
 	 * 		2) Widget->dynamicMethod или Widget/dynamicMethod
@@ -36,7 +36,7 @@ class View_Helper_Widget extends View_Helper_Abstract
 	 *			Синоним: {Widget call="Widget->index"}
 	 * 		$params ['var'] [optional]
 	 * 			Переменная результата.
-	 * 		
+	 *
 	 * 		Все параметры (включая "call" и "var") будут переданы
 	 * 		в метод виджета.
 	 * @return mixed
@@ -48,20 +48,19 @@ class View_Helper_Widget extends View_Helper_Abstract
 	public function get (array $params)
 	{
 		$call = $params ['call'];
-		
+
 		$p = strpos ($call, '::');
-		
+
 		if ($p)
 		{
 			// Явно указан статический метод виджета
 			$widget = substr ($call, 0, $p);
 			$method = substr ($call, $p + 2);
-			Loader::load ('Widget_' . $widget);
 		}
 		else
 		{
 			$p = strpos ($call, '->');
-			
+
 			if ($p)
 			{
 				// Явно указан метод виджета
@@ -84,9 +83,9 @@ class View_Helper_Widget extends View_Helper_Abstract
 				}
 			}
 		}
-		
+
 		$result = Widget_Manager::call ($widget, $method, $params, false);
-		
+
 		if (isset ($params ['var']))
 		{
 			$this->_view->assign ($params ['var'], $result ['return']);
@@ -96,5 +95,5 @@ class View_Helper_Widget extends View_Helper_Abstract
 			return $result ['html'];
 		}
 	}
-	
+
 }

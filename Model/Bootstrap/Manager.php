@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер загрузчиков
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,19 +8,19 @@
  */
 class Bootstrap_Manager
 {
-	
+
 	/**
 	 * @desc Загрузчики
 	 * @var array <Bootstrap_Abstract>
 	 */
 	protected static $_items;
-	
+
 	/**
 	 * @desc Текущий загрузчик
 	 * @var Bootstrab_Abstract
 	 */
 	protected static $_current;
-	
+
 	/**
 	 * @desc Создает и возвращает загрузчик.
 	 * @param string $name Название загрузчика.
@@ -32,18 +32,17 @@ class Bootstrap_Manager
 		if (!isset (self::$_items [$name]))
 		{
 			$class = 'Bootstrap_' . $name;
-			Loader::load ($class);
 			self::$_items [$name] = new $class ($path);
 		}
-		
+
 		if (!self::$_current)
 		{
 			self::$_current = self::$_items [$name];
 		}
-		
+
 		return self::$_items [$name];
 	}
-	
+
 	/**
 	 * @desc Возвращает текущий загрузчик.
 	 * @return Bootstrap_Abstract
@@ -52,5 +51,5 @@ class Bootstrap_Manager
 	{
 		return self::$_current;
 	}
-	
+
 }

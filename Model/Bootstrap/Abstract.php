@@ -47,41 +47,7 @@ abstract class Bootstrap_Abstract
 	protected function _run ()
 	{
 		$this->addLoaderPathes ();
-
-		Loader::multiLoad (
-			'Manager_Abstract',
-			'Config_Manager',
-			'Zend_Exception'
-		);
-
 		$this->initFirePhp ();
-
-		Loader::multiLoad (
-			'Registry',
-			'Request',
-			'Executor',
-			'Helper_Action',
-			'Helper_Date',
-			'Helper_Link',
-			'Model',
-			'Model_Child',
-			'Model_Content',
-			'Model_Component',
-			'Model_Collection',
-			'Model_Factory',
-			'Model_Factory_Delegate',
-			'Model_Option',
-			'Component',
-			'Controller_Abstract',
-			'Controller_Front',
-			'Controller_Manager',
-			'Page_Title',
-			'View_Render',
-			'View_Render_Manager',
-			'View_Helper_Abstract',
-			'Data_Transport_Manager'
-		);
-
 		$this->initMessageQueue ();
 
 		$this->initDds ();
@@ -109,10 +75,7 @@ abstract class Bootstrap_Abstract
 		Loader::addPath ('Class', $path . 'Class/');
 		Loader::addPath ('Class', $path . 'Model/');
 		Loader::addPath ('Class', $path);
-
-		Loader::addPath ('Controller', IcEngine::path () . 'Controller/');
-		Loader::addPath ('Controller', $path . 'Controller/');
-
+		Loader::addPath('Controller', $path . 'Controller/');
 		Loader::addPath ('includes', $path . 'includes/');
 	}
 
@@ -130,7 +93,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initAttributeManager ()
 	{
-		Loader::load ('Attribute_Manager');
 		Attribute_Manager::init ();
 	}
 
@@ -139,10 +101,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initAcl ()
 	{
-		Loader::multiLoad (
-			'Acl_Resource',
-			'Acl_Role'
-		);
+
 	}
 
 	/**
@@ -150,21 +109,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initDds ($source_name = 'default')
 	{
-		Loader::multiLoad (
-			'Data_Provider_Abstract',
-			'Data_Provider_Manager',
-
-			'Query',
-			'Query_Options',
-			'Query_Result',
-			'Query_Translator',
-
-			'DDS',
-			'Data_Mapper_Abstract',
-			'Data_Source_Abstract',
-			'Data_Source_Manager'
-		);
-
 		DDS::setDataSource (Data_Source_Manager::get ($source_name));
 	}
 
@@ -184,8 +128,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initMessageQueue ()
 	{
-		Loader::load ('Message_Queue');
-
 		Message_Queue::flush ();
 	}
 
@@ -194,10 +136,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initModelManager ()
 	{
-		Loader::multiLoad (
-			'Model_Manager',
-			'Model_Collection_Manager'
-		);
+
 	}
 
 	/**
@@ -206,8 +145,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initModelScheme ($config)
 	{
-		Loader::load ('Model_Scheme');
-
 		Model_Scheme::init (
 			Config_Manager::get ('Model_Scheme', $config)
 		);
@@ -218,13 +155,6 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initUser ()
 	{
-		Loader::multiLoad (
-			'User_Abstract',
-			'User',
-			'User_Guest',
-			'User_Session'
-		);
-
 		User_Guest::init ();
 		User::init ();
 	}

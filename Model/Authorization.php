@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Метод авторизации пользователя.
  * Фабрика для моделей авторизации. Такое разделение позволяет
  * для каждого пользователя реализовать несколько методов авторизации
@@ -11,7 +11,7 @@
  */
 class Authorization extends Model_Factory
 {
-	
+
 	/**
 	 * @desc Возвращает модель авторизации по названию
 	 * @param string $name Название модели авторизации
@@ -25,7 +25,5 @@ class Authorization extends Model_Factory
 				->where ('name', $name)
 		);
 	}
-	
-}
 
-Loader::load ('Authorization_Abstract');
+}

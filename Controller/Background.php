@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Контроллер фоновых процессов.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,15 +8,15 @@
  */
 class Controller_Background extends Controller_Abstract
 {
-	
+
     /**
-     * 
+     *
      * @var Background_Agent_Manager
      */
     protected $_manager;
-    
+
 	/**
-	 * 
+	 *
 	 * @return Background_Agent
 	 */
 	protected function _getAgent ()
@@ -31,9 +31,9 @@ class Controller_Background extends Controller_Abstract
 		}
 		return $agent;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Background_Agent_Session
 	 */
 	protected function _getSession ()
@@ -45,14 +45,14 @@ class Controller_Background extends Controller_Abstract
 			'session_id',
 			'session_key'
 		);
-		
+
 		$session = Model_Manager::byQuery (
-			'Background_Agent_Session', 
+			'Background_Agent_Session',
 			Query::instance ()
 			->where ('id', $session_id)
 			->where ('key', $session_key)
 		);
-		
+
 		if (!$session)
 		{
 			$this->_output->send (array (
@@ -61,7 +61,7 @@ class Controller_Background extends Controller_Abstract
 		}
 		return $session;
 	}
-	
+
 	/**
 	 * @return Background_Agent_Manager
 	 */
@@ -69,21 +69,19 @@ class Controller_Background extends Controller_Abstract
 	{
 	    if (!$this->_manager)
 	    {
-	        Loader::load ('Background_Agent_Manager');
 	        $this->_manager = new Background_Agent_Manager ();
 	    }
 	    return $this->_manager;
 	}
-	
+
 	public function agents ()
 	{
-		Loader::load ('Background_Agent_Collection');
 		$agents = new Background_Agent_Collection ();
 		$this->_output->send (array (
 			'agents'	=> $agents
 		));
 	}
-	
+
 	public function resetState ()
 	{
 		$agent = $this->_getAgent ();
@@ -91,10 +89,10 @@ class Controller_Background extends Controller_Abstract
 		{
 			return;
 		}
-		
+
 		$agent->resetState ();
 	}
-	
+
 	/**
 	 * @desc Вызвать следующую итерацию работы сессии и возобновить.
 	 */
@@ -105,12 +103,12 @@ class Controller_Background extends Controller_Abstract
 		{
 			return;
 		}
-		
+
 		$session->process ();
 		$this->_manager ()->resumeSession ($session);
 		die ();
 	}
-	
+
 	public function stop ()
 	{
 		$session = $this->_getSession ();
@@ -118,8 +116,8 @@ class Controller_Background extends Controller_Abstract
 		{
 			return;
 		}
-		
+
 		$session->stop ();
 	}
-	
+
 }

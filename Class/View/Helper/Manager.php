@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер хелперов представления
  * @author Юрий
  * @package IcEngine
@@ -13,7 +13,7 @@ abstract class View_Helper_Manager
 	 * @var array <View_Helper_Abstract>
 	 */
 	protected static $_helpers;
-	
+
 	/**
 	 * @desc Возвращает результат работы хелпера.
 	 * @param string $name Название помощника
@@ -25,7 +25,6 @@ abstract class View_Helper_Manager
 		if (!isset (self::$_helpers [$name]))
 		{
 			$helperName = 'View_Helper_' . $name;
-			Loader::load ($helperName);
 			self::$_helpers [$name] = new $helperName;
 		}
 		return self::$_helpers [$name]->get ($params);

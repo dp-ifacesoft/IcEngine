@@ -1,14 +1,14 @@
 <?php
 /**
- * 
- * @desc 
+ *
+ * @desc
  * @author Юрий Шведов
  * @package IcEngine
  *
  */
 class Component extends Model
 {
-	
+
 	/**
 	 * @desc Получение коллекции компонент указанного типа для модели.
 	 * @param Model $model Модель
@@ -18,11 +18,9 @@ class Component extends Model
 	public static function getFor (Model $model, $type)
 	{
 		$collection_class = 'Component_' . $type;
-		
-		Loader::load ('Component_Collection');
-		
+
 		return Model_Collection_Manager::create ($collection_class)
 			->getFor ($model);
 	}
-	
+
 }

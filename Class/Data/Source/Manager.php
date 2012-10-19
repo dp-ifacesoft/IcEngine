@@ -109,18 +109,11 @@ class Data_Source_Manager
 
 			$source_class = 'Data_Source_' . $conf ['source'];
 
-			Loader::load ($source_class);
-
 			$mapper_class =
 				isset ($conf ['mapper']) ?
 				('Data_Mapper_' . $conf ['mapper']) :
 				'';
-
-			if ($mapper_class)
-			{
-				Loader::load ($mapper_class);
-			}
-
+			
 			self::$_sources [$name] = new $source_class ();
 			/**
 			 * @desc Меппер.
@@ -134,7 +127,7 @@ class Data_Source_Manager
 				$mapper = new $mapper_class;
 
 				self::$_sources [$name]->setDataMapper ($mapper);
-			} 
+			}
 
 			if (isset ($conf ['mapper_options']))
 			{

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Модель баланса.
  * @author Гурус
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class Component_Balance extends Model_Component
 {
-	
+
 	/**
 	 * @desc Получение баланса для модели.
 	 * @param Model $model Модель.
@@ -18,7 +18,7 @@ class Component_Balance extends Model_Component
 	{
 		return $model->component ('Balance', 0);
 	}
-	
+
 	/**
 	 * @desc Изменяет баланс модели.
 	 * @param Model $model Модель.
@@ -29,21 +29,20 @@ class Component_Balance extends Model_Component
 	public static function changeFor ($model, $change, $comment = '')
 	{
 		$balance = self::getFor ($model);
-		
+
 		$balance->change ($change, $comment);
-		
+
 		return $balance;
 	}
-	
+
 	/**
-	 * @desc Изменяет баланс модели 
+	 * @desc Изменяет баланс модели
 	 * @param float $change
 	 * @param string $comment [optional]
 	 * @return Component_Balance_Log
 	 */
 	public function change ($change, $comment = '')
 	{
-		Loader::load ('Component_Balance_Log');
 		$log = Component_Balance_Log::addLog (
 			$this->table,
 			$this->rowId,
@@ -51,12 +50,12 @@ class Component_Balance extends Model_Component
 			$change,
 			$comment
 		);
-		
+
 		$this->update (array (
 			'value'	=> $this->value + $change
 		));
-		
+
 		return $log;
 	}
-	
+
 }

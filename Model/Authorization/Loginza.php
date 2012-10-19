@@ -1,5 +1,5 @@
 <?php
-Loader::load ('Authorization_Abstract');
+
 /**
  *
  * @desc Авторизация через логинзу.
@@ -16,10 +16,8 @@ class Authorization_Loginza extends Authorization_Abstract
 	 */
 	public function authorize ($data)
 	{
-		Loader::load ('Authorization_Loginza_Token');
 		$token = Authorization_Loginza_Token::tokenData ();
 
-		Loader::load ('User_Loginza');
 		$loginza = User_Loginza::byToken ($token, true, true);
 
 		$user = $loginza ? $loginza->User : null;
@@ -39,7 +37,6 @@ class Authorization_Loginza extends Authorization_Abstract
 	 */
 	public function autoregister (Authorization_Loginza_Token $token)
 	{
-		Loader::load ('User_Loginza');
 		if (!$token->email)
 		{
 			return "Data_Validator_Loginza_Token::invalid";
@@ -47,7 +44,6 @@ class Authorization_Loginza extends Authorization_Abstract
 
 		$data = $token->data ('data');
 
-		Loader::load ('Helper_Email');
 		$user = User::create (array (
 			'name'		=> $token->extractName (),
 			'login'		=> (string) $token->identity,
@@ -112,10 +108,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	 */
 	public function findUser ($data)
 	{
-		Loader::load ('Authorization_Loginza_Token');
 		$token = Authorization_Loginza_Token::tokenData ();
-
-		Loader::load ('User_Loginza');
 		$loginza = User_Loginza::byToken ($token);
 
 		return $loginza ? $loginza->User : null;

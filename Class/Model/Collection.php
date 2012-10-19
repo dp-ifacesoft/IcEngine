@@ -111,14 +111,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	protected $_queryResult;
 
 	/**
+	 * Итератор коллекции
+	 *
+	 * @var Model_Collection_Iterator
+	 */
+	protected $iterator;
+
+	/**
 	 * @desc Создает и возвращает коллекцию моделей.
 	 * Так же подключает связанный класс модели.
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Model_Option_Collection');
 		$this->_options = new Model_Option_Collection ($this);
-		Loader::load ($this->modelName ());
 	}
 
 	/**
@@ -191,7 +196,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		else
 		{
 			//var_dump ($item);
-			Loader::load ('Model_Exception');
 			throw new Model_Exception ('Model add error');
 		}
 		return $this;
@@ -205,8 +209,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function addFilters (Data_Transport $data, $filter)
 	{
-		Loader::load ('Model_Collection_Filter_Manager');
-
 		$arg_count = func_num_args ();
 		for ($i = 1; $i < $arg_count; ++$i)
 		{
@@ -394,6 +396,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function count ()
 	{
 		return count ($this->items ());
+	}
+
+	/**
+	 * Получить текущий итератор коллекции
+	 *
+	 * @return Model_Collection_Iterator
+	 */
+	public function currentIterator()
+	{
+		return $this->iterator;
 	}
 
 	/**
@@ -773,6 +785,24 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
+	 * Получить итератор коллекции
+	 *
+	 * @return Model_Collection_Iterator
+	 */
+	public function iterator($isFactory = false)
+	{
+		Loader::load('Model_Collection_Iterator');
+		if (!$this->iterator) {
+			$this->iterator = new Model_Collection_Iterator($this, $isFactory);
+		}
+		if (!is_array($this->_items))
+		{
+			$this->load();
+		}
+		return $this->iterator;
+	}
+
+	/**
 	 * @desc Пустая ли коллекция
 	 * @return boolean
 	 */
@@ -793,7 +823,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function isJoinedSome (Model $model)
 	{
-		Loader::load ('Helper_Link');
 		foreach ($this as $item)
 		{
 			if (Helper_Link::wereLinked ($item, $model))
@@ -812,7 +841,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function isJoinedAll (Model $model)
 	{
-		Loader::load ('Helper_Link');
 		foreach ($this as $item)
 		{
 			if (!Helper_Link::wereLinked ($item, $model))
@@ -831,7 +859,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function join (Model $model)
 	{
-		Loader::load ('Helper_Link');
 		foreach ($this as $item)
 		{
 			Helper_Link::link ($item, $model);
@@ -1052,6 +1079,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
+	 * Сбросить итератор коллекции
+	 */
+	public function resetIterator()
+	{
+		$this->iterator = null;
+	}
+
+	/**
 	 * @desc Реверсировать последовательность моделей коллекции
 	 * @return Model_Collection
 	 */
@@ -1228,7 +1263,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function sort ($fields)
 	{
 		$items = &$this->items ();
-		Loader::load ('Helper_Array');
 		Helper_Array::mosort (
 			$items,
 			implode (',', func_get_args ())

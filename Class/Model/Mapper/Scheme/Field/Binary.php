@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Field_Abstract');
-
 /**
  * @desc Тип поля binary схемы связей модели
  * @author Илья Колесников

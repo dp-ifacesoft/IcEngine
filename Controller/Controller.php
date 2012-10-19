@@ -23,7 +23,7 @@ class Controller_Controller extends Controller_Abstract
 			'back',
 			'params'
 		);
-	
+
         	$_SERVER ['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 
 		if (is_string ($params))
@@ -75,7 +75,7 @@ class Controller_Controller extends Controller_Abstract
 		{
 			$a = trim ($a);
 		}
-		Loader::load ('Helper_Code_Generator');
+
 		$output = Helper_Code_Generator::fromTemplate (
 			'controller',
 			array (

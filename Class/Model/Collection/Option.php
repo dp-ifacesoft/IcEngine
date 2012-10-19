@@ -55,8 +55,6 @@ class Model_Collection_Option
 			);
 		}
 
-		Loader::load ('Executor');
-
 		return Executor::execute (
 			array ($this->_option, $type),
 			array ($collection, $query, $this->_params)
@@ -82,6 +80,3 @@ class Model_Collection_Option
 	}
 
 }
-
-Loader::load ('Model_Collection_Option_Manager');
-Loader::load ('Model_Collection_Option_Abstract');

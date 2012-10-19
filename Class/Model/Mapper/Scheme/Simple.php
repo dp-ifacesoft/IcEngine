@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Abstract');
-
 /**
  * @desc Простая схема связей модели
  * @author Илья Колесников

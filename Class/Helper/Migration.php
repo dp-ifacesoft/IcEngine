@@ -79,10 +79,7 @@ class Helper_Migration
 	public static function byName ($name)
 	{
 		$model_name = 'Migration_' . $name;
-		if (Loader::load ($model_name))
-		{
-			return new $model_name;
-		}
+		return new $model_name;
 	}
 
 	/**

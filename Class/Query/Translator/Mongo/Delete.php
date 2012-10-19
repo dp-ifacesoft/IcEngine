@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Translator_Mongo_Select');
-
 /**
  * @desc Запрос типа delete для mongodb
  * @author goorus, morph

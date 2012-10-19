@@ -106,7 +106,7 @@ class Executor
 		$expiration = (int) $options->expiration;
 
 		$cache = self::getCacher ()->get ($key);
-	
+
 		$tag_valid = true;
 
 		if (
@@ -140,6 +140,12 @@ class Executor
 				$tag_valid
 			)
 			{
+				if (Tracer::$enabled) {
+					if ($function[0] == 'Controller_Manager') {
+						Tracer::incCachedControllerCount();
+					}
+				}
+
 				return $cache ['v'];
 			}
 
@@ -154,14 +160,16 @@ class Executor
 		$value = self::executeUncaching($function, $args);
 		$end = microtime(true);
 		$delta = $end - $start;
-		$provider = Data_Provider_Manager::get('ControllerLog');
-		$logKey = 'log_' . uniqid();
-		$provider->set($logKey, array(
-			'function'	=> $function,
-			'args'		=> $args,
-			'delta'		=> $delta,
-			'last'		=> time()
-		));
+		if ($function[0] == 'Controller_Manager') {
+			$provider = Data_Provider_Manager::get('ControllerLog');
+			$logKey = 'log_' . uniqid();
+			$provider->set($logKey, array(
+				'function'	=> $function,
+				'args'		=> $args,
+				'delta'		=> $delta,
+				'last'		=> time()
+			));
+		}
 
 		$cache_value = array (
 			'v' => $value,
@@ -239,7 +247,7 @@ class Executor
 
 		// опции заданы в конфиге
 		$fn = self::_functionName ($function);
-		
+
 		if (self::config ()->functions && self::$config->functions [$fn])
 		{
 			return self::executeCaching (
@@ -268,7 +276,6 @@ class Executor
 			}
 			else
 			{
-				Loader::load ('Data_Provider_Buffer');
 				self::$_cacher = new Data_Provider_Buffer ();
 			}
 		}

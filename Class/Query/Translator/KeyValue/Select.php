@@ -70,7 +70,6 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 
 			if (!is_scalar ($wvalue [Query::VALUE]))
 			{
-				Loader::load ('Zend_Exception');
 				throw new Zend_Exception ('Condition unsupported.');
 			}
 
@@ -82,7 +81,6 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 
 			if (empty ($cond))
 			{
-				Loader::load ('Zend_Exception');
 				throw new Zend_Exception ('Condition field unsupported.');
 			}
 
@@ -169,7 +167,6 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 
 		if (!isset ($values [$key_field]))
 		{
-			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ("Primary key must be defined.");
 		}
 
@@ -219,7 +216,6 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 		// Иначе SELECT или DELETE
 		if (count ($tables) != 1)
 		{
-			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Invalid query.');
 		}
 

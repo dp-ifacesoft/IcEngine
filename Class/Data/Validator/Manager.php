@@ -1,18 +1,16 @@
 <?php
 
-Loader::load ('Data_Validator_Abstract');
-
 class Data_Validator_Manager
 {
-	
+
 	/**
 	 * Валидаторы
 	 * @var array <Data_Validator_Abstract>
 	 */
 	private static $_validators = array ();
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $name
 	 * @return Data_Validator_Abstract
 	 */
@@ -22,12 +20,11 @@ class Data_Validator_Manager
 		{
 			return self::$_validators [$name];
 		}
-		
+
 		$class = 'Data_Validator_' . $name;
-		Loader::load ($class);
 		return self::$_validators [$name] = new $class;
 	}
-	
+
 	/**
 	 * Проверка данных
 	 * @param string $name
@@ -39,10 +36,10 @@ class Data_Validator_Manager
 	{
 		return self::get ($name)->validate ($data);
 	}
-	
+
 	/**
 	 * Проверка данных валидатором
-	 * 
+	 *
 	 * @param string $name
 	 * 		Валидатор.
 	 * @param string $field
@@ -51,12 +48,12 @@ class Data_Validator_Manager
 	 * @param stdClass|Objective $scheme
 	 * @return true|string
 	 * 		true, если данные прошли валидацию.
-	 * 		Иначе - строкове представление ошибки в виде: 
+	 * 		Иначе - строкове представление ошибки в виде:
 	 * 		"Имя_Валидатора/ошибка"
 	 */
 	public static function validateEx ($name, $field, $data, $scheme)
 	{
 		return self::get ($name)->validateEx ($field, $data, $scheme);
 	}
-	
+
 }

@@ -22,11 +22,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 		'control_roles'	=> array ('admin')
 	);
 
-	public function __construct ()
-	{
-		Loader::load ('Helper_Data_Source');
-	}
-
 	/**
 	 * @desc Получить ресурсы Aсl и префиксом Table/
 	 * @param null|Acl_Role $role
@@ -218,8 +213,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 		$resources = $this->_input->receive ('resources');
 
-		Loader::load ('Acl_Resource');
-
 		foreach ($resources as $resource_name)
 		{
 			$resource = Model_Manager::byQuery (
@@ -239,8 +232,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 			Helper_Link::link ($role, $resource);
 		}
-
-		Loader::load ('Helper_Header');
 
 		Helper_Header::redirect ('/cp/acl/');
 	}
@@ -271,8 +262,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 			return;
 		}
 
-		Loader::load ('Acl_Resource');
-
 		$resource = Model_Manager::byQuery (
 			'Acl_Resource',
 			Query::instance ()
@@ -287,8 +276,6 @@ class Controller_Admin_Acl extends Controller_Abstract
 
 			$resource->save ();
 		}
-
-		Loader::load ('Helper_Link');
 
 		if ($checked)
 		{

@@ -62,7 +62,6 @@ class Model_Collection_Filter_Abstract
 	 */
 	protected function _validate (array $params)
 	{
-		Loader::load ('Data_Validator_Manager');
 		foreach ($this->validators as $field => $validators)
 		{
 			$validators = (array) $validators;

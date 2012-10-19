@@ -4,43 +4,40 @@ class Controller_Controll_Link extends Controller_Abstract
 {
 	public function _acl ()
 	{
-		Loader::load ('User');
-		Loader::load ('Acl_Role');
-		
 		$admin_role = Acl_Role::byName ('admin');
 		$user = User::getCurrent ();
-		
+
 		if (!$user->hasRole ($admin_role))
 		{
 			return $this->replaceAction ('Error', 'accessDenied');
 		}
 	}
-	
+
 	public function __construct ()
 	{
 		$this->_acl ();
 	}
-	
-	
+
+
 	/**
-	 * 
-	 * @desc Получает коллекцию моделей, 
-	 * имя которых было передано. 
+	 *
+	 * @desc Получает коллекцию моделей,
+	 * имя которых было передано.
 	 * Сюда же можно передать индетификатор и название
 	 * другой модели. В таком случае элементы коллекции
 	 * будут иметь пометку связана ли модель с коллекцией
 	 */
 	public function collection ()
 	{
-		$model = $this->_input	
+		$model = $this->_input
 			->receive ('model');
-		
+
 		$className = $model.'_Collection';
-		
+
 		if (Loader::load ($className))
 		{
 			$collection = new $className;
-			
+
 			list (
 				$fromTable,
 				$fromRowId
@@ -48,12 +45,9 @@ class Controller_Controll_Link extends Controller_Abstract
 				'fromTable',
 				'fromRowId'
 			);
-			
+
 			if ($fromTable && $fromRowId)
-			{	
-				Loader::load ('Helper_Link');
-				Loader::load ('Model_Proxy');
-				
+			{
 				$joineds = Helper_Link::linkedItems (
 					new Model_Proxy (
 						$fromTable,
@@ -63,7 +57,7 @@ class Controller_Controll_Link extends Controller_Abstract
 					),
 					$model
 				);
-				
+
 				if ($joineds)
 				{
 					foreach ($joineds as $item)
@@ -75,22 +69,20 @@ class Controller_Controll_Link extends Controller_Abstract
 						}
 					}
 				}
-				
+
 			}
-			
+
 			$this->_output
 				->send ('collection', $collection);
 		}
 	}
-	
+
 	public function index ()
 	{
-		Loader::load ('Helper_Mysql');
-		
 		$this->_output
 			->send ('models', Helper_Mysql::getModels ());
 	}
-	
+
 	public function link ()
 	{
 		list (
@@ -104,24 +96,21 @@ class Controller_Controll_Link extends Controller_Abstract
 			'toTable',
 			'toRowId'
 		);
-		
-		Loader::load ('Helper_Link');
-		Loader::load ('Model_Proxy');
-		
+
 		$model_proxy = new Model_Proxy (
 			$fromTable,
 			array (
 				'id'	=> $fromRowId
 			)
 		);
-		
+
 		Helper_Link::unlinkWith (
-			$model_proxy, 
-			$toTable	
+			$model_proxy,
+			$toTable
 		);
-		
+
 		$toRowIds = (array) explode (',', $toRowId);
-		
+
 		for ($i = 0, $icount = sizeof ($toRowIds); $i < $icount; $i++)
 		{
 			Helper_Link::link (

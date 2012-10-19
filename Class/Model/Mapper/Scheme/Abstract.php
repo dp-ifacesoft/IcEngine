@@ -31,7 +31,6 @@ class Model_Mapper_Scheme_Abstract
 		{
 			throw new Model_Mapper_Scheme_Exception ('Entity had not found');
 		}
-		Loader::load ('Model_Mapper_Scheme_Accessor');
 		$entity = $this->_entities [$name];
 		return Model_Mapper_Scheme_Accessor::getAuto ($this, $entity);
 	}
@@ -51,7 +50,6 @@ class Model_Mapper_Scheme_Abstract
 		{
 			$class = $parents;
 		}
-		Loader::load ('Model_Mapper_Scheme_Entity');
 		$this->_entities [$name] = new Model_Mapper_Scheme_Entity (
 			$class, $name, $value
 		);

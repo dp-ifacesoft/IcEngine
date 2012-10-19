@@ -29,7 +29,6 @@ class Model_Manager_Delegee_Defined
 						$model .= '_' . $row ['name'];
 					}
 				}
-				Loader::load ($model);
 				return new $model ($row);
 			}
 		}

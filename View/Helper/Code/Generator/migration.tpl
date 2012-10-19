@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Migration_Abstract');
-
 /**
  * @desc {$desc}
  * Created at: {$date}
@@ -11,6 +9,12 @@ Loader::load ('Migration_Abstract');
  */
  class Migration_{$name} extends Migration_Abstract
  {
+	/**
+	 * @desc Модель, схема которой будет изменена миграцией
+	 * @var string
+	 */
+	public $model = '';
+
 	/**
 	 * @see Migration_Abstract::down()
 	 */

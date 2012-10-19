@@ -39,8 +39,6 @@ class Authorization_Email_Password extends Authorization_Abstract
 			return $user->authorize ();
 		}
 
-		Loader::load ('Data_Validator_Manager');
-
 		if (!Data_Validator_Manager::validate ('Email', $email))
 		{
 			// это даже не мыло
@@ -80,7 +78,6 @@ class Authorization_Email_Password extends Authorization_Abstract
 			return 'Data_Validator_Registration_Password/bad';
 		}
 
-		Loader::load ('Helper_Email');
 		$user = User::create (array (
 			'email'		=> $email,
 			'name'		=> Helper_Email::extractName ($email),

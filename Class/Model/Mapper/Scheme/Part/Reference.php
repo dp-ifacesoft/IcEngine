@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Part_Abstract');
-
 /**
  * @desc Часть схемы моделей, отвечающая за ссылки
  * @author Илья Колесников
@@ -22,7 +20,6 @@ class Model_Mapper_Scheme_Part_Reference extends Model_Mapper_Scheme_Part_Abstra
 	 */
 	public static function set ($name, $model, $field)
 	{
-		Loader::load ('Model_Mapper_Scheme_Reference');
 		$reference = Model_Mapper_Scheme_Reference::byName ($name);
 		$reference->setModel ($model);
 		$reference->setField ($field);

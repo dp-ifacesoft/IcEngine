@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Reference_Abstract');
-
 /**
  * @desc Тип ссылки "многие-ко-многим"
  * @author Илья Колесников
@@ -54,7 +52,6 @@ class Model_Mapper_Scheme_Reference_ManyToMany extends Model_Mapper_Scheme_Refer
 	 */
 	protected function _scheme ($link_table, $from_table, $to_table)
 	{
-		Loader::load ('Model_Proxy');
 		$model = new Model_Proxy (
 			$link_table,
 			array (
@@ -111,7 +108,6 @@ class Model_Mapper_Scheme_Reference_ManyToMany extends Model_Mapper_Scheme_Refer
 				$fromField = $fields [0];
 				$toField = $fields [1];
 			}
-			Loader::load ('Helper_Data_Source');
 			$exists =  (bool) Helper_Data_Source::table ($link_table);
 			self::$_tables [$key] = array (
 				'name'		=> $link_table,
@@ -121,7 +117,6 @@ class Model_Mapper_Scheme_Reference_ManyToMany extends Model_Mapper_Scheme_Refer
 			if (!$exists)
 			{
 				$scheme = $this->_scheme ($link_table, $fromField, $toField);
-				Loader::load ('Model_Mapper_Scheme_Render_View');
 				$view = Model_Mapper_Scheme_Render_View::byName ('Mysql');
 				$sql = $view->render ($scheme);
 				mysql_query ($sql);
@@ -153,7 +148,6 @@ class Model_Mapper_Scheme_Reference_ManyToMany extends Model_Mapper_Scheme_Refer
 	 */
 	public function resource ()
 	{
-		Loader::load ('Model_Mapper_Scheme_Resource_ManyToMany');
 		return new Model_Mapper_Scheme_Resource_ManyToMany ($this);
 	}
 }

@@ -1,7 +1,7 @@
 <?php
-Loader::load ('Background_Agent_Abstract');
+
 /**
- * 
+ *
  * @desc Фоновый агент для расчета суммы чисел.
  * @author Юрий Шведов
  * @package IcEngine
@@ -9,7 +9,7 @@ Loader::load ('Background_Agent_Abstract');
  */
 class Background_Agent_Simple extends Background_Agent_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Background_Agent_Abstract::_start()
@@ -20,7 +20,7 @@ class Background_Agent_Simple extends Background_Agent_Abstract
 		$max = isset ($this->_params ['max']) ? $this->_params ['max'] : 10;
 		$this->_params ['max'] = max ($max, 1);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Background_Agent_Abstract::_process()
@@ -33,7 +33,7 @@ class Background_Agent_Simple extends Background_Agent_Abstract
 			$this->finish ();
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Background_Agent_Abstract::_finish()
@@ -42,5 +42,5 @@ class Background_Agent_Simple extends Background_Agent_Abstract
 	{
 		$this->_log (__FILE__, __LINE__, 'Sum is ' . $this->_params ['sum']);
 	}
-	
+
 }

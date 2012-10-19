@@ -13,11 +13,11 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function apply ($name, $action)
 	{
-		if (User::id () >= 0)
-		{
-			echo 'Access denied' . PHP_EOL;
-			return;
-		}
+//		if (User::id () >= 0)
+//		{
+//			echo 'Access denied' . PHP_EOL;
+//			return;
+//		}
 
 		$args = $this->_input->receiveAll ();
 		if (!isset ($args ['name']))
@@ -52,6 +52,17 @@ class Controller_Migration extends Controller_Abstract
 		$migration->setParams ($params);
 		if ($migration->$action ())
 		{
+			if (!empty ($migration->model))
+			{
+				$table = Model_Scheme::table ($migration->model);
+				Controller_Manager::call (
+					'Model', 'fromTable',
+					array (
+						'name'		=> $table,
+						'rewrite'	=> 1
+					)
+				);
+			}
 			echo 'Migration done' . PHP_EOL;
 		}
 		Helper_Migration::log ($name, $action);
@@ -145,6 +156,28 @@ class Controller_Migration extends Controller_Abstract
 	}
 
 	/**
+	 * @desc Поднимает до последней по списку миграции
+	 * @param string $base
+	 * @param string $action
+	 */
+	public function last ($base, $action = 'up')
+	{
+		Loader::load ('Helper_Migration');
+		$queue = Helper_Migration::getQueue ($base);
+		$last = end ($queue);
+		if (is_array ($last))
+		{
+			$last = key ($last);
+		}
+		Controller_Manager::call (
+			'Migration', $action,
+			array (
+				'name'	=> $last
+			)
+		);
+	}
+
+	/**
 	 * @desc Получить список миграций
 	 * @param string $base - база
 	 */
@@ -152,17 +185,6 @@ class Controller_Migration extends Controller_Abstract
 	{
 		Loader::load ('Helper_Migration');
 		print_r (Helper_Migration::getQueue ($base));
-	}
-
-	/**
-	 * @desc Выводит список миграций
-	 * @param string $base
-	 */
-	public function roll ($base = 'default')
-	{
-		Loader::load ('Helper_Migration');
-		$queue = Helper_Migration::getQueue ($base);
-		print_r ($queue);
 	}
 
 	/**

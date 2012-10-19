@@ -1,21 +1,21 @@
 <?php
 /**
- * 
+ *
  * @desc Роли доступа
  * @author Илья Колесников, Юрий Шведов
  * @package IcEngine
- * 
- * 
+ *
+ *
  */
 class Acl_Role extends Model
 {
-	
+
 	/**
 	 * @desc Название роли гостя.
 	 * @var string
 	 */
 	const GUEST_ROLE_NAME	= 'guest';
-	
+
 	/**
 	 * @desc Предоставление роли права на ресурс или ресурсы.
 	 * @param Acl_Resource $resource
@@ -23,27 +23,26 @@ class Acl_Role extends Model
 	 */
 	public function attachResource (Acl_Resource $resource)
 	{
-	    Loader::load ('Helper_Link');
 	    foreach (func_get_args () as $res)
 	    {
 	        Helper_Link::link ($this, $res);
 	    }
 	    return $this;
 	}
-	
+
 	/**
 	 * @desc Добавление роли пользователю.
 	 * @param User $user
 	 * @return Acl_Role
 	 */
-	public function attachUser (User $user)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+	public function attachUser (User $user)
 	{
 	    Helper_Link::link ($this, $user);
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $name
 	 * @return Acl_Role|null
 	 */
@@ -55,9 +54,9 @@ class Acl_Role extends Model
 		   		->where ('name', $name)
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param integer $type_id
 	 * @param string $name
 	 * @return Acl_Role|null
@@ -71,7 +70,7 @@ class Acl_Role extends Model
 			    ->where ('name', $name)
 		);
 	}
-	
+
 	/**
 	 * @desc Делает ресурс недоступным для роли
 	 * @param Acl_Resource $resource
@@ -81,7 +80,7 @@ class Acl_Role extends Model
 	{
 		return $this->unjoin ($resource);
 	}
-	
+
 	/**
 	 * @desc Забирает роль у пользователя
 	 * @param User $user
@@ -91,7 +90,7 @@ class Acl_Role extends Model
 	{
 		return $this->unjoin ($user);
 	}
-	
+
 	/**
 	 * @desc Дает роли доступ к ресурсу.
 	 * @param array $_ Ресурс
@@ -102,12 +101,12 @@ class Acl_Role extends Model
 		{
 		    $_ = func_get_args ();
 		}
-		
+
 		$resource = Acl_Resource::byNameAuto ($_);
-		
+
 		$this->attachResource ($resource);
 	}
-	
+
 	/**
 	 * @desc Имеет ли роль доступ к ресурсу
 	 * @param array $_ Ресурс
@@ -118,23 +117,22 @@ class Acl_Role extends Model
 		{
 			$_ = func_get_args ();
 		}
-		
+
 		$resource = Acl_Resource::byNameCheck ($_);
-		
+
 		return $resource ? $this->resourceAttached ($resource) : false;
 	}
-	
+
 	/**
 	 * @desc Имеет ли роль доступ к ресурсу.
-	 * @param Acl_Resource $resource_id 
+	 * @param Acl_Resource $resource_id
 	 * @return boolean
 	 */
 	public function resourceAttached (Acl_Resource $resource)
 	{
-	    Loader::load ('Helper_Link');
 		return Helper_Link::wereLinked ($this, $resource);
 	}
-	
+
 	/**
 	 * @desc Отнимает право на ресурс.
 	 * @param array|string $_ Ресурс
@@ -149,13 +147,13 @@ class Acl_Role extends Model
 		{
 			$resource = Acl_Resource::byNameCheck (func_get_args ());
 		}
-		
+
 		if ($resource)
 		{
 			$this->deattachResource ($resource);
 		}
 	}
-	
+
 	/**
 	 * @desc Проверяет, имеет ли пользователь эту роль.
 	 * @param User $user
@@ -165,5 +163,5 @@ class Acl_Role extends Model
 	{
 	    return $this->Acl_Role_Type->isUserAttached ($user, $this);
     }
-	
+
 }

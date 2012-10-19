@@ -232,8 +232,6 @@ abstract class Data_Mapper_Abstract
 
 	public function initFilters ()
 	{
-		Loader::load ('Filter_Collection');
-
 		$this->_filters = new Filter_Collection ();
 	}
 

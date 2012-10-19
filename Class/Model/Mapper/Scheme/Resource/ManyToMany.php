@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Resource');
-
 class Model_Mapper_Scheme_Resource_ManyToMany extends Model_Mapper_Scheme_Resource
 {
 	/**
@@ -9,7 +7,6 @@ class Model_Mapper_Scheme_Resource_ManyToMany extends Model_Mapper_Scheme_Resour
 	 */
 	public function add ($item, $another_item = null)
 	{
-		Loader::load ('Model_Mapper_Scheme_Resource_ManyToMany_Link_Add');
 		$link = new Model_Mapper_Scheme_Resource_ManyToMany_Link_Add ();
 		$link->setResource ($this);
 		$link->link (
@@ -24,7 +21,6 @@ class Model_Mapper_Scheme_Resource_ManyToMany extends Model_Mapper_Scheme_Resour
 	 */
 	public function delete ($item, $another_item = null)
 	{
-		Loader::load ('Model_Mapper_Scheme_Resource_ManyToMany_Link_Delete');
 		$link = new Model_Mapper_Scheme_Resource_ManyToMany_Link_Delete ();
 		$link->setResource ($this);
 		$link->link (

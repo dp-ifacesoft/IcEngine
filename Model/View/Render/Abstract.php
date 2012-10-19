@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Абстрактный класс рендера.
  * @author Гурус
  * @package IcEngine
@@ -8,26 +8,26 @@
  */
 abstract class View_Render_Abstract extends Model_Factory_Delegate
 {
-	
+
 	/**
 	 * @desc Пути к директориям шаблонов.
 	 * @var array <string>
 	 */
 	protected $_templatesPathes = array ();
-	
-	
+
+
 	/**
 	 * @desc Переменные шаблонизатора.
 	 * @var array
 	 */
 	protected $_vars = array ();
-	
+
 	/**
 	 * @desc Стек переменных.
 	 * @var array
 	 */
 	protected $_varsStack = array ();
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
@@ -36,10 +36,10 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	{
 		if (!isset ($this->_fields ['id']))
 		{
-			$this->_fields ['id'] = 1;	
+			$this->_fields ['id'] = 1;
 		}
 	}
-	
+
 	/**
 	 * @desc Добавление хелпера
 	 * @param mixed $helper
@@ -47,9 +47,9 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function addHelper ($helper, $method)
 	{
-		
+
 	}
-	
+
 	/**
 	 * @desc Добавление пути до директории с шаблонами
 	 * @param string $path Директория с шаблонами.
@@ -59,10 +59,10 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		$dir = rtrim ($path, '/');
 		$this->_templatesPathes [] = $dir . '/';
 	}
-	
+
 	/**
 	 * @desc Устанавливает значение переменной в шаблоне
-	 * @param string|array $key Имя переменной или массив 
+	 * @param string|array $key Имя переменной или массив
 	 * пар (переменная => значение).
 	 * @param mixed $value [optional] Новое значение переменной.
 	 */
@@ -74,7 +74,6 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		}
 		elseif (empty ($key))
 		{
-			Loader::load ('View_Render_Exception');
 			throw new View_Render_Exception ('Empty key field.');
 		}
 		else
@@ -82,20 +81,20 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 			$this->_vars [$key] = $value;
 		}
 	}
-	
+
 	/**
 	 * @desc Выводит результат работы шаблонизатор в браузер.
 	 * @param string $tpl
 	 */
 	abstract public function display ($tpl);
-	
+
 	/**
 	 * @desc Обрабатывает шаблон и возвращает результат.
 	 * @param string $tpl Шаблон
-	 * @return mixed Результат работы шаблонизатора. 
+	 * @return mixed Результат работы шаблонизатора.
 	 */
 	abstract public function fetch ($tpl);
-	
+
 	/**
 	 * @desc Возвращает массив путей до шаблонов.
 	 * @return array
@@ -104,7 +103,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	{
 		return $this->_templatesPathes;
 	}
-	
+
 	/**
 	 * @desc Возвращает значение переменной шаблонизатора.
 	 * @param string $key Имя переменной.
@@ -114,7 +113,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	{
 		return $this->_vars [$key];
 	}
-	
+
 	/**
 	 * @desc Восстанавливает значения переменных шаблонизатора
 	 */
@@ -122,7 +121,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	{
 		$this->_vars = array_pop ($this->_varsStack);
 	}
-	
+
 	/**
 	 * @desc Сохраняет текущие значения переменных шаблонизатора и очищает их.
 	 */
@@ -131,7 +130,7 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 		$this->_varsStack [] = $this->_vars;
 		$this->_vars = array ();
 	}
-	
+
 	/**
 	 * @desc Обработка шаблонов из стека.
 	 * @param array $outputs
@@ -139,23 +138,13 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	 */
 	public function render (Controller_Task $task)
 	{
-		Loader::load ('Message_Before_Render');
-		Message_Before_Render::push ($this);
-		
 		$transaction = $task->getTransaction ();
-		
 		$this->assign ($transaction->buffer ());
-		
 		$template = $task->getTemplate ();
-		
 		$result = $template ? $this->fetch ($template) : null;
-		
-		Loader::load ('Message_After_Render');
-		Message_After_Render::push ($this);
-		
 		return $result;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model_Factory_Delegate::table()
@@ -164,5 +153,5 @@ abstract class View_Render_Abstract extends Model_Factory_Delegate
 	{
 		return 'View_Render';
 	}
-	
+
 }

@@ -1,7 +1,7 @@
 <?php
-Loader::load ('View_Render_Smarty_Cacher_Abstract');
+
 /**
- * 
+ *
  * @desc Позволяет держать шаблоны смарти в базе.
  * @author Юрий Шведов
  * @package IcEngine
@@ -9,8 +9,8 @@ Loader::load ('View_Render_Smarty_Cacher_Abstract');
  */
 class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 {
-	
-	protected function _cacheClear ($key, $cache_id, $compile_id, $tpl_file, 
+
+	protected function _cacheClear ($key, $cache_id, $compile_id, $tpl_file,
 		&$cache_content
 	)
 	{
@@ -26,8 +26,8 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 		}
 		return $results;
 	}
-	
-	protected function _cacheRead ($key, $cache_id, $compile_id, $tpl_file, 
+
+	protected function _cacheRead ($key, $cache_id, $compile_id, $tpl_file,
 		&$cache_content
 	)
 	{
@@ -38,7 +38,7 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 			$smarty_obj->_trigger_error_msg('cache_handler: query failed.');
 		}
 		$row = mysql_fetch_array($results,MYSQL_ASSOC);
-	
+
 		if($use_gzip && function_exists('gzuncompress'))
 		{
 			$cache_content = gzuncompress($row['CacheContents']);
@@ -47,11 +47,11 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 		{
 			$cache_content = $row['CacheContents'];
 		}
-		
+
 		return $results;
 	}
-	
-	protected function _cacheWrite ($key, $cache_id, $compile_id, $tpl_file, 
+
+	protected function _cacheWrite ($key, $cache_id, $compile_id, $tpl_file,
 		&$cache_content
 	)
 	{
@@ -76,5 +76,5 @@ class View_Render_Smarty_Cacher_Mysql extends View_Render_Smarty_Cacher_Abstract
 		}
 		return $results;
 	}
-	
+
 }

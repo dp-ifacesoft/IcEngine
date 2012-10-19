@@ -188,7 +188,19 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 				unset ($this->locks [$keys]);
 			}
 
-			return $this->conn->delete ($this->keyEncode ($keys), $time);
+			if (Tracer::$enabled) {
+				$startTime = microtime(true);
+			}
+
+			$result = $this->conn->delete ($this->keyEncode ($keys), $time);
+
+			if (Tracer::$enabled) {
+				$endTime = microtime(true);
+				Tracer::incRedisDeleteCount();
+				Tracer::incRedisDeleteTime($endTime - $startTime);
+			}
+
+			return $result;
 		}
 
 		foreach ($keys as $key)
@@ -215,7 +227,17 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 					time ()
 				);
 			}
+			if (Tracer::$enabled) {
+				$startTime = microtime(true);
+			}
+
 			$this->conn->delete ($this->keyEncode ($key), $tt);
+
+			if (Tracer::$enabled) {
+				$endTime = microtime(true);
+				Tracer::incRedisDeleteCount();
+				Tracer::incRedisDeleteTime($endTime - $startTime);
+			}
 		}
 	}
 
@@ -258,7 +280,19 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('get', $key);
 		}
 
-		return $this->conn->get ($this->keyEncode ($key), $plain);
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+		}
+
+		$result = $this->conn->get ($this->keyEncode ($key), $plain);
+
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			Tracer::incRedisGetCount();
+			Tracer::incRedisGetTime($endTime - $startTime);
+		}
+
+		return $result;
 	}
 
 	/**
@@ -372,7 +406,18 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 
 		$mask = $this->keyEncode ($pattern);
 		$mask = str_replace ('%2A', '*', $mask);
+
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+		}
+
 		$r = $this->conn->keys ($mask, empty ($server) ? '' : $server);
+
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			Tracer::incRedisKeyCount();
+			Tracer::incRedisKeyTime($endTime - $startTime);
+		}
 
 		if (empty ($r) || (count ($r) == 1 && empty ($r [0])))
 		{
@@ -429,7 +474,21 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		{
 			$expiration = 0;
 		}
-		return $this->conn->set ($this->keyEncode ($key), $value, $expiration, $tags);
+
+		if (Tracer::$enabled) {
+			$startTime = microtime(true);
+		}
+
+
+		$result = $this->conn->set ($this->keyEncode ($key), $value, $expiration, $tags);
+
+		if (Tracer::$enabled) {
+			$endTime = microtime(true);
+			Tracer::incRedisSetCount();
+			Tracer::incRedisSetTime($endTime - $startTime);
+		}
+
+		return $result;
 	}
 
 	/**

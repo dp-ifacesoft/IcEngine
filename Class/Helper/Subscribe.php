@@ -11,17 +11,14 @@ class Helper_Subscribe
 	public static function subscribe ($email, $subscribe_id)
 	{
 		$subscribe = Model_Manager::byKey ('Subscribe', $subscribe_id);
-		
+
 		if (!$subscribe)
 		{
 			return;
 		}
-		
-		Loader::load ('Subscribe_Subscriber');
-		Loader::load ('Subscribe_Subscriber_Attribute');
-		
+
 		$subscriber = Subscribe_Subscriber::byContact ($email);
-		
+
 		if (!$subscriber->key ())
 		{
 			return;
@@ -31,29 +28,26 @@ class Helper_Subscribe
         {
             $subscribe->sendSubscribeConfirmation ($subscriber);
         }
-        
+
         return $subscriber;
 	}
-	
+
 	public static function unsubscribe ($email, $subscribe_id)
 	{
 		$subscribe = Model_Manager::byKey ('Subscribe', $subscribe_id);
-		
+
 		if (!$subscribe)
 		{
 			return;
 		}
-		
-		Loader::load ('Subscribe_Subscriber');
-		Loader::load ('Subscribe_Subscriber_Attribute');
-		
+
 		$subscriber = Subscribe_Subscriber::byContact ($email, false);
-		
+
 		if (!$subscriber)
 		{
 			return;
 		}
-		
+
 		if ($subscriber->subscribed ($subscribe))
         {
             $subscribe->sendUnsubscribeConfirmation ($subscriber);

@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Index_Abstract');
-
 /**
  * @desc Индекс для схемы связей модели
  * @author Илья Колесников

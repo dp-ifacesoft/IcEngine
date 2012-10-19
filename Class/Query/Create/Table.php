@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Alter_Table');
-
 /**
  * @desc запрос типа create table
  * @author morph, goorus

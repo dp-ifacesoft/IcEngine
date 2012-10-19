@@ -195,7 +195,6 @@ class Data_Mapper_File extends Data_Mapper_Abstract
 	{
 		if (!$provider)
 		{
-			Loader::load ('Data_Provider_FileCache');
 			$this->_provider = new Data_Provider_FileCache ();
 		}
 		else

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Помощник для подключения js скриптов
  * @author Юрий
  * @package IcEngine
@@ -14,14 +14,13 @@ class View_Helper_Js extends View_Helper_Abstract
 	 * @desc Шаблон вставки
 	 * @var string
 	 */
-	const TEMPLATE = 
+	const TEMPLATE =
 		"\t<script type=\"text/javascript\" src=\"{\$url}?{\$ts}\"></script>\n";
-	
+
 	public function get (array $params)
 	{
 		$config = $this->config ();
-		
-		Loader::load ('View_Resource_Loader');
+	
 		if (isset ($config->dirs))
 		{
 			View_Resource_Loader::load (
@@ -41,22 +40,22 @@ class View_Helper_Js extends View_Helper_Abstract
 				);
 			}
 		}
-		
+
 		$jses = $this->_view->resources()->getData (
 			View_Resource_Manager::JS
 		);
-		
+
 		$result = '';
-		
+
 		if ($config->packed_file)
 		{
 			$packer = $this
 				->_view
 				->resources ()
 				->packer (View_Resource_Manager::JS);
-			
+
 			$packer->pack ($jses, $config->packed_file);
-			
+
 			$result = str_replace (
 				array (
 					'{$url}',
@@ -75,7 +74,7 @@ class View_Helper_Js extends View_Helper_Abstract
 			{
 				$result .= str_replace (
 					array (
-						'{$url}', 
+						'{$url}',
 						'{$ts}'
 					),
 					array (
@@ -86,8 +85,8 @@ class View_Helper_Js extends View_Helper_Abstract
 				);
 			}
 		}
-		
+
 		return $result;
 	}
-	
+
 }

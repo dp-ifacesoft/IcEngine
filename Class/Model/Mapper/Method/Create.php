@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Method_Abstract');
-
 /**
  * @desc Метод схемы связей модели, создающий модель
  * @author Илья Колесников

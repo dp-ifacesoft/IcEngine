@@ -1,20 +1,18 @@
 <?php
 
 /**
- * @desc Расширение контента
+ * Расширение контента
+ *
+ * @author morph
  */
 class Content_Option_Extending extends Model_Option
 {
-	public function before ()
+	public function before()
 	{
-		if (!isset ($this->params ['model']))
-		{
-			return;
-		}
-		$model = $this->params ['model'];
+		$model = $this->params['model'];
 		$this->query
-			->select ($model . '.*')
-			->innerJoin (
+			->select($model . '.*')
+			->innerJoin(
 				$model,
 				'Content.id=' . $model . '.id'
 			)

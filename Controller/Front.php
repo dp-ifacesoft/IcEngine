@@ -13,9 +13,6 @@ class Controller_Front extends Controller_Abstract
 	 */
 	public function index ()
 	{
-		Loader::load ('Router');
-		Loader::load ('Controller_Dispatcher');
-
 		/**
 		 * @desc Начинаем роутинг.
 		 * @var route
@@ -24,6 +21,10 @@ class Controller_Front extends Controller_Abstract
 
 		try
 		{
+			if (Tracer::$enabled) {
+				$startTime = microtime(true);
+			}
+
 			/**
 			 * @desc Начинаем цикл диспетчеризации и получаем список
 			 * выполняемых руот экшинов.
@@ -43,6 +44,11 @@ class Controller_Front extends Controller_Abstract
 				$this->getInput ()
 			);
 
+			if (Tracer::$enabled) {
+				$endTime = microtime(true);
+				Tracer::setDispatcherTime($endTime - $startTime);
+			}
+
 			/**
 			 * @desc Выполненяем задания.
 			 * @var array <Controller_Task>
@@ -53,7 +59,6 @@ class Controller_Front extends Controller_Abstract
 		}
 		catch (Zend_Exception $e)
 		{
-			Loader::load ('Error');
 			Error::render ($e);
 		}
 	}

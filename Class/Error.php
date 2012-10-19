@@ -1,21 +1,20 @@
-<?php 
+<?php
 
 class Error
 {
 	/**
-	 * 
+	 *
 	 * @var View_Render_Abstract
 	 */
 	private static $_render;
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $code
 	 * @return string
 	 */
 	private static function _getTemplate ($code)
 	{
-		Loader::load ('Query');
 		$query = Query::instance()
 			->select ('template')
 			->from ('Errors')
@@ -23,7 +22,7 @@ class Error
 		$ds = DDS::execute ($query);
 		return $ds->getResult ()->asRow ();
 	}
-	
+
 	/*
 	 * @return View_Render_Abstract
 	 */
@@ -31,33 +30,33 @@ class Error
 	{
 		return self::$_render;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param Exception $e
 	 */
 	public static function render (Exception $e)
 	{
 		if (!self::$_render)
 		{
-			$msg = 
-				'[' . $e->getFile () . '@' . 
-				$e->getLine () . ':' . 
+			$msg =
+				'[' . $e->getFile () . '@' .
+				$e->getLine () . ':' .
 				$e->getCode () . '] ' .
 				$e->getMessage () . PHP_EOL;
-				
+
 			error_log ($msg . PHP_EOL, E_USER_ERROR, 3);
 			echo '<pre>' . $msg . $e->getTraceAsString () . '</pre>';
-			
+
 			return;
 		}
-		
+
 		self::$_render->assign ('e', $e);
 		self::$_render->display (self::_getTemplte ($e->getCode ()));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param View_Render_Abstract $render
 	 */
 	public static function setRender (View_Render_Abstract $render)

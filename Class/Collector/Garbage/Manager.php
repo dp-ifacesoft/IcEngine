@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  * @package IcEngine
  *
  */
@@ -12,13 +12,13 @@ abstract class Collector_Garbage_Manager
 	 * @var string
 	 */
 	const CONTAINER = 'Collector_Garbage_Scheme';
-	
+
 	/**
 	 * @desc Коллекторы
 	 * @var array
 	 */
 	private static $_collectors = array ();
-	
+
 	/**
 	 * @desc Получить список коллекторов
 	 * @return array <Collector_Garbage_Scheme>
@@ -27,7 +27,6 @@ abstract class Collector_Garbage_Manager
 	{
 		if (!self::$_collectors)
 		{
-			Loader::load ('Collector_Garbage_Scheme_Collection');
 			$collection = new Collector_Garbage_Scheme_Collection ();
 			self::$_collectors = $collection
 				->addOptions (array (
@@ -37,7 +36,7 @@ abstract class Collector_Garbage_Manager
 		}
 		return self::$_collectors;
 	}
-	
+
 	/**
 	 * @desc Запустить менеджер коллекторов
 	 * @return boolean
@@ -48,10 +47,7 @@ abstract class Collector_Garbage_Manager
 		{
 			return true;
 		}
-		
-		Loader::load ('Model_Manager');
-		Loader::load ('Config_Manager');
-		
+
 		foreach (self::$_collectors as $collector)
 		{
 			$collector = Model_Manager::get (
@@ -64,16 +60,16 @@ abstract class Collector_Garbage_Manager
 					self::CONTAINER,
 					$collector->name
 				);
-				
+
 				if ($config)
 				{
 					$config = $config->config ();
 				}
-				
+
 				$collector->process ($config);
 			}
 		}
-		
+
 		return true;
 	}
 }

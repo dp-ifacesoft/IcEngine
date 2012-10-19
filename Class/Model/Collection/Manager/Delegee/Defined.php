@@ -11,8 +11,6 @@ class Model_Collection_Manager_Delegee_Defined
 	{
 		$model_name = $collection->modelName ();
 
-		Loader::load ($model_name);
-
 		$rows = $model_name::$rows;
 
 		$collection->reset ();

@@ -24,7 +24,6 @@ class Query_Translator
 		if (!isset (self::$_translators [$name]))
 		{
 			$class_name = 'Query_Translator_' . $name;
-			Loader::load ($class_name);
 			self::$_translators [$name] = new $class_name ();
 		}
 
@@ -50,7 +49,6 @@ class Query_Translator
 		if (!isset (self::$_translators [$name]))
 		{
 			$class_name = 'Query_Translator_' . $name;
-			Loader::load ($class_name);
 			self::$_translators [$name] = new $class_name ();
 		}
 

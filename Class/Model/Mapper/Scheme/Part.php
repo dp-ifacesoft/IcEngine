@@ -60,6 +60,7 @@ class Model_Mapper_Scheme_Part
 		{
 			return;
 		}
+
 		foreach ($parts as $part)
 		{
 			$part = self::byName ($part);

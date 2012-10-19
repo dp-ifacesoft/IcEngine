@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Провайдер для отправки сообщений по Icq.
  * @author Колесников Илья
  * @package IcEngine
@@ -14,27 +14,27 @@ if (!class_exists ('Mail_Provider_Abstract'))
 
 class Mail_Provider_Icq extends Mail_Provider_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
 	 */
 	protected static $_config = array (
-		
+
 	);
-	
+
 	/**
 	 * @desc Мейлер
 	 * @var Client_Icq
 	 */
 	protected $_icq;
-	
+
 	/**
 	 * @desc Последняя ошибка
 	 * @var string
 	 */
 	protected $_lastError = '';
-	
+
 	/**
 	 * @desc Создает и возвращает мейлер.
 	 * @return PHPMailer
@@ -43,7 +43,6 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	{
 		if (!$this->_icq)
 		{
-			Loader::load ('Client_Icq');
 			$this->_icq = new Client_Icq (array (
 				'login'		=> $this->config ()->from_uin,
 				'password'	=> $this->config ()->from_password
@@ -51,7 +50,7 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 		}
 		return $this->_icq;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Mail_Provider_Abstract::send()
@@ -59,10 +58,10 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	public function send (Mail_Message $message, $config)
 	{
 		$to_name = $message->toName ? $message->toName : 0;
-		
+
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
 		$this->_lastError = '';
-		
+
 		$result = $this->sendEx (
 			array (
 				$to_name	=> $message->address
@@ -71,7 +70,7 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 			$message->body,
 			$config
 		);
-		
+
 		if ($result)
 		{
 			$this->logMessage (
@@ -88,10 +87,10 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 				$this->_lastError
 			);
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Отправка сообщения на емейл
 	 * @param array|string $addresses
@@ -102,15 +101,15 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 	public function sendEx ($addresses, $subject, $body, $config)
 	{
 		$icq = $this->_icq ();
-		
+
 		$this_config = $this->config ();
-		
-		$base_charset = 
+
+		$base_charset =
 			isset ($config ['base_charset']) ?
 				$config ['base_charset'] :
 				$this_config ['base_charset'];
-				
-		$send_charset = 
+
+		$send_charset =
 			isset ($config ['send_charset']) ?
 				$config ['send_charset'] :
 				$this_config ['send_charset'];
@@ -120,18 +119,17 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 			$base_charset &&
 			$send_charset &&
 			$base_charset != $send_charset;
-				
+
 		// Тело
 		$body =
-			$recoding ? 
+			$recoding ?
 				iconv ($base_charset, $send_charset, $body) :
 				$body;
-		
+
 		$result = false;
-				
+
 		try
 		{
-			Loader::load ('Client_Icq_Reciever');
 			$result = $this->_icq->send (
 				new Client_Icq_Reciever (
 					'Client_Icq_Reciever',
@@ -150,8 +148,8 @@ class Mail_Provider_Icq extends Mail_Provider_Abstract
 			$this->_lastError = $e->getMessage ();
 			return false;
 		}
-				
+
 		return $result;
 	}
-	
+
 }

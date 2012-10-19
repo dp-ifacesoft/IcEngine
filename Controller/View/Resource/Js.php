@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Контроллер для подключения js скриптов
  * @author Юрий
  * @package IcEngine
@@ -16,10 +16,9 @@ class Controller_View_Resource_Js extends Controller_Abstract
 	public function index ()
 	{
 		$config = $this->config ();
-		
+
 		if ($config->sources)
 		{
-			Loader::load ('View_Resource_Manager');
 
 			// Старый способ сбора скриптов
 			foreach ($config->sources as $source)
@@ -33,7 +32,7 @@ class Controller_View_Resource_Js extends Controller_Abstract
 			}
 
 			$jses = View_Resource_Manager::getData (View_Resource_Manager::JS);
-			
+
 			if ($config->packed_file)
 			{
 				$packer = View_Resource_Manager::packer (
@@ -52,7 +51,7 @@ class Controller_View_Resource_Js extends Controller_Abstract
 				$this->_output->send ('jses', $jses);
 			}
 		}
-		
+
 		if ($config->targets)
 		{
 			// Новый способ сбора скриптов
@@ -64,18 +63,18 @@ class Controller_View_Resource_Js extends Controller_Abstract
 				{
 					$vars ['{$' . $k . '}'] = $v;
 				}
-				
+
 				$url = strtr ($target->url, $vars);
 				$dst_file = strtr ($target->file, $vars);
 				$jses = array ();
-				
+
 				foreach ($target->sources as $source)
 				{
 					$src_dir = strtr ($source->dir, $vars);
 					$src_files = is_scalar ($source->file)
 						? array ($source->file)
 						: $source->file->__toArray ();
-					
+
 					foreach ($src_files as $src_file)
 					{
 						$src_file = strtr ($src_file, $vars);
@@ -91,7 +90,7 @@ class Controller_View_Resource_Js extends Controller_Abstract
 				}
 			}
 		}
-		
+
 	}
-	
+
 }

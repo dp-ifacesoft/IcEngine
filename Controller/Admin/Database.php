@@ -34,7 +34,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __aclFields ($table, $fields, $type = null)
 	{
 		$acl_fields = $this->__fields ($table, $type);
-		Loader::load ('Helper_Array');
 		$tmp_fields = Helper_Array::column ($fields->__toArray (), 'Field');
 		$acl_fields = array_intersect ($acl_fields, $tmp_fields);
 		return $acl_fields;
@@ -49,7 +48,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	private function __aclTables ($tables)
 	{
 		$acl_tables = $this->__tables ();
-		Loader::load ('Helper_Array');
 		$table_names = Helper_Array::column ($tables, 'Name');
 		return array_intersect ($table_names, $acl_tables);
 	}
@@ -71,14 +69,6 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		return $class_name;
-	}
-
-	/**
-	 * (non-PHPDoc)
-	 */
-	public function __construct ()
-	{
-		Loader::load ('Helper_Data_Source');
 	}
 
 	/**
@@ -158,8 +148,6 @@ class Controller_Admin_Database extends Controller_Abstract
 				$collection = Model_Collection_Manager::create (
 					'Dummy'
 				)->reset ();
-
-				Loader::load ('Model_Proxy');
 				foreach ($values as $v)
 				{
 					$v = trim ($v, "' ");
@@ -244,8 +232,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	private function __log ($action, $table, $row_id, $fields)
 	{
-		Loader::load ('Admin_Log');
-
 		foreach ((array) $fields as $field => $value)
 		{
 			$log = new Admin_Log (array (
@@ -414,8 +400,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			);
 		}
 
-		Loader::load ('Helper_Header');
-
 		Helper_Header::redirect ('/cp/table/' . $table . '/');
 	}
 
@@ -459,7 +443,6 @@ class Controller_Admin_Database extends Controller_Abstract
 
 		$result = array ();
 
-		Loader::load ('Table_Rate');
 		foreach ($tables as $table)
 		{
 			$table ['Rate'] = 0;
@@ -497,8 +480,6 @@ class Controller_Admin_Database extends Controller_Abstract
 	 */
 	public function row ($table, $row_id)
 	{
-		Loader::load ('Table_Rate');
-
 		Table_Rate::byTable ($table)->inc ();
 		$fields = Helper_Data_Source::fields ('`' . $table . '`');
 		$acl_fields = $this->__aclFields ($table, $fields, $row_id != 0 ? 'edit' : 'create');
@@ -677,8 +658,6 @@ class Controller_Admin_Database extends Controller_Abstract
 			'limitator'
 		);
 
-		Loader::load ('Table_Rate');
-
 		Table_Rate::byTable ($table)->inc ();
 		$acl_fields = $this->__fields ($table);
 
@@ -709,8 +688,6 @@ class Controller_Admin_Database extends Controller_Abstract
 				'field'	=> $sort
 			));
 		}
-
-		Loader::load ('Paginator');
 
 		$search = array ();
 		if (!$limitator)
@@ -1105,8 +1082,6 @@ class Controller_Admin_Database extends Controller_Abstract
 				);
 			}
 		}
-
-		Loader::load ('Helper_Header');
 //		print_r ($updated_fields);
 //		echo DDS::getDataSource ()->getQuery ()->translate ();
 

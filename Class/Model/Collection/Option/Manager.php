@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер опций.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Model_Collection_Option_Manager
 {
-	
+
 	/**
 	 * @desc Опции.
 	 * @var array <Model_Collection_Option_Abstract>
 	 */
 	protected static $_options = array ();
-	
+
 	/**
 	 * @desc Возвращает название класса опции для коллекции.
 	 * @param string $option Название опции
@@ -23,10 +23,10 @@ class Model_Collection_Option_Manager
 	 */
 	protected static function getClassName ($option, $collection)
 	{
-		$p = strpos ($option, '::'); 
+		$p = strpos ($option, '::');
 		if ($p === false)
 		{
-			return 
+			return
 				$collection->modelName () .
 				'_Collection_Option_' .
 				$option;
@@ -37,13 +37,13 @@ class Model_Collection_Option_Manager
 		}
 		else
 		{
-			return 
-				substr ($option, 0, $p) . 
+			return
+				substr ($option, 0, $p) .
 				'_Collection_Option_' .
 				substr ($option, $p + 2);
 		}
 	}
-	
+
 	/**
 	 * @desc Создание новой опции.
 	 * @param string $name Название опции. Может содержать название модели.
@@ -59,10 +59,9 @@ class Model_Collection_Option_Manager
 		$class = self::getClassName ($name, $collection);
 		if (!isset (self::$_options [$class]))
 		{
-			Loader::load ($class);
 			self::$_options [$class] = new $class ();
 		}
 		return self::$_options [$class];
 	}
-	
+
 }

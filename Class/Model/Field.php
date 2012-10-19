@@ -59,7 +59,7 @@ class Model_Field
 	}
 
 	/**
-	 * Изменение атрибута поля
+	 * Изменить значение атрибута
 	 *
 	 * @param string $attr
 	 * @param string $value

@@ -1,49 +1,47 @@
 <?php
 
-Loader::load ('Client_Abstract');
-
 /**
- * 
+ *
  * @desc Клиент XMPP
  * @author Юрий Шведов
  * @package IcEngine
- * 
+ *
  */
 class Client_Xmpp extends Client_Abstract
 {
-	
+
 	protected $_config = array (
 		// Сервер, где находится демон жаббера
 		'server'	=> 'localhost',
 		// порт сервера
 		'port'		=> 5222,
-		
+
 		// Хост, с которым работает жаббер
 		'host'		=> 'localhost',
-		
+
 		// выдача логов
 		'printlog'	=> false,
-		
+
 		// детализация логов
 		'loglevel'	=> 4,
-		
+
 		// Данные для авторизации под админским аккаунтом,
 		// используются при управлении аккаунтами (регистрации).
 		'admin_username'	=> 'admin',
 		'admin_password'	=> 'admin'
 	);
-	
+
 	/**
 	 *
 	 * @var XMPPHP_XMPP
 	 */
 	protected $_xmpp;
-	
+
 	public function __construct ()
 	{
 		$this->config ();
 	}
-	
+
 	public function config ()
 	{
 		if (is_array ($this->_config))
@@ -55,7 +53,7 @@ class Client_Xmpp extends Client_Abstract
 		}
 		return $this->_config;
 	}
-	
+
 	/**
 	 * @desc Регистрация нового пользователя
 	 * @param string $username Логин вида "user@host"
@@ -67,9 +65,9 @@ class Client_Xmpp extends Client_Abstract
 		$this->xmpp ()->registerNewUser ($username, $password);
 		$this->_xmpp->disconnect ();
 	}
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @return XMPPHP_XMPP
 	 */
 	public function xmpp ()
@@ -90,5 +88,5 @@ class Client_Xmpp extends Client_Abstract
 		}
 		return $this->_xmpp;
 	}
-	
+
 }

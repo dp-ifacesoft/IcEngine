@@ -59,7 +59,8 @@ class Route extends Model_Child
 	public static function byUrl ($url)
 	{
 		$url = '/' . ltrim($url, '/');
-		$route = Resource_Manager::get('Route_Cache', $url);
+		$provider = Data_Provider_Manager::get('Route_Cache');
+		$route = $provider->get($url);
 		if ($route) {
 			return $route ? new self($route) : null;
 		}
@@ -88,7 +89,8 @@ class Route extends Model_Child
 				$row['pattern'] = $pattern;
 			}
 		}
-		Resource_Manager::set('Route_Cache', $pattern, $row);
+		$provider->set($url, $row);
+		//Resource_Manager::set('Route_Cache', $pattern, $row);
 		return $row ? new self($row) : null;
 	}
 

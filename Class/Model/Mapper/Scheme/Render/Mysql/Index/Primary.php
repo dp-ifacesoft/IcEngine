@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Render_Abstract');
-
 /**
  * @desc Рендер индекса типа primary
  * @author Илья Колесников

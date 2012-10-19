@@ -234,7 +234,6 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 		if ($this->_errno)
 		{
-			Loader::load ('Data_Mapper_Mysqli_Exception');
 			if (class_exists ('Debug'))
 			{
 				Debug::errorHandler (
@@ -297,7 +296,6 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 		if (isset ($this->_connectionOptions [$key]))
 		{
-			Loader::load ('Crypt_Manager');
 			$this->_connectionOptions [$key] = Crypt_Manager::autoDecode ($value);
 			return;
 		}

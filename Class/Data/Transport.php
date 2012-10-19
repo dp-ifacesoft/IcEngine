@@ -65,8 +65,6 @@ class Data_Transport
 	 */
 	public function beginTransaction ()
 	{
-	    Loader::load ('Data_Transport_Transaction');
-
 	    $transaction = new Data_Transport_Transaction ($this);
 	    $this->_transactions [] = $transaction;
 
@@ -136,8 +134,6 @@ class Data_Transport
 	 */
 	public function providers ()
 	{
-		Loader::load ('Composite');
-
 		return new Composite ($this->_providers);
 	}
 
@@ -146,8 +142,6 @@ class Data_Transport
 	 */
 	public function resetFilters ()
 	{
-		Loader::load ('Filter_Collection');
-
 		$this->_inputFilters = new Filter_Collection ();
 		$this->_outputFilters = new Filter_Collection ();
 	}
@@ -157,8 +151,6 @@ class Data_Transport
 	 */
 	public function resetValidators ()
 	{
-		Loader::load ('Data_Validator_Collection');
-
 		$this->_validators = new Data_Validator_Collection ();
 	}
 

@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Render_Abstract');
-
 /**
  * @desc Дополнительный рендер для полей атрибутов
  * @author Илья Колесников

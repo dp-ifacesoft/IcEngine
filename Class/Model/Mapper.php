@@ -23,8 +23,6 @@ class Model_Mapper
 	 */
 	public static function __callStatic ($method, $params)
 	{
-		Loader::load ('Model_Mapper_Method');
-
 		$method = Model_Mapper_Method::normalizaName ($method);
 		$method = Model_Mapper_Method::byName ($method);
 		$method->setParams ($params);
@@ -50,8 +48,13 @@ class Model_Mapper
 	 */
 	public static function scheme ($model)
 	{
-		$model_name = $model->modelName ();
+		if (is_object($model)) {
+			$model_name = $model->modelName ();
+		} else {
+			$model = $model_name;
+		}
 		$key = $model_name . '_' . $model->key ();
+
 		if (!isset (self::$_schemes [$key]))
 		{
 			$config = Config_Manager::get ('Model_Mapper_' . $model_name);
@@ -59,15 +62,14 @@ class Model_Mapper
 			{
 				return;
 			}
+            
 			$scheme_name = 'Simple';
 			if (isset ($config->scheme))
 			{
 				$scheme_name = $config->scheme;
 			}
-			Loader::load ('Model_Mapper_Scheme');
 			$scheme = Model_Mapper_Scheme::byName ($scheme_name);
 			$scheme->setModel ($model);
-			Loader::load ('Model_Mapper_Scheme_Part');
 			foreach ($config as $name => $values)
 			{
 				if ($values)

@@ -211,8 +211,6 @@ abstract class Model_Scheme
 			return null;
 		}
 
-		Loader::load ($keygen [0]);
-
 		return call_user_func ($keygen, $model);
 	}
 
@@ -328,7 +326,6 @@ abstract class Model_Scheme
 	 */
 	public static function fieldsNames ($model)
 	{
-		Loader::load ('Helper_Data_Source');
 		return Helper_Data_Source::fields ($model)->column ('Field');
 	}
 
@@ -351,13 +348,11 @@ abstract class Model_Scheme
 				if (!Loader::tryLoad($model_name)) {
 					return;
 				}
-				Loader::load ($model_name);
 				$scheme = $model_name::scheme ();
 			}
 			$comment = null;
 			if (empty ($scheme ['fields']))
 			{
-				Loader::load ('Helper_Data_Source');
 				$config = Config_Manager::get('Model_Mapper_' . $model_name);
 				$comment = $config->comment;
 				$fields = array();

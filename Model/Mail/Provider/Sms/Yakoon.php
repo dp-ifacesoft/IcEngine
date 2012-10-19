@@ -1,7 +1,7 @@
 <?php
-Loader::load ('Mail_Provider_Abstract');
+
 /**
- * 
+ *
  * @desc Провайдер сообщений через сервис Yakoon.
  * @author Юрий Шведов
  * @package IcEngine
@@ -9,37 +9,37 @@ Loader::load ('Mail_Provider_Abstract');
  */
 class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 {
-	
+
 	/**
 	 * @desc Признак успешной отправки СМС
 	 * @var string
 	 */
 	const SEND_SMS_OK = '3100';
-	
+
 	/**
 	 * @desc Признак успешного получения статуса СМС
 	 * @var string
 	 */
 	const GET_STATUS_OK = '3200';
-	
+
 	/**
 	 * @desc SOAP клиент
 	 * @var yakoon_soapclient
 	 */
 	protected $_client;
-	
+
 	/**
 	 * @desc Последний ответ сервера якун
 	 * @var string
 	 */
 	protected $_lastAnswer = '';
-	
+
 	/**
 	 * @desc Последий код результата отправки смс сообщения.
 	 * @var integer
 	 */
 	protected $_lastResultCode = 0;
-	
+
 	/**
 	 * @desc Расшифровка кода результата отправки
 	 * @var array
@@ -72,7 +72,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 		'3299'	=> 'IP blocked',
 		'3200'	=> 'OK_Operation_Completed'
 	);
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array|Objective
@@ -88,7 +88,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 		// Кодировка отправляемых сообщений
 //		'send_charset'		=> 'utf-8'
 	);
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
@@ -96,13 +96,13 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	protected function _afterConstruct ()
 	{
 		Loader::requireOnce ($this->config ()->nusoap_path, 'includes');
-		
+
 		$this->_client = new yakoon_soapclient (
 			$this->config ()->service_url,
 			'wsdl'
 		);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Mail_Provider_Abstract::send()
@@ -110,7 +110,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	public function send (Mail_Message $message, $config)
 	{
 		$sms_id = $this->sendSms ($message->address, $message->body);
-		
+
 		if ($sms_id)
 		{
 			$this->logMessage (
@@ -133,14 +133,14 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 					'sms_id'	=> $sms_id,
 					'answer'	=> $this->_lastAnswer,
 					'code'		=> $code,
-					'error'		=> 
+					'error'		=>
 						isset ($this->_resultCodes [$code]) ?
-							$this->_resultCodes [$code] : 
+							$this->_resultCodes [$code] :
 							''
 				)
 			);
 		}
-		
+
 		return (int) $sms_id;
 	}
 
@@ -154,7 +154,6 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	{
 		$config = $this->config ();
 		
-		Loader::load ('Helper_Translit');
 		//$_classes['common']->UpdateTableRecordInfoByIdValue('sms', 'sms_result', $sms['id'], 'sending');
 		//$_classes['common']->UpdateTableRecordInfoByIdValue('sms', 'provider', $sms['id'], 'yakoon');
 		$sms_result = $this->_client->call (
@@ -176,11 +175,11 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 				'Notification'	=> '1'
 			)
 		);
-		
+
 		$sms_result = explode (';', $sms_result);
-		
+
 		$this->_lastResultCode = (int) $sms_result [0];
-		
+
 		if (
 			$this->_lastResultCode != self::SEND_SMS_OK ||
 			count ($sms_result) < 2
@@ -189,7 +188,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 			return false;
 		}
 		$sms_id = (int) $sms_result [1];
-		
+
 		return $sms_id;
 		//return array('sms_result' => $sms_result, 'sms_id' => $sms_id);
 		/*
@@ -200,7 +199,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 		}
 		*/
 	}
-	
+
 	/**
 	 * @desc Получение статуса СМС.
 	 * @param string $sms_id
@@ -208,7 +207,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 	function getStatus ($sms_id)
 	{
 		$config = $this->config ();
-		
+
 		$sms_status = $this->_client->call (
 			'Status',
 			array (
@@ -218,16 +217,16 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 				'IDInt'		=> ''
 			)
 		);
-		
+
 		$this->_lastAnswer = $sms_status;
 		$this->_lastResultCode = (int) $sms_status;
-		
+
 
 		if (strpos ($sms_status, '3200') === false)
 		{
 			return $sms_status;
 		}
-		
+
 		//echo $sms_status . ' - asked OK, ';
 		$sms_answer = substr ($sms_status, strpos ($sms_status, ':') + 1);
 		//echo '$sms_answer = ' . $sms_answer . '; ';
@@ -268,7 +267,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 				$sms_status = 'Delivered';
 				break;
 		}
-		
+
 		$sms_result = 'OK_Operation_Completed';
 		$sms_id = substr ($sms_result, strpos ($sms_result, ';') + 1);
 		//echo '- ' . $sms_status . ' -';

@@ -32,7 +32,6 @@ class Model_Manager_Delegee_Factory
 				{
 					return self::$_factories [$factory];
 				}
-				Loader::load ($factory);
 				return self::$_factories [$factory] = new $factory ();
 			}
 		}
@@ -51,17 +50,11 @@ class Model_Manager_Delegee_Factory
 		if (!isset (self::$_factories [$factory_name]))
 		{
 			self::$_factories [$factory_name] = new $model ();
-			$abstract = $factory_name . '_Abstract';
-			if (!class_exists ($abstract))
-			{
-				Loader::load ($abstract);
-			}
+
 		}
 
 		$dmodel = self::$_factories [$factory_name]
 			->delegateClass ($model, $key, $object);
-
-		Loader::load ($dmodel);
 
 		$result = new $dmodel (array ());
 

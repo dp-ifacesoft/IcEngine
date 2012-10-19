@@ -32,7 +32,6 @@ class Router
 		if (!is_null(self::$route)) {
 			return self::$route;
 		}
-		Loader::load ('Route');
 		$url = Request::uri();
 		$route = Route::byUrl($url);
 		self::$route = $route;

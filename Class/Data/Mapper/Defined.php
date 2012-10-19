@@ -96,9 +96,6 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 				'result'	=> array ()
 			));
 		}
-
-		Loader::load ($model_name);
-
 		$this->_where = $query->getPart (Query::WHERE);
 
 		$result = array_filter (

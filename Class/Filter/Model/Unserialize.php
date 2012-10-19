@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Фильтр для десериализации моделей
  * @author Юрий
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class Filter_Model_Unserialize
 {
-	
+
 	/**
 	 * @desc Десириализация строки в модель
 	 * @param string $data
@@ -20,11 +20,10 @@ class Filter_Model_Unserialize
 		{
 			return null;
 		}
-		
+
 		$p = strpos ($data, ':');
 		$class = substr ($data, 0, $p);
-		Loader::load ($class);
 		return new $class (json_decode (substr ($data, $p + 1), true));
 	}
-	
+
 }

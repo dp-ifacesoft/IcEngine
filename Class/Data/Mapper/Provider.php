@@ -223,7 +223,6 @@ class Data_Mapper_Provider extends Data_Mapper_Abstract
 
 		if ($this->_errno)
 		{
-			Loader::load ('Data_Mapper_Mysqli_Exception');
 			throw new Data_Mapper_Mysqli_Exception (
 			    $this->_error . "\n" . $this->_sql,
 			    $this->_errno

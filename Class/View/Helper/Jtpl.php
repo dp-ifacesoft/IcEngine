@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Помощник для подключения js шаблонов
  * @author Юрий
  * @package IcEngine
@@ -14,9 +14,9 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 	 * @desc Шаблон вставки
 	 * @var string
 	 */
-	const TEMPLATE = 
+	const TEMPLATE =
 		"\t<script type=\"text/javascript\" src=\"{\$url}?{\$ts}\"></script>\n";
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Helper_Abstract::get()
@@ -24,11 +24,9 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 	public function get (array $params)
 	{
 		$config = $this->config ();
-		
-		Loader::load ('View_Resource_Loader');
-		
+
 		$sources = $config->sources;
-		
+
 		foreach ($config->sources as $source)
 		{
 			View_Resource_Loader::load (
@@ -38,20 +36,20 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 				View_Resource_Manager::JTPL
 			);
 		}
-		
+
 		$tpls = $this->_view->resources ()->getData (
 			View_Resource_Manager::JTPL
 		);
-		
+
 		$result = '';
-		
+
 		$packer = $this
 			->_view
 			->resources ()
 			->packer (View_Resource_Manager::JTPL);
-		
+
 		$packer->pack ($tpls, $config->packed_file);
-		
+
 		$result = str_replace (
 			array (
 				'{$url}',
@@ -63,8 +61,8 @@ class View_Helper_Jtpl extends View_Helper_Abstract
 			),
 			self::TEMPLATE
 		);
-		
+
 		return $result;
 	}
-	
+
 }

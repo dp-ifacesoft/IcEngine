@@ -1,8 +1,8 @@
 <?php
 
 /**
- * 
- * @desc 
+ *
+ * @desc
  * 		Транслятор запроса для хранилища key-value.
  * @author Юрий
  *
@@ -10,25 +10,25 @@
 
 class Query_Translator_KeyValue extends Query_Translator
 {
-	
+
 	/**
 	 * Разделитель таблицы и индкса.
 	 * @var string
 	 */
 	public $tableIndexDelim = '_';
-	
+
 	/**
 	 * Разделитель индекса и первичного ключа.
 	 * @var string
 	 */
 	public $indexKeyDelim = '/';
-	
+
 	/**
 	 * Разделитель значений индексов.
 	 * @var string
 	 */
 	public $valuesDelim = ':';
-	
+
 	/**
 	 * @desc Возвращает массив масок ключей
 	 * @param string $table Таблица (модель).
@@ -38,20 +38,20 @@ class Query_Translator_KeyValue extends Query_Translator
 	protected function _compileKeyMask ($table, array $where)
 	{
 		$key_field = Model_Scheme::keyField ($table);
-		
+
 		$indexes = Model_Scheme::indexes ($table);
-		
+
 		// Покрытие индексом запроса
 		// Изначально строка "11111", по мере использования,
 		// 1 заменяются на 0. Если индекс покрывает запрос, в конце
 		// значение будет равно "000000" == 0
 		$index_use = array ();
-		
+
 		// Значения для полей индекса
 		$index_values = array ();
-		
+
 		$keys = array_keys ($indexes);
-		
+
 		// Отсекаем индексы, которые заведомо не покрывают запрос (короткие)
 		// и инициализируем массивы
 		foreach ($indexes as $i => $index)
@@ -66,43 +66,41 @@ class Query_Translator_KeyValue extends Query_Translator
 				$index_values [$i] = array ();
 			}
 		}
-		
+
 		// Запоминаем значения для полей индекса
 		foreach ($where as $wi => &$wvalue)
 		{
 			$cond = $wvalue [Query::WHERE];
-			
+
 			if (!is_scalar ($wvalue [Query::VALUE]))
 			{
-				Loader::load ('Zend_Exception');
 				throw new Zend_Exception ('Condition unsupported.');
 			}
-			
+
 			if (!is_array ($cond))
 			{
 				// Получаем таблицу и колонку
 				$cond = explode ('.', $cond, 2);
 			}
-			
+
 			if (empty ($cond))
 			{
-				Loader::load ('Zend_Exception');
 				throw new Zend_Exception ('Condition field unsupported.');
 			}
-			
+
 			$cond = trim (end ($cond), '`?= ');
 			$is_like = (strtoupper (substr ($cond, -4, 4)) == 'LIKE');
 			$where_value = urlencode ($wvalue [Query::VALUE]);
-			
+
 			if (!$is_like && $cond == $key_field)
 			{
 				return array (
-					$table . $this->tableIndexDelim . 
+					$table . $this->tableIndexDelim .
 					'k' . $this->indexKeyDelim .
 					$where_value
 				);
 			}
-			
+
 			foreach ($indexes as $ii => &$icolumns)
 			{
 				foreach ($icolumns as $ici => &$icolumn)
@@ -110,7 +108,7 @@ class Query_Translator_KeyValue extends Query_Translator
 					if ($cond == $icolumn)
 					{
 						$index_use [$ii][$ici] = 0;
-						
+
 						if ($is_like)
 						{
 							$index_values [$ii][$ici] = str_replace (
@@ -127,14 +125,14 @@ class Query_Translator_KeyValue extends Query_Translator
 			}
 			unset ($icolumns);
 		}
-		
+
 		// Выбираем наиболее покрывающий индекс.
 		$best_v = 0;
 		$best_i = 0;
 		foreach ($index_use as $ii => $use)
 		{
 			$v = strpos ($use, '1');
-			
+
 			if ($v === false)
 			{
 				// Индекс полностью покрывает запрос
@@ -142,25 +140,25 @@ class Query_Translator_KeyValue extends Query_Translator
 					$table, $ii, $use, $index_values [$ii]
 				));
 			}
-			
+
 			if ($v > $best_v)
 			{
 				$best_v = $v;
 				$best_i = $ii;
 			}
 		}
-		
+
 		if ($best_v >= 0)
 		{
 			return array ($this->_pattern (
-				$table, $best_i, 
+				$table, $best_i,
 				$index_use [$best_i], $index_values [$best_i]
 			));
 		}
-		
+
 		return array ();
 	}
-	
+
 	/**
 	 * Формирование ключей для записи.
 	 * @param string $table
@@ -170,19 +168,18 @@ class Query_Translator_KeyValue extends Query_Translator
 	public function _compileKeys ($table, array $values)
 	{
 		$key_field = Model_Scheme::keyField ($table);
-		
+
 		if (!isset ($values [$key_field]))
 		{
-			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ("Primary key must be defined.");
 		}
-		
+
 		$keys = array (
-			$table . $this->tableIndexDelim . 
+			$table . $this->tableIndexDelim .
 			'k' . $this->indexKeyDelim .
 			$values [$key_field]
 		);
-		
+
 		$indexes = Model_Scheme::indexes ($table);
 		foreach ($indexes as $i => $index)
 		{
@@ -193,16 +190,16 @@ class Query_Translator_KeyValue extends Query_Translator
 				$vals [] = urlencode ($values [$name]);
 			}
 			$vals [] = urlencode ($values [$key_field]);
-			
+
 			$keys [] =
-				$table . $this->tableIndexDelim . 
+				$table . $this->tableIndexDelim .
 				$i . $this->indexKeyDelim .
 				implode ($this->valuesDelim, $vals);
 		}
-		
+
 		return $keys;
 	}
-	
+
 	/**
 	 * Извлекает имя таблицы из запроса.
 	 * @param Query $query
@@ -212,25 +209,24 @@ class Query_Translator_KeyValue extends Query_Translator
 	public function extractTable (Query $query)
 	{
 		$tables = $query->part (Query::FROM);
-		
+
 		// Отдельно хранятся таблицы для INSERT и UPDATE
 		$type = $query->type ();
 		if ($type == Query::INSERT || $type == Query::UPDATE)
 		{
 			return $query->part ($type);
 		}
-		
+
 		// Иначе SELECT или DELETE
 		if (count ($tables) != 1)
 		{
-			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Invalid query.');
 		}
-		
+
 		$table = reset ($tables);
 		return $table [Query::TABLE];
 	}
-	
+
 	/**
 	 * @desc Извлекает первичный ключ записи из ключа кэша.
 	 * @param string $key
@@ -245,7 +241,7 @@ class Query_Translator_KeyValue extends Query_Translator
 			),
 			1
 		);
-		
+
 		if (!$id)
 		{
 			$id = substr (
@@ -256,12 +252,12 @@ class Query_Translator_KeyValue extends Query_Translator
 				1
 			);
 		}
-		
+
 		return $id;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $table
 	 * @param integer $index_num
 	 * @param string $index_use
@@ -270,10 +266,10 @@ class Query_Translator_KeyValue extends Query_Translator
 	 */
 	protected function _pattern ($table, $index_num, $index_use, array $values)
 	{
-		$pattern = 
-			$table . $this->tableIndexDelim . 
+		$pattern =
+			$table . $this->tableIndexDelim .
 			$index_num . $this->indexKeyDelim;
-		
+
 		for ($i = 0; $i < strlen ($index_use); $i++)
 		{
 			if (array_key_exists ($i, $values))
@@ -286,10 +282,10 @@ class Query_Translator_KeyValue extends Query_Translator
 			}
 			$pattern .= $this->valuesDelim;
 		}
-		
+
 		return $pattern . '*';
 	}
-	
+
 	/**
 	 * Возвращает массив масок для удаления ключей.
 	 * @param Query $query
@@ -303,7 +299,7 @@ class Query_Translator_KeyValue extends Query_Translator
 			$query->part (Query::WHERE)
 		);
 	}
-	
+
 	/**
 	 * @param Query $query
 	 * @return array
@@ -316,13 +312,13 @@ class Query_Translator_KeyValue extends Query_Translator
 			$query->part (Query::INSERT),
 			$query->part (Query::VALUES)
 		);
-		
+
 		return array (
 			$keys,
 			$query->part (Query::VALUES)
 		);
 	}
-	
+
 	/**
 	 * @desc Возвращает массив масок для выбора ключей.
 	 * @param Query $query
@@ -336,7 +332,7 @@ class Query_Translator_KeyValue extends Query_Translator
 			$query->part (Query::WHERE)
 		);
 	}
-	
+
 	/**
 	 * Данные для обновления записи
 	 * @param Query $query
@@ -359,5 +355,5 @@ class Query_Translator_KeyValue extends Query_Translator
 			$query->part (Query::VALUES)
 		);
 	}
-	
+
 }

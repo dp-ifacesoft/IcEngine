@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Модель гостя (незарегистрированного посетителя сайта).
  * @author Юрий
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class User_Guest extends User
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -27,13 +27,13 @@ class User_Guest extends User
 			'password'	=> ''
 		)
 	);
-	
+
 	/**
 	 * @desc Экзмепляр модели гостя
 	 * @var Model
 	 */
 	protected static $_instance;
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
@@ -42,7 +42,7 @@ class User_Guest extends User
 	{
 		$this->_loaded = true;
 	}
-	
+
 	/**
 	 * @desc Создает и возвращает экземпляр модели гостя.
 	 * @return User_Guest
@@ -55,19 +55,19 @@ class User_Guest extends User
 		}
 		return self::$_instance;
 	}
-	
+
 	/**
 	 * @desc Инициализирует модель гостя.
 	 * Модель будет добавлена в менеджер ресурсов.
-	 * @param mixed $session_id Идентификатор сессии. Не имеет значения, 
-	 * параметр необходим для совместимости с User::init (). 
+	 * @param mixed $session_id Идентификатор сессии. Не имеет значения,
+	 * параметр необходим для совместимости с User::init ().
 	 */
 	public static function init ($session_id = null)
 	{
 		$instance = self::getInstance ();
 		Resource_Manager::set ('Model', $instance->resourceKey (), $instance);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::modelName()
@@ -76,5 +76,5 @@ class User_Guest extends User
 	{
 		return 'User';
 	}
-	
+
 }

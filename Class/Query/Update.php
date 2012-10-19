@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Select');
-
 /**
  * @desc Запрос типа update
  * @author morph, goorus

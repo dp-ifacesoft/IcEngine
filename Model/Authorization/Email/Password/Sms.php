@@ -1,14 +1,14 @@
 <?php
 /**
- * 
+ *
  * @desc Аавторизация через отправку пользователю СМС сообщения с кодом.
  * @author Юрий Шведов
  * @package IcEngine
- * 
+ *
  */
 class Authorization_Email_Password_Sms extends Authorization_Abstract
 {
-	
+
 	/**
 	 * @desc Config
 	 * @var array
@@ -17,7 +17,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 		// Авторизовать только пользователей, имеющих одну из ролей.
 		// Роли перечисляются через запятую.
 		'auth_roles_names'			=> 'admin',
-	
+
 		// Минимальная длина кода
 		'code_min_length'		=> 4,
 		// Максимальная длина кода
@@ -36,14 +36,14 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 		'sms_mail_template'		=> 'sms_activate',
 		// Тестовый режим
 		'sms_test_mode'			=> true,
-		
+
 		// Колбэки на авторизацию и выход
 		'authorization_function'	=> 'Helper_Authorization_Admin::authorize',
 		'unauthorization_function'	=> 'Helper_Authorization_Admin::unauthorize',
-		
+
 		/**
 		 * @desc можно перечислить логины, пароли и телефоны пользователей.
-		 * Если этот параметр array, то пользователи, не указанные в этом 
+		 * Если этот параметр array, то пользователи, не указанные в этом
 		 * массиве не могут быть авторизованы этим методом.
 		 * @tutorial
 		 * 	'users'	=> array (
@@ -53,10 +53,10 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 		 * 			'phone'		=> '+7 123 456 78 90'
 		 * 		)
 		 * 	)
-		 */ 
+		 */
 		'users'	=> false
 	);
-	
+
 	/**
 	 * @desc Дополнительная проверка пользователя перед началом авторизации
 	 * до отправки кода СМС.
@@ -71,18 +71,18 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 		{
 			return false;
 		}
-		
+
 		$cfg_users = $this->config ()->users;
-		
+
 		if ($cfg_users === false)
 		{
 			// нет проверки
 			return true;
 		}
-		
+
 		// Приводим к нижнему регистру
 		$email = strtolower ($email);
-		
+
 		return (
 			isset ($cfg_users [$email]) &&
 			$cfg_users [$email]['password']	== $password &&
@@ -90,7 +90,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 			$cfg_users [$email]['active']
 		);
 	}
-	
+
 	/**
 	 * @desc Дополнительная проверка пользователя перед авторизацией после
 	 * проверки кода СМС.
@@ -103,7 +103,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	{
 		return $this->_prechekUser ($user, $email, $password);
 	}
-	
+
 	/**
 	 * @desc Проверка на принадлежность пользователя к необходимой роли
 	 * @param User $user Пользователь
@@ -112,13 +112,13 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	protected function _userHasRole (User $user)
 	{
 		$roles = explode (',', $this->config ()->auth_roles_names);
-		
+
 		if (!$roles)
 		{
 			// Ролей не задано, авторизуем всех
 			return true;
 		}
-		
+
 		foreach ($roles as $role)
 		{
 			$role = Acl_Role::byName ($role);
@@ -127,10 +127,10 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::authorize()
@@ -144,19 +144,19 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 				->where ('password', $data ['password'])
 				->where ('md5(`password`)=md5(?)', $data ['password'])
 		);
-		
+
 		if (!$user)
 		{
 			return 'Data_Validator_Authorization_Password/invalid';
 		}
-		
+
 		if (!$this->_postcheckUser($user, $data ['email'], $data ['password']))
 		{
 			return 'Data_Validator_Authorization_User/denied';
 		}
-		
+
 		$prefix = $this->config ()->sms_prefix;
-		
+
 		$activation = Model_Manager::byQuery (
 			'Activation',
 			Query::instance ()
@@ -165,19 +165,19 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 				->where ('User__id', $user->id)
 				->where ('finished', false)
 		);
-		
+
 		if (!$activation || $activation->finished)
 		{
 			return 'Data_Validator_Activation_Code/invalid';
 		}
-		
+
 		$activation->update (array (
 			'finished'	=> 1
 		));
-		
+
 		return $user->authorize ();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::isRegistered()
@@ -189,20 +189,19 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 			Query::instance ()
 				->where ('email', $login)
 		);
-		
+
 		return (bool) $user;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::isValidLogin()
 	 */
 	public function isValidLogin ($login)
 	{
-		Loader::load ('Data_Validator_Manager');
 		return Data_Validator_Manager::validate ('Email', $login);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Authorization_Abstract::findUser()
@@ -215,7 +214,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 				->where ('email', $data ['email'])
 		);
 	}
-	
+
 	/**
 	 * @desc Отправляет пользователю СМС для авторизации
 	 * @param array $data
@@ -227,46 +226,44 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 	public function sendActivationSms (array $data)
 	{
 		$user = $data ['user'];
-		
+
 		if ($user->email != $data ['email'])
 		{
 			return 'Data_Validator_Authorization_User/unexists';
 		}
-		
+
 		if ($user->password != $data ['password'])
 		{
 			return 'Data_Validator_Authorization_Password/invalid';
 		}
-		
+
 		if (!$user->active)
 		{
 			return 'Data_Validator_Authorization_User/unactive';
 		}
-		
+
 		if (!$this->_prechekUser ($user, $data ['email'], $data ['password']))
 		{
 			return 'Data_Validator_Authorization_User/denied';
 		}
-		
+
 		$config = $this->config ();
-		
-		Loader::load ('Helper_Activation');
+
 		$clear_code = Helper_Activation::generateNumeric (
 			$config ['code_min_length'],
 			$config ['code_max_length']
 		);
-		
+
 		$activation_code = $config ['sms_prefix'] . $clear_code;
-		
-		Loader::load ('Activation');
+
 		$activation = Activation::create (array (
 			'address'			=> $user->phone,
 			'code'				=> $activation_code,
-			'expirationTime'	=> 
+			'expirationTime'	=>
 				Helper_Date::toUnix (time () + $config ['sms_expiration']),
 			'User__id'			=> $user->id
 		));
-		
+
 		/**
 		 * @desc Провайдер
 		 * @var Mail_Provider_Abstract
@@ -276,8 +273,7 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 			Query::instance ()
 			->where ('name', $config ['sms_provider'])
 		);
-		
-		Loader::load ('Mail_Message');
+
 		$message = Mail_Message::create (
 			$config ['sms_mail_template'],
 			$user->phone,
@@ -290,12 +286,12 @@ class Authorization_Email_Password_Sms extends Authorization_Abstract
 			$provider->id,
 			$config ['sms_provider_params']->__toArray ()
 		)->save ();
-		
+
 		if (!$config ['sms_test_mode'])
 		{
 			$message->send ();
 		}
-		
+
 		return $activation;
 	}
 	

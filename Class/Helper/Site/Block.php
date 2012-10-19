@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Помощник блокировки сайта.
  * @author Гурус
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Helper_Site_Block
 {
-	
+
 	/**
 	 * @desc Поле в $_SESSION для идентификации пользователя.
 	 * @var string
 	 */
 	const SESSION_FIELD = 'Helper_Site_Block_Auth';
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -33,7 +33,7 @@ class Helper_Site_Block
 		'send_headers'	=> true,
 		'basicRealm'	=> 'Admin Zone'
 	);
-	
+
 	/**
 	 * @desc Авторизация через HTML страницу.
 	 * @param string $login Логин.
@@ -43,12 +43,12 @@ class Helper_Site_Block
 	public function authWithHtml ($login, $password)
 	{
 		$key = md5 ($login . '@' . $password);
-		
+
 		if (!session_id ())
 		{
 			session_start ();
 		}
-		
+
 		if (
 			isset ($_SESSION [self::SESSION_FIELD]) &&
 			$_SESSION [self::SESSION_FIELD] == $key
@@ -56,7 +56,7 @@ class Helper_Site_Block
 		{
 			return true;
 		}
-		
+
 		if (
 			isset ($_POST ['Html_Auth'], $_POST ['login'], $_POST ['password']) &&
 			$_POST ['login'] == $login && $_POST ['password'] == $password
@@ -65,7 +65,7 @@ class Helper_Site_Block
 			$_SESSION [self::SESSION_FIELD] = $key;
 			return true;
 		}
-		
+
 		echo '
 <html>
 	<head>
@@ -90,17 +90,17 @@ class Helper_Site_Block
 		</form>
 	</body>
 </html>';
-		
+
 		die ();
 		return false;
 	}
-	
+
 	/**
 	 * @desc Авторизация средствами HTTP. Не работает, если php установлен
-	 * не как модуль апача. 
+	 * не как модуль апача.
 	 * @param string $login Логин.
 	 * @param string $password Пароль.
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public function authWithHttp ($login, $password)
 	{
@@ -112,42 +112,41 @@ class Helper_Site_Block
 			unset ($auth_params [0]);
 			$_SERVER['PHP_AUTH_PW'] = implode ('', $auth_params);
 		}
-		
+
 		if (
 			array_key_exists ('PHP_AUTH_USER', $_SERVER) &&
-			array_key_exists ('PHP_AUTH_PW', $_SERVER) && 
-			$_SERVER ['PHP_AUTH_USER'] == $login && 
+			array_key_exists ('PHP_AUTH_PW', $_SERVER) &&
+			$_SERVER ['PHP_AUTH_USER'] == $login &&
 			$_SERVER ['PHP_AUTH_PW'] == $password
 		)
 		{
 			return true;
 		}
-		
+
 		if (self::$config ['send_headers'])
 		{
 			header (
-				'WWW-Authenticate: Basic realm="' . 
+				'WWW-Authenticate: Basic realm="' .
 				self::$config ['basicRealm'] . '"');
 			header ('HTTP/1.0 401 Unauthorized');
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @desc Блокирует сайт в соответсвии с настройками.
 	 * @return boolean
 	 */
 	public static function execute ()
 	{
-		Loader::load ('Request');
 		self::$config = Config_Manager::get (__CLASS__)->merge (self::$config);
-		
+
 		if (!self::$config ['enable'])
 		{
 			return true;
 		}
-		
+
 		foreach (self::$config ['pathes'] as $path)
 		{
 			if (fnmatch ($path ['pattern'], Request::uri ()))
@@ -162,7 +161,7 @@ class Helper_Site_Block
 				{
 					return true;
 				}
-				
+
 				if (self::$config ['blank'])
 				{
 					include self::$config ['blank'];
@@ -170,8 +169,8 @@ class Helper_Site_Block
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 }

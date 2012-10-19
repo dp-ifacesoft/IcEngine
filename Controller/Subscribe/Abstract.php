@@ -22,7 +22,6 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 	 */
 	public function backgroundStart ()
 	{
-			Loader::load ('Background_Agent_Manager');
 			Background_Agent_Manager::instance ()->startAgent (
 					$this->_backgroundAgent,
 					array (
@@ -36,7 +35,6 @@ class Controller_Subscribe_Abstract extends Controller_Abstract
 	 */
 	public function backgroundProcess ()
 	{
-			Loader::load ('Background_Agent_Manager');
 			Background_Agent_Manager::instance ()->processAgent (
 					$this->_backgroundAgent
 			);

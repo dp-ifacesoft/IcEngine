@@ -103,7 +103,6 @@ class Registration extends Model
 	{
 		if (!$this->User || !$this->User->key ())
 		{
-			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('User unexists.');
 		}
 
@@ -113,7 +112,6 @@ class Registration extends Model
 
 		if ($this->config ()->after_confirm)
 		{
-			Loader::load ($this->config ()->after_confirm [0]);
 			call_user_func (
 				$this->config ()->after_confirm->__toArray (),
 				$this
@@ -208,9 +206,6 @@ class Registration extends Model
 			$this->_autoUserActivate ();
 		}
 
-		//Loader::load ('Message_After_Registration_Finish');
-		//Message_After_Registration_Finish::push ($this);
-
 		return $this;
 	}
 
@@ -264,23 +259,15 @@ class Registration extends Model
 			{
 				$user = $this->_autoUserCreate ($data);
 			}
-			//Loader::load ('Message_After_Registration_Start');
-			//Message_After_Registration_Start::push ($this);
 
 			$this->update (array (
 				'User__id'	=> $user->id,
 				'code'		=> self::generateUniqueCode ($user->id)
 			));
 		}
-		else
-		{
-			//Loader::load ('Message_After_Registration_Start');
-			//Message_After_Registration_Start::push ($this);
-		}
 
 		if ($config ['after_create'])
 		{
-			Loader::load ($config ['after_create'][0]);
 			if (
 				!call_user_func (
 					$config ['after_create']->__toArray (),
@@ -296,7 +283,6 @@ class Registration extends Model
 
 		if ($this->config ()->sendmail)
 		{
-			Loader::load ('Mail_Message');
 			$message = Mail_Message::create (
 				$config ['mail_template'],
 				$data ['email'],
@@ -324,7 +310,6 @@ class Registration extends Model
 	public function sendMail (array $data = array ())
 	{
 		$config = $this->config ();
-		Loader::load ('Mail_Message');
 		$message = Mail_Message::create (
 			$config ['mail_template'],
 			$this->email,

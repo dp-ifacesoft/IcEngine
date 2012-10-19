@@ -11,7 +11,7 @@ class Model_Mapper_Scheme_Render_View
 	 * @param string $name
 	 * @return Model_Mapper_Scheme_Render_View_Abstract
 	 */
-	public function byName ($name)
+	public static function byName ($name)
 	{
 		$class_name = 'Model_Mapper_Scheme_Render_View_' . $name;
 		if (!Loader::load ($class_name))

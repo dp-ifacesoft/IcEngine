@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Фоновый агент
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class Background_Agent extends Model_Factory
 {
-	
+
 //	/**
 //	 * Запуск фонового процесса
 //	 * @param string $class
@@ -20,12 +20,10 @@ class Background_Agent extends Model_Factory
 //	 * @param boolean $immediately
 //	 * @return Background_Agent
 //	 */
-//	public static function create ($class, $method, $params, 
+//	public static function create ($class, $method, $params,
 //	    $sec_per_iteration = 10)
 //	{
-//	    Loader::load ('Background_Agent_State');
-//	    Loader::load ('Background_Agent_Type');
-//	    
+//
 //		$process = new Background_Agent (array (
 //			'startTime'			=> date ('Y-m-d H:i:s'),
 //			'lastActiveTime'	=> date ('Y-m-d H:i:s'),
@@ -40,19 +38,18 @@ class Background_Agent extends Model_Factory
 //			'Background_Agent_State__id'	=> Background_Agent_State::NONE,
 //		    'Background_Agent_Type__id'		=> Background_Agent_Type::CMD
 //		));
-//		
+//
 //		$process->save ();
-//		
+//
 //		return $process;
 //	}
-//	
+//
 //	/**
 //	 * Рабочий процесс.
 //	 */
 //	public function process ()
 //	{
-//	    Loader::load ('Background_Agent_State');
-//	    
+//
 //		if (
 //			$this->Background_Agent_State__id != Background_Agent_State::NONE &&
 //			$this->Background_Agent_State__id != Background_Agent_State::WAITING
@@ -60,7 +57,7 @@ class Background_Agent extends Model_Factory
 //		{
 //			return false;
 //		}
-//		
+//
 //		if ($this->realStopFlag ())
 //		{
 //			$this->update (array (
@@ -74,24 +71,23 @@ class Background_Agent extends Model_Factory
 //			'iterationStarted'				=> $this->iterationStarted + 1,
 //			'Background_Agent_State__id'	=> Background_Agent_State::PROCESS
 //		));
-//		
+//
 //		$class = $this->callingClass;
 //		$method = $this->callingMethod;
-//		Loader::load ($class);
-//		
+//
 //		$obj = new $class ();
 //		$params = (array) json_decode ($this->params, true);
-//		
+//
 //		// Рабочий цикл
 //		$start_time = time ();
 //		do {
 //		    $continue = $obj->{$method} ($params);
-//		    
+//
 //		    $this->update (array (
 //    			'lastActiveTime'				=> date ('Y-m-d H:i:s'),
 //    			'params'						=> json_encode ($params)
 //    		));
-//		    
+//
 //			if ($continue)
 //			{
 //    			if ($this->realStopFlag ())
@@ -110,14 +106,14 @@ class Background_Agent extends Model_Factory
 //			    break;
 //			}
 //		} while (time () - $start_time < $this->secPerIteration);
-//		
+//
 //		$this->update (array (
 //			'lastActiveTime'				=> date ('Y-m-d H:i:s'),
 //			'iterationFinished'				=> $this->iterationFinished + 1,
 //			'Background_Agent_State__id'	=> $new_state
 //		));
 //	}
-//	
+//
 //	/**
 //	 * Текущее состояние стоп флага
 //	 * @return integer
@@ -131,7 +127,7 @@ class Background_Agent extends Model_Factory
 //			->where ('id=?', $this->id)
 //		)->getResult ()->asValue ();
 //	}
-//	
+//
 //	/**
 //	 * Сброс состояния
 //	 */
@@ -141,7 +137,7 @@ class Background_Agent extends Model_Factory
 //			'Background_Agent_State__id'	=> Background_Agent_State::NONE
 //		));
 //	}
-//	
+//
 //	/**
 //	 * Остановка.
 //	 * Устанаваливает флаг останова.
@@ -152,5 +148,5 @@ class Background_Agent extends Model_Factory
 //			'stopFlag'	=> 1
 //		));
 //	}
-	
+
 }

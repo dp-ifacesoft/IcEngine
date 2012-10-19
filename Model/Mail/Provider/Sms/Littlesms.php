@@ -1,7 +1,7 @@
 <?php
-Loader::load ('Mail_Provider_Abstract');
+
 /**
- * 
+ *
  * @desc Провайдер отправки сообщений через Littlesms
  * @author Юрий Шведов
  * @package IcEngine
@@ -9,13 +9,13 @@ Loader::load ('Mail_Provider_Abstract');
  */
 class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 {
-	
+
 	/**
 	 * @desc API для работы с LittleSMS
 	 * @var LittleSMSoriginal
 	 */
 	protected $_client;
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -30,23 +30,23 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 		// Кодировка отправляемых сообщений
 		'send_charset'		=> 'utf-8'
 	);
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::_afterConstruct()
 	 */
-	protected function _afterConstruct ()
+	protected function _afterConstruct()
 	{
-		$config = $this->config ();
-		Loader::requireOnce ($config ['original_path'], 'includes');
-		
-		$this->_client = new LittleSMSoriginal (
-			$config ['service_login'],
-			$config ['service_password'], 
+		$config = $this->config();
+		Loader::requireOnce($config['original_path'], 'includes');
+		Loader::load('LittleSMSoriginal', 'includes');
+		$this->_client = new LittleSMSoriginal(
+			$config['service_login'],
+			$config['service_password'],
 			false
 		);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Mail_Provider_Abstract::send()
@@ -54,12 +54,12 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 	public function send (Mail_Message $message, $config)
 	{
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
-		
+
 		$sms_id = $this->sendSms (
 			$message->address,
 			$message->body
 		);
-		
+
 		if ($sms_id)
 		{
 			$this->logMessage (
@@ -78,10 +78,10 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 				$this->_client->getResponse ()
 			);
 		}
-		
+
 		return $sms_id;
 	}
-	
+
 	/**
 	 * @desc Отправка СМС на номер
 	 * @param string $phone Номер телефона.
@@ -100,29 +100,29 @@ class Mail_Provider_Sms_Littlesms extends Mail_Provider_Abstract
 			$this->config ()->service_sender
 		);
 		$result = $this->_client->getResponse ();
-		
+
 		if (
-			!empty ($result) && is_array ($result) && 
-			isset ($result ['status']) && $result ['status'] == 'success' && 
+			!empty ($result) && is_array ($result) &&
+			isset ($result ['status']) && $result ['status'] == 'success' &&
 			isset ($result ['messages_id'][0])
 		)
 		{
 			return $result['messages_id'][0];
 		}
-		
+
 		return false;
 	}
-	
+
 	public function getStatus ($smsId)
 	{
 		$status = $this->_client->checkStatus ($smsId);
 		//print_r($status);
-		return 
-			(is_array ($status) && !empty ($status [$smsId])) ? 
-			array ('sms_status' => $status [$smsId]) : 
+		return
+			(is_array ($status) && !empty ($status [$smsId])) ?
+			array ('sms_status' => $status [$smsId]) :
 			null;
 	}
-	
+
 }
 
 /*

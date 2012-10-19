@@ -1,6 +1,6 @@
-<?php 
+<?php
 /**
- * 
+ *
  * @desc Модель востановления пароля.
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,13 +8,13 @@
  */
 class Password_Recovery extends Model
 {
-	
+
 	/**
 	 * Поле сессии
 	 * @var string
 	 */
 	const SF_PRECOVERY = 'PASSREC';
-	
+
 	/**
 	 * Действие
 	 * Password Recovery Action
@@ -37,23 +37,23 @@ class Password_Recovery extends Model
 	const STATE_EMAIL_INCORRECT			= 15; // указан неверный e-mail
 	const STATE_CODE_SEND_ERROR			= 16; // не удалось отправить e-mail
 	const STATE_NEW_PASSWORD_BAD		= 17; // плохой новый пароль
-	const STATE_CONFIRM_BAD				= 18; // подтверждение != паролю	
-	
+	const STATE_CONFIRM_BAD				= 18; // подтверждение != паролю
+
 	/**
 	 * Максимальное количество запросов восстановления пароля в сутки
 	 * @var integer
 	 */
 	const MAX_QUERY_PER_EMAIL	= 3;
 	const MAX_QUERY_PER_IP		= 6;
-	
+
 	/**
 	 * Ссылка для изменения пароля
 	 * @var string
 	 */
 	public static $code;
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $code
 	 * @return Password_Recovery
 	 */
@@ -65,7 +65,7 @@ class Password_Recovery extends Model
 	        ->where ('code', $code)
 	    );
 	}
-	
+
 	/**
 	 * @return Password_Recovery
 	 */
@@ -78,10 +78,10 @@ class Password_Recovery extends Model
 	    {
 	        return null;
 	    }
-	    
+
 	    return self::byCode ($_SESSION [self::SF_PRECOVERY]['code']);
 	}
-	
+
 	/**
 	 * @param integer $id id восстановления
 	 * @return string
@@ -92,18 +92,18 @@ class Password_Recovery extends Model
 			chr (rand (ord ('a'), ord ('z'))) . $id . 'a' .
 			md5 (time ()) . md5 (rand (12345678, 87654321));
 	}
-	
+
 	/**
 	 * Ссылка для изменения пароля
 	 * @return string
 	 */
 	public function href ()
 	{
-		return 
-			"http://" . Request::host () . 
-			"/recovery?code=" . $this->code; 
+		return
+			"http://" . Request::host () .
+			"/recovery?code=" . $this->code;
 	}
-	
+
 	/**
 	 * Количество запросов на емейл за сегодня
 	 * @param string $email
@@ -112,7 +112,7 @@ class Password_Recovery extends Model
 	public static function queryCountOnEmail ($email)
 	{
 		$day = Helper_Date::eraDayNum ();
-		
+
 		return Model_Collection_Manager::byQuery (
 		    __CLASS__,
 		    Query::instance ()
@@ -120,7 +120,7 @@ class Password_Recovery extends Model
 		    ->where ('email', $email)
 		)->count ();
 	}
-	
+
 	/**
 	 * Количество запросов с одного IP
 	 * @param string $ip
@@ -129,7 +129,7 @@ class Password_Recovery extends Model
 	public static function queryCountOnIp ($ip)
 	{
 		$day = Helper_Date::eraDayNum ();
-		
+
 		return Model_Collection_Manager::byQuery (
 		    __CLASS__,
 		    Query::instance ()
@@ -137,52 +137,52 @@ class Password_Recovery extends Model
 		    ->where ('ip', $ip)
 		)->count();
 	}
-	
+
 	/**
 	 * @return integer
 	 */
 	public static function getState ()
 	{
 		self::$code = Request::get ('code');
-		if (empty (self::$code)) 
+		if (empty (self::$code))
 		{
 			self::$code = Request::post ('code');
 		}
-		
+
 		$action = Request::get ('action');
 		if (empty (self::$code))
 		{
 			// не передан код из письма
-			
+
 			// проверяем лимит запросов по IP
 			if (self::queryCountOnIp (Request::ip ()) >= self::MAX_QUERY_PER_IP)
 			{
 				return self::STATE_IP_QUERY_LIMIT;
 			}
-			
+
 			if ($action == self::ACTION_SEND_CODE)
 			{
 				$email = Request::get ('pr_email');
-				
+
 				// лимит запросов на e-mail
 				if (self::queryCountOnEmail ($email) >= self::MAX_QUERY_PER_EMAIL)
 				{
 					return self::STATE_EMAIL_QUERY_LIMIT;
 				}
-				
+
 				$user = Model_Manager::byQuery (
 				    'User',
 				    Query::instance ()
 				    ->where ('email', $email)
 				);
-				
+
 				if (!$user)
 				{
 					return self::STATE_EMAIL_INCORRECT;
 				}
-				
+
 				// Всё правильно, создаем письмо с кодом
-				
+
 				if (self::sendRecoveryEmail ($user->id, $email))
 				{
 					return self::STATE_CODE_SENDED;
@@ -191,20 +191,20 @@ class Password_Recovery extends Model
 				{
 					return self::STATE_CODE_SEND_ERROR;
 				}
-						
+
 			}
 		}
 		else
 		{
 			// передан код из письма
 			$recovery = self::byCode (self::$code);
-					
+
 			// Код не соответсвует id запроса
 			if (!$recovery)
 			{
 				return self::STATE_CODE_FAIL;
 			}
-			
+
 			// Истек срок действия кода
 			if ($recovery->active == 0)
 			{
@@ -215,17 +215,17 @@ class Password_Recovery extends Model
 			{
 				$new_password = Request::post ('pr_newpassword');
 				$confirm = Request::post ('pr_confirm');
-				
+
 				if (strcmp ($new_password, $confirm) != 0)
 				{
 					return self::STATE_CONFIRM_BAD;
 				}
-				
+
 				if (strlen ($new_password) < 3)
 				{
 					return self::STATE_NEW_PASSWORD_BAD;
 				}
-				
+
 				// меняем пароль и делаем неактивной смену
 				$recovery->update (array (
 					'active'	=> 0
@@ -233,7 +233,7 @@ class Password_Recovery extends Model
 				$recovery->User->update (array (
 					'password'	=> $new_password
 				));
-				return self::STATE_PASSWORD_CHANGED;	
+				return self::STATE_PASSWORD_CHANGED;
 			}
 			else
 			{
@@ -243,12 +243,12 @@ class Password_Recovery extends Model
 				);
 				return self::STATE_CODE_OK;
 			}
-			
+
 		}
-		
+
 		return self::STATE_NONE;
 	}
-	
+
 	/**
 	 * Удаление старых
 	 * Дает возможность заного запрашивать восстановления пароля
@@ -269,13 +269,13 @@ class Password_Recovery extends Model
 			);
 		}
 	}
-	
+
 	public static function resetSession ()
 	{
 	    $_SESSION [self::SF_PRECOVERY] = array (
 			'state_id'	=> self::STATE_NONE);
 	}
-	
+
 	/**
 	 * @param integer $user_id
 	 * @param string $email
@@ -284,7 +284,7 @@ class Password_Recovery extends Model
 	public static function sendRecoveryEmail ($user_id, $email)
 	{
 		$code = self::generateUniqueCode (time ());
-		
+
 		$recovery = new Password_Recovery (array (
 			'User__id'		=> $user_id,
 			'email'			=> $email,
@@ -296,9 +296,8 @@ class Password_Recovery extends Model
 		));
 		$recovery->save ();
 		
-		Loader::load ('Mail_Message');
 		$message = Mail_Message::create (
-			'password_recovery', 
+			'password_recovery',
 			$email, $email,
 			array (
 				'email'		=> $email,
@@ -311,12 +310,12 @@ class Password_Recovery extends Model
 		);
 		return $message->send ();
 	}
-	
+
 	public function startSession ()
 	{
 	    $_SESSION [self::SF_PRECOVERY] = array (
 			'state_id'	=> self::STATE_CODE_OK,
 			'code'		=> $this->code);
 	}
-	
+
 }

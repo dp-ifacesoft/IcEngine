@@ -1,7 +1,6 @@
 <?php
 
 {if $extends && $with_load}
-Loader::load ('{$extends}');
 
 {/if}
 /**

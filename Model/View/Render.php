@@ -1,9 +1,7 @@
 <?php
 
-Loader::load ('View_Render_Abstract');
-
 /**
- * 
+ *
  * @desc Фабрика рендеров.
  * @author Юрий Шведов
  * @package IcEngine
@@ -11,7 +9,7 @@ Loader::load ('View_Render_Abstract');
  */
 class View_Render extends Model_Factory
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model_Factory::table()
@@ -20,5 +18,5 @@ class View_Render extends Model_Factory
 	{
 		return 'View_Render';
 	}
-	
+
 }

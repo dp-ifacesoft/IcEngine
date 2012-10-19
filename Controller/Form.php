@@ -6,68 +6,68 @@ class Controller_Form extends Controller_Abstract
 	const 	EDIT			= 	'edit';
 	const 	CREATE 			= 	'create';
 	const 	DELETE			= 	'delete';
-	
+
 	const 	PARAMS			= 	'param';
-	
+
 	const	BEFORE_CREATE	=	'beforeCreate';
 	const	AFTER_CREATE	=	'afterCreate';
-	
+
 	const	BEFORE_EDIT		=	'beforeEdit';
 	const 	AFTER_EDIT		=	'afterAfter';
-	
+
 	const 	BEFORE_DELETE	=	'beforeDelete';
 	const	AFTER_DELETE	=	'afterDelete';
-	
+
 	const	BEFORE_VIEW		=	'beforeView';
 	const	AFTER_VIEW		=	'afterView';
-	
+
 	const	BEFORE_ROLL		=	'beforeRoll';
 	const	AFTER_ROLL		=	'afterRoll';
-	
+
 	public $scheme;
-	
+
 	protected function _accessDenied ()
 	{
 		return $this->replaceAction ('Error', 'accessDenied');
 	}
-	
+
 	protected function _afterCreate ($model, $params)
 	{
-		
+
 	}
-	
+
 	protected function _afterDelete ($model, $params)
 	{
-		
+
 	}
-	
+
 	protected function _afterEdit ($model, $params)
 	{
-		
+
 	}
-	
+
 	protected function _beforeCreate ($model, $params)
 	{
-		
+
 	}
-	
+
 	protected function _beforeDelete ($model, $params)
 	{
-		
+
 	}
-	
+
 	protected function _beforeEdit ($model, $params)
 	{
-		
+
 	}
-	
+
 	public function _updateModel ($model, $params)
 	{
 		array (
 			'id'		=> array (
-				'type' 			=> 'integer', 
+				'type' 			=> 'integer',
 				'default' 		=> -1,
-				'attribute'		=> true		
+				'attribute'		=> true
 			),
 			'name'		=> array (
 				'type' 	=> 'string',
@@ -77,7 +77,7 @@ class Controller_Form extends Controller_Abstract
 				)
 			),
 			'User__id'	=> array (
-				'model' 	=> 'User', 
+				'model' 	=> 'User',
 				'linked'	=> true,
 				'value' 	=> User::getCurrent ()->id (),
 				'triggers'	=> array (
@@ -92,28 +92,25 @@ class Controller_Form extends Controller_Abstract
 					self::BEFORE_ROLL	=> array (),
 					self::AFTER_ROLL	=> array ()
 				)
-				
+
 			)
-			
+
 		);
-		
-		Loader::load ('Helper_Link');
-		Loader::load ('User');
-		
+
 		$user = User::getCurrent ();
-		
+
 		$new_once = false;
-		
+
 		if (!$model->key ())
 		{
 			$this->_beforeCreate ($model, $params);
-			$new_one = true; 
+			$new_one = true;
 		}
 		else
 		{
 			$this->_beforeEdit ($model, $params);
 		}
-		
+
 		foreach ((array) $this->scheme as $key=>$stat)
 		{
 			$user_can = false;
@@ -123,12 +120,11 @@ class Controller_Form extends Controller_Abstract
 				for ($i = 0, $icount = sizeof ($roles); $i < $icount; $i++)
 				{
 					$class_name = 'Acl_Role_Type_'.$roles [$i];
-					Loader::load ($class_name);
 					$collection = Helper_Link::linkedItems (
 						$user,
 						'Acl_Role'
 					);
-					$collection	
+					$collection
 						->where ('Acl_Role_Type__id=?', constant ("$class_name::ID"));
 					if ($collection->first ())
 					{
@@ -154,7 +150,7 @@ class Controller_Form extends Controller_Abstract
 			{
 				$current->save ();
 				$current = $model->field ($stat ['model']);
-				
+
 			}
 			if (!empty ($stat ['attribute']))
 			{
@@ -173,7 +169,7 @@ class Controller_Form extends Controller_Abstract
 			}
 		}
 		$current->save ();
-			
+
 		if ($new_one)
 		{
 			$this->_afterCreate ($model, $params);
@@ -182,18 +178,16 @@ class Controller_Form extends Controller_Abstract
 		{
 			$this->_afterEdit ($model, $params);
 		}
-		
+
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array|string $resource
 	 * @return boolean
 	 */
 	protected function _userCan ($resource)
 	{
-		Loader::load ('Acl_Resource');
-		
 		if (is_array ($resource))
 		{
 			$resource = Acl_Resource::byNameCheck ($resource);
@@ -202,95 +196,95 @@ class Controller_Form extends Controller_Abstract
 		{
 			$resource = Acl_Resource::byNameCheck (func_get_args ());
 		}
-		
+
 		return ($resource && $resource->userCan (User::getCurrent ()));
 	}
-	
+
 	public function view ()
 	{
 		$id = $this->_input->receive ('id');
 		$model_name = $this->name ();
-		
+
 		if (!$this->_userCan ($model_name, $id, self::READ))
 		{
 			return $this->_accessDenied ();
 		}
-		
+
 		$model = Model_Manager::get ($model_name, $id);
-		
+
 		$this->_output->send ('model', $model);
 	}
-	
+
 	public function create ()
 	{
 		$id = 0;
 		$model_name = $this->name ();
-		
+
 		if (!$this->_userCan ($model_name, $id, self::READ))
 		{
 			return $this->_accessDenied ();
 		}
-		
+
 		// TODO: filters
 		$params = $this->_input->receive (self::PARAM);
-		
+
 		$key_field = Model_Scheme::keyField ($model_name);
-		
+
 		if (isset ($params [$key_field]))
 		{
 			unset ($params [$key_field]);
 		}
-		
+
 		$model = new $model_name (array (
 			$key_field => null
 		));
-			
+
 		$this->_updateModel ($model, (array) $params);
-		
+
 		$this->_output->send (array (
 			'model'	=> $model
 		));
 	}
-	
+
 	public function edit ()
 	{
 		$id = $this->_input->receive ('id');
 		$model_name = $this->name ();
-		
+
 		if (!$this->_userCan ($model_name, $id, self::EDIT))
 		{
 			return $this->_accessDenied ();
 		}
-		
+
 		// TODO: filters
 		$params = $this->_input->receive (self::PARAM);
-		
+
 		$key_field = Model_Scheme::keyField ($model_name);
-		
+
 		if (isset ($params [$key_field]))
 		{
 			unset ($params [$key_field]);
 		}
-		
+
 		$model = Model_Manager::byKey ($model_name, $id);
-		
+
 		if (!$model)
 		{
 			return $this->replaceAction ('Error', 'notFound');
 		}
-		
+
 		$this->_updateModel ($model, (array) $params);
-		
+
 		$this->_output->send (array (
 			'model'	=> $model
 		));
 	}
-	
+
 	public function delete ()
 	{
 		$ids = (array) $this->_input->receive ('id');
 		$model_name = $this->name ();
-		
+
 		foreach ($ids as $id)
 		{
 			if (!$this->_userCan ($model_name, $id, self::DELETE))
@@ -298,30 +292,30 @@ class Controller_Form extends Controller_Abstract
 				return $this->_accessDenied ();
 			}
 		}
-		
+
 		$key_field = Model_Scheme::keyField ($model_name);
-		
+
 		$collection = Model_Collection_Manager::byQuery (
 			$model_name,
 			Query::instance ()
 			->where ("$key_field IN (?)", $ids)
 		);
-		
+
 		$collection->delete ();
-		
+
 		$this->_output->send (array (
 			'count'	=> $collection->count ()
 		));
 	}
-	
+
 	/**
 	 * Форма устарела
 	 */
 	public function obsolete ()
 	{
-		
+
 	}
-	
-	
-	
+
+
+
 }

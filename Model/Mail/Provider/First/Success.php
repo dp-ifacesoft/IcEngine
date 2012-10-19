@@ -1,18 +1,16 @@
 <?php
+
 /**
- * 
+ *
  * @desc Провайдер сообщений, который отправляет сообщение по списку
  * провайдеров до первой успешной отправки.
  * @author Юрий Шведов
  * @package IcEngine
  *
  */
-
-Loader::load ('Mail_Provider_Abstract');
-
 class Mail_Provider_First_Success extends Mail_Provider_Abstract
 {
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -21,7 +19,7 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 		// Набор провайдеров
 		'providers'		=> null//'Sms_Dcnk,Sms_Littlesms,Sms_Yakoon'
 	);
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Mail_Provider_Abstract::send()
@@ -29,17 +27,17 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 	public function send (Mail_Message $message, $config)
 	{
 		$this->logMessage ($message, self::MAIL_STATE_SENDING);
-		
-		$providers = 
-			isset ($config ['providers']) ? 
+
+		$providers =
+			isset ($config ['providers']) ?
 				$config ['providers'] :
 				$this->config ()->providers;
-		
+
 		if (!is_array ($providers))
 		{
 			$providers = explode (',', $providers);
 		}
-		
+
 		foreach ($providers as $provider_name)
 		{
 			/**
@@ -51,7 +49,7 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 				Query::instance ()
 				->where ('name', $provider_name)
 			);
-			
+
 			if ($provider && $provider->send ($message, $config))
 			{
 				$this->logMessage (
@@ -62,14 +60,14 @@ class Mail_Provider_First_Success extends Mail_Provider_Abstract
 				return true;
 			}
 		}
-		
+
 		$this->logMessage (
 			$message,
 			self::MAIL_STATE_FAIL,
 			'providers: ' . var_export ($providers, true)
 		);
-		
+
 		return false;
 	}
-	
+
 }

@@ -76,7 +76,6 @@ class Crypt_Manager
 		if (!isset (self::$_crypts [$name]))
 		{
 			$crypt = 'Crypt_' . $name;
-			Loader::load ($crypt);
 			self::$_crypts [$name] = new $crypt;
 		}
 		return self::$_crypts [$name];

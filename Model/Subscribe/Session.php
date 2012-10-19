@@ -5,11 +5,10 @@ class Subscribe_Session extends Model
 	/**
 	 * @desc Получить последнюю сессию подписки
 	 * @param Model $subscibe
-	 * @return array	
+	 * @return array
 	 */
 	public static function lastFor (Model $subscribe)
 	{
-		Loader::load ('Helper_Process');
 		return DDS::execute (
 			Query::instance ()
 			->select ('*')
@@ -22,17 +21,16 @@ class Subscribe_Session extends Model
 			->getResult ()
 				->asRow ();
 	}
-	
+
 	/**
-	 * @desc Получить успешную последнюю сессию подписки 
+	 * @desc Получить успешную последнюю сессию подписки
 	 * для подписчика
 	 * @param Model $subscribe
 	 * @param Model $subsciber
-	 * @return array	
+	 * @return array
 	 */
 	public static function lastForSubscriber (Model $subscribe, Model $subscriber)
 	{
-		Loader::load ('Helper_Process');
 		return DDS::execute (
 			Query::instance ()
 			->select ('*')
@@ -51,7 +49,7 @@ class Subscribe_Session extends Model
 			->getResult ()
 				->asRow ();
 	}
-	
+
 	/**
 	 * @desc Изменить статус сессии
 	 * @param integer $status

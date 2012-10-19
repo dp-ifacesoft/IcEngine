@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Defined');
-
 class Month extends Model_Defined
 {
 	public static $_rows = array (

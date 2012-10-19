@@ -71,7 +71,6 @@ class Model_Mapper_Scheme_Reference_Abstract
 	 */
 	public function resource ()
 	{
-		Loader::load ('Model_Mapper_Scheme_Resource');
 		return new Model_Mapper_Scheme_Resource ($this);
 	}
 

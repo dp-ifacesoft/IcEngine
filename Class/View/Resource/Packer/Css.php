@@ -6,8 +6,6 @@
  * @package IcEngine
  *
  */
-Loader::load ('View_Resource_Packer_Abstract');
-
 class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 {
 
@@ -67,7 +65,6 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Helper_Uri');
 		$this->_domain = Helper_Uri::mainDomain ();
 
 		$this->_config = array_merge (

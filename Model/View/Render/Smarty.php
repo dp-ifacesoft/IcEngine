@@ -6,9 +6,6 @@
  * @package IcEngine
  *
  */
-
-Loader::load ('View_Render_Abstract');
-
 class View_Render_Smarty extends View_Render_Abstract
 {
 
@@ -69,7 +66,6 @@ class View_Render_Smarty extends View_Render_Abstract
 		foreach ($config ['filters'] as $filter)
 		{
 			$filter = 'Helper_Smarty_Filter_' . $filter;
-			Loader::load ($filter);
 			$filter::register ($this->_smarty);
 		}
 	}

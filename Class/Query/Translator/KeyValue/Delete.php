@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Translator_KeyValue_Select');
-
 /**
  * @desc Транслятор запросов типа delete для key-value хранилищ
  * @author goorus, morph

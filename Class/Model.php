@@ -1,6 +1,5 @@
 <?php
-Loader::load ('Object_Pool');
-Loader::load ('Object_Interface');
+
 /**
  *
  * @desc Базовая модель для всех сущностей.
@@ -116,7 +115,6 @@ abstract class Model implements ArrayAccess
 			);
 		}
 
-		Loader::load ('Model_Exception');
 		throw new Model_Exception ("Method $method not found");
 	}
 
@@ -939,7 +937,6 @@ abstract class Model implements ArrayAccess
 	public function validateWith ($scheme_name, $input)
 	{
 		$model_validator = $this->modelName () . '_Validator_' . $scheme_name;
-		Loader::load ($model_validator);
 		return $model_validator::validate ($this, $input);
 	}
 

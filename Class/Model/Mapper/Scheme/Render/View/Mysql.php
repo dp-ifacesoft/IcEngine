@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Render_View_Abstract');
-
 /**
  * @desc Представление рендера схемы связей модели для Mysql
  * @author Илья Колесников

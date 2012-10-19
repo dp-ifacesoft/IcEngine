@@ -3,6 +3,244 @@
 class Controller_Model extends Controller_Abstract
 {
 	/**
+	 * Сравнение схем моделей и таблиц
+	 */
+	public function compare($author, $filename)
+	{
+		$this->_task->setTemplate(null);
+		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
+		$exec = 'find ' . $dir . '*';
+		ob_start();
+		system($exec);
+		$content = ob_get_contents();
+		ob_end_clean();
+		if (!$content) {
+			return;
+		}
+		$files = explode(PHP_EOL, $content);
+		if (!$files) {
+			return;
+		}
+		$models = array();
+		foreach ($files as $file) {
+			if (!is_file($file)) {
+				continue;
+			}
+			$file = str_replace(
+				str_replace('/', '_', IcEngine::root()) .
+				'Ice_Config_Model_Mapper_',
+				'',
+				str_replace ('/', '_', $file)
+			);
+			$className = substr($file, 0, -4);
+			if ($className == 'Scheme') {
+				continue;
+			}
+			$models[] = $className;
+		}
+		foreach ($models as $model) {
+			$fields = Helper_Data_Source::fields($model);
+			$table = Model_Scheme::table($model);
+			if (!$fields) {
+				echo 'Model "' . $model . '" not have a table. Create? [Y/n] ';
+				$a = fgets(STDIN);
+				if ($a[0] == 'Y') {
+					Controller_Manager::call(
+						'Model', 'create', array(
+							'name'		=> $model,
+							'author'	=> $author
+						)
+					);
+				}
+			} else {
+				$tableFields = Model_Scheme::makeScheme($fields);
+				$modelScheme = Model_Scheme::getScheme($model);
+				if (!$modelScheme) {
+					continue;
+				}
+				$modelFields = $modelScheme['fields'];
+				$addedFields = array_diff_key($modelFields, $tableFields);
+				$deletedFields = array_diff_key($tableFields, $modelFields);
+				$remainingFields = array_diff_key(
+					$tableFields, array_merge(
+						array_keys($addedFields),
+						array_keys($deletedFields)
+					)
+				);
+				if ($addedFields) {
+					foreach ($addedFields as $fieldName => $data) {
+						echo 'In model "' . $model . '" had added field "' .
+							$fieldName . '". Create? [Y/n] ';
+						$a = fgets(STDIN);
+						if ($a[0] == 'Y') {
+							$field = new Model_Field($fieldName);
+							$field->setNullable(false)
+								->setType($data['type'])
+								->setComment($data['comment']);
+							if (!empty($data['default'])) {
+								$field->setDefault($data['default']);
+							}
+							if (!empty($data['size'])) {
+								$field->setSize($data['size']);
+							}
+							if (!empty($data['auto_inc'])) {
+								$field->setAutoIncrement(true);
+							}
+							$query = Query::instance()
+								->alterTable($table)
+								->add($field);
+							if ($filename) {
+								file_put_contents(
+									$filename,
+									$query->translate() . PHP_EOL,
+									FILE_APPEND
+								);
+							} else {
+								DDS::execute($query);
+							}
+						}
+					}
+				}
+				if ($deletedFields) {
+					foreach ($deletedFields as $fieldName => $data) {
+						echo 'In model "' . $model . '" had deleted field "' .
+							$fieldName . '". Delete? [Y/n] ';
+						$a = fgets(STDIN);
+						if ($a[0] == 'Y') {
+							$field = new Model_Field($fieldName);
+							$query = Query::instance()
+								->alterTable($table)
+								->drop($field);
+							if ($filename) {
+								file_put_contents(
+									$filename,
+									$query->translate() . PHP_EOL,
+									FILE_APPEND
+								);
+							} else {
+								DDS::execute($query);
+							}
+						}
+					}
+				}
+				if ($remainingFields) {
+					foreach ($remainingFields as $fieldName => $tableData) {
+						if (!isset($modelFields[$fieldName])) {
+							continue;
+						}
+						$fieldData = $modelFields[$fieldName];
+						$changedAttributes = @array_diff_assoc(
+							$tableData, $fieldData
+						);
+						$modelChangedFields = @array_diff_assoc(
+							$fieldData, $tableData
+						);
+						if (count($modelChangedFields) !=
+							count($changedAttributes)) {
+							foreach ($modelChangedFields as $attrName => $value) {
+								if (isset($changedAttributes[$attrName])) {
+									continue;
+								}
+								echo 'In model "' . $model .
+									'" had changed field "' .
+									$fieldName . '" with added attribute "' .
+									$attrName .	'". Apply changes? [Y/n] ';
+								$a = fgets(STDIN);
+								if ($a[0] == 'Y') {
+									$field = new Model_Field($fieldName);
+									$field->setNullable(false)
+										->setType($tableData['type'])
+										->setComment($tableData['comment']);
+									if (!empty($tableData['default'])) {
+										$field->setDefault($tableData['default']);
+									}
+									if (!empty($tableData['size'])) {
+										$field->setSize($tableData['size']);
+									}
+									if (!empty($tableData['auto_inc'])) {
+										$field->setAutoIncrement(true);
+									}
+									if ($attrName == 'auto_inc') {
+										$attrName = 'auto_increment';
+									}
+									$attrName = 'ATTR_' . strtoupper($attrName);
+									$attr = constant('Model_Field::' . $attrName);
+									$field->setAttr($attr, $value);
+									$query = Query::instance()
+										->alterTable($table)
+										->change($fieldName, $field);
+									if ($filename) {
+										file_put_contents(
+											$filename,
+											$query->translate() . PHP_EOL,
+											FILE_APPEND
+										);
+									} else {
+										DDS::execute($query);
+									}
+								}
+							}
+						}
+						if ($changedAttributes) {
+							foreach ($changedAttributes as $attrName => $value) {
+								if (isset($modelChangedFields[$attrName])) {
+									continue;
+								}
+								if (!isset($fieldData[$attrName])) {
+									continue;
+								}
+								echo 'In model "' . $model .
+									'" had changed field "' .
+									$fieldName . '" with changed attribute "' .
+									$attrName .	'". Apply changes? [Y/n] ';
+								$a = fgets(STDIN);
+								if ($a[0] == 'Y') {
+									$field = new Model_Field($fieldName);
+									$field->setNullable(false)
+										->setType($tableData['type'])
+										->setComment($tableData['comment']);
+									if (!empty($tableData['default'])) {
+										$field->setDefault($tableData['default']);
+									}
+									if (!empty($tableData['size'])) {
+										$field->setSize($tableData['size']);
+									}
+									if (!empty($tableData['auto_inc'])) {
+										$field->setAutoIncrement(true);
+									}
+									$oldAttr = $attrName;
+									if ($attrName == 'auto_inc') {
+										$attrName = 'auto_increment';
+									}
+									$attrName = 'ATTR_' . strtoupper($attrName);
+									$attr = constant('Model_Field::' . $attrName);
+									if (isset($fieldData[$oldAttr])) {
+										$field->setAttr(
+											$attr, $fieldData[$oldAttr]
+										);
+									}
+									$query = Query::instance()
+										->alterTable($table)
+										->change($fieldName, $field);
+									if ($filename) {
+										file_put_contents(
+											$filename,
+											$query->translate() . PHP_EOL,
+											FILE_APPEND
+										);
+									} else {
+										DDS::execute($query);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * @desc Создание модели
 	 * @param string $name Название модели
 	 * @param string $author Автор
@@ -61,8 +299,6 @@ class Controller_Model extends Controller_Abstract
 
 		if (!is_file ($filename))
 		{
-			Loader::load ('Helper_Code_Generator');
-
 			$properties = array ();
 			if ($config->fields)
 			{
@@ -119,8 +355,6 @@ class Controller_Model extends Controller_Abstract
 
 			if (!is_file ($filename))
 			{
-				Loader::load ('Helper_Code_Generator');
-
 				$output = Helper_Code_Generator::fromTemplate (
 					'model',
 					array (
@@ -183,7 +417,6 @@ class Controller_Model extends Controller_Abstract
 	public function createOption ($model_name, $name, $author)
 	{
 		$this->_task->setTemplate (null);
-		Loader::load ('Helper_Code_Generator');
 		$dir = IcEngine::root () . 'Ice/Model/' .
 			str_replace ('_', '/', $model_name) .
 			'/Option/';
@@ -221,8 +454,6 @@ class Controller_Model extends Controller_Abstract
 
 	public function createTable ($name, $id)
 	{
-		Loader::load ('Model_Mapper');
-		Loader::load ('Model_Proxy');
 		$model = new Model_Proxy (
 			$name,
 			array (
@@ -230,7 +461,6 @@ class Controller_Model extends Controller_Abstract
 			)
 		);
 		$scheme = Model_Mapper::scheme ($model);
-		Loader::load ('Model_Mapper_Scheme_Render_View');
 		$view = Model_Mapper_Scheme_Render_View::byName ('Mysql');
 		$query = $view->render ($scheme);
 		DDS::execute ($query);
@@ -238,11 +468,14 @@ class Controller_Model extends Controller_Abstract
 		echo $query->translate ('Mysql') . PHP_EOL;
 	}
 
-	public function fromTable ($name, $author, $comment, $missing = 0)
+	public function fromTable ($name, $author, $comment, $missing = 0, $rewrite = 0, $ds = NULL)
 	{
-		$this->_task->setTemplate (null);
 
-		Loader::load ('Helper_Data_Source');
+        if (!$ds) {
+            $ds = DDS::getDataSource();
+        }
+
+		$this->_task->setTemplate (null);
 
 		if (!$missing)
 		{
@@ -261,13 +494,23 @@ class Controller_Model extends Controller_Abstract
 
 		foreach ($names as $name)
 		{
-			$fields = Helper_Data_Source::fields ('`' . $name . '`');
-			$info = Helper_Data_Source::table ('`' . $name . '`');
+			$fields = Helper_Data_Source::fields ('`' . $name . '`', $ds);
+			$info = Helper_Data_Source::table ('`' . $name . '`', $ds);
 			$model_name = Model_Scheme::tableToModel ($name);
 			$dir = IcEngine::root () . 'Ice/Config/Model/Mapper/';
 			$name_dir = explode ('_', $model_name);
 			$filename = array_pop ($name_dir);
 			$current_dir = $dir;
+			$exists_scheme = Config_Manager::get ('Model_Mapper_' . $model_name);
+			$references = array ();
+			$admin_panel = array ();
+			if ($exists_scheme)
+			{
+				$author = $author ? $author : $exists_scheme->author;
+				$comment = $comment ? $comment : $exists_scheme->comment;
+				$references = $exists_scheme->references;
+				$admin_panel = $exists_scheme->admin_panel;
+			}
 			if ($name_dir)
 			{
 				foreach ($name_dir as $dir)
@@ -280,7 +523,7 @@ class Controller_Model extends Controller_Abstract
 				}
 			}
 			$filename = $current_dir . $filename . '.php';
-			if (is_file ($filename))
+			if (is_file ($filename) && !$rewrite)
 			{
 				continue;
 			}
@@ -290,7 +533,13 @@ class Controller_Model extends Controller_Abstract
 			$query = Query::instance ()
 				->show ('KEYS')
 				->from ('`' . $name . '`');
-			$keys = DDS::execute ($query)->getResult ()->asTable ();
+
+            //$scheme = Model_Scheme::getScheme('Sn_User_Dialog');
+            //print_r($scheme);die;
+
+            //$ds = Data_Source_Manager::
+
+			$keys = $ds->execute ($query)->getResult ()->asTable ();
 
 			foreach ($fields as $field)
 			{
@@ -410,14 +659,19 @@ class Controller_Model extends Controller_Abstract
 				$comment = $info ['Comment'];
 			}
 
-			Loader::load ('Helper_Code_Generator');
+			if (!empty($admin_panel)) {
+				$admin_panel =  '\'admin_panel\' => ' . Helper_Converter::arrayToString($admin_panel);
+			}
+
 			$output = Helper_Code_Generator::fromTemplate (
 				'scheme',
 				array (
-					'author'	=> $author,
-					'comment'	=> $comment,
-					'fields'	=> $result_fields,
-					'indexes'	=> $result_indexes
+					'author'		=> $author,
+					'comment'		=> $comment,
+					'fields'		=> $result_fields,
+					'indexes'		=> $result_keys,
+					'references'	=> $references,
+					'admin_panel'	=> $admin_panel
 				)
 			);
 
@@ -428,7 +682,6 @@ class Controller_Model extends Controller_Abstract
 
 	public function missing ()
 	{
-		Loader::load ('Helper_Data_Source');
 		$tables = Helper_Data_Source::tables ();
 		$exists_models = array ();
 		foreach ($tables as $table)
@@ -534,19 +787,95 @@ class Controller_Model extends Controller_Abstract
 
 		$indexes = array (
 			'id'	=> array (
-				'id',
+				'Primary',
 				array ('id')
 			)
 		);
 
-		Loader::load ('Helper_Code_Generator');
+		$admin_panel = "'admin_panel' => array (
+			// Сортировки
+//			'sort'		=> '',
+//
+//			'search_fields'	=> array (
+//
+//			),
+//
+//			// Выводимые поля
+//			'fields'  => array ('id'),
+//
+//			// Стили
+//			'styles'	=> array (
+//
+//			),
+//
+//			// Стили ссылок
+//			'link_styles' => array (
+//
+//			),
+//
+//			// Поля, являющиеся ссылками
+//			'links'		=> array (
+//
+//			),
+//
+//			// Лимиты
+//			'limit'	=> 1000,
+//
+//			// Эвенты
+//			'event' => array (
+//
+//			),
+//
+//			// Фильтры
+//			'filter'	=> array (
+//
+//			),
+//
+//			// Фильтры значений при подстановки
+//			'field_filters'	=> array (
+//
+//			),
+//
+//			// Плагины
+//			'plugin'	=> array (
+//
+//			),
+//
+//			// Заголовок
+//			'title'	=>  'title',
+//
+//			// Подстановки
+//			'includes'	=> array (
+//
+//			),
+//
+//			// Ограничители
+//			'limitators'	=> array (
+//
+//			),
+//
+//			// Автозаполнители
+//			'auto_select'  => array (
+//
+//			),
+//
+//			// Модификаторы
+//			'modificators' => array (
+//
+//			),
+//
+//			'afterSave'	=> array (
+//
+//			)
+		)";
 			$output = Helper_Code_Generator::fromTemplate (
 				'scheme',
 				array (
 					'author'	=> $author,
 					'comment'	=> $comment,
 					'fields'	=> $fields,
-					'indexes'	=> $indexes
+					'indexes'	=> $indexes,
+					'admin_panel'	=> $admin_panel
 				)
 			);
 
@@ -554,4 +883,64 @@ class Controller_Model extends Controller_Abstract
 
 		file_put_contents ($filename, $output);
 	}
+
+	/**
+	 * @desc Обновляет схему модели
+	 */
+	public function schemeUpdate ($name, $comment, $author, $fields, $indexes, $admin_panel)
+	{
+		$this->_task->setTemplate (null);
+
+		if (!$name)
+		{
+			echo 'Scheme must contains name.' . PHP_EOL;
+			return;
+		}
+		$dir = IcEngine::root () . 'Ice/Config/Model/Mapper/';
+		$name_dir = explode ('_', $name);
+		$filename = array_pop ($name_dir) . '.php';
+		var_dump ($filename);
+
+		$scheme = Config_Manager::get ('Model_Mapper_' . $name);
+
+		$current_dir = $dir;
+		if ($name_dir)
+		{
+			foreach ($name_dir as $dir)
+			{
+				$current_dir .= $dir . '/';
+				if (!is_dir ($current_dir))
+				{
+					mkdir ($current_dir);
+				}
+			}
+		}
+		$filename = $current_dir . $filename;
+
+		echo 'File: ' . $filename . PHP_EOL . PHP_EOL;
+
+		$fields = !$fields ? $scheme ['fields'] : $fields;
+
+		$indexes = !$indexes ? $scheme ['indexes'] : $indexes;
+
+		$admin_panel = !$admin_panel ? $scheme ['admin_panel'] : $admin_panel;
+
+		$admin_panel = "'admin_panel' => " . $admin_panel;
+
+		$output = Helper_Code_Generator::fromTemplate (
+				'scheme',
+				array (
+					'author'	=> $author,
+					'comment'	=> $comment,
+					'fields'	=> $fields,
+					'indexes'	=> $indexes,
+					'admin_panel'	=> $admin_panel
+				)
+			);
+
+		echo $output;
+
+		file_put_contents ($filename, $output);
+	}
+
 }

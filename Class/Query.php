@@ -91,7 +91,6 @@ class Query
 		{
 			$class_name = 'Query_Select';
 		}
-		Loader::load ($class_name);
 		$query = new $class_name;
 		return $query->reset ();
 	}

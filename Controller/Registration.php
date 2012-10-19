@@ -6,8 +6,6 @@
  * @package IcEngine
  *
  */
-Loader::load ('Registration');
-
 class Controller_Registration extends Controller_Abstract
 {
 
@@ -19,7 +17,6 @@ class Controller_Registration extends Controller_Abstract
 		if (User::authorized ())
 		{
 			// Пользователь уже зарегистрирован
-			Loader::load ('Helper_Header');
 			Helper_Header::redirect ('/');
 			die ();
 		}
@@ -33,7 +30,6 @@ class Controller_Registration extends Controller_Abstract
 	{
 		if (User::authorized ())
 		{
-			Loader::load ('Helper_Header');
 			Helper_Header::redirect ('/');
 			return;
 		}
@@ -60,7 +56,6 @@ class Controller_Registration extends Controller_Abstract
 
 	public function postForm ()
 	{
-		Loader::load ('Helper_Form');
 		$data = Helper_Form::receiveFields (
 			$this->_input,
 			Config_Manager::get ('Registration')->fields

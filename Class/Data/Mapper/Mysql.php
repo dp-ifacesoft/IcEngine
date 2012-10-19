@@ -153,7 +153,6 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 
 		if (!empty ($errno))
 		{
-			Loader::load ('Data_Mapper_Mysql_Exception');
 			throw new Data_Mapper_Mysql_Exception ($error . "\n$sql", $errno);
 		}
 
@@ -215,7 +214,6 @@ class Data_Mapper_Mysql extends Data_Mapper_Abstract
 
 		if (isset ($this->_connectionOptions [$key]))
 		{
-			Loader::load ('Crypt_Manager');
 			$this->_connectionOptions [$key] = Crypt_Manager::autoDecode ($value);
 			return;
 		}

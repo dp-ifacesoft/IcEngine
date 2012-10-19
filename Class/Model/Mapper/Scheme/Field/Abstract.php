@@ -17,7 +17,6 @@ class Model_Mapper_Scheme_Field_Abstract
 	 */
 	public function __construct ()
 	{
-		Loader::load ('Model_Mapper_Scheme_Field_Attribute_Set');
 		$this->_attributes = new Model_Mapper_Scheme_Field_Attribute_Set;
 	}
 

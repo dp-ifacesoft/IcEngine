@@ -1,5 +1,5 @@
 <?php
-Loader::load ('Data_Mapper_Mongo');
+
 /**
  *
  * @desc Мэппер для работы с Mongodb, с кэшированием запросов.
@@ -278,7 +278,6 @@ class Data_Mapper_Mongo_Cached extends Data_Mapper_Mongo
 		switch ($key)
 		{
 			case 'cache_provider':
-				Loader::load ('Data_Provider_Manager');
 				$this->setCacher (Data_Provider_Manager::get ($value));
 				return;
 			case 'expiration':

@@ -101,7 +101,6 @@ class Controller_Manager extends Manager_Abstract
 		if (isset ($cfg ['cache_config']))
 		{
 			list ($class_name, $method) = explode ('::', $cfg ['cache_config']);
-			Loader::load ($class_name);
 			return call_user_func_array (
 				array ($class_name, $method),
 				array ($cfg)
@@ -151,9 +150,9 @@ class Controller_Manager extends Manager_Abstract
 	 * @return Controller_Task
 	 */
 	public static function call ($name, $method, $input = array(),
-		$task = null)
+		$task = null, $notLog = false)
 	{
-		return self::callUncached ($name, $method, $input, $task);
+		return self::callUncached ($name, $method, $input, $task, $notLog);
 	}
 
 	/**
@@ -165,23 +164,13 @@ class Controller_Manager extends Manager_Abstract
 	 * диспетчера.
 	 * @return Controller_Task Итерация с результатами.
 	 */
-	public static function callUncached ($name, $method, $input, $task = null)
+	public static function callUncached ($name, $method, $input, $task = null,
+		$notLog = false)
 	{
-		Loader::multiLoad (
-			'Controller_Action',
-			'Controller_Task',
-			'Route_Action'
-		);
-
-		if (class_exists ('Tracer'))
-		{
-			Tracer::begin (
-				__CLASS__,
-				__METHOD__,
-				__LINE__,
-				$name,
-				$method
-			);
+		if (Tracer::$enabled && !$notLog) {
+			Tracer::resetDeltaModelCount();
+			Tracer::resetDeltaQueryCount();
+			Tracer::begin(__CLASS__, __METHOD__, __LINE__, $name, $method);
 		}
 
 		if (!$task)
@@ -207,7 +196,6 @@ class Controller_Manager extends Manager_Abstract
 		}
 		elseif (is_array ($input))
 		{
-			Loader::load ('Data_Transport');
 			$tmp = new Data_Transport ();
 			$tmp->beginTransaction ()->send ($input);
 			$controller->setInput ($tmp);
@@ -223,7 +211,7 @@ class Controller_Manager extends Manager_Abstract
 
 		$controller->getOutput ()->beginTransaction ();
 
-		$controller->_beforeAction ($method);
+		//$controller->_beforeAction ($method);
 
 		// _beforeAction не генерировал ошибки, можно продолжать
         if (!$controller->hasErrors ())
@@ -264,7 +252,7 @@ class Controller_Manager extends Manager_Abstract
 				$params ? $params : array ()
 			);
 
-			$controller->_afterAction ($method);
+			//$controller->_afterAction ($method);
 		}
 
 		$task->setTransaction ($controller->getOutput ()->endTransaction ());
@@ -274,9 +262,12 @@ class Controller_Manager extends Manager_Abstract
 			->setOutput ($temp_output)
 			->setTask ($temp_task);
 
-		if (class_exists ('Tracer'))
-		{
-			Tracer::end (null);
+		if (Tracer::$enabled && !$notLog) {
+			$deltaModelCount = Tracer::getDeltaModelCount();
+			$deltaQueryCount = Tracer::getDeltaQueryCount();
+			Tracer::incControllerCount();
+			Tracer::end($deltaModelCount, $deltaQueryCount,
+				memory_get_usage(), 0);
 		}
 
 		return $task;
@@ -292,8 +283,6 @@ class Controller_Manager extends Manager_Abstract
 		Data_Transport $input)
 	{
 		$tasks = array ();
-
-		Loader::load ('Controller_Task');
 
 		foreach ($actions as $action)
 		{
@@ -333,7 +322,6 @@ class Controller_Manager extends Manager_Abstract
 
 			if (!Loader::requireOnce ($file, 'Controller'))
 			{
-				Loader::load ('Controller_Exception');
 				throw new Controller_Exception ("Controller $class_name not found.");
 			}
 
@@ -355,7 +343,6 @@ class Controller_Manager extends Manager_Abstract
 	{
 		if (!self::$_input)
 		{
-			Loader::load ('Data_Transport');
 			self::$_input  = new Data_Transport ();
 		}
 		return self::$_input;
@@ -369,15 +356,11 @@ class Controller_Manager extends Manager_Abstract
 	{
 		if (!self::$_output)
 		{
-			Loader::load ('Data_Transport');
-			Loader::load ('Data_Provider_Router');
-
 			self::$_output = new Data_Transport ();
 
 			foreach (self::config ()->output_filters as $filter)
 			{
 				$filter_class = 'Filter_' . $filter;
-				Loader::load ($filter_class);
 				$filter = new $filter_class ();
 				self::$_output->outputFilters ()->append ($filter);
 			}
@@ -445,18 +428,13 @@ class Controller_Manager extends Manager_Abstract
 			$a [1] = 'index';
 		}
 
-		if (class_exists ('Tracer'))
-		{
-			Tracer::begin (
-				__CLASS__,
-				__METHOD__,
-				__LINE__,
-				$a [0],
-				$a [1]
-			);
+		if (Tracer::$enabled) {
+			Tracer::resetDeltaModelCount();
+			Tracer::resetDeltaQueryCount();
+			Tracer::begin(__CLASS__, __METHOD__, __LINE__, $a[0], $a[1]);
 		}
 
-		$iteration = self::call ($a [0], $a [1], $args);
+		$iteration = self::call ($a [0], $a [1], $args, null, true);
 
 		$buffer = $iteration->getTransaction ()->buffer ();
 		$result = array (
@@ -477,7 +455,13 @@ class Controller_Manager extends Manager_Abstract
 			try
 			{
 				$view->assign ($buffer);
+				if (Tracer::$enabled) {
+					$startTime = microtime(true);
+				}
 				$result ['html'] = $view->fetch ($tpl);
+				if (Tracer::$enabled) {
+					$endTime = microtime(true);
+				}
 			}
 			catch (Exception $e)
 			{
@@ -501,9 +485,14 @@ class Controller_Manager extends Manager_Abstract
 			View_Render_Manager::popView ();
 		}
 
-		if (class_exists ('Tracer'))
-		{
-			Tracer::end ();
+		if (Tracer::$enabled) {
+			$deltaModelCount = Tracer::getDeltaModelCount();
+			$deltaQueryCount = Tracer::getDeltaQueryCount();
+			$delta = $endTime - $startTime;
+			Tracer::incRenderTime($delta);
+			Tracer::incControllerCount();
+			Tracer::end($deltaModelCount, $deltaQueryCount, memory_get_usage(),
+				$delta);
 		}
 
 		if (!empty ($options ['with_buffer']))
@@ -567,7 +556,6 @@ class Controller_Manager extends Manager_Abstract
 		}
 		else
 		{
-			Loader::load ('Zend_Exception');
 			throw new Zend_Exception ('Illegal type.');
 		}
 	}

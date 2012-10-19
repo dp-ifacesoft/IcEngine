@@ -28,7 +28,6 @@ class Model_Option_Collection
 	 */
 	public function __construct ($collection)
 	{
-		Loader::load ('Model_Option');
 		$this->_collection = $collection;
 	}
 
@@ -73,7 +72,6 @@ class Model_Option_Collection
 
 	    if ($item instanceof Model_Collection_Option_Abstract)
 	    {
-			Loader::load ('Model_Option_Old');
 	        $item = new Model_Option_Old (
 	        	$this->_collection,
 	        	array (

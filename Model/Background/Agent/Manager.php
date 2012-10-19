@@ -53,8 +53,6 @@ class Background_Agent_Manager extends Manager_Abstract
 	{
 		$time_limit = (int) $this->config ()->process_to_error_time;
 
-		//Loader::load ('Background_Agent_Collection_Option');
-		Loader::load ('Background_Agent_Session_Collection');
 		$sessions = new Background_Agent_Session_Collection ();
 		$sessions->addOptions (array (
 			array (
@@ -79,7 +77,6 @@ class Background_Agent_Manager extends Manager_Abstract
 	{
 		$time_limit = (int) $this->config ()->process_to_restart_time;
 
-		//Loader::load ('Background_Agent_Collection_Option');
 		$sessions = new Background_Agent_Collection ();
 		$sessions->addOptions (array (
 			array (
@@ -126,8 +123,6 @@ class Background_Agent_Manager extends Manager_Abstract
 		{
 			return;
 		}
-
-		Loader::load ('Helper_Process');
 
 		/**
 		 * @desc Незавершенная сессия.
@@ -179,8 +174,6 @@ class Background_Agent_Manager extends Manager_Abstract
 		{
 			return;
 		}
-
-		Loader::load ('Background_Agent_Session');
 
 		$session = new Background_Agent_Session (array (
 			'Background_Agent__id'			=> $agent->id,

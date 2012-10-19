@@ -1,27 +1,23 @@
 <?php
 
-if (!class_exists ('Model_Child'))
-{
-	Loader::load ('Model_Child');
-}
 /**
  *
  * @desc Модель для формирования заголовка страницы.
  * @package Ice_Vipgeo
- * 
+ *
  * @property string $keywords Ключевые слова.
  * @property string $description Описание.
- * 
+ *
  */
 class Page_Title extends Model_Child
 {
-	
+
 	/**
 	 * @desc Переменные для подстановки в заголовок
 	 * @var array
 	 */
 	protected static $_variables = array ();
-	
+
 	/**
 	 * @desc Компиляция заголовка.
 	 * @param string $field
@@ -37,29 +33,29 @@ class Page_Title extends Model_Child
 				isset ($a [1]) ? $a [1] : 'index',
 				Request::params ()
 			);
-			
+
 			$this->variable ($task->getTransaction ()->buffer ());
 		}
-		
+
 		$keys = array_keys (self::$_variables);
 		$vals = array_values (self::$_variables);
-		
+
 		foreach ($keys as &$key)
 		{
 			$key = '{$' . $key . '}';
 		}
-		
+
 		return str_replace (
 			$keys,
 			$vals,
 			$this->$field
 		);
 	}
-	
+
 	/**
 	 * @desc Данные для страницы по хосту и адресу.
 	 * @param string $host
-	 * @param string $page 
+	 * @param string $page
 	 * @return Page_Title
 	 */
 	public static function byAddress ($host, $page)
@@ -72,10 +68,10 @@ class Page_Title extends Model_Child
 				'`host`=""'	=> Query::ASC
 			))
 			->limit (1);
-		
+
 		return Model_Manager::byQuery ('Page_Title', $query);
 	}
-	
+
 	/**
 	 * @desc Получение заголовка по ссылке на страницу
 	 * @param string $uri
@@ -90,13 +86,13 @@ class Page_Title extends Model_Child
 			->where ('? RLIKE `pattern`', $uri)
 			->limit (1)
 		)->getResult ()->asRow ();
-		
-		return 
+
+		return
 			$row ?
 			Model_Manager::get ('Page_Title', $row ['id'], $row) :
 			null;
 	}
-	
+
 	/**
 	 * @desc Получене результирующего заголовка.
 	 * @param string $field Поле
@@ -105,20 +101,20 @@ class Page_Title extends Model_Child
 	public function compile ($field = 'title')
 	{
 		$parent = $this->getParent ();
-		return 
+		return
 			($parent ? $parent->compile ($field) : '') .
 			$this->_compile ($field);
 	}
-	
+
 	/**
 	 * @desc Тайтл модели для универсальной админки.
-	 * @return string 
+	 * @return string
 	 */
 	public function title ()
 	{
 		return $this->pattern . ' ' . $this->title;
 	}
-	
+
 	/**
 	 * @desc Получение или установка значения.
 	 * @param string|array $key Ключ или массв пар ключ-значение.
@@ -143,5 +139,5 @@ class Page_Title extends Model_Child
 			return self::$_variables [$key];
 		}
 	}
-	
+
 }

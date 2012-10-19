@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Translator_Mongo_Select');
-
 /**
  * @desc Запрос типа insert для mongodb
  * @author morph, goorus

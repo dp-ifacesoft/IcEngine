@@ -253,7 +253,7 @@ class Debug
 					'tUUm3vW3Zkrqa7JgggNAFxXFeVUPOmpo',
 					false
 				);
-				Loader::load('Helper_Site_Location');
+
 				foreach ($pnos as $pno) {
 					$text =
 						Helper_Site_Location::getLocation() . PHP_EOL .

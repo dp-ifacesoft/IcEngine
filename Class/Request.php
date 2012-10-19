@@ -239,7 +239,6 @@ class Request
 	{
 		if (isset($_FILES [$name]) && !empty($_FILES [$name]['name']))
 		{
-			Loader::load ('Request_File');
 			return new Request_File($_FILES [$name]);
 		}
 		else
@@ -256,7 +255,6 @@ class Request
 	 */
 	public static function fileByIndex ($index)
 	{
-		Loader::load ('Request_File');
 		$files = array_values ($_FILES);
 
 		if (!isset ($files [$index]))
@@ -264,13 +262,11 @@ class Request
 			$f = '@file:' . $index;
 			if (isset ($_POST [$f]))
 			{
-				Loader::load ('Request_File_Test');
 				return new Request_File_Test ($_POST [$f]);
 			}
 
 			if (isset ($_POST ['params'], $_POST ['params'][$f]))
 			{
-				Loader::load ('Request_File_Test');
 				return new Request_File_Test ($_POST ['params'][$f]);
 			}
 
@@ -297,7 +293,6 @@ class Request
 	 */
 	public static function files ()
 	{
-		Loader::load ('Request_File');
 		$result = array();
 		foreach ($_FILES as $name => $file)
 		{
@@ -397,7 +392,6 @@ class Request
 	{
 		if (!class_exists ('Session_Manager'))
 		{
-			Loader::load ('Session_Manager');
 			Session_Manager::init ();
 		}
 

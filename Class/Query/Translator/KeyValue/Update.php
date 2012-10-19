@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Translator_KeyValue_Select');
-
 /**
  * @desc Транслятор для запросов типа update для key-value хранилища
  * @author goorus, morph

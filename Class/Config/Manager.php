@@ -45,7 +45,6 @@ class Config_Manager
 			{
 				$ext = ucfirst (strtolower (substr (strrchr ($filename, '.'), 1)));
 				$class = 'Config_' . $ext;
-				Loader::load ($class);
 
 				if (is_null ($result))
 				{
@@ -78,13 +77,39 @@ class Config_Manager
 	}
 
 	/**
+	 * Получить конфиг по пути, результат не кешируется
+	 */
+	public static function byPath($modelName, $moduleName = 'Ice')
+	{
+		$filename = IcEngine::root() . 'Ice/Config/Module/' . $moduleName . '/'
+			. str_replace('_', '/', $modelName) .
+			'.php';
+		if (!file_exists($filename)) {
+			$filename = IcEngine::root() .
+				$moduleName . '/Config/' . str_replace('_', '/', $modelName) .
+				'.php';
+		}
+		if (is_file($filename)) {
+			$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
+			$class = 'Config_' . $ext;
+			$result = new $class ($filename);
+			return $result;
+		}
+		return array();
+	}
+
+	/**
 	 * @desc Пустой конфиг.
 	 * @return Config_Array
 	 */
 	public static function emptyConfig ()
 	{
-		Loader::load ('Config_Array');
 		return new Config_Array (array ());
+	}
+
+	public static function getPaths()
+	{
+		return self::$_pathToConfig;
 	}
 
 	/**
@@ -103,8 +128,6 @@ class Config_Manager
 		{
 			return self::_load ($type, $config);
 		}
-
-		Loader::load ('Resource_Manager');
 
 		self::$_inLoading = true;
 		$cfg = Resource_Manager::get ('Config', $rname);

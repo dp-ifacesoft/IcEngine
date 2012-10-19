@@ -1,7 +1,5 @@
 <?php
 
-Loader::Load ('Collector_Garbage_Abstract');
-
 /**
  * @desc Gc для удаление аттриботов моделей, которых уже нет
  * @author Илья Колесников
@@ -14,13 +12,13 @@ class Collector_Garbage_Attribute extends Collector_Garbage_Abstract
 		// Количество атрибутов, обрабатываемых за раз
 		'step'	=> 1000
 	);
-	
+
 	public function process ()
 	{
 		$last_id = (int) $this->data;
-		
+
 		$step = max (1000, self::config ()->step);
-		
+
 		$query = Query::instance ()
 			->select ('table', 'rowId')
 			->distinct (true)
@@ -31,7 +29,7 @@ class Collector_Garbage_Attribute extends Collector_Garbage_Abstract
 		$rows = DDS::execute ($query)
 			->getResult ()
 				->asTable ();
-		
+
 		if (!$rows)
 		{
 			$query = Query::instance ()
@@ -44,10 +42,10 @@ class Collector_Garbage_Attribute extends Collector_Garbage_Abstract
 				->getResult ()
 					->asValue ();
 		}
-		else 
+		else
 		{
 			list ($table, $rowId) = array_values ($rows [count ($rows)-1]);
-			
+
 			$query = Query::instance ()
 				->select ('id')
 				->from ('Attribute')
@@ -55,18 +53,18 @@ class Collector_Garbage_Attribute extends Collector_Garbage_Abstract
 				->where ('rowId', $rowId)
 				->order ('id DESC')
 				->limit (1);
-			
+
 			$last_id = DDS::execute ($query)
 				->getResult ()
 					->asValue ();
-			
+
 			foreach ($rows as $row)
 			{
 				$model = Model_Manager::byKey (
 					$row ['table'],
 					$row ['rowId']
 				);
-				
+
 				if (!$model)
 				{
 					$query = Query::instance ()
@@ -74,12 +72,12 @@ class Collector_Garbage_Attribute extends Collector_Garbage_Abstract
 						->from ('Attribute')
 						->where ('table', $row ['table'])
 						->where ('rowId', $row ['rowId']);
-					
+
 					DDS::execute ($query);
 				}
 			}
 		}
-		
+
 		$this->update (array (
 			'data'	=> $last_id
 		));

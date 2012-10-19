@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Render_Abstract');
-
 /**
  * @desc Рендер для поля DEFAULT CHARSET
  * @author Илья Колесников

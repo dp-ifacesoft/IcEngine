@@ -13,7 +13,7 @@ class Test_Mail_Provider_First_SuccessTest extends PHPUnit_Framework_TestCase
 	 * @var string
 	 */
 	private $_number = '+79134236328';
-	
+
 	/**
 	 * @var Mail_Provider_First_Success
 	 */
@@ -25,7 +25,7 @@ class Test_Mail_Provider_First_SuccessTest extends PHPUnit_Framework_TestCase
 	protected function setUp ()
 	{
 		parent::setUp ();
-		
+
 		$this->Mail_Provider_First_Success = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
@@ -51,14 +51,13 @@ class Test_Mail_Provider_First_SuccessTest extends PHPUnit_Framework_TestCase
 		if (!class_exists ('IcEngine'))
 		{
 			date_default_timezone_set ('UTC');
-			
+
 			require dirname (__FILE__) . '/../../../../IcEngine.php';
 			IcEngine::init ();
-			Loader::load ('Loader_Auto');
 			Loader_Auto::register ();
-			
+
 			Loader::addPath ('includes', IcEngine::root() . 'includes/');
-			
+
 			IcEngine::initApplication (
 				'Icengine',
 				IcEngine::path () . 'Class/Application/Behavior/Icengine.php'
@@ -88,14 +87,14 @@ class Test_Mail_Provider_First_SuccessTest extends PHPUnit_Framework_TestCase
 			'Mail_Provider__id'		=> $this->Mail_Provider_First_Success->id,
 			'params'				=> ''
 		));
-		
+
 		$config = array ();
-		
+
 		$this->_messageId = $this->Mail_Provider_First_Success->send (
 			$message,
 			$config
 		);
-		
+
 		Debug::vardump ('message id: ', $this->_messageId);
 	}
 }

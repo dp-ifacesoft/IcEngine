@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Translator_Mysql_Alter_Table');
-
 /**
  * @desc Транслятор запросов типа create table для mysql
  * @author morph, goorus

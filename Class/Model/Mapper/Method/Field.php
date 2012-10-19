@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Method_Abstract');
-
 /**
  * @desc Создание схемы поля
  */
@@ -12,7 +10,6 @@ class Model_Mapper_Method_Field extends Model_Mapper_Method_Abstract
 	 */
 	public function execute ()
 	{
-		Loader::load ('Model_Mapper_Scheme_Part');
 		$part = Model_Mapper_Scheme_Part::byName ('Field');
 		return $part->set (
 			$this->_params [0],

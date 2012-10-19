@@ -13,32 +13,32 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 	 * @var Mail_Provider_Sms_Littlesms
 	 */
 	protected $Mail_Provider_Sms_Littlesms;
-	
+
 	/**
 	 * @desc Номера
 	 * @var array
 	 */
 	protected $_numbers = array ();
-	
+
 	/**
 	 * @desc id отправленного сообщения
 	 * @var integer
 	 */
 	protected $_messageId = 0;
-	
+
 	/**
 	 * Prepares the environment before running a test.
 	 */
 	protected function setUp ()
 	{
 		parent::setUp ();
-		
+
 		$this->Mail_Provider_Sms_Littlesms = Model_Manager::byQuery (
 			'Mail_Provider',
 			Query::instance ()
 			->where ('name', 'Sms_Littlesms')
 		);
-		
+
 		$this->_numbers = array (
 			'+79134236328',
 			'+79133271039',
@@ -64,14 +64,13 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 		if (!class_exists ('IcEngine'))
 		{
 			date_default_timezone_set ('UTC');
-			
+
 			require dirname (__FILE__) . '/../../../../IcEngine.php';
 			IcEngine::init ();
-			Loader::load ('Loader_Auto');
 			Loader_Auto::register ();
-			
+
 			Loader::addPath ('includes', IcEngine::root () . 'includes/');
-			
+
 			IcEngine::initApplication (
 				'Icengine',
 				IcEngine::path () . 'Class/Application/Behavior/Icengine.php'
@@ -79,14 +78,14 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 			IcEngine::run ();
 		}
 	}
-	
+
 	/**
 	 * @desc Тестирование отправки СМС сообщения.
 	 */
 	public function testSendSms ()
 	{
 		return;
-		
+
 		$result = $this->Mail_Provider_Sms_Littlesms->sendSms (
 			'+79134236328',
 			'sms test'
@@ -94,7 +93,7 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 		$this->assertNotNull ($result);
 		return $result;
 	}
-	
+
 	/**
 	 * @desc Отправка сообщения
 	 */
@@ -116,19 +115,19 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 			'Mail_Provider__id'		=> $this->Mail_Provider_Sms_Littlesms->id,
 			'params'				=> ''
 		));
-		
+
 //		$config = array ();
-		
+
 		$r = $message->send ();
 		//$this->Mail_Provider_Sms_Littlesms->send ($message, $config);
-		
+
 		$this->assertNotEquals (false, $r, 'Not sended.');
-		
+
 		$this->_messageId = $r;
-		
+
 		return $this->_provider;
 	}
-	
+
 	/**
 	 * @desc Тест отправки нескольких сообщений
 	 */
@@ -142,8 +141,8 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 				'toEmail'				=> $number,
 				'toName'				=> 'you',
 				'subject'				=> '',
-				'body'					=> 
-					'Littlesms: ' . 
+				'body'					=>
+					'Littlesms: ' .
 					Helper_Date::toUnix (),
 				'time'					=> Helper_Date::toUnix (),
 				'sended'				=> 0,
@@ -154,20 +153,20 @@ class Test_Mail_Provider_LittlesmsTest extends PHPUnit_Framework_TestCase
 				'Mail_Provider__id'		=> $this->Mail_Provider_Sms_Littlesms->id,
 				'params'				=> ''
 			));
-			
+
 //			$config = array ();
-			
+
 			$r = $message->send ();
 			//$this->_provider->send ($message, $config);
-			
+
 			$this->assertNotEquals (false, $r, 'Not sended.');
 		}
 	}
-	
+
 	public function testGetStatus ()
 	{
 		$s = $this->Mail_Provider_Sms_Littlesms->getStatus ($this->_messageId);
 		var_dump ($s);
 	}
-	
+
 }

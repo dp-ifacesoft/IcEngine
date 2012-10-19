@@ -1,8 +1,8 @@
 <?php
 /**
- * 
+ *
  * @desc Контроллер для авторизации по емейлу, паролю и смс.
- * Предназначен для авторизации контентов в админке, поэтому 
+ * Предназначен для авторизации контентов в админке, поэтому
  * сверяет данные из БД с данными из файла конфига.
  * @author Юрий Шведов
  * @package IcEngine
@@ -10,25 +10,25 @@
  */
 class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 {
-	
+
 	/**
 	 * @param Аттрибут с кодом, высланным в СМС
 	 * @var string
 	 */
 	const SMS_CODE_ATTR = 'smsAuthCode';
-	
+
 	/**
 	 * @param Аттрибут - количество отправленных СМС
 	 * @var string
 	 */
 	const SMS_SEND_COUNTER_ATTR = 'smsAuthSendCount';
-	
+
 	/**
 	 * @param Аттрибут со временем последней отправки кода
 	 * @var string
 	 */
 	const SMS_SEND_TIME_ATTR = 'smsAuthSendTime';
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -36,11 +36,11 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 	protected $_config = array (
 		// Лимит смс в 1 минуту
 		'sms_send_limit_1m'			=> 1,
-		
+
 		// Лимит смс на 10 минут
 		'sms_send_limit_10m'		=> 5
 	);
-	
+
 	/**
 	 * @desc Вовзращает модель авторизации.
 	 * @return Authorization_Email_Password_Sms
@@ -53,52 +53,50 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 				->where ('name', 'Email_Password_Sms')
 		);
 	}
-	
+
 	/**
 	 * @desc Авторизация
 	 */
 	protected function _authorize (User $user)
 	{
 		$config = $this->_authorization ()->config ();
-		
+
 		if (!$config ['authorization_function'])
 		{
 			return ;
 		}
-		
+
 		list ($class, $method) = explode (
 			'::',
 			$config ['authorization_function']
 		);
-		
-		Loader::load ($class);
+
 		call_user_func (
 			array ($class, $method),
 			$user
 		);
 	}
-	
+
 	/**
 	 * @desc Выход из админки
 	 */
 	protected function _unauthorize ()
 	{
 		$config = $this->_authorization ()->config ();
-		
+
 		if (!$config ['unauthorization_function'])
 		{
 			return ;
 		}
-		
+
 		list ($class, $method) = explode (
 			'::',
 			$config ['unauthorization_function']
 		);
-		
-		Loader::load ($class);
+
 		call_user_func (array ($class, $method));
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller_Abstract::index()
@@ -107,10 +105,10 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 	{
 		// Просто форма авторизации
 	}
-	
+
 	/**
 	 * @desc Авторизация
-	 * @param string $name Емейл пользователя 
+	 * @param string $name Емейл пользователя
 	 * @param string $pass Пароль
 	 * @param string $code Код активации из СМС
 	 */
@@ -129,19 +127,19 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			'code',
 			'href'
 		);
-		
+
 		if (!$activation_id)
 		{
 			return $this->replaceAction ($this, 'sendSmsCode');
 		}
-		
+
 		$user = $this->_authorization ()->authorize (array (
 			'email'		=> $email,
 			'password'	=> $password,
 			'activation_id'		=> $activation_id,
 			'activation_code'	=> $activation_code
 		));
-		
+
 		if (!$user)
 		{
 			// Пользователя не существует
@@ -152,16 +150,15 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			);
 			return ;
 		}
-		
+
 		// Сбрасываем счетчик СМС.
 		$user->attr (array (
 			self::SMS_SEND_COUNTER_ATTR	=> 0,
 			self::SMS_CODE_ATTR			=> ''
 		));
-		
+
 		$this->_authorize ($user);
 		
-		Loader::load ('Helper_Uri');
 		$redirect = Helper_Uri::validRedirect ($redirect);
 		$this->_output->send (array (
 			'redirect'		=> $redirect,
@@ -170,16 +167,16 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			)
 		));
 	}
-	
+
 	/**
 	 * @desc Деавторизация
 	 */
 	public function logout ()
 	{
 		$this->_unauthorize ();
-		
+
 	}
-	
+
 	/**
 	 * @desc Отправка СМС кода
 	 */
@@ -192,7 +189,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			'name',
 			'pass'
 		);
-		
+
 		$user = Model_Manager::byQuery (
 			'User',
 			Query::instance ()
@@ -200,7 +197,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 				->where ('password', $password)
 				->where ('md5(`password`) = md5(?)', $password)
 		);
-		
+
 		if (!$user)
 		{
 			$this->_sendError (
@@ -210,7 +207,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			);
 			return ;
 		}
-		
+
 		if (!$user->active)
 		{
 			$this->_sendError (
@@ -220,7 +217,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			);
 			return ;
 		}
-		
+
 		if (!$user->phone)
 		{
 			$this->_sendError (
@@ -230,12 +227,12 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			);
 			return ;
 		}
-		
+
 		$count = $user->attr (self::SMS_SEND_COUNTER_ATTR);
 		$time = Helper_Date::toUnix ();
 		$last_time = $user->attr (self::SMS_SEND_TIME_ATTR);
 		$delta_time = Helper_Date::secondsBetween ($last_time);
-		
+
 		if (
 			(
 				$count >= $this->config ()->sms_send_limit_1m &&
@@ -254,7 +251,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			);
 			return ;
 		}
-		
+
 		$activation = $this->_authorization ()->sendActivationSms (array (
 			'email'		=> $email,
 			'login'		=> $email,
@@ -262,7 +259,7 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			'phone'		=> $user->phone,
 			'user'		=> $user
 		));
-		
+
 		if (!is_object ($activation))
 		{
 			$this->_sendError (
@@ -272,12 +269,12 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			);
 			return ;
 		}
-		
+
 		$user->attr (array (
 			self::SMS_SEND_TIME_ATTR		=> $time,
 			self::SMS_SEND_COUNTER_ATTR		=> $count + 1
 		));
-		
+
 		$this->_output->send (array (
 			'activation'	=> $activation,
 			'time'			=> $time,
@@ -286,5 +283,5 @@ class Controller_Authorization_Email_Password_Sms extends Controller_Abstract
 			)
 		));
 	}
-	
+
 }

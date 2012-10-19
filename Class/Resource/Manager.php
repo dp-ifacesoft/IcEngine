@@ -54,8 +54,6 @@ class Resource_Manager
 	 */
 	protected static function _initTransport (Objective $conf)
 	{
-		Loader::load ('Data_Transport');
-
 		$transport = new Data_Transport ();
 
 		$providers = $conf->providers;
@@ -67,15 +65,12 @@ class Resource_Manager
 				$providers = array ($providers);
 			}
 
-			Loader::load ('Data_Provider_Manager');
 			foreach ($providers as $name)
 			{
 				$transport->appendProvider (
 					Data_Provider_Manager::get ($name)
 				);
 			}
-
-			Loader::load ('Filter_Manager');
 
 			// Входные фильтры
 			if ($conf->inputFilters)
@@ -169,6 +164,15 @@ class Resource_Manager
 	public static function set ($type, $name, $resource)
 	{
 		self::$_updatedResources [$type][$name] = true;
+
+		if (Tracer::$enabled) {
+			if ($type == 'Model') {
+				if (!isset(self::$_resources[$type][$name])) {
+					Tracer::incDeltaModelCount();
+					Tracer::incTotalModelCount();
+				}
+			}
+		}
 		self::$_resources [$type][$name] = $resource;
 	}
 

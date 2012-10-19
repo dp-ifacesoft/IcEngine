@@ -1,43 +1,38 @@
 <?php
 
-if (!class_exists ('Cache_Options'))
-{
-    Loader::load ('Cache_Options');
-}
-
 class Query_Options extends Cache_Options
 {
-    
+
 	private $_tags;
-	
+
 	/**
-	 * 
+	 *
 	 * @var boolean
 	 */
 	private $_notEmpty;
-	
+
 	/**
-	 * 
+	 *
 	 * @var Query_Options
 	 */
 	private $_nocache;
-	
+
 	public function __construct ()
 	{
 	    parent::__construct ();
 		$this->_tags = array ();
 		$this->_notEmpty = false;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public function getNotEmpty ()
 	{
 		return $this->_notEmpty;
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -45,9 +40,9 @@ class Query_Options extends Cache_Options
 	{
 		return $this->_tags;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array|string $tags
 	 */
 	public function setTags ($tags)
@@ -55,16 +50,16 @@ class Query_Options extends Cache_Options
 		$this->_tags = (array) $tags;
 		return $this;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param boolean $empty
 	 */
 	public function setNotEmpty ($empty)
 	{
-		$this->_empty = (bool) $empty;	
+		$this->_empty = (bool) $empty;
 	}
-	
+
 	/**
 	 * @return Query_Options
 	 */
@@ -76,5 +71,5 @@ class Query_Options extends Cache_Options
 	    }
 	    return $this->_nocache;
 	}
-	
+
 }

@@ -1,5 +1,5 @@
 <?php
-Loader::load ('Authorization_Abstract');
+
 /**
  *
  * @desc Авторизация по логину и паролю.
@@ -55,7 +55,6 @@ class Authorization_Login_Password extends Authorization_Abstract
 		}
 
 		$validator = $config ['login_validator'];
-		Loader::load ('Data_Validator_Manager');
 		$login_valid = Data_Validator_Manager::validate (
 			$validator,
 			$login
@@ -101,7 +100,6 @@ class Authorization_Login_Password extends Authorization_Abstract
 			return 'Data_Validator_Registration_Password/bad';
 		}
 
-		Loader::load ('Helper_Email');
 		$user = User::create (array (
 			'login'		=> $login,
 			'email'		=> $login,
@@ -140,7 +138,6 @@ class Authorization_Login_Password extends Authorization_Abstract
 	 */
 	public function isValidLogin ($login)
 	{
-		Loader::load ('Data_Validator_Manager');
 		return Data_Validator_Manager::validate (
 			$this->config ()->login_validator,
 			$login

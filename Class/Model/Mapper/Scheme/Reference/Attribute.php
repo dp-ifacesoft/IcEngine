@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Reference_Abstract');
-
 /**
  * @desc Тип ссылки через Attribute_Manager
  * @author Илья Колесников

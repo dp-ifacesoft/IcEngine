@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Задание на выполнение контроллера.
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -14,81 +14,74 @@ class Controller_Task
 	 * @var string
 	 */
 	protected $_assignVar = 'content';
-	
+
 	/**
 	 * @desc Экшин
 	 * @var Controller_Action
 	 */
 	protected $_controllerAction;
-	
+
 	/**
 	 * @desc Игнорировать текущее задание
 	 * @var boolean
 	 */
 	protected $_ignore = false;
-	
+
 	/**
-	 * @desc 
+	 * @desc
 	 * @var integer
 	 */
 	protected $_index;
-	
+
 	/**
 	 * @desc Входные данные
 	 * @var Data_Transport
 	 */
 	protected $_input;
-	
+
 	/**
 	 * @desc Название шаблона
 	 * @var string
 	 */
 	protected $_template;
-	
+
 	/**
 	 * @desc Результат выполнения экшена
 	 * @var Data_Transport_Transaction
 	 */
 	protected $_transaction;
-	
+
 	/**
 	 * @desc Рендера
 	 * @var View_Render_Abstract
 	 */
 	protected $_viewRender;
-	
+
 	/**
-	 * 
+	 *
 	 * @param Route_Action|Controller_Action $action
 	 */
 	public function __construct ($action)
 	{
-		Loader::load ('Route_Action');
-		
 		if ($action instanceof Route_Action)
 		{
 			$this->_assignVar = $action->assign;
-			
+
 			$this->_viewRender = $action->Route->viewRender ();
-			
+
 			$action = $action->Controller_Action;
-		}
-		else
-		{
+		} else {
 			$this->_viewRender = View_Render_Manager::getView ();
 		}
-		
 		$this->_controllerAction = $action;
-		
-		if ($action)
-		{
+		if ($action) {
 			$this->_template =
 				'Controller/' .
-				str_replace ('_', '/', $action->controller) . '/' .
+				str_replace('_', '/', $action->controller) . '/' .
 				$action->action;
 		}
 	}
-	
+
 	/**
 	 * @desc Получить экшин
 	 * @return Controller_Action
@@ -97,7 +90,7 @@ class Controller_Task
 	{
 		return $this->_controllerAction;
 	}
-	
+
 	/**
 	 * @desc Возвращает название переменной, в которую будет присвоено
 	 * результат рендера.
@@ -107,7 +100,7 @@ class Controller_Task
 	{
 		return $this->_assignVar;
 	}
-	
+
 	/**
 	 * @desc Узнать игнорируется ли текущая задача
 	 * @return boolean
@@ -116,7 +109,7 @@ class Controller_Task
 	{
 		return $this->_ignore;
 	}
-	
+
 	/**
 	 * @desc Получить порядковый номер задания
 	 * в очереди заданий
@@ -126,7 +119,7 @@ class Controller_Task
 	{
 		return $this->_index;
 	}
-	
+
 	/**
 	 * @desc Получить транспорт входных данных
 	 * @return Data_Transport
@@ -144,7 +137,7 @@ class Controller_Task
 	{
 		return $this->_template;
 	}
-	
+
 	/**
 	 * @desc Получить транзакцию экшина
 	 * @return Data_Transport_Transaction
@@ -153,7 +146,7 @@ class Controller_Task
 	{
 		return $this->_transaction;
 	}
-	
+
 	/**
 	 * @desc Получить рендер
 	 * @return View_Render_Abstract
@@ -162,7 +155,7 @@ class Controller_Task
 	{
 		return $this->_viewRender;
 	}
-	
+
 	/**
 	 * @desc Задать шаблон на основе названия класса
 	 * @param string $class Класс или метод (контроллера).
@@ -171,12 +164,12 @@ class Controller_Task
 	public function setClassTpl ($class, $template = '')
 	{
 		$template = $template ? ('/' . ltrim ($template, '/')) : '';
-		
+
 		$this->setTemplate (
 			str_replace (array ('_', '::'), '/', $class) . $template
 		);
 	}
-	
+
 	/**
 	 * @desc Установить флаг игнорирования текущего задания
 	 * @param boolean $value
@@ -185,9 +178,9 @@ class Controller_Task
 	{
 		$this->_ignore = (bool) $value;
 	}
-	
+
 	/**
-	 * @desc Установить порядковый номер заания 
+	 * @desc Установить порядковый номер заания
 	 * в очереди заданий
 	 * @param integer $value
 	 */
@@ -195,7 +188,7 @@ class Controller_Task
 	{
 		$this->_index = $value;
 	}
-	
+
 	/**
 	 * @desc Установить транспорт для входных данных
 	 * @param Data_Transport $input
@@ -213,7 +206,7 @@ class Controller_Task
 	{
 		$this->_template = $value;
 	}
-	
+
 	/**
 	 * @desc Изменить транзакцию текущего экшина
 	 * @param Data_Transport_Transaction $value
@@ -222,14 +215,14 @@ class Controller_Task
 	{
 		$this->_transaction = $value;
 	}
-	
+
 	/**
 	 * @desc Изменить рендер
 	 * @param View_Render_Abstract $viewRender
 	 */
 	public function setViewRender (View_Render_Abstract $viewRender)
 	{
-		$this->_viewRender = $viewRender;	
+		$this->_viewRender = $viewRender;
 	}
-	
+
 }

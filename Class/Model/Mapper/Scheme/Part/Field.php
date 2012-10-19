@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Part_Abstract');
-
 /**
  * @desc Часть схемы моделей, отвечающая за поля
  * @author Илья Колесников
@@ -21,10 +19,7 @@ class Model_Mapper_Scheme_Part_Field extends Model_Mapper_Scheme_Part_Abstract
 	 */
 	public static function set ($name, array $attributes = array ())
 	{
-		Loader::load ('Model_Mapper_Scheme_Field');
-		Loader::load ('Model_Mapper_Scheme_Field_Attribute');
 		$field = Model_Mapper_Scheme_Field::byName ($name);
-        
 		foreach ($attributes as $name => $value)
 		{
 			if (is_numeric ($name))
@@ -52,9 +47,6 @@ class Model_Mapper_Scheme_Part_Field extends Model_Mapper_Scheme_Part_Abstract
 				$attributes = $params [1];
 				$attributes = $attributes ? $attributes->__toArray () : array ();
 			}
-            
-            //print_r($attributes);die;
-            
 			$scheme->$name = self::set (
 				$params [0],
 				$attributes

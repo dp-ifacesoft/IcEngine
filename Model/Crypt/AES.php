@@ -10,7 +10,7 @@ class Crypt_AES extends Crypt_Abstract {
 	private $_modul; //modul
 	private $_publicKey; //e
 	private $_privateKey; //d
-	
+
 	private $primes = array (4507, 4513, 4517, 4519, 4523, 4547, 4549, 4561, 4567, 4583, 4591, 4597,
 4603, 4621, 4637, 4639, 4643, 4649, 4651, 4657, 4663, 4673, 4679, 4691, 4703, 4721, 4723, 4729, 4733, 4751,
 4759, 4783, 4787, 4789, 4793, 4799, 4801, 4813, 4817, 4831, 4861, 4871, 4877, 4889, 4903, 4909, 4919, 4931,
@@ -115,12 +115,12 @@ class Crypt_AES extends Crypt_Abstract {
 		}
 		return $keys;
 	}
-	
+
 	/**
 	 * Удлинение ключа
 	 * @param type $Ee
 	 * @param type $Epi
-	 * @return type 
+	 * @return type
 	 */
 	function extend($Ee, $Epi) {
 		$u1 = 1;
@@ -151,12 +151,12 @@ class Crypt_AES extends Crypt_Abstract {
 		}
 		return $inverse;
 	}
-	
+
 	/**
 	 *
 	 * @param type $e
 	 * @param type $pi
-	 * @return type 
+	 * @return type
 	 */
 	function GCD($e, $pi) {
 		$y = $e;
@@ -168,16 +168,16 @@ class Crypt_AES extends Crypt_Abstract {
 		}
 		return $x;
 	}
-	
+
 	/**
 	 *
 	 * @global type $primes
 	 * @global type $maxprimes
 	 * @param type $pi
-	 * @return type 
+	 * @return type
 	 */
 	function tofindE($pi) {
-		
+
 		$maxprimes = count($this->primes) - 1;
 		$great = 0;
 		$cc = mt_rand(0, $maxprimes);

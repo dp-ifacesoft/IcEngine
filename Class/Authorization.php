@@ -7,16 +7,16 @@
  */
 class Authorization
 {
-	
+
 	public static $config = array (
 		'login_field'		=> 'email',
 		'password_field'	=> 'password'
 	);
-	
+
 	/**
 	 * @desc Попытка авторизации
 	 * @param Data_Transport $input Вход контроллера
-	 * @return User|string Пользователь или ошибка - строка вида 
+	 * @return User|string Пользователь или ошибка - строка вида
 	 * "Тип_Авторизации::ошибка".
 	 */
 	public static function getAuthUser (Data_Transport $input)
@@ -27,9 +27,9 @@ class Authorization
 			->where ('active', 1)
 			->order ('rank')
 		);
-		
+
 		$error = 'noAuthMethod';
-		
+
 		foreach ($authes as $auth)
 		{
 			if ($auth->possibleAuth ($input))
@@ -42,12 +42,12 @@ class Authorization
 				$error = $user;
 			}
 		}
-		
+
 		return $error;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $login
 	 * @param string $password
 	 * @return User|null
@@ -64,9 +64,9 @@ class Authorization
 			->limit (1, 0)
 		);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $login
 	 * @param string $password
 	 * @return User|null
@@ -74,21 +74,19 @@ class Authorization
 	public static function authorize ($login, $password)
 	{
 		$user = self::findUser ($login, $password);
-		
+
 		if ($user)
 		{
 			$user->authorize ();
 		}
-		
+
 		return $user;
 	}
-	
+
 	public static function logout ($redirect = '/')
 	{
 		User_Session::getCurrent ()->delete ();
-		
-		Loader::load ('Header');
 		Header::redirect ($redirect);
 	}
-	
+
 }

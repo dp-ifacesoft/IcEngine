@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Менеджер рендеринга
  * @author Юрий Шведов, Илья Колесников
  * @package IcEngine
@@ -14,19 +14,19 @@ abstract class View_Render_Manager extends Manager_Abstract
 	 * @var array <View_Render_Abstract>
 	 */
 	private static $_views = array ();
-	
+
 	/**
 	 * @desc Стэк представлений.
 	 * @var array <View_Render_Abstract>
 	 */
 	private static $_viewStack = array ();
-	
+
 	/**
-	 * 
+	 *
 	 * @var string
 	 */
 	private static $_templateExtension = '.tpl';
-	
+
 	/**
 	 * @desc Конфиг
 	 * @var array
@@ -38,7 +38,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 		 */
 		'default_view'		=> 'Smarty'
 	);
-	
+
 	/**
 	 * @desc Возвращает рендер по названию.
 	 * @param string $name
@@ -56,21 +56,20 @@ abstract class View_Render_Manager extends Manager_Abstract
 			Query::instance ()
 				->where ('name', $name)
 		);
-		
+
 		if (!$view)
 		{
 			$class_name = 'View_Render_' . $name;
-			Loader::load ($class_name);
-			
+
 			$view = new $class_name (array (
 				'id'	=> null,
 				'name'	=> $name
 			));
 		}
-		
+
 		return self::$_views [$name] = $view;
 	}
-	
+
 	/**
 	 * @desc Выводит результат работы шаблонизатора в браузер.
 	 */
@@ -78,7 +77,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 	{
 		self::getView ()->display ($tpl);
 	}
-	
+
 	/**
 	 * @desc Возвращает текущий рендер.
 	 * @return View_Render_Abstract
@@ -87,17 +86,15 @@ abstract class View_Render_Manager extends Manager_Abstract
 	{
 		if (!self::$_viewStack)
 		{
-			Loader::load ('View_Render');
-			
 			$config = self::config ();
 
 			self::pushViewByName ($config ['default_view']);
 			//self::$_view = new View_Render (array('name' => self::$_defaultView));
-		} 
-		
+		}
+
 		return end (self::$_viewStack);
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -105,7 +102,7 @@ abstract class View_Render_Manager extends Manager_Abstract
 	{
 		return self::$_templateExtension;
 	}
-	
+
 	/**
 	 * @return View_Render_Abstract
 	 */
@@ -115,9 +112,9 @@ abstract class View_Render_Manager extends Manager_Abstract
 		$view->popVars ();
 		return $view;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param View_Render_Abstract $view
 	 * @return View_Render_Abstract
 	 */
@@ -126,10 +123,10 @@ abstract class View_Render_Manager extends Manager_Abstract
 		self::$_viewStack [] = $view;
 		$view->pushVars ();
 		return $view;
-	} 
-	
+	}
+
 	/**
-	 * 
+	 *
 	 * @param integer $id
 	 * @return View_Render_Abstract
 	 */
@@ -138,10 +135,10 @@ abstract class View_Render_Manager extends Manager_Abstract
 		$view = Model_Manager::byKey ('View_Render', $id);
 		return self::pushView ($view);
 	}
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $name
 	 * @return View_Render_Abstract
 	 */
@@ -150,16 +147,16 @@ abstract class View_Render_Manager extends Manager_Abstract
 		$view = self::byName ($name);
 		return self::pushView ($view);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $value
 	 */
 	public static function setTemplateExtension ($value)
 	{
 		self::$_templateExtension = $value;
 	}
-	
+
 	/**
 	 * @desc Обработка шаблонов из стека.
 	 * @param array $outputs
@@ -168,5 +165,5 @@ abstract class View_Render_Manager extends Manager_Abstract
 	{
 		return self::getView ()->render ($outputs);
 	}
-	
+
 }

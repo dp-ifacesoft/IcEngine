@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Index_Abstract');
-
 /**
  * @desc Первичный ключ для схемы связей модели
  * @author Илья Колесников

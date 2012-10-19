@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Model_Mapper_Scheme_Field_Attribute_Abstract');
-
 /**
  * @Атрибут поля default для схемы связей модели
  * @author Илья Колесников

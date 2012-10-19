@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Контроллер для работы с Css
  * @author Юрий Шведов
  * @package IcEngine
@@ -8,7 +8,7 @@
  */
 class Controller_View_Resource_Css extends Controller_Abstract
 {
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Controller_Abstract::index()
@@ -16,9 +16,7 @@ class Controller_View_Resource_Css extends Controller_Abstract
 	public function index ()
 	{
 		$config = $this->config ();
-		
-		Loader::load ('View_Resource_Manager');
-		
+
 		if ($config->dirs)
 		{
 			View_Resource_Manager::load (
@@ -40,17 +38,17 @@ class Controller_View_Resource_Css extends Controller_Abstract
 				);
 			}
 		}
-		
+
 		$csses = View_Resource_Manager::getData (View_Resource_Manager::CSS);
-		
+
 		if ($config->packed_file)
 		{
 			$packer = View_Resource_Manager::packer (
 				View_Resource_Manager::CSS
 			);
-					
+
 			$packer->pack ($csses, $config->packed_file);
-			
+
 			$this->_output->send (array (
 				'css'	=> $config->packed_url,
 				'ts'	=> $packer->cacheTimestamp ()
@@ -61,5 +59,5 @@ class Controller_View_Resource_Css extends Controller_Abstract
 			$this->_output->send ('csses', $csses);
 		}
 	}
-	
+
 }

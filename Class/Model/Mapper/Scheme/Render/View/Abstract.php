@@ -62,7 +62,6 @@ class Model_Mapper_Scheme_Render_View_Abstract
 		{
 			return;
 		}
-		Loader::load ('Model_Mapper_Scheme_Render');
 		foreach ($entities as $name => $entity)
 		{
 			$factory_name = $entity->getValue ()->factoryName ();

@@ -140,7 +140,6 @@ class Helper_Test
 					$callee_class = $model_name;
 				}
 			}
-			Loader::load ($callee_class);
 			$value = call_user_func_array (
 				array ($callee_class, $callee_method),
 				$params
@@ -184,7 +183,6 @@ class Helper_Test
 				{
 					$callee_class = $model_name;
 				}
-				Loader::load ($callee_class);
 				$collection = call_user_func_array (
 					array ($callee_class, $callee_method),
 					$params
@@ -272,7 +270,6 @@ class Helper_Test
 				{
 					$callee_class = $model_name;
 				}
-				Loader::load ($callee_class);
 				$model = call_user_func_array (
 					array ($callee_class, $callee_method),
 					$params
@@ -337,7 +334,6 @@ class Helper_Test
 	{
 		DDS::setDataSource (Data_Source_Manager::get ('UnitTest'));
 		self::prepareBehavior ($method);
-		Loader::load ('Model_Proxy');
 		$data = self::getData ($method);
 		$situations = $data ['situations'];
 		foreach ($situations as $sit)
@@ -380,7 +376,6 @@ class Helper_Test
 		{
 			list ($generator_class, $generator_method) =
 				explode ('::', $data ['generator']);
-			Loader::load ($generator_class);
 			call_user_func (array (
 				$generator_class, $generator_method
 			));
@@ -414,7 +409,6 @@ class Helper_Test
 			return;
 		}
 		$models = $data ['models'];
-		Loader::load ('Helper_Data_Source');
 		foreach (array_keys ($models) as $model_name)
 		{
 			echo $model_name . PHP_EOL;

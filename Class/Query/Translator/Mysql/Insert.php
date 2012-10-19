@@ -1,7 +1,5 @@
 <?php
 
-Loader::load ('Query_Translator_Mysql_Select');
-
 /**
  * @desc Транслятор запросов типа insert драйвера mysql
  * @author goorus, morph

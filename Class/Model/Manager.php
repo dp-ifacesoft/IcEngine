@@ -285,8 +285,6 @@ class Model_Manager extends Manager_Abstract
 			}
 		}
 
-		Loader::load ($model_name);
-
 		$parents = class_parents ($model_name);
 		$first = end ($parents);
 		$second = prev ($parents);
@@ -302,15 +300,13 @@ class Model_Manager extends Manager_Abstract
 			'Model_Manager_Delegee_' .
 			$config ['delegee'][$parent];
 
-		Loader::load ($delegee);
-
 		$result = call_user_func (
 			array ($delegee, 'get'),
 			$model_name, 0, $row
 		);
 
 		$result->set ($row);
-		
+
 		return $result;
 	}
 
@@ -345,8 +341,6 @@ class Model_Manager extends Manager_Abstract
 			}
 			else
 			{
-				Loader::load ($model);
-
 				// Делегируемый класс определяем по первому или нулевому
 				// предку.
 				$parents = class_parents ($model);
@@ -363,8 +357,6 @@ class Model_Manager extends Manager_Abstract
 				$delegee =
 					'Model_Manager_Delegee_' .
 					$config ['delegee'][$parent];
-
-				Loader::load ($delegee);
 
 				$result = call_user_func (
 					array ($delegee, 'get'),
