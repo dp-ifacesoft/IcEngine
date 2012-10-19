@@ -7,6 +7,10 @@
  */
 class Route extends Model_Child
 {
+	private static $fromConfigLoaded;
+	
+	private static $list;
+
 	/**
 	 * Сформировать роут экшины, привязаннык роуту
 	 *
@@ -67,7 +71,8 @@ class Route extends Model_Child
 		$config = Config_Manager::get(__CLASS__);
 		$emptyRoute = $config['empty_route']->__toArray();
 		$row = null;
-		foreach ($config['routes'] as $route) {
+		$routes = self::getList();
+		foreach ($routes as $route) {
 			if (empty($route['route'])) {
 				continue;
 			}
@@ -85,7 +90,7 @@ class Route extends Model_Child
 			if (preg_match($pattern, $url) && (
 				!$row || (int) $route['weight'] > (int) $row['weight']
 			)) {
-				$row = array_merge($emptyRoute, $route->__toArray());
+				$row = array_merge($emptyRoute, $route);
 				$row['pattern'] = $pattern;
 			}
 		}
@@ -94,6 +99,45 @@ class Route extends Model_Child
 		return $row ? new self($row) : null;
 	}
 
+	/**
+	 * Получить список роутов
+	 *
+	 * @return array
+	 */
+	public static function getList()
+	{
+		if (!self::$fromConfigLoaded) {
+			$config = Config_Manager::get(__CLASS__);
+			self::$list = $config['routes']->__toArray();
+			self::$fromConfigLoaded = true;
+			$moduleCollection = Model_Collection_Manager::create(
+				'Module'
+			)->addOptions(array(
+				'name'	=> 'Main',
+				'value'	=> false
+			));
+			if ($moduleCollection) {
+				$currentRoutes = array();
+				foreach (self::$list as $route) {
+					$currentRoutes[$route['route']] = 1;
+				}
+				foreach ($moduleCollection as $module) {
+					$moduleConfig = Config_Manager::byPath('Route', $module->name);
+					if (!$moduleConfig) {
+						continue;
+					}
+					foreach ($moduleConfig['routes']->__toArray() as $route) {
+						if (!isset($currentRoutes[$route['route']])) {
+							$route['params']['module'] = $module->name;
+							self::$list[] = $route;
+						}
+					}
+				}
+			}
+		}
+		return self::$list;
+	}
+	
 	/**
 	 * Возвращает объект рендера для роутера
 	 *
