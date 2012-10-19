@@ -126,7 +126,6 @@ class IcEngine
 			self::_getRoot ();
 
 		self::initLoader ();
-
 		if ($bootstap)
 		{
 			self::initBootstrap ($bootstap);
