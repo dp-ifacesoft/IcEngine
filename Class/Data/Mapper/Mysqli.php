@@ -43,6 +43,8 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	protected $_numRows = 0;
 	protected $_insertId = null;
 
+	protected $options;
+
 	/**
 	 * @desc Обработчики по видам запросов.
 	 * @var array
@@ -159,6 +161,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 */
 	public function connect ($config = null)
 	{
+		echo 1;
 		if ($this->_linkIdentifier)
 		{
 			return ;
@@ -166,7 +169,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 		if ($config)
 		{
-			$this->setOption ($config);
+			$this->setOption($config);
 		}
 
 		$this->_linkIdentifier = mysql_connect (
@@ -199,6 +202,9 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		{
 			return new Query_Result (null);
 		}
+		if (!$this->_linkIdentifier) {
+			$this->connect();
+		}
 		$this->connect ();
 
 		$start = microtime (true);
@@ -210,7 +216,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		$clone->setPart (Query::WHERE, $where);
 
 		$this->_sql = $clone->translate ('Mysql');
-		
+
 		$result = null;
 		$this->_errno = 0;
 		$this->_error = '';
