@@ -161,7 +161,6 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	 */
 	public function connect ($config = null)
 	{
-		echo 1;
 		if ($this->_linkIdentifier)
 		{
 			return ;
