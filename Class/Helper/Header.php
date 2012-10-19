@@ -59,6 +59,10 @@ class Helper_Header
 		self::E301 => array(
 			"HTTP/1.1 301 Moved Remanently",
 			"Status: 301 Moved Remanently"
+		),
+		self::E410 => array(
+			"HTTP/1.1 410 Gone",
+			"Status: 410 Gone"
 		)
 	);
 

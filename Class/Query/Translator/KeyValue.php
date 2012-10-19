@@ -148,9 +148,9 @@ class Query_Translator_KeyValue extends Query_Translator
 			}
 		}
 
-		if ($best_v >= 0)
+		if ($best_v >= 0 && count($index_use) && count($index_values))
 		{
-			return array ($this->_pattern (
+		    return array ($this->_pattern (
 				$table, $best_i,
 				$index_use [$best_i], $index_values [$best_i]
 			));
@@ -327,7 +327,7 @@ class Query_Translator_KeyValue extends Query_Translator
 	 */
 	public function _renderSelect (Query $query)
 	{
-		return $this->_compileKeyMask (
+	    return $this->_compileKeyMask (
 			$this->extractTable ($query),
 			$query->part (Query::WHERE)
 		);

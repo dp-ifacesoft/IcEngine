@@ -237,8 +237,8 @@ class Helper_Array
 				
 				reset ($data);
 				$object = current ($data);
-				
-				if (is_numeric ($object->{$key}))
+				eval("\$cc = \$object->$key;"); 
+				if (is_numeric ($cc))
 				{
 					$code .= "if ( \$c = ((\$a->$key == \$b->$key) ? 0 : ((\$a->$key " . (($asc) ? '<' : '>') . " \$b->$key) ? -1 : 1 )) ) return \$c;";
 				}

@@ -45,25 +45,31 @@ class Bill_Payment_Type_A1lite extends Bill_Payment_Type_Abstract
 				$message = json_decode ($log_message, true);
 				if ($message)
 				{
+					
 					$payment = $this->instantPayment (array (
-						'value'					=> $message ['system_income'],
-						'transactionNo'			=> $message ['tid'],
-						'details'				=> $log_message,
-						'Bill__id'				=> (int) $message ['order_id']
+						'value'			=> $message ['system_income'],
+						'balance'			=> $message ['system_income'],
+						'transactionNo'		=> $message ['tid'],
+						'details'		=> $log_message,
+						'Bill__id'		=> (int) $message ['order_id']
 					));
 
-					fseek ($f, 0, SEEK_SET);
-					ftruncate ($f, 0);
+					if ($payment)
+					{	
+						fseek ($f, 0, SEEK_SET);
+						ftruncate ($f, 0);
 
-					$payment->update (array (
-						'endProcessTime' => Helper_Date::toUnix ()
-					));
-					++$result;
+						$payment->update (array (
+							'endProcessTime' => Helper_Date::toUnix ()
+						));
+						++$result;
+					}
 				}
 			}
 
 			flock ($f, LOCK_UN);
 			fclose ($f);
+			echo $path . $file . PHP_EOL;
 			unlink ($path . $file);
 		}
 

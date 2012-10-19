@@ -47,6 +47,7 @@ class Bill_Payment_Type_A1sms extends Bill_Payment_Type_Abstract
 				{
 					$payment = $this->instantPayment (array (
 						'value'					=> $message ['cost_rur'],
+						'balance'				=> $message ['cost_rur'],
 						'transactionNo'			=> $message ['smsid'],
 						'details'				=> $log_message,
 						'msg'					=> $message ['msg'],

@@ -1,0 +1,1 @@
+{$renderer->getListItemById($value[0])}

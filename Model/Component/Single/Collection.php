@@ -1,4 +1,6 @@
 <?php
+Loader::load('Component_Collection');
+
 /**
  * 
  * @desc Абстрактная коллекция для одиночного компонента

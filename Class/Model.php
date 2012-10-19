@@ -862,8 +862,17 @@ abstract class Model implements ArrayAccess
 	public function title ()
 	{
 		$model = is_null ($this->_generic) ? $this : $this->_generic;
-
 		return $model->name;
+	}
+	
+	/**
+	 * @desc Возвращает url сущности
+	 * @return string
+	 */
+	public function url ()
+	{
+		$model = is_null ($this->_generic) ? $this : $this->_generic;
+		return '/' . $model->modelName() . '/' . $model->key() . '/';
 	}
 
 	/**
@@ -1080,4 +1089,19 @@ abstract class Model implements ArrayAccess
 		return $this;
 	}
 
+	/**
+	 * @param Model_Component $component .
+	 * @return Model первая модель с show=1.
+	 */
+	public function componentShow ($component)
+	{
+		$components = $this->component($component)->filter(array('show'=>1));
+		if ($components && $components->count())
+		{	
+			return $components->first();
+		}
+		
+		return false;		
+	}
+	
 }

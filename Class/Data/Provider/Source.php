@@ -81,7 +81,7 @@ class Data_Provider_Source extends Data_Provider_Abstract
 			Query::instance ()
 				->delete ()
 				->from ($this->_config ['table'])
-				->where ($this->_config ['key_field'] . ' IN (?)', $keys)
+				->where ($this->_config ['key_field'], $keys)
 		);
 	}
 	
@@ -157,7 +157,7 @@ class Data_Provider_Source extends Data_Provider_Abstract
 				))
 				->from ($this->_config ['table'])
 				->where (
-					$this->_config ['key_field'] . ' IN (?)',
+					$this->_config ['key_field'],
 					$keys_enc
 				)
 				->where (

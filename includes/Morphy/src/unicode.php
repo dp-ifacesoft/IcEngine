@@ -111,10 +111,10 @@ abstract class phpMorphy_UnicodeHelper_Base extends phpMorphy_UnicodeHelper {
         $this->encoding = $encoding;
         
         if(!isset(self::$ICONV) || !isset(self::$MB)) {
-            if(false !== (self::$ICONV = extension_loaded('iconv'))) {
-                self::$STRLEN_FOO = 'iconv_strlen';
-            } else if(false !== (self::$MB = extension_loaded('mbstring'))) {
+            if(false !== (self::$MB = extension_loaded('mbstring'))) {
                 self::$STRLEN_FOO = 'mb_strlen';
+            } else if(false !== (self::$ICONV = extension_loaded('iconv'))) {
+                self::$STRLEN_FOO = 'iconv_strlen';
             }
         }
     }

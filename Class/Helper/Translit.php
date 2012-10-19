@@ -99,7 +99,7 @@ class Helper_Translit
 		$value = trim ($value);
 
 		$value = str_replace (
-			array ("\r", "\n", "\t", ',', '.', '(', ')', '[', ']', '{', '}'),
+			array ("\r", "\n", "\t", ',', '(', ')', '[', ']', '{', '}'),
 			'',
 			$value
 

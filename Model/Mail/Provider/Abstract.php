@@ -37,7 +37,7 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 	{
 		$log = new Mail_Message_Log (array (
 			'time'				=> Helper_Date::toUnix (),
-			'Mail_Provider__id'	=> $this->id,
+			'Mail_Provider__id'	=> $this->key(),
 			'Mail_Message__id'	=> $message->id,
 			'state'				=> $state,
 			'comment'			=> json_encode ($comment)

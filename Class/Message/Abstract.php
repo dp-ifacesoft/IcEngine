@@ -36,6 +36,10 @@ class Message_Abstract
 		{
 		    $this->_type = substr (get_class ($this), strlen ('Message_'));
 		}
+		else
+		{
+			$this->_type = $type;
+		}
 	}
 
 	/**

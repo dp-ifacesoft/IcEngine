@@ -191,6 +191,9 @@ class Controller_Admin_Database_Map extends Controller_Abstract
 					Query::instance ()
 						->where ('name', $point ['style'])
 				);
+				if (!$style) {
+					$style = Model_Manager::byKey('Geo_Point_Style', 1);
+				}
 			}
 
 			if (!$style)

@@ -6,7 +6,7 @@
  * @package IcEngine
  *
  */
-class Component_Balance_Log extends Model
+class Component_Balance_Log extends Model_Component
 {
 	
 	/**
@@ -18,14 +18,18 @@ class Component_Balance_Log extends Model
 	 * @param string $comment [optional] Комментарий.
 	 * @return User_Balance_Log Созданный лог.
 	 */
-	public static function addLog ($table, $row_id, $value, $change, $comment = '')
+	public static function addLog ($table, $row_id, $value, $change, $comment, $model, $service, $discount)
 	{
 		$log = new Component_Balance_Log (array (
 			'time'			=> Helper_Date::toUnix (),
 			'table'			=> $table,
 			'rowId'			=> $row_id,
 			'change'		=> $change,
-			'comment'		=> $comment
+			'comment'		=> $comment,
+			'model'			=> $model->modelName(),
+			'model_id'		=> $model->key(),
+			'service'		=> $service,
+			'discount'		=> $discount
 		));
 		return $log->save ();
 	}

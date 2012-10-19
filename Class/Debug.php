@@ -600,11 +600,13 @@ class Debug
 				$f = self::$config ['file_log'];
 			}
 
-			if ($f)
+			if ($f && is_writable($f))
 			{
 				$fh = fopen ($f, 'ab');
-				fwrite ($fh, "$time $type $text");
+				fwrite ($fh, $time . ' ' . $type . ' ' .  $text);
 				fclose ($fh);
+			} else {
+				echo $time . ' ' . $type . ' ' .  $text;
 			}
 		}
 

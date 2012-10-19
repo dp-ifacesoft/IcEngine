@@ -481,6 +481,58 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $result;
 	}
 
+	public function diffEdit ($collection, $fields = array())
+    {
+		$model_name = $collection->modelName ();
+
+		// Коллекция добавленных элементов
+		$collection_add = Model_Collection_Manager::create ($model_name)
+			->reset ();
+
+		// Коллекция неизменненых элементов
+		$collection_no = Model_Collection_Manager::create ($model_name)
+			->reset ();
+
+	// Коллекция удаленных элементов
+		$collection_del = Model_Collection_Manager::create ($model_name)
+			->reset ();
+
+		$collection_count = $this->count ();
+
+		foreach ($collection as $model)
+		{
+			$diff_model = $this->hasByFields ($model, $fields);
+
+			if ($diff_model)
+			{
+				$collection_no->add ($diff_model);
+				$collection_count--;
+			}
+			else
+			{
+				$collection_add->add ($model);
+			}
+		}
+
+		// если $collection_count не 0, делаем вывод, что есть удаленные модели
+		if ($collection_count)
+		{
+			foreach ($this as $model)
+			{
+				if (!$collection->hasByFields ($model, $fields))
+				{
+					$collection_del->add($model);
+				}
+			}
+		}
+
+		return array(
+			self::DIFF_EDIT_ADD		=> $collection_add,
+			self::DIFF_EDIT_NO		=> $collection_no,
+			self::DIFF_EDIT_DEL		=> $collection_del
+		);
+    }
+	
 	/**
 	 * @desc Исключает из коллекции элемент с указанным индексом.
 	 * @param integer $index Индекс элемента в списке.

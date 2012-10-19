@@ -203,6 +203,7 @@ class Data_Transport
 					if (!is_null ($chunk) && $this->_validators->validate ($chunk))
 					{
 						$data = $chunk;
+						break;
 					}
 				}
 				$results [] = $data;

@@ -331,7 +331,7 @@ class User_Abstract extends Model
 
 	public function title ()
 	{
-		return $this->login . ' ' . $this->name;
+		return $this->login . ' (' . $this->name . ')';
 	}
 
 	public static function setCurrent($user)
