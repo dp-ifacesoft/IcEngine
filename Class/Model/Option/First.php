@@ -8,10 +8,8 @@
  */
 class Model_Option_First extends Model_Option
 {
-
-	public function before ()
-	{
-		$this->query->limit (1, 0);
-	}
-	
+	/**
+	 * @inheritdoc
+	 */
+	protected $queryName = 'First';
 }

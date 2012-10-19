@@ -10,9 +10,5 @@ class Model_Option_Link extends Model_Option
 	/**
 	 * @inheritdoc
 	 */
-	public function before()
-	{
-		$this->query->where($this->collection->modelName () . '.link',
-			$this->params['link']);
-	}
+	protected $queryName = 'Link';
 }

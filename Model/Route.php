@@ -8,26 +8,13 @@
 class Route extends Model_Child
 {
 	/**
-	 * Загружены ли роуты из конфига
-	 *
-	 * @var boolean
-	 */
-	protected static $fromConfigLoaded = false;
-
-	/**
-	 * Лист роутов
-	 *
-	 * @var array
-	 */
-	protected static $list;
-
-	/**
 	 * Сформировать роут экшины, привязаннык роуту
 	 *
 	 * @return Route_Action_Collection
 	 */
 	public function actions()
 	{
+		Loader::load('Route_Action');
 		$i = 0;
 		$actionCollection = Model_Collection_Manager::create (
 			'Route_Action'
@@ -64,37 +51,26 @@ class Route extends Model_Child
 	}
 
 	/**
-	 * Добавить роут
-	 *
-	 * @param array $route
-	 */
-	public static function addRoute($route)
-	{
-		self::$list[] = $route;
-	}
-
-	/**
 	 * Получить роут по урлу
 	 *
 	 * @param string $url
 	 * @return Route
 	 */
-	public static function byUrl($url)
+	public static function byUrl ($url)
 	{
 		$url = '/' . ltrim($url, '/');
-		$route = Resource_Manager::get('Route_Cache', $url);
+		$provider = Data_Provider_Manager::get('Route_Cache');
+		$route = $provider->get($url);
 		if ($route) {
 			return $route ? new self($route) : null;
 		}
 		$config = Config_Manager::get(__CLASS__);
 		$emptyRoute = $config['empty_route']->__toArray();
-		$routes = self::getList();
 		$row = null;
-		foreach ($routes as $route) {
+		foreach ($config['routes'] as $route) {
 			if (empty($route['route'])) {
 				continue;
 			}
-			$route = array_merge($emptyRoute, $route);
 			$pattern = '#^' . $route['route'] . '$#';
 			if (!empty($route['patterns'])) {
 				foreach ($route['patterns'] as $var => $routeData) {
@@ -109,51 +85,13 @@ class Route extends Model_Child
 			if (preg_match($pattern, $url) && (
 				!$row || (int) $route['weight'] > (int) $row['weight']
 			)) {
-				$row = array_merge($emptyRoute, $route);
+				$row = array_merge($emptyRoute, $route->__toArray());
 				$row['pattern'] = $pattern;
 			}
 		}
-		Resource_Manager::set('Route_Cache', $url, $row);
+		$provider->set($url, $row);
+		//Resource_Manager::set('Route_Cache', $pattern, $row);
 		return $row ? new self($row) : null;
-	}
-
-	/**
-	 * Получить список роутов
-	 *
-	 * @return array
-	 */
-	public static function getList()
-	{
-		if (!self::$fromConfigLoaded) {
-			$config = Config_Manager::get(__CLASS__);
-			self::$list = $config['routes']->__toArray();
-			self::$fromConfigLoaded = true;
-			$moduleCollection = Model_Collection_Manager::create(
-				'Module'
-			)->addOptions(array(
-				'name'	=> 'Main',
-				'value'	=> false
-			));
-			if ($moduleCollection) {
-				$currentRoutes = array();
-				foreach (self::$list as $route) {
-					$currentRoutes[$route['route']] = 1;
-				}
-				foreach ($moduleCollection as $module) {
-					$moduleConfig = Config_Manager::byPath('Route', $module->name);
-					if (!$moduleConfig) {
-						continue;
-					}
-					foreach ($moduleConfig['routes']->__toArray() as $route) {
-						if (!isset($currentRoutes[$route['route']])) {
-							$route['params']['module'] = $module->name;
-							self::$list[] = $route;
-						}
-					}
-				}
-			}
-		}
-		return self::$list;
 	}
 
 	/**
