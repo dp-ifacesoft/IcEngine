@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Helper_View_Resource_Pack_Js
+class Helper_View_Resource_Js
 {
 	/**
 	 * Упаковывает файл

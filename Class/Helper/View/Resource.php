@@ -114,11 +114,11 @@ class Helper_View_Resource
 			$key . (isset($config->packGroups[$type]) ?
 			$config->packGroups[$type] : '');
 		if (is_file($filename)) {
-			return;
+			return true;
 		}
 		$content = '';
-		foreach (self::$files[$type] as $filename) {
-			$currentFilename = $root . ltrim($filename);
+		foreach (self::$files[$type] as $currentFilename) {
+			$currentFilename = $root . ltrim($currentFilename, '/');
 			if (!is_file($currentFilename)) {
 				continue;
 			}
@@ -126,6 +126,7 @@ class Helper_View_Resource
 			$content .= self::pack($type, $currentFilename, $fileContent);
 		}
 		file_put_contents($filename, $content);
+		return true;
 	}
 
 	/**
@@ -136,9 +137,6 @@ class Helper_View_Resource
 	 */
 	public static function embed($type)
 	{
-		if (!isset(self::$files[$type])) {
-			return;
-		}
 		$config = self::config();
 		$key = self::resourceKey();
 		$provider = Data_Provider_Manager::get($config->provider);
@@ -147,14 +145,16 @@ class Helper_View_Resource
 			$lastPackedAt = time();
 			$provider->set($key, $lastPackedAt);
 		}
-		self::createPackFile($type);
-		$filename = rtrim($config->cdn[$type], '/') . '/' .
-			ltrim($config->path) . $key . (isset($config->packGroups[$type]) ?
-			$config->packGroups[$type] : '') . '?' . $lastPackedAt;
-		$html = str_replace(
-			'{$filename}', $filename, $config->packTemplates[$type]
-		);
-		return $html;
+		if (self::createPackFile($type)) {
+			$filename = rtrim($config->cdn[$type], '/') . '/' .
+				ltrim($config->path) . $key .
+				(isset($config->packGroups[$type]) ?
+				$config->packGroups[$type] : '') . '?' . $lastPackedAt;
+			$html = str_replace(
+				'{$filename}', $filename, $config->packTemplates[$type]
+			);
+			return $html;
+		}
 	}
 
 	/**
@@ -189,7 +189,13 @@ class Helper_View_Resource
 	{
 		$config = self::config();
 		if (isset($config->packDelegates[$type])) {
-			$content = call_user_func($config->packDelegates[$type], $content);
+			list($className, $methodName) = explode(
+				'::', $config->packDelegates[$type]
+			);
+			$content = call_user_func(
+				array($className, $methodName),
+				$content
+			);
 		}
 		return '/**' . PHP_EOL . ' * ' . $filename . PHP_EOL . ' */' . PHP_EOL .
 			$content . PHP_EOL;
