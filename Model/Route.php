@@ -51,12 +51,25 @@ class Route extends Model_Child
 	}
 
 	/**
+	 * Получить роут по имени
+	 *
+	 * @param string $name
+	 * @return array
+	 */
+	public static function byName($name)
+	{
+		$config = Config_Manager::get(__CLASS__);
+		return isset($config['routes'][$name])
+			? $config['rotues'][$name]->__toArray() : array();
+	}
+
+	/**
 	 * Получить роут по урлу
 	 *
 	 * @param string $url
 	 * @return Route
 	 */
-	public static function byUrl ($url)
+	public static function byUrl($url)
 	{
 		$url = '/' . ltrim($url, '/');
 		$provider = Data_Provider_Manager::get('Route_Cache');
