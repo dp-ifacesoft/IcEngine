@@ -268,8 +268,8 @@ class Controller_Abstract
 		{
 			if (strpos ($method, '/') === false)
 			{
-				$this->_task->setClassTpl (
-					$this->_currentAction,
+                $this->_task->setClassTpl (
+					'Controller/'.$this->_task->controllerAction()->controller.'/'.$this->_task->controllerAction()->action,
 					'/' . ltrim ($method, '/')
 				);
 			}
