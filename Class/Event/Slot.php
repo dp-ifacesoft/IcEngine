@@ -15,11 +15,28 @@ class Event_Slot
 	protected $delegee;
 
 	/**
+	 * Название
+	 *
+	 * @var string
+	 */
+	protected $name;
+
+	/**
 	 * Параметры слота
 	 *
 	 * @var array
 	 */
 	protected $params;
+
+	/**
+	 * Конструктор
+	 *
+	 * @param string $name
+	 */
+	public function __construct($name = null)
+	{
+		$this->name = $name;
+	}
 
 	/**
 	 * Действие слота
@@ -48,6 +65,9 @@ class Event_Slot
 	 */
 	public function getName()
 	{
+		if ($this->name) {
+			return $this->name;
+		}
 		return substr(get_class($this), strlen(__CLASS__) + 1);
 	}
 
@@ -83,6 +103,16 @@ class Event_Slot
 			$signal = $this->getSignal($signal);
 		}
 		Event_Manager::register($signal, $this);
+	}
+
+	/**
+	 * Изменить дегелат слота
+	 *
+	 * @param string $delegee
+	 */
+	public function setDelegee($delegee)
+	{
+		$this->delegee = $delegee;
 	}
 
 	/**

@@ -18,10 +18,12 @@ class Event_Signal
 	 * Конструктор
 	 *
 	 * @param array $data
+	 * @param string $name
 	 */
-	public function __construct($data)
+	public function __construct($data = array(), $name = null)
 	{
 		$this->data = $data;
+		$this->name = $name;
 	}
 
 	/**
@@ -67,6 +69,9 @@ class Event_Signal
 	 */
 	public function getName()
 	{
+		if ($this->name) {
+			return $this->name;
+		}
 		return substr(get_class($this), strlen(__CLASS__) + 1);
 	}
 

@@ -62,7 +62,7 @@ class Event_Manager
 	{
 		if (!isset(self::$signals[$signalName])) {
 			$className = 'Event_Signal_' . $signalName;
-			self::$signals[$signalName] = new $className;
+			self::$signals[$signalName] = new $className();
 		}
 		return self::$signals[$signalName];
 	}
