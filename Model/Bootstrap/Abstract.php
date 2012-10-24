@@ -75,6 +75,7 @@ abstract class Bootstrap_Abstract
 		Loader::addPath ('Class', $path . 'Class/');
 		Loader::addPath ('Class', $path . 'Model/');
 		Loader::addPath ('Class', $path);
+		Loader::addPath('Controller', $path . 'Controller/');
 		Loader::addPath ('includes', $path . 'includes/');
 	}
 

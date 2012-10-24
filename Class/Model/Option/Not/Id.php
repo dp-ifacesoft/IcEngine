@@ -10,27 +10,8 @@
  */
 class Model_Option_Not_Id extends Model_Option
 {
-
 	/**
-	 * (non-PHPdoc)
-	 * @see Model_Collection_Option_Abstract::before()
+	 * @inheritdoc
 	 */
-	public function before ()
-	{
-		if (isset ($this->params ['ids']) && $this->params ['ids'])
-		{
-			$this->query->where (
-				$this->collection->modelName () . '.id NOT IN (?)',
-				array ($this->params ['ids'])
-			);
-		}
-		if (isset ($this->params ['id']) && $this->params ['id'])
-		{
-			$this->query->where (
-				$this->collection->modelName () . '.id != ?',
-				array ($this->params ['id'])
-			);
-		}
-	}
-
+	protected $queryName = 'Not_Id';
 }

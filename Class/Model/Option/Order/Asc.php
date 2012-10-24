@@ -2,29 +2,15 @@
 /**
  *
  * @desc Опция для добавления правила упорядочивания в порядке возрастания.
- * Возможно передать поле для сортировки, если поле не передано, сортировка
- * будет идти по ключевому полю.
+ * Возможно передать поле для сортировки
  * @author Юрий Шведов
  * @package IcEngine
  *
  */
 class Model_Option_Order_Asc extends Model_Option
 {
-
 	/**
-	 * (non-PHPdoc)
-	 * @see Model_Option::before()
+	 * @inheritdoc
 	 */
-	public function before ()
-	{
-		$field = isset ($this->params ['field']) ?
-			$this->params ['field'] :
-			(
-				'`' . $this->collection->modelName () . '`.`' .
-				$this->collection->keyField () . '`'
-			);
-		
-		$this->query->order (array ($field => Query::ASC));
-	}
-
+	protected $queryName = 'Order_Asc';
 }

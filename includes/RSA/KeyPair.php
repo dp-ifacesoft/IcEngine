@@ -276,7 +276,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $private_exp = $this->_math_obj->int2bin($d);
 
         // try to create public key object
-        $obj = newCrypt_RSA_Key(
+        $obj = new Crypt_RSA_Key(
             $modulus,
             $public_exp,
             'public',
@@ -291,7 +291,7 @@ class Crypt_RSA_KeyPair extends Crypt_RSA_ErrorHandler
         $this->_public_key = &$obj;
 
         // try to create private key object
-        $obj = newCrypt_RSA_Key(
+        $obj = new Crypt_RSA_Key(
             $modulus,
             $private_exp,
             'private',

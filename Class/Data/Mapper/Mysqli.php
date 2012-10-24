@@ -43,6 +43,8 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 	protected $_numRows = 0;
 	protected $_insertId = null;
 
+	protected $options;
+
 	/**
 	 * @desc Обработчики по видам запросов.
 	 * @var array
@@ -166,7 +168,7 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 
 		if ($config)
 		{
-			$this->setOption ($config);
+			$this->setOption($config);
 		}
 
 		$this->_linkIdentifier = mysql_connect (
@@ -198,6 +200,9 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
 		if (!($query instanceof Query_Abstract))
 		{
 			return new Query_Result (null);
+		}
+		if (!$this->_linkIdentifier) {
+			$this->connect();
 		}
 		$this->connect ();
 

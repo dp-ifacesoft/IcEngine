@@ -32,6 +32,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeChange (Query_Abstract $query, Query_Options $options)
 	{
+		if (!$this->_linkIdentifier) {
+			$this->connect();
+		}
+
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
@@ -79,6 +83,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 */
 	protected function _executeInsert (Query_Abstract $query, Query_Options $options)
 	{
+		if (!$this->_linkIdentifier) {
+			$this->connect();
+		}
+
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
@@ -158,6 +166,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 				Tracer::incCachedSelectQueryCount();
 			}
 			return $cache ['v'];
+		}
+
+		if (!$this->_linkIdentifier) {
+			$this->connect();
 		}
 
 		if (Tracer::$enabled) {

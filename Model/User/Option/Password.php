@@ -17,7 +17,7 @@ class User_Option_Password extends Model_Option
 			if (isset($this->params['type']) &&
 					$this->params['type'] == 'RSA') {
 				Loader::load('Crypt_Manager');
-				$rsa = Crypt_Manager::get('RSAW');
+				$rsa = Crypt_Manager::get('RSAW2');
 				$password = $rsa->encode($this->params['value']);
 			} else {
 				$password = md5($password);

@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Помощник работы с URI
  * @author Гурус
  * @package IcEngine
@@ -8,10 +8,46 @@
  */
 class Helper_Uri
 {
-	
+	/**
+	 * Генерирует ссылку по роуту
+	 *
+	 * @param string $routeName
+	 * @param array $params
+	 * @return string
+	 */
+	public static function fromRoute($routeName, $params = array())
+	{
+		$route = Route::byName($routeName);
+		if (!$route) {
+			return;
+		}
+		if (empty($route['patterns'])) {
+			return $route['route'];
+		}
+		$parts = $route['patterns'];
+		$result = $route['route'];
+		foreach ($parts as $partName => $part) {
+			$paramPart = isset($params[$partName]) ? $params[$partName] : null;
+			if (!$paramPart) {
+				if (!empty($part['optional']) && isset($part['default'])) {
+					$paramPart = $part['default'];
+				}
+			}
+			if ($paramPart) {
+				$paramPart = preg_replace(
+					'#\(([^\)]+)#', $paramPart, $part['pattern']
+				);
+			}
+			$result = str_replace(
+				'{$' . $partName , '}', $paramPart, $result
+			);
+		}
+		return $result;
+	}
+
 	/**
 	 * Возвращает домен верхнего уровня
-	 * 
+	 *
 	 * @param string $server_name [optional]
 	 * 		Адрес домена (www.vipgeo.ru, vipgeo.com, localhost)
 	 * 		Если адрес домена не задан, будет использована
@@ -25,20 +61,20 @@ class Helper_Uri
 		{
 			$server_name = $_SERVER ['SERVER_NAME'];
 		}
-		
+
 		$p = strrchr ($server_name, '.');
-		
+
 		if ($p === false)
 		{
 			return $server_name;
 		}
-		
+
 		return strtolower (substr ($p, 1));
 	}
-	
+
 	/**
 	 * Формирование URL с заданными GET параметрами
-	 * 
+	 *
 	 * @param array $gets
 	 * 		Значения GET параметров, которые необходимо установить.
 	 * 		Если параметр задан как null, то он не будет включен
@@ -51,7 +87,7 @@ class Helper_Uri
 	 * @return string
 	 * 		Адрес страницы с заданными GET параметрами
 	 */
-	public static function replaceGets (array $gets = array (), $clear = false, 
+	public static function replaceGets (array $gets = array (), $clear = false,
 		$url = null)
 	{
 		if (is_null ($url))
@@ -60,7 +96,7 @@ class Helper_Uri
 		}
 		// Удаляемые
 		$deleting = array ();
-		
+
 		// кодируем параметры и запоминаем удаляемые
 		foreach ($gets as $k => &$v)
 		{
@@ -75,19 +111,19 @@ class Helper_Uri
 			}
 		}
 		unset ($v);
-		
+
 		$p = strpos ($url, '?');
 		if ($p !== false)
 		{
 			// В url уже пристствуют GET параметры
 			$get_part = substr ($url, $p + 1);
-			
+
 			$url = substr ($url, 0, $p);
-			
+
 			if (!$clear)
 			{
 				$get_part = explode ('&', $get_part);
-				
+
 				foreach ($get_part as $get)
 				{
 					$p = strpos ($get, '=');
@@ -101,7 +137,7 @@ class Helper_Uri
 						$k = substr ($get, 0, $p);
 						$v = substr ($get, $p + 1);
 					}
-					
+
 					if (!isset ($gets [$k]) && !isset ($deleting [$k]) && ($k || $v))
 					{
 						$gets [$k] = $k . '=' . $v;
@@ -109,36 +145,36 @@ class Helper_Uri
 				}
 			}
 		}
-		
+
 		if ($gets)
 		{
 			return $url . '?' . implode ('&', $gets);
 		}
-		
+
 		return $url;
 	}
-	
+
 	public static function mainDomain ($server_name = null)
 	{
 		if (!$server_name)
 		{
 			$server_name = $_SERVER ['SERVER_NAME'];
 		}
-		
+
 		$f = strrpos ($server_name, '.');
-		
+
 		if (!$f)
 		{
 			return $server_name;
 		}
-		
+
 		$f = strlen ($server_name) - $f;
-		
+
 		$s = strrpos ($server_name, '.', - $f - 1);
-		
+
 		return ($s === false) ? $server_name : substr ($server_name, $s + 1);
 	}
-	
+
 	/**
 	 * @desc Возвращает полный адрес для редиректа.
 	 * @param string $uri Полный или относительный адрес редиректа.
@@ -150,13 +186,13 @@ class Helper_Uri
 		{
 			return 'http://' . $_SERVER ['HTTP_HOST'];
 		}
-		
+
 		if (substr ($uri, 0, 1) == '/')
 		{
 			return 'http://' . $_SERVER ['HTTP_HOST'] . $uri;
 		}
-		
+
 		return $uri;
 	}
-	
+
 }
