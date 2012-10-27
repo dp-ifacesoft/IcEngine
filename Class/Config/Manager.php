@@ -81,9 +81,14 @@ class Config_Manager
 	 */
 	public static function byPath($modelName, $moduleName = 'Ice')
 	{
-		$filename = IcEngine::root() .
-			$moduleName . '/Config/' . str_replace('_', '/', $modelName) .
+		$filename = IcEngine::root() . 'Ice/Config/Module/' . $moduleName . '/'
+			. str_replace('_', '/', $modelName) .
 			'.php';
+		if (!file_exists($filename)) {
+			$filename = IcEngine::root() .
+				$moduleName . '/Config/' . str_replace('_', '/', $modelName) .
+				'.php';
+		}
 		if (is_file($filename)) {
 			$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
 			$class = 'Config_' . $ext;
@@ -100,6 +105,11 @@ class Config_Manager
 	public static function emptyConfig ()
 	{
 		return new Config_Array (array ());
+	}
+
+	public static function getPaths()
+	{
+		return self::$_pathToConfig;
 	}
 
 	/**

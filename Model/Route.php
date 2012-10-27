@@ -94,6 +94,7 @@ class Route extends Model_Child
 			if (empty($route['route'])) {
 				continue;
 			}
+			$route = array_merge($emptyRoute, $route);
 			$pattern = '#^' . $route['route'] . '$#';
 			if (!empty($route['patterns'])) {
 				foreach ($route['patterns'] as $var => $routeData) {

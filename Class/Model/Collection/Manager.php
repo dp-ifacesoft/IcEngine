@@ -159,6 +159,12 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$addicts = $collection->data ('addicts');
 		}
 
+		$iterator = $collection->currentIterator();
+		if ($iterator) {
+			$iterator->setData($pack['items']);
+			return;
+		}
+
 		static $key_fields = array ();
 
 		// Инициализируем модели коллекции

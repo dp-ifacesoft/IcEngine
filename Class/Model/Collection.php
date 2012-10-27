@@ -111,6 +111,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	protected $_queryResult;
 
 	/**
+	 * Итератор коллекции
+	 *
+	 * @var Model_Collection_Iterator
+	 */
+	protected $iterator;
+
+	/**
 	 * @desc Создает и возвращает коллекцию моделей.
 	 * Так же подключает связанный класс модели.
 	 */
@@ -389,6 +396,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function count ()
 	{
 		return count ($this->items ());
+	}
+
+	/**
+	 * Получить текущий итератор коллекции
+	 *
+	 * @return Model_Collection_Iterator
+	 */
+	public function currentIterator()
+	{
+		return $this->iterator;
 	}
 
 	/**
@@ -768,6 +785,24 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	}
 
 	/**
+	 * Получить итератор коллекции
+	 *
+	 * @return Model_Collection_Iterator
+	 */
+	public function iterator($isFactory = false)
+	{
+		Loader::load('Model_Collection_Iterator');
+		if (!$this->iterator) {
+			$this->iterator = new Model_Collection_Iterator($this, $isFactory);
+		}
+		if (!is_array($this->_items))
+		{
+			$this->load();
+		}
+		return $this->iterator;
+	}
+
+	/**
 	 * @desc Пустая ли коллекция
 	 * @return boolean
 	 */
@@ -1041,6 +1076,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$this->_items = array ();
 		return $this;
+	}
+
+	/**
+	 * Сбросить итератор коллекции
+	 */
+	public function resetIterator()
+	{
+		$this->iterator = null;
 	}
 
 	/**

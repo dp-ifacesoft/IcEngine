@@ -42,6 +42,33 @@ class Query_Abstract
 	}
 
 	/**
+	 * Добавить часть запроса
+	 *
+	 * @return Query_Abstract
+	 */
+	public function addPart($parts)
+	{
+		$args = func_get_args();
+		$modelName = null;
+		$from = $this->getPart(Query::FROM);
+		if ($from) {
+			$from = reset($from);
+			$modelName = $from[Query::TABLE];
+		}
+		foreach ($args as $arg) {
+			$name = $arg;
+			$params = array();
+			if (is_array($arg)) {
+				list($name, $params) = $arg;
+			}
+			$className = 'Query_Part_' . $name;
+			$part = new $className($modelName, $params);
+			$part->inject($this);
+		}
+		return $this;
+	}
+
+	/**
 	 * @desc Возвращает имя запроса
 	 * @return string
 	 */

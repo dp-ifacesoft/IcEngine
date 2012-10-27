@@ -113,7 +113,7 @@ class Data_Source_Manager
 				isset ($conf ['mapper']) ?
 				('Data_Mapper_' . $conf ['mapper']) :
 				'';
-			
+
 			self::$_sources [$name] = new $source_class ();
 			/**
 			 * @desc Меппер.

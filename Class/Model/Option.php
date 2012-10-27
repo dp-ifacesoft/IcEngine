@@ -28,6 +28,13 @@ abstract class Model_Option
 	public $params;
 
 	/**
+	 * Имя части запроса
+	 *
+	 * @var string
+	 */
+	protected $queryName;
+
+	/**
 	 * @desc Запрос, выполняемый коллекцией.
 	 * Переменная $query отличается от запроса, возвращаемого методом
 	 * <i>$colleciton->query()</i>. По умолчанию эта переменная - клон
@@ -67,7 +74,12 @@ abstract class Model_Option
 	 */
 	public function before ()
 	{
-
+		if ($this->queryName) {
+			$className = 'Query_Part_' . $this->queryName;
+			$modelName = $this->collection->modelName();
+			$queryPart = new $className($modelName, $this->params);
+			$queryPart->inject($this->query);
+		}
 	}
 
 	/**

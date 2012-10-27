@@ -1,17 +1,17 @@
 <?php
+
 /**
- * 
- * @desc Для выбора контента из заданной категории
- * @author Юрий Шведов
- * @package IcEngine
- * 
+ * Для выбора контента из заданной категории
+ * @author goorus
  */
 class Content_Option_Category extends Model_Option
 {
-	
-	public function before ()
+	/**
+	 * @inheritdoc
+	 */
+	public function before()
 	{
-		$this->query->where ('Content_Category__id', $this->params ['id']);
+		$this->query->where('Content_Category__id', $this->params['id']);
 	}
-	
+
 }
