@@ -232,7 +232,6 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 		$activation = $this->_authorization ()->sendActivationSms (array (
 			'login'		=> $login,
 			'password'	=> $password,
-			'passwordAES'	=> $passwordAES,
 			'phone'		=> $user->phone,
 			'user'		=> $user,
 			'provider'	=> $provider,
