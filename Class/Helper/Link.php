@@ -179,11 +179,15 @@ class Helper_Link
 			}
 			$ids = DDS::execute($query)->getResult ()->asColumn($column);
 		}
-		$result = Model_Collection_Manager::create($model2)
-			->addOptions(array(
-				'name'	=> '::Key',
-				'key'	=> $ids
-			));
+		if (!$ids) {
+			$result = Model_Collection_Manager::create($model2)->reset();
+		} else {
+			$result = Model_Collection_Manager::create($model2)
+				->addOptions(array(
+					'name'	=> '::Key',
+					'key'	=> $ids
+				));
+		}
 	    return $result;
 	}
 
