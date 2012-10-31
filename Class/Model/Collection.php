@@ -1081,7 +1081,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 *
 	 * @param Model $model
 	 * @param integer $offset Смещение поиска от начала коллекции
-	 * @return integer - если модель найна, false - в противном случае
+	 * @return integer - если модель найдена, false - в противном случае
 	 */
 	public function search($model, $offset = 0)
 	{

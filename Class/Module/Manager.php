@@ -40,12 +40,13 @@ class Module_Manager extends Manager_Abstract
 
 	public static function init()
 	{
-		$moduleCollection = Model_Collection_Manager::create(
-			'Module'
-		);
-		$moduleCollection->sort('id DESC');
-		foreach ($moduleCollection as $module) {
-			self::addModule($module->name);
+		$moduleCollection = Model_Collection_Manager::create('Module')
+            ->addOptions(array(
+               'name'   => '::Order_Desc',
+               'field'  => 'id'
+            ));
+		foreach ($moduleCollection->raw() as $module) {
+			self::addModule($module['name']);
 		}
 	}
 }
