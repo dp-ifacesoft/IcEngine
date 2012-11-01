@@ -13,7 +13,7 @@ class Router
 	 * @var Route
 	 */
 	private static $route;
-
+    
 	/**
 	 * Обнулить текущий роут
 	 */

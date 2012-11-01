@@ -356,6 +356,19 @@ class Request
 		return '';
 	}
 
+    /**
+     * Получить поддомен
+     *
+     * @return string
+     */
+    public static function subdomain($default = null)
+    {
+        $host = self::host();
+        $main = Helper_Uri::mainDomain();
+        $subdomain = trim(str_replace($main, '', $host), '.');
+        return $subdomain ?: $default;
+    }
+
 	/**
 	 * @return string
 	 */

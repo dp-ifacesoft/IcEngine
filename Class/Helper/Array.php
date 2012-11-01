@@ -376,7 +376,7 @@ class Helper_Array
      * @param array $filter
      * @return boolean
      */
-    public function validateRow($row, $filter)
+    public static function validateRow($row, $filter)
     {
 		$valid = true;
 		foreach ($filter as $field => $value) {

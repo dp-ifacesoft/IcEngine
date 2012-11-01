@@ -90,12 +90,20 @@ class Route extends Model_Child
 		$emptyRoute = $config['empty_route']->__toArray();
 		$routes = self::getList();
 		$row = null;
+        $host = Request::host();
+        $lastWithHost = false;
 		foreach ($routes as $route) {
 			if (empty($route['route'])) {
 				continue;
 			}
 			$route = array_merge($emptyRoute, $route);
 			$pattern = '#^' . $route['route'] . '$#';
+            $hostValid = true;
+            $withHost = false;
+            if (!empty($route['host'])) {
+                $withHost = true;
+                $hostValid = self::checkHost($host['route'], $host);
+            }
 			if (!empty($route['patterns'])) {
 				foreach ($route['patterns'] as $var => $routeData) {
 					$replace = $routeData['pattern'];
@@ -107,15 +115,34 @@ class Route extends Model_Child
 				}
 			}
 			if (preg_match($pattern, $url) && (
-				!$row || (int) $route['weight'] > (int) $row['weight']
-			)) {
-				$row = array_merge($emptyRoute, $route);
-				$row['pattern'] = $pattern;
+				!$row || (int) $route['weight'] > (int) $row['weight'])) {
+                if ($hostValid && !$lastWithHost) {
+                    $row = array_merge($emptyRoute, $route);
+                    $row['pattern'] = $pattern;
+                    if ($withHost) {
+                        $lastWithHost = true;
+                    }
+                }
 			}
 		}
 		Resource_Manager::set('Route_Cache', $url, $row);
 		return $row ? new self($row) : null;
 	}
+
+    /**
+     * Проверить хост на соответствие шаблону
+     *
+     * @param string $pattern
+     * @param string $host
+     * @return boolean
+     */
+    protected static function checkHost($pattern, $host)
+    {
+        if (!$pattern) {
+            return true;
+        }
+        return preg_match($pattern, $host);
+    }
 
 	/**
 	 * Получить список роутов
