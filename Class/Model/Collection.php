@@ -374,6 +374,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             foreach ($args as $arg) {
                 $query->select($arg);
             }
+            if (!in_array($keyField, $args)) {
+                $query->select(array($modelName => $keyField));
+            }
 		}
 		$query->from($modelName);
 		if ($this->_paginator) {
