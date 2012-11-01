@@ -123,7 +123,6 @@ class Module_Manager extends Manager_Abstract
         if ($tryConfig) {
             return $tryConfig;
         }
-        $config = null;
         $baseConfigFile = IcEngine::root() . $moduleName . '/Config/Index.php';
         $selfConfig = self::config();
         $defaultModule = $selfConfig->defaultModule;
@@ -143,8 +142,8 @@ class Module_Manager extends Manager_Abstract
                 $resultConfig = array_merge($resultConfig, $config);
             }
         }
-        if (!empty($config)) {
-            $config = new Config_Array($resultConfig);
+        $config = new Config_Array($resultConfig);
+        if (!empty($resultConfig)) {
             Resource_Manager::set('Config', $resourceKey, $config);
         }
         return $config;
