@@ -187,8 +187,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			} else {
 				Tracer::incSelectQueryTime($delta);
 			}
-			Tracer::end($this->_sql, count(mysql_num_rows($result)),
-				memory_get_usage());
+			Tracer::end(
+                $this->_sql,
+                is_resource($result) ? count(mysql_num_rows($result)) : 0,
+				memory_get_usage()
+            );
 			Tracer::incDeltaQueryCount();
 		}
 
