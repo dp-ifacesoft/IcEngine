@@ -360,42 +360,34 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * Действия до загрузки коллекции
-     *
-     * @param array $columns
      */
-    public function beforeLoad($columns)
+    public function beforeLoad()
     {
-        $key_field = $this->keyField ();
-		$query = clone $this->query ();
-
-		if (!$columns)
-		{
-			$query->select ($this->table () . '.*');
+        $keyField = $this->keyField();
+		$query = clone $this->query();
+        $args = func_get_args();
+		$modelName = $this->table();
+        if (!$args) {
+			$query->select ($modelName . '.*');
+            $query->select (array($modelName => $keyField));
+		} else {
+            foreach ($args as $arg) {
+                $query->select($arg);
+            }
 		}
-		else
-		{
-			$query->select ((array) $columns);
-		}
-
-		$query->select (array ($this->table () => $key_field));
-
-		$query->from ($this->modelName ());
-
-		if ($this->_paginator)
-		{
-			$query->calcFoundRows ();
-			$query->limit (
+		$query->from($modelName);
+		if ($this->_paginator) {
+			$query->calcFoundRows();
+			$query->limit(
 				$this->_paginator->pageLimit,
-				$this->_paginator->offset ());
+				$this->_paginator->offset()
+            );
 		}
-
-		$scheme_options = Model_Scheme::modelOptions ($this->modelName ());
-		if ($scheme_options)
-		{
-			$this->addOptions ($scheme_options);
+		$schemeOptions = Model_Scheme::modelOptions($modelName);
+		if ($schemeOptions) {
+			$this->addOptions($schemeOptions);
 		}
-
-		$this->_options->executeBefore ($query);
+		$this->_options->executeBefore($query);
 		$this->_lastQuery = $query;
     }
 
