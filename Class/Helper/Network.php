@@ -210,17 +210,8 @@ class Helper_Network
 	 */
 	public static function wgetPageContent($host = 'localhost', $page = '/index.php',
 		array $gets = array(), array $posts = array(),
-		$refer = 'http://localhost', $userAgent = 'Mozilla 4.0')
+		$refer = 'http://www.yandex.ru', $userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:10.0.6) Gecko/20100101 Firefox/10.0.6 Iceweasel/10.0.6')
 	{
-
-	//	$host="www.vasya.com";
-	//	$refer="http://localhost";
-	//	$zap="/b.php?blabla=123";
-	//	$fp=fsockopen($host,80);
-	//	$get="GET $zap HTTP/1.1\r\nHost: $host\r\nReferer: $refer\r\nUser-Agent: Mozilla 4.0\r\n\r\n";
-	//	fwrite($fp,$get);
-	//	fclose($fp);
-
 		// Обработка GET параметров
 		if ($gets)
 		{
@@ -254,11 +245,10 @@ class Helper_Network
 			"Referer: $refer\r\n " .
 			"User-Agent: $userAgent\r\n\r\n";
 
-		$fp = fsockopen($host, 80);
+		$fp = fsockopen($host, 80, $errno, $errstr, 1);
 
 		// отправка данных
 		fputs($fp, $req);
-
 		// Чтение данных
 		$query = "";
 		while (!feof($fp))

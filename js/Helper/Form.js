@@ -94,7 +94,9 @@ var Helper_Form = {
                     }
                     if (typeof value == 'object' ) {
                         for (i in value) {
-							data[_name].push (value[i]);
+                            if (typeof value == 'string') {
+                                data[_name].push (value[i]);
+                            }
 						}
                     } else {
                         data[_name].push (value);

@@ -104,7 +104,7 @@ class Helper_View_Resource
 	 */
 	public static function createPackFile($type)
 	{
-		if (!isset(self::$files[$type])) {
+		if (empty(self::$files[$type])) {
 			return;
 		}
 		$config = self::config();

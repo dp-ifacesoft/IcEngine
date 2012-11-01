@@ -67,6 +67,12 @@ abstract class Model implements ArrayAccess
 	protected	$_loaded;
 
 	/**
+	 * Означает, что модель отложенная для true
+	 * @var bool
+	 */
+	protected $_lazy;
+
+	/**
 	 * @desc Плагины
 	 * @var array
 	 */
@@ -98,11 +104,10 @@ abstract class Model implements ArrayAccess
 	{
 		// Получаем значение атрибутов
 		// Это можно сделать так: get{Attrname}
-		if (strlen ($method) > 3 && strncmp ($method, 'get', 3) == 0)
-		{
-			return $this->attr (
-				strtolower ($method [3]) .
-				substr ($method, 4)
+		if (strlen($method) > 3 && strncmp($method, 'get', 3) == 0) {
+			return $this->attr(
+				strtolower($method [3]) .
+				substr($method, 4)
 			);
 		}
 
@@ -172,48 +177,42 @@ abstract class Model implements ArrayAccess
 	 * @param string $field Поле
 	 * @return mixed
 	 */
-	public function __get ($field)
+	public function __get($field)
 	{
 		$join_field = $field . '__id';
-
-		if ($this->_generic)
-		{
-			if (array_key_exists ($field, $this->_addicts))
-			{
-				return $this->_addicts [$field];
+		if ($this->_generic) {
+			if (array_key_exists($field, $this->_addicts)) {
+				return $this->_addicts[$field];
 			}
 
-			if (array_key_exists ($field, $this->_fields))
-			{
-				return $this->_fields [$field];
+			if (array_key_exists($field, $this->_fields)) {
+				return $this->_fields[$field];
 			}
 
-			if (array_key_exists ($join_field, $this->_fields))
-			{
-				return $this->_joint ($field, $this->_fields [$join_field]);
+			if (array_key_exists($join_field, $this->_fields)) {
+				return $this->_joint($field, $this->_fields[$join_field]);
 			}
-
 			return $this->_generic->$field;
 		}
 
-		if ($this->_fields && array_key_exists ($field, $this->_fields))
-		{
+		if ($this->_fields && array_key_exists ($field, $this->_fields)) {
 			return $this->_fields [$field];
 		}
 
-		if (isset ($this->_joints [$field]))
-		{
+		if (isset ($this->_joints [$field])) {
 			return $this->_joints [$field];
 		}
 
-		if ($this->_fields && array_key_exists ($join_field, $this->_fields))
-		{
+		if ($this->_fields && array_key_exists ($join_field, $this->_fields)) {
 			return $this->_joint ($field, $this->_fields [$join_field]);
 		}
 
-		if (!$this->_loaded)
-		{
-			$this->load ();
+		if (!$this->_loaded) {
+			if ($this->_lazy) {
+				Unit_Of_Work::load($this);
+			} else {
+				$this->load ();
+			}
 			if (
 				$this->_fields &&
 				!array_key_exists ($field, $this->_fields) &&
@@ -225,6 +224,26 @@ abstract class Model implements ArrayAccess
 		}
 
 		return $this->_fields [$field];
+	}
+
+	/**
+	 * Установить флаг отложенной модели, через Unit Of Work
+	 *
+	 * @param bool $value
+	 */
+	public function setLazy($value)
+	{
+		$this->_lazy = $value;
+	}
+
+	/**
+	 * Установить флаг загруженной модели
+	 *
+	 * @param bool $value
+	 */
+	public function setLoaded($value)
+	{
+		$this->_loaded = $value;
 	}
 
 	/**
@@ -638,7 +657,6 @@ abstract class Model implements ArrayAccess
 	public function key ()
 	{
 		$kf = $this->keyField ();
-
 		if (!isset ($this->_fields [$kf]))
 		{
 			return null;
@@ -977,6 +995,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function update (array $data, $hard = false)
 	{
+		if ($this->_lazy && !$this->_loaded) {
+			Unit_Of_Work::load($this);
+		}
+
 		if ($this->_generic)
 		{
 			if (!$this->_generic->isLoaded ())

@@ -2,7 +2,7 @@
 
 /**
  * @desc Общий запрос
- * @author Илья Колесников, Юрий Шведов
+ * @author Илья Колесников, Юрий Шведов, neon
  */
 class Query_Abstract
 {
@@ -23,6 +23,13 @@ class Query_Abstract
 	 * @var string
 	 */
 	protected $_type;
+
+	/**
+	 * Флаги запроса
+	 *
+	 * @var array
+	 */
+	protected $_flags;
 
 	/**
 	 * @desc Возвращает новый пустой запрос.
@@ -66,6 +73,20 @@ class Query_Abstract
 			$part->inject($this);
 		}
 		return $this;
+	}
+
+	/**
+	 * Получить значение флага
+	 *
+	 * @param type $key
+	 * @return boolean
+	 */
+	public function getFlag($key)
+	{
+		if (isset($this->_flags[$key])) {
+			return $this->_flags[$key];
+		}
+		return false;
 	}
 
 	/**
@@ -154,6 +175,18 @@ class Query_Abstract
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Установить флаг
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function setFlag($key, $value)
+	{
+		$this->_flags[$key] = $value;
 	}
 
 	/**

@@ -67,7 +67,6 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 		foreach ($where as $wi => &$wvalue)
 		{
 			$cond = $wvalue [Query::WHERE];
-
 			if (!is_scalar ($wvalue [Query::VALUE]))
 			{
 				throw new Zend_Exception ('Condition unsupported.');

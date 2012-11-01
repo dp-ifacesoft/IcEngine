@@ -36,6 +36,30 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 		return $collection;
 	}
 
+    /**
+     * Вызрать делигата коллекции и получить данные
+     *
+     * @param Model_Collection $collection
+     * @param Query_Abstract $query
+     * @return array
+     */
+    public static function callDelegee($collection, $query)
+    {
+        $modelName = $collection->modelName();
+        // Делегируемый класс определяем по первому или нулевому
+        // предку.
+        $parents = class_parents($modelName);
+        $first = end($parents);
+        $second = prev($parents);
+        $config = self::config();
+        $parent = $second && isset($config['delegee'][$second])
+            ? $second : $first;
+        $delegee = 'Model_Collection_Manager_Delegee_' .
+            $config ['delegee'][$parent];
+        $pack = call_user_func(array($delegee, 'load'), $collection, $query);
+        return $pack;
+    }
+
 	/**
 	 * @desc Создает коллекцию по имени.
 	 * @param string $model Модель колекции.
@@ -129,33 +153,9 @@ abstract class Model_Collection_Manager extends Manager_Abstract
 			$collection->data ('addicts', $addicts);
 		}
 
-		if (!is_array ($pack) || !$tag_valid)
-		{
-			// Делегируемый класс определяем по первому или нулевому
-			// предку.
-			$parents = class_parents ($model);
-
-			$first = end ($parents);
-			$second = prev ($parents);
-
-			$config = self::config ();
-
-			$parent =
-				$second && isset ($config ['delegee'][$second]) ?
-				$second :
-				$first;
-
-			$delegee =
-				'Model_Collection_Manager_Delegee_' .
-				$config ['delegee'][$parent];
-
-			$pack = call_user_func (
-				array ($delegee, 'load'),
-				$collection, $query
-			);
-
+		if (!is_array($pack) || !$tag_valid) {
+			$pack = self::callDelegee($collection, $query);
 			$collection->data ('t', $tags);
-
 			$addicts = $collection->data ('addicts');
 		}
 

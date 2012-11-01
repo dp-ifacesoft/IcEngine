@@ -239,8 +239,7 @@ class User_Abstract extends Model
 			User_Session::byPhpSessionId (
 				$session_id ? $session_id : 'unknown')
 		);
-
-		self::$_current = User_Session::getCurrent ()->User;
+		self::$_current = User_Session::getCurrent()->User;
 		User_Session::getCurrent ()->updateSession ();
 
 		return self::$_current;
