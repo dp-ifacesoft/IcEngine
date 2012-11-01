@@ -367,9 +367,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$query = clone $this->query();
         $args = func_get_args();
 		$modelName = $this->table();
-        if (!$args) {
-			$query->select ($modelName . '.*');
-            $query->select (array($modelName => $keyField));
+        if (!$args || (count($args) == 1 && empty($args[0]))) {
+			$query->select($modelName . '.*');
+            $query->select(array($modelName => $keyField));
 		} else {
             foreach ($args as $arg) {
                 $query->select($arg);
