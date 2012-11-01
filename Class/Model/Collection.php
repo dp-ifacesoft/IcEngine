@@ -374,7 +374,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
 		else
 		{
-			$query->select ((array) $colums);
+			$query->select ((array) $columns);
 		}
 
 		$query->select (array ($this->table () => $key_field));
