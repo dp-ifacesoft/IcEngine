@@ -1020,7 +1020,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 $result = Helper_Array::column($fullResult, $columns);
             }
         } else {
-            call_user_func_array(array($this, 'beforeLoad'), $columns);
+            if ($columns) {
+                call_user_func_array(array($this, 'beforeLoad'), $columns);
+            } else {
+                $this->beforeLoad(array());
+            }
             $pack = Model_Collection_Manager::callDelegee(
                 $this, $this->_lastQuery
             );
