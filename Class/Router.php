@@ -13,7 +13,7 @@ class Router
 	 * @var Route
 	 */
 	private static $route;
-    
+
 	/**
 	 * Обнулить текущий роут
 	 */
@@ -40,6 +40,9 @@ class Router
 		}
 		if (!empty($route['params'])) {
 			foreach ($route['params'] as $paramName => $paramValue) {
+                if (strpos($paramValue, '::')) {
+                    $paramValue = call_user_func($paramValue);
+                }
 				Request::param($paramName, $paramValue);
 			}
 		}
