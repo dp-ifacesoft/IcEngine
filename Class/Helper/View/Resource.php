@@ -23,10 +23,14 @@ class Helper_View_Resource
 	 * @var array
 	 */
 	protected static $config = array(
-		'cdn'			=> array(
-			self::CSS	=> 'http://www.biokrasota.local/',
-			self::JS		=> 'http://www.biokrasota.local/'
-		),
+        'defaultPaths'  => array(
+            self::CSS   => array(
+                'noPack'    => 'Ice/Static/css/noPack/'
+            ),
+            self::JS    => array(
+                'noPack'    => 'Ice/Static/js/noPack/'
+            )
+        ),
 		'packDelegates'	=> array(
 			self::CSS	=> 'Helper_View_Resource_Css::pack',
 			self::JS		=> 'Helper_View_Resource_Js::pack'
@@ -36,7 +40,7 @@ class Helper_View_Resource
 			self::JS		=> '.js'
 		),
 		'packTemplates'	=> array(
-			self::CSS	=> '<link href="{$filename}" type="text/css" />',
+			self::CSS	=> '<link href="{$filename}" type="text/css" rel="stylesheet" />',
 			self::JS		=> '<script type="text/javascript" src="{$filename}"></script>'
 		),
 		'path'			=> 'cache/static/',
@@ -50,7 +54,7 @@ class Helper_View_Resource
 	 */
 	protected static $files = array(
 		self::CSS	=> array(),
-		self::JS	=> array()
+		self::JS    	=> array()
 	);
 
 	/**
@@ -59,8 +63,17 @@ class Helper_View_Resource
 	 * @param string $type
 	 * @param string $filename
 	 */
-	public static function append($type, $filename)
+	public static function append($type, $filename, $pathName)
 	{
+        if ($pathName) {
+            $config = self::config();
+            $paths = $config->defaultPaths;
+            if ($paths) {
+                $paths = $paths[$type];
+                $filename = IcEngine::root() . trim($paths[$pathName], '/') .
+                    '/' . ltrim($filename, '/');
+            }
+        }
 		array_push(self::$files[$type], $filename);
 	}
 
@@ -69,9 +82,9 @@ class Helper_View_Resource
 	 *
 	 * @param string $filename
 	 */
-	public static function appendCss($filename)
+	public static function appendCss($filename, $pathName = null)
 	{
-		self::append(self::CSS, $filename);
+		self::append(self::CSS, $filename, $pathName);
 	}
 
 	/**
@@ -79,9 +92,9 @@ class Helper_View_Resource
 	 *
 	 * @param string $filename
 	 */
-	public static function appendJs($filename)
+	public static function appendJs($filename, $pathName = null)
 	{
-		self::append(self::JS, $filename);
+		self::append(self::JS, $filename, $pathName);
 	}
 
 	/**
@@ -94,14 +107,12 @@ class Helper_View_Resource
 	{
 		$slashRight = strrpos($source, '/');
 		$directory = substr($source, 0, $slashRight);
-		$regExp = substr($source, $slashRight + 1);
-		$regExp = str_replace('**', '.*', $regExp);
+		$regExp = str_replace('**', '.*', substr($source, $slashRight + 1));
 		$directoryIterator = new RecursiveDirectoryIterator(
 			$path . $directory
 		);
 		$iterator = new RecursiveIteratorIterator($directoryIterator);
 		$sources = array();
-
 		foreach ($iterator as $item) {
 			$fileName = $item->getFilename();
 			if (preg_match('#' . $regExp . '#si', $fileName)) {
@@ -147,7 +158,7 @@ class Helper_View_Resource
 		$config = self::config();
 		$root = IcEngine::root();
 		if (!$fileName) {
-			$fileName = $root . ltrim($config->path) .
+			$fileName = $root . ltrim($config->path, '/') .
 				$key . (isset($config->packGroups[$type]) ?
 				$config->packGroups[$type] : '');
 		}
@@ -160,10 +171,10 @@ class Helper_View_Resource
 				continue;
 			}
 			$fileContent = file_get_contents($currentFilename);
-			$content .= self::pack($type, $currentFilename, $fileContent);
+			$content .= self::pack($type, $fileContent);
 		}
-		$content = str_replace('$jsEmbedKey', $key, $content);
-		file_put_contents($fileName, $content);
+		$resultContent = str_replace('$jsEmbedKey', $key, $content);
+		file_put_contents($fileName, $resultContent);
 		return true;
 	}
 
@@ -201,7 +212,8 @@ class Helper_View_Resource
 	 */
 	public static function embedCss()
 	{
-		return self::embed(self::CSS);
+        $key = self::resourceKey();
+		return self::embed(self::CSS, $key);
 	}
 
 	/**
@@ -217,7 +229,10 @@ class Helper_View_Resource
 		$rules = $config->js->rules;
 		$path = $config->js->defaultPath;
 		$out = '';
-		$ruleParams = $config->js->params->asArray();
+        $ruleParams = array();
+        if ($config->js) {
+        	$ruleParams = $config->js->params->__toArray();
+        }
 		$routeParams = array_keys($route->params);
 		foreach ($routeParams as $routeParam) {
 			if (isset($ruleParams[$routeParam])) {
@@ -284,11 +299,10 @@ class Helper_View_Resource
 	 * Упаковывает файл статики
 	 *
 	 * @param string $type
-	 * @param string $filename
 	 * @param string $content
 	 * @return string
 	 */
-	public static function pack($type, $filename, $content)
+	public static function pack($type, $content)
 	{
 		$config = self::config();
 		if (isset($config->packDelegates[$type])) {
