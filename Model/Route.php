@@ -88,7 +88,7 @@ class Route extends Model_Child
 				}
 			}
 			if (preg_match($pattern, $url) && (
-				!$row || (int) $route['weight'] > (int) $row['weight']
+				!$row || (isset($route['weight']) && (int) $route['weight'] > (int) $row['weight'])
 			)) {
 				$row = array_merge($emptyRoute, $route);
 				$row['pattern'] = $pattern;
