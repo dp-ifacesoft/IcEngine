@@ -51,7 +51,7 @@ class Router
 			isset($route['pattern'])) {
 			$baseMatches = array();
 			preg_match_all($route['pattern'], $url, $baseMatches);
-			if (empty($baseMatches[0][0])) {
+			if (!empty($baseMatches[0][0])) {
 				$keys = array_keys($route['patterns']);
 				foreach ($baseMatches as $i => $data) {
 					if (!$i) {
