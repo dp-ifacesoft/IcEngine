@@ -1342,7 +1342,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		$parents = array ();
 		$child_of = $list [0]->parentRootKey ();
 		$result = array ();
-		$i = 0;
 		$index = array (0 => 0);
 		$full_index = array (-1 => '');
 
