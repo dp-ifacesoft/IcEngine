@@ -1,10 +1,8 @@
 <?php
 /**
+ * Менеджер моделей
  *
- * @desc Менеджер моделей.
- * @author Юрий
- * @package IcEngine
- *
+ * @author neon
  */
 class Model_Manager extends Manager_Abstract
 {
@@ -182,20 +180,61 @@ class Model_Manager extends Manager_Abstract
 	 * @param integer $key Значение первичного ключа.
 	 * @return Model|null
 	 */
-	public static function byKey ($model, $key)
+	public static function byKey($modelName, $key, $lazy = false)
 	{
-		$result = Resource_Manager::get ('Model', $model . '__' . $key);
-
-		if ($result)
-		{
-			return $result;
+		if ($lazy) {
+			$result = Resource_Manager::get('Model', $modelName . '__' . $key);
+			if ($result) {
+				return $result;
+			}
+			$keyField = Model_Scheme::keyField($modelName);
+			$model = self::getModel($modelName, array(
+				$keyField	=> $key
+			));
+			$query = Query::instance()
+				->select(array($modelName => '*'))
+				->where(Model_Scheme::keyField($modelName), $key);
+			Unit_Of_Work::push($query, $model, 'Simple');
+			$model->setLazy(true);
+			return $model;
+		} else {
+			$result = Resource_Manager::get('Model', $modelName . '__' . $key);
+			if ($result) {
+				return $result;
+			}
+			return self::byQuery(
+				$modelName,
+				Query::instance()
+					->where(Model_Scheme::keyField($modelName), $key)
+			);
 		}
+	}
 
-		return self::byQuery (
-			$model,
-			Query::instance ()
-				->where (Model_Scheme::keyField ($model), $key)
+	/**
+	 * Получаем пустую модель
+	 *
+	 * @param string $modelName
+	 * @param int|null $key
+	 * @return Model
+	 */
+	private static function getModel($modelName, $fields)
+	{
+		$parents = class_parents($modelName);
+		$first = end($parents);
+		$second = prev($parents);
+		$config = self::config();
+		$keyField = Model_Scheme::keyField($modelName);
+		$parent = $second && isset($config['delegee'][$second]) ?
+			$second :
+			$first;
+		$delegee = 'Model_Manager_Delegee_' . $config['delegee'][$parent];
+		$key = isset($fields[$keyField]) ? $fields[$keyField] : 0;
+		$object = call_user_func(
+			array($delegee, 'get'),
+			$modelName, $key, null
 		);
+		$object->set($fields);
+		return $object;
 	}
 
 	/**
@@ -227,36 +266,104 @@ class Model_Manager extends Manager_Abstract
 	 * @param Query_Abstract $query Запрос.
 	 * @return Model|null
 	 */
-	public static function byQuery ($model, Query_Abstract $query)
+	public static function byQuery($model, Query_Abstract $query, $lazy = false)
 	{
-		$data = null;
+		if ($lazy) {
+			$parents = class_parents($model);
+			$first = end($parents);
+			$second = prev($parents);
+			$config = self::config();
+			$parent = $second && isset($config['delegee'][$second]) ?
+				$second :
+				$first;
+			//echo $parent . '<br />';
+			if ($parent != 'Model_Defined' && $parent != 'Model_Factory') {
+				return self::uowByQuery($model, $query);
+			}
+			$data = null;
+			if (!$query->getPart(Query::SELECT)) {
+				$query->select(array($model => '*'));
+			}
+			if (!$query->getPart(Query::FROM)) {
+				$query->from($model, $model);
+			}
+			$data = Model_Scheme::dataSource($model)
+				->execute($query)
+				->getResult()
+				->asRow();
+			if (!$data) {
+				return null;
+			}
+			$object = self::get(
+				$model,
+				$data[Model_Scheme::keyField($model)],
+				$data
+			);
+			$object->setLazy(true);
+			return $object;
+		} else {
+			$data = null;
+			if (!$query->getPart(Query::SELECT)) {
+				$query->select(array($model => '*'));
+			}
+			if (!$query->getPart(Query::FROM)) {
+				$query->from($model, $model);
+			}
+			$data = Model_Scheme::dataSource($model)
+				->execute($query)
+				->getResult()
+				->asRow();
 
-		if (!$query->getPart (Query::SELECT))
-		{
-			$query->select (array ($model => '*'));
+			if (!$data) {
+				return null;
+			}
+			return self::get(
+				$model,
+				$data[Model_Scheme::keyField($model)],
+				$data
+			);
 		}
+	}
 
-		if (!$query->getPart (Query::FROM))
-		{
-			$query->from ($model, $model);
+	/**
+	 * byQuery с использованием Unit of work
+	 *
+	 * @param string $modelName
+	 * @param Query_Abstract $query
+	 * @return Model
+	 */
+	public static function uowByQuery($modelName, Query_Abstract $query)
+	{
+		if (!$query->getPart(Query::SELECT)) {
+			$query->select(array($modelName => '*'));
 		}
-
-		$data =
-			Model_Scheme::dataSource ($model)
-				->execute ($query)
-				->getResult ()
-					->asRow ();
-
-		if (!$data)
-		{
-			return null;
+		if (!$query->getPart(Query::FROM)) {
+			$query->from($modelName, $modelName);
 		}
-
-		return self::get (
-			$model,
-			$data [Model_Scheme::keyField ($model)],
-			$data
-		);
+		$where = $query->part(QUERY::WHERE);
+		$wheres = array();
+		$whereFields = array();
+		foreach ($where as $value) {
+			$wheres[] = $value[QUERY::WHERE] . '=' . $value[QUERY::VALUE];
+			$whereFields[$value[QUERY::WHERE]] = $value[QUERY::VALUE];
+		}
+		$keyHash = implode(':', $wheres);
+		$result = Resource_Manager::get('Model', $modelName . '__' . $keyHash);
+		if ($result) {
+			return $result;
+		}
+		$whereFieldsPrepared = array();
+		foreach($whereFields as $key=>$whereField) {
+			$fieldName = trim(strtr($key, array(
+				'?'	=> '',
+				'<'	=> '',
+				'>'	=> ''
+			)));
+			$whereFieldsPrepared[$fieldName] = $whereField;
+		}
+		$model = self::getModel($modelName, $whereFieldsPrepared);
+		Unit_Of_Work::push($query, $model, 'Simple');
+		return $model;
 	}
 
 	/**
@@ -269,7 +376,7 @@ class Model_Manager extends Manager_Abstract
 	{
 		$scheme = Model_Scheme::getScheme ($model_name);
 		$scheme_fields = $scheme ['fields'];
-		$row = array ();
+		$row = array();
 		if ($scheme_fields)
 		{
 			foreach ($scheme_fields as $field => $data)
@@ -322,25 +429,17 @@ class Model_Manager extends Manager_Abstract
 		$cached = $object != null;
 		$result = null;
 
-		if ($object instanceof Model)
-		{
+		if ($object instanceof Model) {
 			$cached = true;
 			$result = $object;
-		}
-		else
-		{
-			$result = Resource_Manager::get ('Model', $model . '__' . $key);
-
-			if ($result instanceof Model)
-			{
+		} else {
+			$result = Resource_Manager::get('Model', $model . '__' . $key);
+			if ($result instanceof Model) {
 				$cached = true;
-				if (is_array ($object))
-				{
-					$result->set ($object);
+				if (is_array($object)) {
+					$result->set($object);
 				}
-			}
-			else
-			{
+			} else {
 				// Делегируемый класс определяем по первому или нулевому
 				// предку.
 				$parents = class_parents ($model);
@@ -374,7 +473,6 @@ class Model_Manager extends Manager_Abstract
 		}
 
 		$readed = !$cached ? self::_read ($result) : true;
-//		$readed = self::_read ($result);
 
 		// В случае factory
 		$model = get_class ($result);

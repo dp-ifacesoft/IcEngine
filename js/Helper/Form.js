@@ -93,9 +93,11 @@ var Helper_Form = {
                         data[_name] = [];
                     }
                     if (typeof value == 'object' ) {
-//                        for (i in value) {
-//							data[_name].push (value[i]);
-//						}
+                        for (i in value) {
+                            if (typeof value == 'string') {
+                                data[_name].push (value[i]);
+                            }
+						}
                     } else {
                         data[_name].push (value);
                     }

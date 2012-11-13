@@ -116,6 +116,15 @@ class User_Abstract extends Model
 	}
 
 	/**
+	 * Перекрытие
+	 * @return Model
+	 */
+	public static function current()
+	{
+		return self::getCurrent();
+	}
+
+	/**
 	 * @desc Генерация пароля заданной длинны.
 	 * @param integer $length
 	 * @return string
@@ -239,8 +248,7 @@ class User_Abstract extends Model
 			User_Session::byPhpSessionId (
 				$session_id ? $session_id : 'unknown')
 		);
-
-		self::$_current = User_Session::getCurrent ()->User;
+		self::$_current = User_Session::getCurrent()->User;
 		User_Session::getCurrent ()->updateSession ();
 
 		return self::$_current;

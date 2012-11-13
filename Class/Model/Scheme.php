@@ -373,13 +373,6 @@ abstract class Model_Scheme
 							}
 						}
 					}
-				} else {
-					$table = self::table ($model_name);
-
-					$fields = Helper_Data_Source::fields (
-						'`' . $table . '`',
-						self::dataSource($model_name)
-					);
 				}
 
 				if ($fields) {

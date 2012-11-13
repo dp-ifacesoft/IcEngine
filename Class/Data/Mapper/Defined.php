@@ -84,27 +84,24 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
 		$select = $query->getPart (Query::SELECT);
 
 		$model_name = reset ($select);
-
 		if (is_array ($model_name))
 		{
 			$model_name = reset ($model_name);
 		}
 		else
 		{
-			return new Query_Result (array (
-				'source'	=> $source,
-				'result'	=> array ()
-			));
+			$from = $query->getPart(Query::FROM);
+			$model_name = key($from);
 		}
+		$result = $model_name::$rows;
 		$this->_where = $query->getPart (Query::WHERE);
-
-		$result = array_filter (
-			$model_name::$rows,
-			array ($this, 'filter')
-		);
-
+		if ($this->_where) {
+			$result = array_filter (
+				$model_name::$rows,
+				array ($this, 'filter')
+			);
+		}
 		$found_rows = count ($result);
-
 		return new Query_Result (array (
 			'error'			=> '',
 			'errno'			=> 0,

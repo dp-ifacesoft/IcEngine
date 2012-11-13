@@ -128,7 +128,7 @@ abstract class Bootstrap_Abstract
 	 */
 	public function initMessageQueue ()
 	{
-		Message_Queue::flush ();
+
 	}
 
 	/**

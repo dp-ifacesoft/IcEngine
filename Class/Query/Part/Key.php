@@ -12,7 +12,9 @@ class Query_Part_Key extends Query_Part
 	 */
 	public function query()
 	{
-		$field = $this->modelName . '.id';
+		$keyField = $this->modelName 
+			? Model_Scheme::keyField($this->modelName) : 'id';
+		$field = $this->modelName . '.' . $keyField;
 		$this->query->where($field, $this->params['key']);
 	}
 }

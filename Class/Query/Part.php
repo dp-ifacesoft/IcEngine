@@ -7,6 +7,13 @@
  */
 class Query_Part
 {
+    /**
+     * Фильтры
+     *
+     * @var string
+     */
+    protected $filters;
+
 	/**
 	 * Имя модели
 	 *
@@ -48,7 +55,21 @@ class Query_Part
 	 */
 	public function inject($query)
 	{
-		$this->query();
+        if ($this->filters) {
+            $this->injectWithParams($query);
+        } else {
+            $this->injectWithMethod($query);
+        }
+	}
+
+    /**
+	 * Внедрение части запроса через метод query
+	 *
+	 * @param Query_Abstract $query
+	 */
+    public function injectWithMethod($query)
+    {
+        $this->query();
 		$select = $this->query->getPart(Query::SELECT);
 		if (!$select && !$query->getPart(Query::SELECT)) {
 			$select = '*';
@@ -120,7 +141,24 @@ class Query_Part
 		if ($offset) {
 			$query->setPart(Query::LIMIT_OFFSET, $offset);
 		}
-	}
+    }
+
+    /**
+	 * Внедрение части запроса через параметры запроса
+	 *
+	 * @param Query_Abstract $query
+	 */
+    public function injectWithParams($query)
+    {
+        $modelName = $this->modelName;
+        foreach ($this->filters as $fieldName => $value) {
+            if ($value[0] == '$') {
+                $value = $this->params[substr($value, 1)];
+            }
+            $condition = $modelName ? $modelName . '.' . $fieldName : $fieldName;
+            $query->where($condition, $value);
+        }
+    }
 
 	/**
 	 * Метод, где будут писан запроса

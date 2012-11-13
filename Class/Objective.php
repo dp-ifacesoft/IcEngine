@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @desc Объект с динамически создаваемыми полями.
  * Может быть использован как массив.
  * @author Morph
@@ -10,13 +10,13 @@
 
 class Objective implements ArrayAccess, IteratorAggregate, Countable
 {
-		
+
 	/**
 	 * @desc Данные объекта.
 	 * @var array
 	 */
 	protected $_data = array ();
-	
+
 	/**
 	 * @desc Возвращает экземпляр Objective
 	 * @param array $data
@@ -25,7 +25,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		// Переносим все поля класса в массив _data
 		$vars = get_class_vars (get_class ($this));
-		
+
 		foreach ($vars as $key => $value)
 		{
 			if ($key [0] != '_')
@@ -34,35 +34,35 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 				unset ($this->$key);
 			}
 		}
-		
+
 		foreach ($data as $key => $value)
 		{
 			$this->$key = $value;
 		}
 	}
-	
+
 	/**
 	 * @desc Клонирование (выполняется рекурсивно)
 	 */
 	public function __clone ()
 	{
 		$data = array ();
-		
-		foreach ($this->_data as $key => $value) 
+
+		foreach ($this->_data as $key => $value)
 		{
-			if ($value instanceof Objective) 
+			if ($value instanceof Objective)
 			{
 				$data [$key] = clone $value;
 			}
-			else 
+			else
 			{
 				$data [$key] = $value;
 			}
 		}
-		
+
 		$this->_data = $data;
 	}
-	
+
 	/**
 	 * @param string $key
 	 * @return mixed
@@ -71,7 +71,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return isset ($this->_data [$key]) ? $this->_data [$key] : null;
 	}
-	
+
 	/**
 	 * @desc Проверяет существование поля.
 	 * @param string $key
@@ -81,9 +81,9 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return isset ($this->_data [$key]);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $key
 	 * @param mixed $value
 	 */
@@ -98,7 +98,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 			$this->_data [$key] = $value;
 		}
 	}
-	
+
 	/**
 	 * @desc Данные объекта в виде массива.
 	 * Данные типа Objective рекурсивно будут приведены к массивам.
@@ -107,25 +107,25 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	public function __toArray ()
 	{
 		$data = array ();
-		
-		foreach ($this->_data as $key => $value) 
+
+		foreach ($this->_data as $key => $value)
 		{
-			if ($value instanceof Objective) 
+			if ($value instanceof Objective)
 			{
 				$data [$key] = $value->__toArray ();
-			} 
+			}
 			else
 			{
 				$data [$key] = $value;
 			}
 		}
-		
+
 		return $data;
 	}
-	
+
 	/**
 	 * @desc Данные объекта как массив.
-	 * Если существуют данные типа Objective, они будут переданны как 
+	 * Если существуют данные типа Objective, они будут переданны как
 	 * объект без приведения к массиву (в отличие от __toArray)
 	 * @return array
 	 */
@@ -133,9 +133,9 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return $this->_data;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @desc Получить колонку объекта
 	 * @param string $column
 	 * @return array<string>
@@ -143,16 +143,16 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	public function column ($column)
 	{
 		$result = array ();
-		
+
 		foreach ($this as $item)
 		{
 			$result [] = ($item instanceof Objective)
 					? $item->$column : null;
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Countable::count()
@@ -161,7 +161,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return count ($this->_data);
 	}
-	
+
 	/**
 	 * Проверка на существование поля.
 	 * @param string $key
@@ -171,7 +171,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return isset ($this->_data [$key]);
 	}
-	
+
 	/**
 	 * @param string $path
 	 * @return mixed
@@ -182,7 +182,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		if (func_num_args () == 1)
 		{
 			$path = func_get_arg (0);
-			
+
 			if (strpos ($path, '/'))
 			{
 				$path = explode ('/', $path);
@@ -205,7 +205,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		}
 		return $result;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see IteratorAggregate::getIterator()
@@ -214,7 +214,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return new ArrayIterator ($this->_data);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see ArrayAccess::offsetSet()
@@ -230,7 +230,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 			$this->__set ($offset, $value);
 		}
 	}
-	
+
 	/**
 	 * Checks if a value exists in an array
 	 * @link http://www.php.net/manual/en/function.in-array.php
@@ -254,7 +254,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return in_array ($needle, $this->_data, $strict);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see ArrayAccess::offsetExists()
@@ -263,7 +263,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return isset ($this->_data [$offset]);
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see ArrayAccess::offsetUnset()
@@ -275,7 +275,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 			unset ($this->_data [$offset]);
 		}
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see ArrayAccess::offsetGet()
@@ -284,5 +284,5 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	{
 		return $this->__get ($offset);
 	}
-	
+
 }

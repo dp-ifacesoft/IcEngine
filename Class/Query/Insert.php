@@ -1,8 +1,9 @@
 <?php
 
 /**
- * @desc Запрос типа insert
- * @author morph, goorus
+ * Запрос типа insert
+ *
+ * @author morph, goorus, neon
  */
 class Query_Insert extends Query_Abstract
 {
@@ -12,6 +13,8 @@ class Query_Insert extends Query_Abstract
 	public static $_defaults = array (
 		Query::VALUES => array ()
 	);
+
+	private $multiple = false;
 
 	/**
 	 * @desc Запрос преобразуется в запрос на вставку
@@ -23,6 +26,16 @@ class Query_Insert extends Query_Abstract
 		$this->_parts [Query::INSERT] = $table;
 		$this->_type = Query::INSERT;
 		return $this;
+	}
+
+	/**
+	 * Получить значение флага, на множественную вставку
+	 *
+	 * @return bool
+	 */
+	public function getMultiple()
+	{
+		return $this->multiple;
 	}
 
 	/**
@@ -52,22 +65,40 @@ class Query_Insert extends Query_Abstract
 	}
 
 	/**
-	 * @desc Установка значений для INSERT/UPDATE
+	 * Помечаем запрос, как запрос на множественный INSERT
+	 *
+	 * @param bool $value
+	 * @return void
+	 */
+	public function setMultiple($value)
+	{
+		$this->multiple = $value;
+	}
+
+	/**
+	 * Установка значений для INSERT/UPDATE
+	 *
 	 * @param array $values
+	 * @param bool $multiple отвечает за разделение () при множественном
+	 *  INSERT
 	 * @return Query Этот запрос.
 	 */
-	public function values (array $values)
+	public function values (array $values, $multiple = false)
 	{
-		if (isset ($this->_parts [Query::VALUES]))
-		{
-			$this->_parts [Query::VALUES] = array_merge (
-				$this->_parts [Query::VALUES],
-				$values
-			);
-		}
-		else
-		{
-			$this->_parts [Query::VALUES] = $values;
+		if ($multiple) {
+			if (!$this->multiple) {
+				$this->setMultiple($multiple);
+			}
+			$this->_parts[QUERY::VALUES][] = $values;
+		} else {
+			if (isset($this->_parts[Query::VALUES])) {
+				$this->_parts[Query::VALUES] = array_merge(
+					$this->_parts[Query::VALUES],
+					$values
+				);
+			} else {
+				$this->_parts[Query::VALUES] = $values;
+			}
 		}
 		return $this;
 	}

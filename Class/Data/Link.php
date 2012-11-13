@@ -87,7 +87,8 @@ class Data_Link
 				$args[0], $args[1], isset($args[2]) ? $args[2] : null
 			);
 		}
-		$this->dataAggregators[] = $dataAggregator;
+		list($dataSource,) = $this->parseSide($dataAggregator->getTargetKey());
+		$this->dataAggregators[$dataSource] = $dataAggregator;
 		return $this;
 	}
 
@@ -151,16 +152,22 @@ class Data_Link
 			$currentRow = array();
 			foreach ($this->dataFeeders as $dataFeeder) {
 				$keys = $dataFeeder->getKeys();
+				$deferredKeys = array();
 				foreach ($keys as $key) {
 					if (strpos($key, '.') !== false) {
+						$index = null;
 						list($dataSource, $key) = $this->parseSide($key);
+						$source = &$currentRow[$dataSource];
 						if (!isset($currentRow[$dataSource])) {
 							$currentRow[$dataSource] = array();
 						}
-						$index = $key;
-						$value = isset($resultRow[$dataSource][$key])
-							? $resultRow[$dataSource][$key] : null;
-						$source = &$currentRow[$dataSource];
+						if (isset($this->dataGroupers[$dataSource])) {
+							$deferredKeys[] = $key;
+						} else {
+							$index = $key;
+							$value = isset($resultRow[$dataSource][$key])
+								? $resultRow[$dataSource][$key] : null;
+						}
 					} else {
 						$source = &$currentRow;
 						if (!isset($this->dataSources[$key])) {
@@ -172,7 +179,18 @@ class Data_Link
 								? $resultRow[$key] : null;
 						}
 					}
+					if (is_null($index)) {
+						continue;
+					}
 					$source[$index] = $value;
+				}
+				if ($deferredKeys) {
+					foreach ($resultRow[$dataSource] as $i => $row) {
+						foreach ($deferredKeys as $key) {
+							$source[$i][$key] = isset($row[$key])
+								? $row[$key] : null;
+						}
+					}
 				}
 			}
 			$result[] = $currentRow;
@@ -260,10 +278,14 @@ class Data_Link
 				$args[0], $args[1], isset($args[2]) ? $args[2] : null
 			);
 		}
-		$this->dataGroupers[] = $dataGrouper;
+		list($dataSource,) = $this->parseSide($dataGrouper->getTargetKey());
+		$this->dataGroupers[$dataSource] = $dataGrouper;
 		return $this;
 	}
 
+	/**
+	 * Выполнить группировку данных
+	 */
 	protected function groupData()
 	{
 		if (!$this->resultRows || !$this->dataGroupers) {
@@ -369,6 +391,14 @@ class Data_Link
 	 */
 	public function toArray()
 	{
+		foreach ($this->dataSources as $dataSource) {
+			$data = $dataSource->getData();
+			if (is_string($data)) {
+				$dataSource->setData(call_user_func($data));
+			} elseif (is_object($data)) {
+				$dataSource->setData($data());
+			}
+		}
 		foreach ($this->dataFeeders as $dataFeader) {
 			$dataFeader->setDataSources($this->dataSources);
 		}

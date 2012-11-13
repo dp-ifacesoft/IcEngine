@@ -129,7 +129,7 @@ class Helper_Image_Resize
 			default:
 				return false;
 		}
-		
+
 		$image_resized = imagecreatetruecolor ($final_width, $final_height);
 		if (($info [2] == IMAGETYPE_GIF) || ($info [2] == IMAGETYPE_PNG))
 		{
@@ -245,8 +245,10 @@ class Helper_Image_Resize
 			default:
 				return false;
 		}
-		imagedestroy($image);
-		imagedestroy($image_resized);
+		
+        imagedestroy($image);
+        imagedestroy($image_resized);
+        
 		return array ($final_width, $final_height, $info [2]);
 	}
 	

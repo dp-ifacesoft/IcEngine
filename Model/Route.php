@@ -7,9 +7,19 @@
  */
 class Route extends Model_Child
 {
-	private static $fromConfigLoaded;
-	
-	private static $list;
+	/**
+	 * Загружены ли роуты из конфига
+	 *
+	 * @var boolean
+	 */
+	protected static $fromConfigLoaded = false;
+
+	/**
+	 * Лист роутов
+	 *
+	 * @var array
+	 */
+	protected static $list;
 
 	/**
 	 * Сформировать роут экшины, привязаннык роуту
@@ -18,7 +28,6 @@ class Route extends Model_Child
 	 */
 	public function actions()
 	{
-		Loader::load('Route_Action');
 		$i = 0;
 		$actionCollection = Model_Collection_Manager::create (
 			'Route_Action'
@@ -55,28 +64,46 @@ class Route extends Model_Child
 	}
 
 	/**
+	 * Добавить роут
+	 *
+	 * @param array $route
+	 */
+	public static function addRoute($route)
+	{
+		self::$list[] = $route;
+	}
+
+	/**
 	 * Получить роут по урлу
 	 *
 	 * @param string $url
 	 * @return Route
 	 */
-	public static function byUrl ($url)
+	public static function byUrl($url)
 	{
 		$url = '/' . ltrim($url, '/');
-		$provider = Data_Provider_Manager::get('Route_Cache');
-		$route = $provider->get($url);
+		$route = Resource_Manager::get('Route_Cache', $url);
 		if ($route) {
 			return $route ? new self($route) : null;
 		}
 		$config = Config_Manager::get(__CLASS__);
 		$emptyRoute = $config['empty_route']->__toArray();
-		$row = null;
 		$routes = self::getList();
+		$row = null;
+        $host = Request::host();
+        $lastWithHost = false;
 		foreach ($routes as $route) {
 			if (empty($route['route'])) {
 				continue;
 			}
+			$route = array_merge($emptyRoute, $route);
 			$pattern = '#^' . $route['route'] . '$#';
+            $hostValid = true;
+            $withHost = false;
+            if (!empty($route['host'])) {
+                $withHost = true;
+                $hostValid = self::checkHost($host['route'], $host);
+            }
 			if (!empty($route['patterns'])) {
 				foreach ($route['patterns'] as $var => $routeData) {
 					$replace = $routeData['pattern'];
@@ -88,16 +115,34 @@ class Route extends Model_Child
 				}
 			}
 			if (preg_match($pattern, $url) && (
-				!$row || (isset($route['weight']) && (int) $route['weight'] > (int) $row['weight'])
-			)) {
-				$row = array_merge($emptyRoute, $route);
-				$row['pattern'] = $pattern;
+				!$row || (int) $route['weight'] > (int) $row['weight'])) {
+                if ($hostValid && !$lastWithHost) {
+                    $row = array_merge($emptyRoute, $route);
+                    $row['pattern'] = $pattern;
+                    if ($withHost) {
+                        $lastWithHost = true;
+                    }
+                }
 			}
 		}
-		$provider->set($url, $row);
-		//Resource_Manager::set('Route_Cache', $pattern, $row);
+		Resource_Manager::set('Route_Cache', $url, $row);
 		return $row ? new self($row) : null;
 	}
+
+    /**
+     * Проверить хост на соответствие шаблону
+     *
+     * @param string $pattern
+     * @param string $host
+     * @return boolean
+     */
+    protected static function checkHost($pattern, $host)
+    {
+        if (!$pattern) {
+            return true;
+        }
+        return preg_match($pattern, $host);
+    }
 
 	/**
 	 * Получить список роутов
@@ -137,7 +182,7 @@ class Route extends Model_Child
 		}
 		return self::$list;
 	}
-	
+
 	/**
 	 * Возвращает объект рендера для роутера
 	 *

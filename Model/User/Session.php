@@ -49,6 +49,11 @@ class User_Session extends Model
 		return $session;
 	}
 
+	public static function current()
+	{
+		return self::getCurrent();
+	}
+
 	/**
 	 * @return User_Session
 	 */
