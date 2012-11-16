@@ -35,8 +35,11 @@ class Data_Validator_Registration_Password
 			return __CLASS__ . '/' . self::BAD;
 		}
 		
-		$param = $scheme->$field->__toArray ();
-
+		if (is_object($scheme)) {
+			$param = $scheme->$field->__toArray ();
+		} else {
+			$param = $scheme[$field];
+		}
 		$min = isset ($param ['minLength']) ? $param ['minLength'] : 6;
 		$max = isset ($param ['maxLength']) ? $param ['maxLength'] : 50;
 
