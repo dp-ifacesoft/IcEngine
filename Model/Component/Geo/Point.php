@@ -9,7 +9,10 @@ class Component_Geo_Point extends Model_Component
 	 */
 	public function style ()
 	{
-		return $this->Geo_Point_Style->name;
+		if (isset($this->Geo_Point_Style)) {
+			return $this->Geo_Point_Style->name;
+		}
+		return '';
 	}
 
 	/**
