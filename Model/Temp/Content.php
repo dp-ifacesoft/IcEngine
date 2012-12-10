@@ -36,7 +36,7 @@ class Temp_Content extends Model
 	{
 		$this->_data[$key] = $value;
 		$this->update(array(
-			'data' => json_encode ($this->_data)
+			'data' => urlencode(json_encode ($this->_data))
 		));
 	}
 
@@ -48,7 +48,7 @@ class Temp_Content extends Model
 	public function attr ($key)
 	{
 		if (is_null ($this->_data)) {
-			$this->_data = json_decode ($this->data, true);
+			$this->_data = json_decode (urldecode($this->data), true);
 		}
 
 		$args = func_get_args ();
