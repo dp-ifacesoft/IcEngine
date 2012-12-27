@@ -741,7 +741,7 @@ class Controller_Admin_Database extends Controller_Abstract
 				'paginator_html'	=> $paginator_html
 			));
 		//} else {
-        if (!$limitator) {
+        if ($limitator) {
 			list ($field, $value) = explode ('/', $limitator);
 
 			$collection = $collection->filter (array (
