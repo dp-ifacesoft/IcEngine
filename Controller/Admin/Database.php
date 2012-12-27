@@ -690,8 +690,7 @@ class Controller_Admin_Database extends Controller_Abstract
 		}
 
 		$search = array ();
-		if (!$limitator)
-		{
+		//if (!$limitator) {
 			// Накладываем лимиты
 
 			$limit = $this->config ()->default_limit;
@@ -741,9 +740,8 @@ class Controller_Admin_Database extends Controller_Abstract
 			$this->_output->send (array (
 				'paginator_html'	=> $paginator_html
 			));
-		}
-		else
-		{
+		//} else {
+        if ($limitator) {
 			list ($field, $value) = explode ('/', $limitator);
 
 			$collection = $collection->filter (array (
