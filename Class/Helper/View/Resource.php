@@ -14,9 +14,14 @@ class Helper_View_Resource
 	const CSS = 'css';
 
 	/**
-	 * Метрка для js файлов
+	 * Метка для js файлов
 	 */
 	const JS = 'js';
+    
+    /**
+     * Метка для jtpl файлов
+     */
+    const JTPL = 'jtpl';
 
 	/**
 	 * Конфигурация
@@ -30,19 +35,25 @@ class Helper_View_Resource
             ),
             self::JS    => array(
                 'noPack'    => 'Ice/Static/js/noPack/'
+            ),
+            self::JTPL  => array(
+                'default'   => 'Ice/View/js/'
             )
         ),
 		'packDelegates'	=> array(
 			self::CSS	=> 'Helper_View_Resource_Css::pack',
-			self::JS		=> 'Helper_View_Resource_Js::pack'
-		),
+			self::JS    => 'Helper_View_Resource_Js::pack',
+            self::JTPL  => 'Helper_View_Resource_Jtpl::pack'
+   		),
 		'packGroups'	=> array(
 			self::CSS	=> '.css',
-			self::JS		=> '.js'
+			self::JS		=> '.js',
+            self::JTPL  => '.js'
 		),
 		'packTemplates'	=> array(
 			self::CSS	=> '<style type="text/css">@import url("{$filename}")</style>',
-			self::JS		=> '<script type="text/javascript" src="{$filename}"></script>'
+			self::JS		=> '<script type="text/javascript" src="{$filename}"></script>',
+            self::JTPL	=> '<script type="text/javascript" src="{$filename}"></script>'
 		),
 		'path'			=> 'cache/static/',
 		'provider'		=> 'Static'
@@ -55,7 +66,8 @@ class Helper_View_Resource
 	 */
 	protected static $files = array(
 		self::CSS	=> array(),
-		self::JS    	=> array()
+		self::JS    	=> array(),
+        self::JTPL  => array()
 	);
 
 	/**
@@ -112,6 +124,16 @@ class Helper_View_Resource
 	public function appendJs($filename, $pathName = null)
 	{
 		$this->append(self::JS, func_get_args());
+	}
+    
+    /**
+	 * Добавляет jtpl файлы
+	 *
+	 * @param string $filename
+	 */
+	public function appendJtpl($filename, $pathName = null)
+	{
+		$this->append(self::JTPL, func_get_args());
 	}
 
 	/**
@@ -190,7 +212,7 @@ class Helper_View_Resource
 				continue;
 			}
 			$fileContent = file_get_contents($currentFilename);
-			$content .= $this->pack($type, $fileContent);
+			$content .= $this->pack($type, $currentFilename, $fileContent);
 		}
 		$resultContent = str_replace('$jsEmbedKey', $key, $content);
 		file_put_contents($fileName, $resultContent);
@@ -330,15 +352,27 @@ class Helper_View_Resource
 		}
 		return $keys;
 	}
+    
+    /**
+	 * Внедряет упакованный jtpl файл
+	 *
+	 * @return string
+	 */
+	public function embedJtpl()
+	{
+        $key = $this->resourceKey();
+		return $this->embed(self::JTPL, $key . '_jtpl');
+	}
 
 	/**
 	 * Упаковывает файл статики
 	 *
 	 * @param string $type
+     * @param string $filename
 	 * @param string $content
 	 * @return string
 	 */
-	public function pack($type, $content)
+	public function pack($type, $filename, $content)
 	{
 		$config = $this->config();
 		if (isset($config->packDelegates[$type])) {
@@ -347,7 +381,7 @@ class Helper_View_Resource
 			);
 			$content = call_user_func(
 				array($className, $methodName),
-				$content
+				$content, $filename
 			);
 		}
 		return $content . PHP_EOL;
