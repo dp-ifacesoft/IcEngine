@@ -11,15 +11,13 @@ class Controller_Controller extends Controller_Abstract
 
 	/**
 	 * Ajax вызов контроллера
-     * 
+     *
      * @Route(
      *      "/Controller/ajax/",
      *      "name"="ajaxPage",
      *      "weight"=10,
-     *      "components"={
-     *          "params"={
-     *              "View_Render__id"=3
-     *          }
+     *      "params"={
+     *          "View_Render__id"=3
      *      }
      * )
 	 */
