@@ -37,7 +37,7 @@ class Helper_View_Resource
                 'noPack'    => 'Ice/Static/js/noPack/'
             ),
             self::JTPL  => array(
-                'default'   => 'Ice/View/'
+                'default'   => 'Ice/View/js/'
             )
         ),
 		'packDelegates'	=> array(
