@@ -100,7 +100,7 @@ class Authorization_Loginza extends Authorization_Abstract
 		);
 		$token = $authorizationLoginzaToken->tokenData();
 		$userLoginza = $this->getService('userLoginza');
-		$loginza = $userLoginza->byToken($data);
+		$loginza = $userLoginza->byToken($token);
 		return $loginza ? $loginza->User : null;
 	}
 }
