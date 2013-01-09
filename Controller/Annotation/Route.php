@@ -33,75 +33,77 @@ class Controller_Annotation_Route extends Controller_Abstract
             if (empty($data['Route']['data'])) {
                 continue;
             }
-            $route = reset($data['Route']['data'][0]);
-            $routeData = $data['Route']['data'][0];
-            $routeGroup = !empty($data['RouteGroup'])
-                ? resert($data['RouteGroup']['data']) : null;
-            if (!$routeGroup && isset($routeData['group'])) {
-                $routeGroup = $routeData['group'];
-            }
-            $components = array();
-            if (!empty($data['RouteComponent'])) {
-                foreach ($data['RouteComponent']['data'] as $routeComponent) {
-                    $componentName = reset($routeComponent);
-                    unset($routeComponent[$componentName]);
-                    $components[$componentName] = $routeComponent;
+            foreach ($data['Route']['data'] as $i => $routeData) {
+                $route = reset($routeData);
+                $routeGroup = !empty($data['RouteGroup'])
+                    ? resert($data['RouteGroup']['data']) : null;
+                if (!$routeGroup && isset($routeData['group'])) {
+                    $routeGroup = $routeData['group'];
                 }
-            } elseif (!empty($routeData['components'])) {
-                $components = $routeData['components'];
-            }
-            $weight = !empty($data['RouteWeight'])
-                ? reset($data['RouteWeight']['data'][0]) : 0;
-            if (!$weight && !empty($routeData['weight'])) {
-                $weight = $routeData['weight'];
-            }
-            $params = array();
-            if (!empty($data['RouteParam'])) {
-                foreach ($data['RouteParam']['data'] as $routeParam) {
-                    $paramName = reset($routeParam);
-                    $paramValue = isset($routeParam['value'])
-                        ? $routeParam['value'] : null;
-                    $params[$paramName] = $paramValue;
+                $components = array();
+                if (!empty($data['RouteComponent'])) {
+                    foreach ($data['RouteComponent']['data'] as 
+                        $routeComponent) {
+                        $componentName = reset($routeComponent);
+                        unset($routeComponent[$componentName]);
+                        $components[$componentName] = $routeComponent;
+                    }
+                } elseif (!empty($routeData['components'])) {
+                    $components = $routeData['components'];
                 }
-            } elseif (!empty($routeData['params'])) {
-                $params = $routeData['params'];
-            }
-            $actions = array($controllerName . '/' . $methodName);
-            if (!empty($data['RouteAction'])) {
-                foreach ($data['RouteAction']['data'] as $routeAction) {
-                    $actions[] = reset($routeAction);
+                $weight = !empty($data['RouteWeight'])
+                    ? reset($data['RouteWeight']['data'][$i]) : 0;
+                if (!$weight && !empty($routeData['weight'])) {
+                    $weight = $routeData['weight'];
                 }
-            } elseif (!empty($routeData['actions'])) {
-                $actions = array_values($routeData['actions']);
-            }
-            $routeName = !empty($data['RouteName'])
-                ? reset($data['RouteName']['data'][0]) : null;
-            if (!$routeName && !empty($routeData['name'])) {
-                $routeName = $routeData['name'];
-            }
-            $theRoute = array(
-                'route'     => $route,
-                'weight'    => $weight, 
-                'actions'   => $actions
-            );
-            $routeIds[] = $route;
-            if ($params) {
-                $theRoute['params'] = $params;
-            }
-            if ($components) {
-                $theRoute['patterns'] = $components;
-            }
-            $source = &$routesWithoutGroups;
-            if ($routeGroup) {
-                if (!isset($routesWithGroups[$routeGroup])) {
-                    $routesWithGroups[$routeGroup] = array();
+                $params = array();
+                if (!empty($data['RouteParam'])) {
+                    foreach ($data['RouteParam']['data'] as $routeParam) {
+                        $paramName = reset($routeParam);
+                        $paramValue = isset($routeParam['value'])
+                            ? $routeParam['value'] : null;
+                        $params[$paramName] = $paramValue;
+                    }
+                } elseif (!empty($routeData['params'])) {
+                    $params = $routeData['params'];
                 }
-                $source = &$routesWithGroups[$routeGroup];
-            }
-            if ($routeName) {
-                $source[$routeName] = $theRoute;
-            } else {
-                $source[] = $theRoute;
+                $actions = array($controllerName . '/' . $methodName);
+                if (!empty($data['RouteAction'])) {
+                    foreach ($data['RouteAction']['data'] as $routeAction) {
+                        $actions[] = reset($routeAction);
+                    }
+                } elseif (!empty($routeData['actions'])) {
+                    $actions = array_values($routeData['actions']);
+                }
+                $routeName = !empty($data['RouteName'])
+                    ? reset($data['RouteName']['data'][$i]) : null;
+                if (!$routeName && !empty($routeData['name'])) {
+                    $routeName = $routeData['name'];
+                }
+                $theRoute = array(
+                    'route'     => $route,
+                    'weight'    => $weight, 
+                    'actions'   => $actions
+                );
+                $routeIds[] = $route;
+                if ($params) {
+                    $theRoute['params'] = $params;
+                }
+                if ($components) {
+                    $theRoute['patterns'] = $components;
+                }
+                $source = &$routesWithoutGroups;
+                if ($routeGroup) {
+                    if (!isset($routesWithGroups[$routeGroup])) {
+                        $routesWithGroups[$routeGroup] = array();
+                    }
+                    $source = &$routesWithGroups[$routeGroup];
+                }
+                if ($routeName) {
+                    $source[$routeName] = $theRoute;
+                } else {
+                    $source[] = $theRoute;
+                }
             }
         }
         $config = $context->configManager->get('Route')->__toArray();

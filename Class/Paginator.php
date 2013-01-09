@@ -178,16 +178,16 @@ class Paginator
 	/**
 	 *
 	 * @param Data_Transport $input Входные данные.
-	 * @param integer $full_count Общее количество элементов.
+	 * @param integer $total Общее количество элементов.
 	 * @return Paginator
 	 */
-	public static function fromInput(Data_Transport $input,
-		$full_count = 0, $notGet = false)
+	public function fromInput(Data_Transport $input,
+		$total = 0, $notGet = false)
 	{
 		return new self(
 			max($input->receive('page'), 1),
 			max($input->receive('limit'), 10),
-			$full_count,
+			$total,
 			$notGet
 		);
 	}

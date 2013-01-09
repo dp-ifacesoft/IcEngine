@@ -50,6 +50,7 @@ var View_Render = {
 	{
 		if (!View_Render.templates [tpl])
 		{
+            console.log(tpl);
 			Debug.echo ('No template: ', tpl);
 			return null;
 		}

@@ -1,71 +1,76 @@
 <?php
+
 /**
+ * Ресурс представления. Информация о файле Js или Css.
  * 
- * Ресурс представления.
- * Информация о файле Js или Css.
- * @author Юрий
- *
+ * @author morph
  */
 class View_Resource extends Objective
 {
-	
 	/**
 	 * Время модификации файла
-	 * @var integer
+	 * 
+     * @var integer
 	 */
-	protected $_filemtime;
+	protected $filemtime;
 	
 	/**
-	 * Ссылка.
+	 * Ссылка
+     * 
 	 * @var string
 	 */
 	public $href;
-	/**
+	
+    /**
 	 * Путь до ресурса относительно корня сайта
-	 * @var string
+	 * 
+     * @var string
 	 */
 	public $src;
-	/**
-	 * Тип ресурса.
-	 * @var string
+	
+    /**
+	 * Тип ресурса
+	 * 
+     * @var string
 	 */
 	public $type;
 	
 	/**
-	 * Путь до файла в системе.
+	 * Путь до файла в системе
+     * 
 	 * @var string
 	 */
 	public $filePath;
 	
 	/**
-	 * Не использовать сжатие ресурсов при упаковке.
+	 * Не использовать сжатие ресурсов при упаковке
+     * 
 	 * @var boolean
 	 */
 	public $nopack;
 	
 	/**
-	 * Содержимое ресурса.
+	 * Содержимое ресурса
+     * 
 	 * @return string
 	 */
-	public function content ()
+	public function content()
 	{
 		$path = $this->filePath;
-		return file_exists ($path) ? file_get_contents ($path) : null;
+		return is_file($path) ? file_get_contents($path) : null;
 	}
 	
 	/**
-	 * Время модификации файла.
-	 * @return integer|null
-	 * 		Время модификации. Если файл не существует null.
+	 * Время модификации файла
+     * 
+	 * @return integer|null Время модификации. Если файл не существует null.
 	 */
-	public function filemtime ()
+	public function filemtime()
 	{
-		if (!$this->_filemtime)
-		{
+		if (is_null($this->filemtime)) {
 			$path = $this->filePath;
-			$this->_filemtime = file_exists ($path) ? filemtime ($path) : null;
+			$this->filemtime = is_file($path) ? filemtime($path) : 0;
 		}
-		return $this->_filemtime;
+		return $this->filemtime;
 	}
-	
 }
