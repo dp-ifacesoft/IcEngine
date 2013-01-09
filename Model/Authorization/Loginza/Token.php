@@ -2,8 +2,9 @@
 
 /**
  * Модель, содержащая информацию по ключу в логинзе.
- * 
+ *
  * @author goorus, morph
+ * @Service("authorizationLoginzaToken")
  */
 class Authorization_Loginza_Token extends Model
 {
@@ -17,14 +18,14 @@ class Authorization_Loginza_Token extends Model
 
 	/**
 	 * Текущие данные (полученные в этом процессе).
-	 * 
+	 *
      * @var Authorization_Loginza_Token
 	 */
 	protected static $current;
 
 	/**
 	 * Перенаправление пользователя с ключом результата авторизации.
-	 * 
+	 *
      * @param mixed $token Ключ сессии в логинзе. Если null, ключ будет
 	 * взят из GET параметров запроса.
 	 * @return Authorization_Loginza_Token Данные, полученные от логинзы.
