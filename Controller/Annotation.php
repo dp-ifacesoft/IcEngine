@@ -115,10 +115,6 @@ class Controller_Annotation extends Controller_Abstract
             ));
             $annotation = $annotationManager->getAnnotation($class['class'])
                 ->getData();
-            if ($class['file'] == '/var/www/IcEngine/vipgeo.new/Class/Loginza/Parser.php') {
-                echo $class['class'];
-                print_r($annotation);die;
-            }
             foreach ($annotation as $delegeeType => $annotationData) {
                 if (!isset($delegees[$delegeeType]) || !$annotationData) {
                     continue;
