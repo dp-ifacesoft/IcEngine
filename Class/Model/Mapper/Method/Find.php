@@ -43,7 +43,7 @@ class Model_Mapper_Method_Find extends Model_Mapper_Method_Abstract
 	 * 
      * @return Model_Collection
 	 */
-	public function get ()
+	public function get()
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $collectionManager = $serviceLocator->getService('collectionManager');

@@ -15,9 +15,9 @@ class Model_Mapper_Scheme
      * @param string $name
 	 * @return Model_Mapper_Scheme_Abstract
 	 */
-	public static function byName($name)
+	public function byName($name)
 	{
-		$class_name = 'Model_Mapper_Scheme_' . $name;
-		return new $class_name;
+		$className = 'Model_Mapper_Scheme_' . $name;
+		return new $className;
 	}
 }

@@ -13,8 +13,8 @@ class Model_Mapper_Scheme_Accessor_Index extends
      * @inheritdoc
 	 * @see Model_Mapper_Scheme_Accessor_Abstract::get
 	 */
-	public function get($scheme, $entity)
+	public function get($scheme, $state)
 	{
-		return $entity->getValue();
+		return $state->getValue();
 	}
 }

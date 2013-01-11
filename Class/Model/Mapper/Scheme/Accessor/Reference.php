@@ -13,9 +13,9 @@ class Model_Mapper_Scheme_Accessor_Reference extends
      * @inheritdoc
 	 * @see Model_Mapper_Scheme_Accessor_Abstract::get
 	 */
-	public function get($scheme, $entity)
+	public function get($scheme, $state)
 	{
-		return $entity->getValue()->data(
+		return $state->getValue()->data(
 			$scheme->getModel()->modelName(),
 			$scheme->getModel()->key()
 		);

@@ -3,16 +3,11 @@
 /**
  * Реализация ORM
  *
- * @author Илья Колесников, neon
+ * @author morph, neon
+ * @Service("modelMapper")
  */
-class Model_Mapper
+class Model_Mapper extends Manager_Abstract
 {
-	/**
-	 * Конфигурация схемы связей моделей
-	 * @var Objective
-	 */
-	protected $config;
-
 	/**
 	 * Схемы связей моделей
 	 * @var array
@@ -22,28 +17,14 @@ class Model_Mapper
 	/**
 	 * (non-PHPDoc)
 	 */
-	public static function __callStatic($method, $params)
+	public function __call($method, $params)
 	{
         $serviceLocator = IcEngine::serviceLocator();
         $modelMapperMethod = $serviceLocator->getService('modelMapperMethod');
-		$method = $modelMapperMethod->normalizaName($method);
-		$method = $modelMapperMethod->byName($method);
-		$method->setParams($params);
+		$methodName = $modelMapperMethod->normalizaName($method);
+		$conreteMethod = $modelMapperMethod->byName($methodName);
+		$conreteMethod->setParams($params);
 		return $method->execute();
-	}
-
-	/**
-	 * @desc Получить конфигурацию
-	 * @return Objective
-	 */
-	public function config()
-	{
-		$serviceLocator = IcEngine::serviceLocator();
-        $configManager = $serviceLocator->getService('configManager');
-        if (!is_object($this->config)) {
-			$this->config = $configManager->get(__CLASS__, $this->config);
-		}
-		return $this->config;
 	}
 
 	/**
@@ -60,21 +41,21 @@ class Model_Mapper
             'modelMapperSchemePart'
         );
 		if (is_object($model)) {
-			$model_name = $model->modelName();
+			$modelName = $model->modelName();
 		} else {
-			$model = $model_name;
+			$modelName = $model;
 		}
-		$key = $model_name . '_' . $model->key();
+		$key = $modelName . '_' . $model->key();
 		if (!isset($this->schemes[$key])) {
-			$config = $configManager->get('Model_Mapper_' . $model_name);
+			$config = $configManager->get('Model_Mapper_' . $modelName);
 			if (!$config) {
 				return;
 			}
-			$scheme_name = 'Simple';
+			$schemeName = 'Simple';
 			if (isset($config->scheme)) {
-				$scheme_name = $config->scheme;
+				$schemeName = $config->scheme;
 			}
-			$scheme = $modelMapperScheme->byName($scheme_name);
+			$scheme = $modelMapperScheme->byName($schemeName);
 			$scheme->setModel($model);
 			foreach ($config as $name => $values) {
 				if ($values) {

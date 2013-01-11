@@ -13,7 +13,7 @@ class Model_Mapper_Method_Find extends Model_Mapper_Method_Abstract
 	 *
 	 * @var array
 	 */
-	private $_fields = array();
+	private $fields = array();
 
 	/**
 	 * Добавить поле модели
@@ -28,7 +28,7 @@ class Model_Mapper_Method_Find extends Model_Mapper_Method_Abstract
 			$args = array($args[0] => $args[1]);
 		}
 		foreach ($args as $arg => $value) {
-			$this->_fields[$arg] = $value;
+			$this->fields[$arg] = $value;
 		}
 		return $this;
 	}

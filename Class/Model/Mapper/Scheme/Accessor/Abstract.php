@@ -6,7 +6,7 @@
  * @author morph
  * @packege Ice\Orm
  */
-class Model_Mapper_Scheme_Accessor_Abstract
+abstract class Model_Mapper_Scheme_Accessor_Abstract
 {
 	/**
 	 * Получить значение части схемы
@@ -15,10 +15,7 @@ class Model_Mapper_Scheme_Accessor_Abstract
 	 * @param mixed $entity
 	 * @return mixed
 	 */
-	public function get($scheme, $entity)
-	{
-
-	}
+	abstract public function get($scheme, $state);
 
 	/**
 	 * Получить имя

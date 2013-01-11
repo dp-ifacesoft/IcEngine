@@ -6,7 +6,7 @@
  * @author morph
  * @package Ice\Orm
  */
-class Model_Mapper_Scheme_Reference_Abstract
+abstract class Model_Mapper_Scheme_Reference_Abstract
 {
 	/**
 	 * Поле ссылки
@@ -29,10 +29,7 @@ class Model_Mapper_Scheme_Reference_Abstract
 	 * @param string $id
 	 * @return Model_Collection
 	 */
-	public function data($modelName, $id)
-	{
-
-	}
+	abstract public function data($modelName, $id);
 
 	/**
 	 * Получить имя фабрики

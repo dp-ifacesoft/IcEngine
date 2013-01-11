@@ -7,6 +7,11 @@
  */
 abstract class Model implements ArrayAccess
 {
+    /**
+     * Название мета-поля с данными модели
+     */
+    const DATA_FIELD = 'data';
+    
 	/**
 	 * Конфигурация модели
      *
@@ -35,6 +40,13 @@ abstract class Model implements ArrayAccess
 	 */
 	protected $joints = array();
 
+    /**
+     * Помощник модели
+     * 
+     * @var Helper_Model
+     */
+    protected static $helper;
+    
     /**
      * Имя первичного ключа
      */
@@ -84,6 +96,10 @@ abstract class Model implements ArrayAccess
 	public function __construct(array $fields = array())
 	{
 		$this->fields = $fields;
+        $selfFields = $this->helper()->getVars($this);
+        foreach ($selfFields as $fieldName) {
+            $this->fields[$fieldName] = $this->$fieldName;
+        }
         $this->_afterConstruct();
 	}
 
@@ -95,10 +111,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __get($field)
 	{
-        if (!$this->fields) {
+        if (is_null($this->fields)) {
             $this->load();
         }
-		if ($field == 'data') {
+		if ($field == self::DATA_FIELD) {
 			return $this->getData();
 		}
         $joinField = $field . '__id';
@@ -110,6 +126,10 @@ abstract class Model implements ArrayAccess
         }
         if (array_key_exists($joinField, $this->fields)) {
             return $this->joint($field, $this->fields[$joinField]);
+        }
+        $references = $this->scheme()->references;
+        if (isset($references[$field])) {
+            return $this->getService('modelMapper')->scheme($this)->$field; 
         }
 	}
 
@@ -140,7 +160,11 @@ abstract class Model implements ArrayAccess
         }
         $fields = $this->scheme()->fields;
 		if (isset($fields[$field])) {
-			$this->fields[$field] = $value;
+            $selfFields = $this->helper()->getVars($this);
+            if (in_array($field, $selfFields)) {
+                $this->$field = $value;
+            }
+            $this->fields[$field] = $value;
 		} else {
 			throw new Exception ('Field unexists "' . $field . '".');
 		}
@@ -219,6 +243,19 @@ abstract class Model implements ArrayAccess
 		}
 		return $this->joints[$modelName];
 	}
+    
+    /**
+     * Проинициализировать и получить помощник модели
+     * 
+     * @return Model_Helper
+     */
+    protected function helper()
+    {
+        if (is_null(self::$helper)) {
+            self::$helper = new Helper_Model;
+        }
+        return self::$helper;
+    }
 
 	/**
 	 * Возвращает коллекцию связанных компонентов или
@@ -351,6 +388,16 @@ abstract class Model implements ArrayAccess
 	}
 
     /**
+     * Получить помощника модели
+     * 
+     * @return Model_Helper
+     */
+    public function getHelper()
+    {
+        return self::$helper;
+    }
+    
+    /**
      * Отложена ли модель для загрузки
      *
      * @return boolean
@@ -401,7 +448,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function hasField($field)
 	{
-        if (!$this->fields) {
+        if (is_null($this->fields)) {
             $this->load();
         }
         return array_key_exists($field, $this->fields);
@@ -511,13 +558,10 @@ abstract class Model implements ArrayAccess
 	 */
 	public function scheme()
 	{
-		if (!$this->scheme) {
-            $configManager = $this->getService('configManager');
-            $this->scheme = $configManager->get(
-                'Model_Mapper_' . $this->table()
-            );
+        if (!is_null($this->scheme)) {
+            return $this->scheme;
         }
-        return $this->scheme;
+		return $this->getService('modelScheme')->scheme($this->table());
 	}
 
 	/**
@@ -542,7 +586,7 @@ abstract class Model implements ArrayAccess
         }
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
-                $this->fields[$field] = $value;
+                $this->$field = $value;
             } else {
                 $data[$field] = $value;
             }
@@ -551,6 +595,16 @@ abstract class Model implements ArrayAccess
             $this->data($data);
         }
 	}
+    
+    /**
+     * Изменить помощник модели
+     * 
+     * @param mixed $helper
+     */
+    public function setHelper($helper)
+    {
+        self::$helper = $helper;
+    }
 
     /**
 	 * Установить флаг отложенной модели, через Unit Of Work
@@ -562,6 +616,16 @@ abstract class Model implements ArrayAccess
 		$this->lazy = $value;
 	}
 
+    /**
+     * Изменить схему модели
+     * 
+     * @param mixed $scheme
+     */
+    public function setScheme($scheme)
+    {
+        $this->scheme = $scheme;
+    }
+    
     /**
      * Изменить локатор сервисов
      *
@@ -618,7 +682,7 @@ abstract class Model implements ArrayAccess
             $modelManager = $this->getService('modelManager');
             $modelManager->get($this->table(), $this->key(), $this);
         }
-        if (!$this->fields) {
+        if (is_null($this->fields)) {
             $this->fields = array(
                 $this->keyField() => null
             );
@@ -669,7 +733,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function update(array $data, $hardUpdate = false)
 	{
-		if (!$this->fields) {
+		if (is_null($this->fields)) {
             $this->load();
         }
         $fields = $this->scheme()->fields;

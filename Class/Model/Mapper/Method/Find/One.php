@@ -14,7 +14,7 @@ class Model_Mapper_Method_Find_One extends Model_Mapper_Method_Abstract
 	 * 
      * @var array
 	 */
-	private $criteria = array ();
+	private $criteria = array();
 
 	/**
 	 * Добавить критерию поиска модели

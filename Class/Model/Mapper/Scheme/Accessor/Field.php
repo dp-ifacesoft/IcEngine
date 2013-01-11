@@ -13,8 +13,8 @@ class Model_Mapper_Scheme_Accessor_Field extends
      * @inheritdoc
 	 * @see Model_Mapper_Scheme_Accessor_Abstract::get
 	 */
-	public function get($scheme, $entity)
+	public function get($scheme, $state)
 	{
-		return $scheme->getModel()->field($entity->getName());
+		return $scheme->getModel()->field($state->getName());
 	}
 }

@@ -20,9 +20,12 @@ class Model_Mapper_Method_Reference extends Model_Mapper_Method_Abstract
         );
 		$part = $modelMapperSchemePart->byName('Reference');
 		return $part->set(
-			$this->params[0],
-			isset($this->params[1]) ? $this->params[1] : null,
-			isset($this->params[2]) ? $this->params[2] : null
+            $this->params[0],
+			$this->params[1]['Target'],
+			isset($this->params[1]['JoinColumn']) 
+                ? $this->params[1]['JoinColumn'] : null,
+            isset($this->params[1]['JoinTable'])
+                ? $this->params[1]['JoinTable'] : null
         );
 	}
 }

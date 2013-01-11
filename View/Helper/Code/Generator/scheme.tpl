@@ -50,7 +50,19 @@ return array (
 'references'	=> array (
 		{foreach from=$references item="reference" name="references" key="name"}
 '{$name}'	=> array (
-			{foreach from=$reference item="r" name="reference1"}'{$r}'{if !$smarty.foreach.reference1.last}, {/if}{/foreach}
+            {$reference[0]}, array(
+                'Target'   => '{$reference[1]['Target']}',
+                {if isset($reference[1]['JoinColumn'])}
+                {if is_array($reference[1]['JoinColumn'])}
+                'JoinColumn'    => array({reset($reference[1]['JoinColumn'])}, {$reference[1]['JoinColumn']['on']}),    
+                {else}
+                'JoinColumn'    => '{$reference[1]['JoinColumn']}',    
+                {/if}
+                {/if}
+                {if isset($reference[1]['JoinTable'])}
+                'JoinTable'     => '{$reference[1]['JoinTable']}',    
+                {/if}
+            )
 		){if !$smarty.foreach.references.last},
 		{/if}
 

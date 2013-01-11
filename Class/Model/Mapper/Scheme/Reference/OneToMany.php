@@ -17,15 +17,17 @@ class Model_Mapper_Scheme_Reference_OneToMany extends
 	{
 		$field = $this->getField();
         $serviceLocator = IcEngine::serviceLocator();
-        $modelScheme = $serviceLocator->getService('modelScheme');
-        $keyField = $modelScheme->keyField($modelName);
-		if (!$field) {
-			$field = $modelName . '__' . $keyField;
-		}
+		if (!$field[0]) {
+            $modelScheme = $serviceLocator->getService('modelScheme');
+			$field = $modelName . '__' . $modelScheme->keyField($modelName);
+		} else {
+            $field = reset($field);
+        }
+        $modelName = $this->getModel();
         $collectionManager = $serviceLocator->getService('collectionManager');
         $queryBuilder = $serviceLocator->getService('query');
         $query = $queryBuilder->where($this->getModel() . '.' . $field, $id);
-        $collection = $collectionManager->byQuery($this->getModel(), $query);
-		return $this->resource()->setItems($collection->items());
+        $collection = $collectionManager->byQuery($modelName, $query);
+		return $this->resource()->setItems($collection);
 	}
 }

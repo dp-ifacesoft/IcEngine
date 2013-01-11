@@ -71,17 +71,24 @@ class Model_Mapper_Scheme_Reference_ManyToMany extends
 	public function data($modelName, $id)
 	{
 		$key = $this->key($modelName);
-		$link_table = $key;
-		$fields = $this->getField();
-		$linkFields = array($modelName . '__id', $this->getModel() . '__id');
-		sort ($linkFields);
-		$fromField = $linkFields [0];
-		$toField = $linkFields [1];
+		$joinData = $this->getField();
+        $fields = $joinData[0];
+        $linkTable = isset($joinData[1]) ? $joinData[1] : null;
+        if (is_array($fields)) {
+            $first = reset($fields);
+            $on = $fields['on'];
+            $fields = array($first, $on);
+        } elseif (!$fields) {
+            $fields = array($modelName . '__id', $this->getModel() . '__id');
+        }
+		$linkFields = $fields;
+		sort($linkFields);
+		$fromField = $linkFields[0];
+		$toField = $linkFields->on;
         $serviceLocator = IcEngine::serviceLocator();
         $modelScheme = $serviceLocator->getService('modelScheme');
         $controllerManager = $serviceLocator->getService('controllerManager');
-		if (!isset(self::$tables[$key])) {
-            $linkTable = null;
+		if (!isset(self::$tables[$key]) && !$linkTable) {
 			if (isset($fields[1]) && is_array($fields[1])) {
 				$linkTable = $fields[0];
 				$fields = $fields[1];
@@ -95,13 +102,14 @@ class Model_Mapper_Scheme_Reference_ManyToMany extends
 			}
 			$scheme = $modelScheme->scheme($modelName);
             $exists = (bool) $scheme;
-			self::$ttables[$key] = array(
+			self::$tables[$key] = array(
 				'name'		=> $linkTable,
 				'field'		=> $fields,
 				'exists'	=> $exists
 			);
+            $this->setField($joinData[0], $linkTable);
 			if (!$exists) {
-				$scheme = $this->scheme ($fromField, $toField);
+				$scheme = $this->scheme($fromField, $toField);
                 $controllerManager->call('Model', 'scheme', array(
                     'name'      => $linkTable,
                     'fields'    => $scheme['fields'],
@@ -114,15 +122,11 @@ class Model_Mapper_Scheme_Reference_ManyToMany extends
 		}
 		$field = $fromField;
 		$targetField = $toField;
-		if ($fromField != $modelName . '__id') {
-			$field = $toField;
-			$targetField = $fromField;
-		}
         $queryBuilder = $serviceLocator->getService('query');
         $dds = $serviceLocator->getService('dds');
 		$query = $queryBuilder
 			->select($targetField)
-			->from($link_table)
+			->from($linkTable)
 			->where($field, $id);
 		$ids = $dds->execute($query)->getResult()->asColumn();
         $collectionManager = $serviceLocator->getService('collectionManager');

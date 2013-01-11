@@ -1,80 +1,108 @@
 <?php
 
 /**
- * @desc Ресурс схемы связей модели
+ * Ресурс состояния схемы связей модели
+ * 
  * @author morph
  */
 class Model_Mapper_Scheme_Resource
 {
 	/**
-	 * @desc Полученные в ресурс модели
-	 * @var array
+	 * Полученные в ресурс модели
+	 * 
+     * @var array
 	 */
-	protected $_items;
+	protected $items;
 
 	/**
-	 * @desc Ссылка
-	 * @var Model_Mapper_Scheme_Reference_Abstract
+	 * Ссылка
+	 * 
+     * @var Model_Mapper_Scheme_Reference_Abstract
 	 */
-	protected $_reference;
+	protected $reference;
 
-	public function __construct ($reference)
+    /**
+     * Проксирующий вызов метода
+     * 
+     * @param string $method
+     * @param array $args
+     */
+    public function __call($method, $args)
+    {
+        if (is_object($this->items)) {
+            $methodReflection = new \ReflectionMethod($this->items, $method);
+            return $methodReflection->invokeArgs($this->items, $args);
+        }
+    }
+    
+    /**
+     * Конструктор
+     * 
+     * @param Model_Mapper_Scheme_Reference_Abstrac $reference
+     */
+	public function __construct($reference)
 	{
-		$this->_reference = $reference;
+		$this->reference = $reference;
 	}
 
 	/**
-	 * @desc Добавить модель для сохранения
-	 * @param array $items
+	 * Добавить модель для сохранения
+	 * 
+     * @param array $items
 	 */
-	public function add ($item)
+	public function add($item)
+    {
+        
+    }
+
+	/**
+	 * Добавить модель
+	 * 
+     * @param array $item
+	 */
+	public function addItem($item)
+	{
+		$this->items[] = $item;
+	}
+
+	/**
+	 * Удалить модель
+	 * 
+     * @param array $item
+	 */
+	public function delete($item)
 	{
 
 	}
 
 	/**
-	 * @desc Добавить модель
-	 * @param array $item
+	 * Получить первую модель
+	 * 
+     * @return Model
 	 */
-	public function addItem ($item)
+	public function get()
 	{
-		$this->_items [] = $item;
+		return $this->items[0];
 	}
 
 	/**
-	 * @desc Удалить модель
-	 * @param array $item
+	 * Получить модели
+	 * 
+     * @return array
 	 */
-	public function delete ($item)
+	public function items()
 	{
-
+		return $this->items;
 	}
-
-	/**
-	 * @desc Передать модели
-	 * @param array $items
+    
+    /**
+	 * Передать модели
+	 * 
+     * @param array $items
 	 */
-	public function setItems ($items)
+	public function setItems($items)
 	{
-		$this->_items = $items;
+		$this->items = $items;
 		return $this;
-	}
-
-	/**
-	 * @desc Получить модели
-	 * @return array
-	 */
-	public function items ()
-	{
-		return $this->_items;
-	}
-
-	/**
-	 * @desc Получить первую модель
-	 * @return Model
-	 */
-	public function get ()
-	{
-		return $this->_items [0];
 	}
 }

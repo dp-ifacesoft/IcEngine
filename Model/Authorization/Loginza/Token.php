@@ -52,7 +52,7 @@ class Authorization_Loginza_Token extends Model
 			return null;
 		}
 		// Успешная авторизация
-		self::$current->data('data', $data);
+		self::$current->data('result', $data);
 		self::$current->set(array (
 			'result'		=> $result,
 			'email'		=> isset($data['email']) ? $data['email'] : '',

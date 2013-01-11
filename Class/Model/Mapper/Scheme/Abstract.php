@@ -63,7 +63,7 @@ class Model_Mapper_Scheme_Abstract
 	 * 
      * @return array
 	 */
-	public static function config()
+	public function config()
 	{
 		if (!is_object(static::$config)) {
             $serviceLocator = IcEngine::serviceLocator();

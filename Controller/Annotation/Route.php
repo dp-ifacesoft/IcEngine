@@ -164,7 +164,7 @@ class Controller_Annotation_Route extends Controller_Abstract
         );
         $result = array();
         $lines = explode(PHP_EOL, $output);
-        foreach ($lines as $i => $line) {
+        foreach ($lines as $line) { 
             $baseLine = $line;
             $line = str_replace(array("\n", "\r"), '', trim($line));
             if (!$line) {

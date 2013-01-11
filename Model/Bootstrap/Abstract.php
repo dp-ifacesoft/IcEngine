@@ -119,6 +119,7 @@ abstract class Bootstrap_Abstract
         $configManager = $serviceLocator->getService('configManager');
         $config = $configManager->get('Model_Scheme', $name);
         $modelScheme->init($config);
+        $modelScheme->setBehavior($name);
 	}
 
 	/**

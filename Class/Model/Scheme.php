@@ -14,15 +14,13 @@ class Model_Scheme extends Manager_Abstract
 	 */
     const DEFAULT_KEY_FIELD = 'id';
 
-	/**
-	 * Схема линка по умолчанию
-	 *
-     * @var array
-	 */
-	public $defaultLinkScheme = array(
-
-	);
-
+    /**
+     * Название окружения
+     * 
+     * @var string
+     */
+    protected $behavior;
+    
 	/**
 	 * Префикс по умолчанию для всех таблиц
 	 *
@@ -50,21 +48,24 @@ class Model_Scheme extends Manager_Abstract
 			 * @var string
 			 */
 			'key'		=> 'id',
+            
+            /**
+             * Генератор ключей по умолчанию
+             * @var string
+             */
+            'keyGen'    => null,
+            
 			/**
 			 * Префикс таблицы.
 			 * @var string
 			 */
 			'prefix'	=> '',
+            
 			/**
 			 * Источник данных о модели.
 			 * @var string
 			 */
-			'source'	=> 'Abstract',
-			/**
-			 * Существующие индексы (могут использоваться в источнике).
-			 * @var array
-			 */
-			'indexes'	=> array()
+			'source'	=> 'Abstract'
 		),
 		/**
 		 * Название таблицы, которое не должно изменяться
@@ -122,6 +123,26 @@ class Model_Scheme extends Manager_Abstract
 	}
 
     /**
+     * Получить название окружения
+     * 
+     * @return string
+     */
+    public function getBehavior()
+    {
+        return $this->behavior;
+    }
+    
+    /**
+     * Получить модели схемы
+     * 
+     * @return array
+     */
+    public function getModels()
+    {
+        return $this->models;
+    }
+    
+    /**
 	 * Индексы модели
      *
 	 * @param string $modelName Название модели.
@@ -129,12 +150,15 @@ class Model_Scheme extends Manager_Abstract
 	 */
 	public function indexes($modelName)
 	{
-		$modelName = strtolower($modelName);
-		if (!isset($this->models[$modelName],
-            $this->models[$modelName]['indexes'])) {
-			return array();
-		}
-		return $this->models[$modelName]['indexes'];
+        $scheme = $this->scheme($modelName);
+        $indexes = $scheme->indexes;
+        $result = array();
+        if ($indexes) {
+            foreach ($indexes as $index) {
+                $result[] = $index[1];
+            }
+        }
+        return $result;
 	}
 
     /**
@@ -167,21 +191,7 @@ class Model_Scheme extends Manager_Abstract
 		}
 		return $this->models[$modelName]['key'];
 	}
-
-    /**
-	 * Получить все ссылки модели
-     *
-	 * @param string $modelName
-	 * @return array
-	 */
-	public function links($modelName)
-	{
-		$modelName = strtolower($modelName);
-		return !isset($this->models[$modelName],
-            $this->models[$modelName]['links'])
-            ? array() : $this->models[$modelName]['links'];
-	}
-
+    
     /**
 	 * Получить опшины схемы для модели
      *
@@ -206,6 +216,82 @@ class Model_Scheme extends Manager_Abstract
     {
         $configManager = $this->getService('configManager');
         return $configManager->get('Model_Mapper_' . $modelName);
+    }
+    
+    /**
+     * Изменить название окружения
+     * 
+     * @param string $behavior
+     */
+    public function setBehavior($behavior)
+    {
+        $this->behavior = $behavior;
+    }
+
+    /**
+     * Изменить источник данных модели
+     * 
+     * @param string $modelName
+     * @param string $dataSource
+     */
+    public function setDataSource($modelName, $dataSource)
+    {
+        $this->models[strtolower($modelName)]['source'] = $dataSource;
+    }
+    
+    /**
+     * Изменить значение первичного ключа
+     * 
+     * @param string $modelName
+     * @param string $keyField
+     */
+    public function setKeyField($modelName, $keyField)
+    {
+        $this->models[strtolower($modelName)]['key'] = $keyField;
+    }
+    
+    /**
+     * Изменить название генератора ключей для модели
+     * 
+     * @param string $modelName
+     * @param string $keyGenerator
+     */
+    public function setKeyGenerator($modelName, $keyGenerator)
+    {
+        $this->models[strtolower($modelName)]['keyGen'] = $keyGenerator;
+    }
+    
+    /**
+     * Изменить опции по умолчанию для модели
+     * 
+     * @param string $modelName
+     * @param string $options
+     */
+    public function setOptions($modelName, $options)
+    {
+        $this->models[strtolower($modelName)]['options'] = $options;
+    }
+    
+    /**
+     * Изменить префикс таблицы модели
+     * 
+     * @param string $modelName
+     * @param string $prefix
+     */
+    public function setPrefix($modelName, $prefix)
+    {
+        $this->models[strtolower($modelName)]['prefix'] = $prefix;
+    }
+    
+    /**
+     * Изменить название таблицы модели
+     * 
+     * @param string $modelName
+     * @param string $table
+     */
+    public function setTable($modelName, $table)
+    {
+        $this->models[strtolower($modelName)]['table'] = $table;
     }
 
 	/**
