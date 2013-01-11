@@ -13,7 +13,7 @@ class Loginza_Parser_Yandex extends Loginza_Parser_Abstract
 	public function parse($loginza)
 	{
 		$data = json_decode($loginza->data, true);
-        print_r($data);
+        var_dump($data);
         print_r($loginza);die;
 		$result = array(
 			'email'			=> $data['email'],
