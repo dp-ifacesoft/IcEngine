@@ -48,7 +48,6 @@ class Router extends Manager_Abstract
                         $className
                     );
                     $service = $this->getService($serviceName);
-					var_dump($paramValue);
                     $paramValue = $service->$method();
                 }
 				$request->param($paramName, $paramValue);
