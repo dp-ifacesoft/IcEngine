@@ -40,7 +40,7 @@ class Authorization_Loginza extends Authorization_Abstract
 		$data = $token->data('data');
 		$userService = $this->getService('user');
 		$user = $userService->create(array(
-			'name'		=> (string) $token->email,
+			'firstName'		=> (string) $token->email,
 			'login'		=> (string) $token->identity,
 			'email'		=> (string) $token->email,
 			'password'	=> md5(time()),
@@ -63,7 +63,7 @@ class Authorization_Loginza extends Authorization_Abstract
 				'identity'	=> (string) $token->identity,
 				'email'		=> (string) $token->email,
 				'provider'	=> (string) $token->provider,
-				'data'		=> json_encode($data),
+				'result'		=> json_encode($data),
 				'createdAt'	=> $helperDate->toUnix()
 			));
 			$ul->save();
@@ -98,9 +98,9 @@ class Authorization_Loginza extends Authorization_Abstract
 		$authorizationLoginzaToken = $this->getService(
 			'authorizationLoginzaToken'
 		);
-		$token = $authorizationLoginzaToken->tokenData();
+		$token = $authorizationLoginzaToken->tokenData($data);
 		$userLoginza = $this->getService('userLoginza');
-		$loginza = $userLoginza->byToken($data);
+		$loginza = $userLoginza->byToken($token);
 		return $loginza ? $loginza->User : null;
 	}
 }

@@ -490,11 +490,15 @@ class Controller_Model extends Controller_Abstract
 			$exists_scheme = $configManager->get('Model_Mapper_' . $model_name);
 			$references = array();
 			$admin_panel = array();
+            $languageScheme = array();
+            $createScheme = array();
 			if ($exists_scheme) {
 				$author = $author ? $author : $exists_scheme->author;
 				$comment = $comment ? $comment : $exists_scheme->comment;
 				$references = $exists_scheme->references;
 				$admin_panel = $exists_scheme->admin_panel;
+                $languageScheme = $exists_scheme->languageScheme;
+                $createScheme = $exists_scheme->createScheme;
 			}
 			if ($name_dir) {
 				foreach ($name_dir as $dir) {
@@ -609,6 +613,14 @@ class Controller_Model extends Controller_Abstract
 				$admin_panel =  '\'admin_panel\' => ' .
 					$helperConverter->arrayToString($admin_panel);
 			}
+            if (!empty($languageScheme)) {
+				$languageScheme =  '\'languageScheme\' => ' .
+					$helperConverter->arrayToString($languageScheme);
+			}
+            if (!empty($createScheme)) {
+				$createScheme =  '\'createScheme\' => ' .
+					$helperConverter->arrayToString($createScheme);
+			}
 			$output = $helperCodeGenerator->fromTemplate(
 				'scheme',
 				array(
@@ -617,7 +629,9 @@ class Controller_Model extends Controller_Abstract
 					'fields'		=> $result_fields,
 					'indexes'		=> $result_keys,
 					'references'	=> $references,
-					'admin_panel'	=> $admin_panel
+					'admin_panel'	=> $admin_panel,
+                    'languageScheme'    => $languageScheme,
+                    'createScheme'      => $createScheme
 				)
 			);
 			echo 'File: ' . $filename . PHP_EOL;

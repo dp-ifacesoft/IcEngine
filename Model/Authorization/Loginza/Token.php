@@ -2,8 +2,9 @@
 
 /**
  * Модель, содержащая информацию по ключу в логинзе.
- * 
+ *
  * @author goorus, morph
+ * @Service("authorizationLoginzaToken")
  */
 class Authorization_Loginza_Token extends Model
 {
@@ -17,14 +18,14 @@ class Authorization_Loginza_Token extends Model
 
 	/**
 	 * Текущие данные (полученные в этом процессе).
-	 * 
+	 *
      * @var Authorization_Loginza_Token
 	 */
 	protected static $current;
 
 	/**
 	 * Перенаправление пользователя с ключом результата авторизации.
-	 * 
+	 *
      * @param mixed $token Ключ сессии в логинзе. Если null, ключ будет
 	 * взят из GET параметров запроса.
 	 * @return Authorization_Loginza_Token Данные, полученные от логинзы.
@@ -38,7 +39,7 @@ class Authorization_Loginza_Token extends Model
             return self::$current;
         }
 		self::$current = new self(array(
-			'time'		=> $this->getService('date')->toUnix(),
+			'time'		=> $this->getService('helperDate')->toUnix(),
 			'token'		=> $token,
 		));
 		$url = str_replace(
@@ -53,7 +54,7 @@ class Authorization_Loginza_Token extends Model
 		// Успешная авторизация
 		self::$current->data('data', $data);
 		self::$current->set(array (
-			'data'		=> $result,
+			'result'		=> $result,
 			'email'		=> isset($data['email']) ? $data['email'] : '',
 			'identity'	=> $data['identity'],
 			'provider'	=> isset($data['provider']) ? $data['provider'] : ''

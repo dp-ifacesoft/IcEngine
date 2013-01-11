@@ -5,6 +5,14 @@ return array (
 		{$admin_panel},
 	{/if}
 
+    {if !empty($languageScheme)}
+		{$languageScheme},
+	{/if}
+
+    {if !empty($createScheme)}
+		{$createScheme},
+	{/if}
+
 	{if $comment}
 'comment'		=> '{$comment|addslashes}',
 	{/if}

@@ -23,11 +23,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
     /**
      * Кэш запросов по тэгам
-     * 
+     *
      * @var array
      */
     protected static $tagsCaches = array();
-    
+
     /**
      * Валидны ли тэги
      *
@@ -111,7 +111,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$tags = $query->getTags();
 			for ($i = 0, $count = sizeof($tags); $i < $count; $i++) {
 				$tag = $tags[$i];
-				$this->cacher->tagDelete($tag);
+                $this->cacher->tagDelete($tag);
                 $this->tagDelete($tag);
 			}
 		}
@@ -284,10 +284,10 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         }
         return $validTags;
     }
-    
+
     /**
      * Удаляет внутренние сохраненные тэги и запросы
-     * 
+     *
      * @param string $tag
      */
     protected function tagDelete($tag)

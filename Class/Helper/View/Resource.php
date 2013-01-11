@@ -17,7 +17,7 @@ class Helper_View_Resource
 	 * Метка для js файлов
 	 */
 	const JS = 'js';
-    
+
     /**
      * Метка для jtpl файлов
      */
@@ -126,7 +126,7 @@ class Helper_View_Resource
 	{
 		$this->append(self::JS, func_get_args());
 	}
-    
+
     /**
 	 * Добавляет jtpl файлы
 	 *
@@ -329,7 +329,7 @@ class Helper_View_Resource
 
     /**
      * Ключи для внедряемого js
-     * 
+     *
      * @return array
      */
 	public function embedJsKeys()
@@ -353,7 +353,7 @@ class Helper_View_Resource
 		}
 		return $keys;
 	}
-    
+
     /**
 	 * Внедряет упакованный jtpl файл
 	 *

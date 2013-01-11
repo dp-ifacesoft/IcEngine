@@ -163,7 +163,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if ($this->paginator) {
 			$query->calcFoundRows();
 			$query->limit(
-				$this->paginator->pageLimit,
+				$this->paginator->perPage,
 				$this->paginator->offset()
             );
 		}
@@ -490,7 +490,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         $collectionManager->load($this, $query);
         $optionManager->executeAfter($this, $this->options);
 		if ($this->paginator) {
-			$this->paginator->fullCount = $this->data['foundRows'];
+			$this->paginator->total = $this->data['foundRows'];
 		}
 		return $this;
 	}
@@ -755,8 +755,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	{
 		$this->paginator = $paginator;
 		if ($paginator) {
-			$this->paginator->fullCount = is_array($this->items)
-                ? count ($this->items) : 0;
+			$this->paginator->total = is_array($this->items)
+                ? count($this->items) : 0;
 		}
 	}
 

@@ -2,14 +2,15 @@
 
 /**
  * Данные по OpenID пользователя
- * 
+ *
  * @author goorus, morph
+ * @Service("userLoginza")
  */
 class User_Loginza extends Model
 {
 	/**
 	 * Находит данные пользователя по полученному ключу
-	 * 
+	 *
      * @param Authorization_Loginza_Token $token.
 	 * @param boolean $email_search Искать по email. Необходимо, чтобы
 	 * $token содержал не пустое поле email.
@@ -18,7 +19,7 @@ class User_Loginza extends Model
 	 * $token содержал не пустое поле email.
 	 * @return User_Loginza
 	 */
-	public static function byToken($token, $emailSearch = true, 
+	public function byToken($token, $emailSearch = true,
         $userSearch = true)
 	{
 		if (!$token->identity) {
@@ -40,7 +41,7 @@ class User_Loginza extends Model
 					'identity'	=> $token->identity,
 					'email'		=> $token->email,
 					'provider'	=> $token->provider,
-					'data'		=> $token->data,
+					'result'    => $token->result,
 					'createdAt'	=> $helperDate->toUnix()
 				));
 				return $loginza->save();
@@ -56,7 +57,7 @@ class User_Loginza extends Model
 					'identity'		=> $token->identity,
 					'email'			=> $token->email,
 					'provider'		=> $token->provider,
-					'data'			=> $token->data,
+					'result'		=> $token->result,
 					'createdAt'		=> $helperDate->toUnix()
 				));
 				return $loginza->save();
@@ -68,7 +69,7 @@ class User_Loginza extends Model
 				'identity'		=> $token->identity,
 				'email'			=> $token->email,
 				'provider'		=> $token->provider,
-				'data'			=> $token->data,
+				'result'		=> $token->result,
 				'createdAt'		=> $helperDate->toUnix()
 			));
 			$loginza->save();

@@ -2,7 +2,7 @@
 
 /**
  * Аннотации объектов
- * 
+ *
  * @author morph
  */
 class Controller_Annotation extends Controller_Abstract
@@ -21,7 +21,7 @@ class Controller_Annotation extends Controller_Abstract
             'Service'
         )
     );
-    
+
     /**
      * Сброк аннотации
      */
@@ -34,13 +34,13 @@ class Controller_Annotation extends Controller_Abstract
         }
         $config = $context->configManager->get('Data_Provider_Manager');
         $annotationConfig = $config['Annotation'];
-        $filename = IcEngine::root() . $annotationConfig['params']['path'] . 
+        $filename = IcEngine::root() . $annotationConfig['params']['path'] .
             $name;
         if (file_exists($filename)) {
             unlink($filename);
         }
     }
-    
+
     /**
      * Обновить аннотации
      */
@@ -65,7 +65,7 @@ class Controller_Annotation extends Controller_Abstract
             if (!$path || !is_dir($path)) {
                 continue;
             }
-            if (strpos($path, 'Class') === false && 
+            if (strpos($path, 'Class') === false &&
                 strpos($path, 'Controller') === false &&
                 strpos($path, 'Model') === false) {
                 continue;
@@ -106,7 +106,7 @@ class Controller_Annotation extends Controller_Abstract
         foreach ($classes as $i => $class) {
             IcEngine::getLoader()->load($class['class']);
             if ($verbose) {
-                echo '#' . ($i + 1) . ' ' . $class['class'] . 
+                echo '#' . ($i + 1) . ' ' . $class['class'] .
                     ' (' . $class['file'] . ') done.' . PHP_EOL;
             }
             $className = $class['class'];
@@ -115,6 +115,10 @@ class Controller_Annotation extends Controller_Abstract
             ));
             $annotation = $annotationManager->getAnnotation($class['class'])
                 ->getData();
+            if ($class['file'] == '/var/www/IcEngine/vipgeo.new/Class/Loginza/Parser.php') {
+                echo $class['class'];
+                print_r($annotation);die;
+            }
             foreach ($annotation as $delegeeType => $annotationData) {
                 if (!isset($delegees[$delegeeType]) || !$annotationData) {
                     continue;
@@ -143,12 +147,12 @@ class Controller_Annotation extends Controller_Abstract
                                 if (is_numeric($subAnnotationName)) {
                                     continue;
                                 }
-                                if (strpos($subAnnotationName, $delegee) === 
+                                if (strpos($subAnnotationName, $delegee) ===
                                     false) {
                                     continue;
                                 }
                                 $delegeeData[$delegee][$key]
-                                [$subAnnotationName] = 
+                                [$subAnnotationName] =
                                 array(
                                     'class' => $className,
                                     'part'  => $annotationName,

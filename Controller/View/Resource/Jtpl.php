@@ -16,7 +16,7 @@ class Controller_View_Resource_Jtpl extends Controller_Abstract
 	public function index ()
 	{
 		$config = $this->config ();
-		
+
 		$sources = $config->sources;
 
 		foreach ($config->sources as $source)
@@ -32,7 +32,6 @@ class Controller_View_Resource_Jtpl extends Controller_Abstract
 		$tpls = View_Resource_Manager::getData (
 			View_Resource_Manager::JTPL
 		);
-
 		$packer = View_Resource_Manager::packer (View_Resource_Manager::JTPL);
 
 		$packer->pack ($tpls, $config->packed_file);

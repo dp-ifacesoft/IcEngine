@@ -12,20 +12,11 @@ class Controller_Paginator extends Controller_Abstract
 	 * (non-PHPdoc)
 	 * @see Controller_Abstract::index()
 	 */
-	public function index()
+	public function index($instance, $template, $tpl)
 	{
-		list(
-			$paginator,
-			$template,
-			$tpl
-		) = $this->input->receive(
-			'data',
-			'template',
-			'tpl'
-		);
 	    /* @var $paginator Paginator */
-		$paginator->buildPages();
-		$this->output->send('paginator', $paginator);
+		$instance->buildPages();
+		$this->output->send('paginator', $instance);
 		if ($template) {
 			$this->task->setTemplate($template);
 		}

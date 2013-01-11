@@ -203,7 +203,7 @@ class Service_Source
             if (!$service) {
                 return null;
             }
-        } 
+        }
         $instanceCallback = array();
         if (!empty(self::$services[$serviceName]['instanceCallback'])) {
            $instanceCallback = self::$services[$serviceName]['instanceCallback'];
@@ -216,6 +216,13 @@ class Service_Source
             );
         } else {
             $state = $service;
+        }
+        if (isset($serviceData['isAbstract'])) {
+            $state = new Service_State(
+                $service,
+                self::$services[$serviceName]['class'],
+                $instanceCallback
+            );
         }
         return $state;
     }
