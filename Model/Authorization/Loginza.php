@@ -63,7 +63,7 @@ class Authorization_Loginza extends Authorization_Abstract
 				'identity'	=> (string) $token->identity,
 				'email'		=> (string) $token->email,
 				'provider'	=> (string) $token->provider,
-				'data'		=> json_encode($data),
+				'result'		=> json_encode($data),
 				'createdAt'	=> $helperDate->toUnix()
 			));
 			$ul->save();
