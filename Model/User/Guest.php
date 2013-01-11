@@ -26,4 +26,14 @@ class User_Guest extends User_Cli
 			'password'	=> ''
 		)
 	);
+
+    /**
+	 * @inheritdoc
+	 */
+	public function init($sessionId = null)
+	{
+		$instance = $this->getInstance();
+        $resourceManager = $this->getService('resourceManager');
+		$resourceManager->set('Model', $instance->resourceKey(), $instance);
+	}
 }
