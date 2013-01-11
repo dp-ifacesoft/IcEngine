@@ -40,7 +40,7 @@ class Authorization_Loginza extends Authorization_Abstract
 		$data = $token->data('data');
 		$userService = $this->getService('user');
 		$user = $userService->create(array(
-			'name'		=> (string) $token->email,
+			'firstName'		=> (string) $token->email,
 			'login'		=> (string) $token->identity,
 			'email'		=> (string) $token->email,
 			'password'	=> md5(time()),
