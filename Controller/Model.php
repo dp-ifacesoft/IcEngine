@@ -561,7 +561,7 @@ class Controller_Model extends Controller_Abstract
 		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
 		$dirname = explode('_', $name);
 		$filename = array_pop($dirname) . '.php';
-		if (is_file($filename))
+		if (is_file($dir.$filename))
 		{
 			return;
 		}
