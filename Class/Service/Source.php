@@ -217,7 +217,7 @@ class Service_Source
         } else {
             $state = $service;
         }
-        if ($serviceData['isAbstract']) {
+        if (isset($serviceData['isAbstract'])) {
             $state = new Service_State(
                 $service,
                 self::$services[$serviceName]['class'],
