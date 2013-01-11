@@ -16,9 +16,10 @@ class Loginza_Parser
      */
     public function byProvider($provider)
     {
-        static $regexp = '#(?\:|.*?\.)(.*?)\.(?:ru|com)#';
+        static $regexp = '#(?:\:|.*?\.)([^.]+)\.(?:ru|com)#';
         $matches = array();
         preg_match_all($regexp, $provider, $matches);
+        print_r($matches);die;
         $className = 'Loginza_Parser_' . ucfirst($matches[1][0]);
         $parser = new $className;
         return $parser;
