@@ -3,7 +3,7 @@
 /**
  * Авторизация через логинзу
  *
- * @author goorus, morph
+ * @author neon, goorus, morph
  */
 class Authorization_Loginza extends Authorization_Abstract
 {
@@ -42,13 +42,23 @@ class Authorization_Loginza extends Authorization_Abstract
 		$data = $token->data('data');
 		$userService = $this->getService('user');
 		$modelManager = $this->getService('modelManager');
-        $user = $modelManager->byOptions(
-            'User',
-            array(
-                'name'  => 'Login',
-                'value' => $identity
-            )
+		$queryBuilder = $this->getService('query');
+        $userLoginza = $modelManager->byQuery(
+            'User_Loginza',
+            $queryBuilder->where('identity', $identity)
         );
+        if ($userLoginza) {
+            $user = $userLoginza->User;
+        }
+        if (!$user) {
+            $user = $modelManager->byOptions(
+                'User',
+                array(
+                    'name'  => 'Login',
+                    'value' => $identity
+                )
+            );
+        }
         if (!$user) {
             $user = $userService->create(array(
                 'firstName'		=> $email,
@@ -58,26 +68,21 @@ class Authorization_Loginza extends Authorization_Abstract
                 'active'        => 1
             ));
         }
-		$queryBuilder = $this->getService('query');
-		$ul = $modelManager->byQuery(
-			'User_Loginza',
-			$queryBuilder->where('identity', $identity)
-		);
-		if ($ul) {
-			$ul->update(array(
+		if ($userLoginza) {
+			$userLoginza->update(array(
 				'User__id'	=> $user->key()
 			));
 		} else {
 			$helperDate = $this->getService('helperDate');
-			$ul = new User_Loginza(array(
+			$userLoginza = new User_Loginza(array(
 				'User__id'	=> $user->key(),
 				'identity'	=> $identity,
 				'email'		=> $email,
 				'provider'	=> (string) $token->provider,
-				'result'		=> json_encode($data),
+				'result'	=> json_encode($data),
 				'createdAt'	=> $helperDate->toUnix()
 			));
-			$ul->save();
+			$userLoginza->save();
 		}
 		return $user;
 	}
