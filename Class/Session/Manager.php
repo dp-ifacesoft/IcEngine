@@ -73,7 +73,6 @@ class Session_Manager extends Manager_Abstract
 	public function init()
 	{
 		$config = $this->config();
-        echo 1;
 		if ($config['provider']) {
             $dataProviderManager = $this->getService('dataProviderManager');
             $provider = $dataProviderManager->get($config['provider']);
