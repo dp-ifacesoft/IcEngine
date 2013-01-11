@@ -35,7 +35,7 @@ abstract class Annotation_Manager_Abstract
 		if (!$annotationSet) {
 			$annotationSet = $this->source->get($class);
 			$this->repository->set($className, $annotationSet);
-		} 
+		}
 		return $annotationSet;
 	}
 

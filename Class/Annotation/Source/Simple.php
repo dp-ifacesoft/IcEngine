@@ -135,10 +135,10 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 		}
 		return $result;
 	}
-    
+
     /**
      * Изменить рефлексию класса
-     * 
+     *
      * @param ReflectionClass $reflection
      */
     public function setReflection($reflection)
