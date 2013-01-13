@@ -3,7 +3,7 @@
 /**
  * Мэппер для работы с mysql, с кэшированием запросов.
  *
- * @author goorus, morph
+ * @author goorus, morph, neon
  */
 class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 {
