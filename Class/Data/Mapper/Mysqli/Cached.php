@@ -297,10 +297,19 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         }
         unset(self::$tagsValid[$tag]);
         foreach (self::$tagsCaches as $key) {
-            if (!isset(self::$caches[$key])) {
-                continue;
+            if (is_array($key)) {
+                foreach ($key as $tag) {
+                    if (!isset(self::$caches[$tag])) {
+                        continue;
+                    }
+                    unset(self::$caches[$tag]);
+                }
+            } else {
+                if (!isset(self::$caches[$key])) {
+                    continue;
+                }
+                unset(self::$caches[$key]);
             }
-            unset(self::$caches[$key]);
         }
     }
 
