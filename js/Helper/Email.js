@@ -10,39 +10,27 @@ var Helper_Email = {
      * Проверяет на существование пользователя с таким email
      *
      * @param email string
-     * @return boolean
+     * @param callback function
      */
-    isExists: function(email)
+    isExists: function(email, callback)
     {
-        var timer, processing = 1, output = false;
         if (!email) {
-            return false;
-        }
-        function callback(result) {
-            if (result.data.isExist) {
-                output = true;
-            }
-            console.log('out');
-            processing = 0;
+            callback.call(null, false);
         }
         Controller.call(
             'Email_Exists',
             {
                 'email': email
             },
-            callback,
+            function (result) {
+                if (result.data.isExists) {
+                    callback.call(null, true);
+                    return;
+                }
+                callback.call(null, false);
+            },
             true
         );
-        timer = setInterval(
-            function() {
-                if (processing == 0) {
-                    clearInterval(timer);
-                }
-            },
-            3100
-        );
-        console.log(output);
-        return output;
     },
 
     /**
@@ -68,7 +56,6 @@ var Helper_Email = {
 	parseEmail: function(email)
 	{
 		var p_at = email.indexOf('@');
-
 		if (p_at < 0) {
 			return false;
 		}
