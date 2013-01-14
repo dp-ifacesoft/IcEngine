@@ -1,0 +1,1 @@
+	<link href="{$res.url}?{$res.ts}" rel="stylesheet" type="text/css" />

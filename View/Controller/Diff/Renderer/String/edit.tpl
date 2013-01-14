@@ -1,0 +1,1 @@
+<input type="text" name="{$field->name}-new-value" placeholder="Ваше значение" maxlength="128" />
