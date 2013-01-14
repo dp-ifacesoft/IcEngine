@@ -30,7 +30,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	 * Авторегистрация
 	 *
 	 * @param Authorization_Loginza_Token $token
-	 * @return User|string
+	 * @return User|int
 	 */
 	public function autoregister($token)
 	{
@@ -40,7 +40,7 @@ class Authorization_Loginza extends Authorization_Abstract
         $identity = (string) $token->identity;
         $email = (string) $token->email;
 		$data = $token->data('data');
-		$userService = $this->getService('user');
+		//$userService = $this->getService('user');
 		$modelManager = $this->getService('modelManager');
 		$queryBuilder = $this->getService('query');
         $userLoginza = $modelManager->byQuery(
@@ -55,9 +55,8 @@ class Authorization_Loginza extends Authorization_Abstract
                 ->from('User')
                 ->where('Login', $identity);
             $user = $modelManager->byQuery($userQuerySelect);
-            var_dump($user);die;
         }
-        if (!$user) {
+        /*if (!$user) {
             $user = $userService->create(array(
                 'firstName'		=> $email,
                 'login'         => $identity,
@@ -65,15 +64,15 @@ class Authorization_Loginza extends Authorization_Abstract
                 'password'      => md5(time()),
                 'active'        => 1
             ));
-        }
-		if ($userLoginza) {
+        }*/
+		if ($userLoginza && $user) {
 			$userLoginza->update(array(
 				'User__id'	=> $user->key()
 			));
 		} else {
 			$helperDate = $this->getService('helperDate');
 			$userLoginza = new User_Loginza(array(
-				'User__id'	=> $user->key(),
+				'User__id'	=> $user ? $user->key() : 0,
 				'identity'	=> $identity,
 				'email'		=> $email,
 				'provider'	=> (string) $token->provider,
@@ -82,7 +81,7 @@ class Authorization_Loginza extends Authorization_Abstract
 			));
 			$userLoginza->save();
 		}
-		return $user;
+		return $user ? $user : 0;
 	}
 
 	/**
