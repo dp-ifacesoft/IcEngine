@@ -51,13 +51,11 @@ class Authorization_Loginza extends Authorization_Abstract
             $user = $userLoginza->User;
         }
         if (!$user) {
-            $user = $modelManager->byOptions(
-                'User',
-                array(
-                    'name'  => 'Login',
-                    'value' => $identity
-                )
-            );
+            $userQuerySelect = $queryBuilder->select('*')
+                ->from('User')
+                ->where('Login', $identity);
+            $user = $modelManager->byQuery($userQuerySelect);
+            var_dump($user);die;
         }
         if (!$user) {
             $user = $userService->create(array(
