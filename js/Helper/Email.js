@@ -14,7 +14,7 @@ var Helper_Email = {
      */
     isExists: function(email, callback)
     {
-        if (!email) {
+        if (typeof email == undefined || !email) {
             callback.call(null, false);
         }
         Controller.call(
@@ -55,6 +55,9 @@ var Helper_Email = {
 	 */
 	parseEmail: function(email)
 	{
+        if (typeof(email) == 'undefined') {
+            return false;
+        }
 		var p_at = email.indexOf('@');
 		if (p_at < 0) {
 			return false;
