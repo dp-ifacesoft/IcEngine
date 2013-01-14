@@ -3,7 +3,7 @@
 /**
  * Данные по OpenID пользователя
  *
- * @author goorus, morph
+ * @author neon, goorus, morph
  * @Service("userLoginza")
  */
 class User_Loginza extends Model
