@@ -1,30 +1,35 @@
 <?php
+
 /**
- * 
- * @desc Рендер для AJAX запросов (не проверялся).
- * @author Юрий Шведов
- * @package IcEngine
+ * Рендер для AJAX запросов
  *
+ * @author neon
  */
 class View_Render_Ajax extends View_Render_Abstract
 {
-	
-	public function fetch ($tpl)
+
+    /**
+     * Получить контент вида
+     *
+     * @param string $tpl
+     * @return array
+     */
+	public function fetch($tpl)
 	{
 		$result = $this->_vars;
 		$this->_vars = array();
-		return $result;
+		return json_encode($result);
 	}
-	
-	public function display ($tpl)
+
+    /**
+     * Отправить на вывод контент
+     *
+     * @param string $tpl
+     * @return string
+     */
+	public function display($tpl)
 	{
-		reset ($this->_vars);
-		echo json_encode (current ($this->_vars));
+		reset($this->_vars);
+		echo json_encode(current($this->_vars));
 	}
-	
-	public function addHelper ($helper, $method)
-	{
-		
-	}
-	
 }

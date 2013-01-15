@@ -36,6 +36,7 @@ class Controller_Controller extends Controller_Abstract
 			$params ? $params : array(),
 			false
 		);
+        //print_r($result);die;
 		$this->output->send(array(
 			'back'		=> $back,
 			'result'	=> $result
@@ -119,5 +120,37 @@ class Controller_Controller extends Controller_Abstract
 			)
 		));
 		$this->task->setTemplate(null);
+	}
+
+    /**
+	 * Ajax вызов контроллера (синхронный)
+     *
+     * @Route(
+     *      "/Controller/sync/",
+     *      "name"="syncPage",
+     *      "weight"=10,
+     *      "params"={
+     *          "View_Render__id"=5
+     *      }
+     * )
+	 */
+	public function sync($call, $back, $params)
+	{
+        $controllerManager = $this->getService('controllerManager');
+		if (is_string($params)) {
+			$params = json_decode(
+				urldecode($params),
+				true
+			);
+		}
+		$result = $controllerManager->html(
+			urldecode($call),
+			$params ? $params : array(),
+			false
+		);
+		$this->output->send(array(
+			'back'		=> $back,
+			'result'	=> $result
+		));
 	}
 }

@@ -8,29 +8,33 @@ var Helper_Email = {
 
     /**
      * Проверяет на существование пользователя с таким email
+     * Синхронный метод
      *
      * @param email string
-     * @param callback function
+     * @return boolean
      */
-    isExists: function(email, callback)
+    isExists: function(email)
     {
+        var output = false;
         if (typeof email == undefined || !email) {
-            callback.call(null, false);
+            return output;
         }
+        Loader.load('Sync', 'engine');
+        Controller._transports.push(Sync);
         Controller.call(
             'Email_Exists',
             {
                 'email': email
             },
             function (result) {
+                Controller._transports.pop();
                 if (result.data.isExists) {
-                    callback.call(null, true);
-                    return;
+                    output = true;
                 }
-                callback.call(null, false);
             },
             true
         );
+        return output;
     },
 
     /**
