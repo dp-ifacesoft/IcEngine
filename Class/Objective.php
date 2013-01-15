@@ -262,4 +262,18 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 			unset($this->data[$offset]);
 		}
 	}
+
+     /**
+     * Прикрепить массив
+     *
+     * @param array $data
+     */
+    public function set($data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $this->$key = $value;
+            }
+        }
+    }
 }

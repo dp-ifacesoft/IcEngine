@@ -82,7 +82,7 @@ class User_Abstract extends Model
 	 * $param ['password'] Пароль
 	 * $param ['active'] = 0 Активен
 	 * $param ['ip'] IP пользователя при регистрации
-	 * @return User
+	 * @return Model|false
 	 */
 	public function create($data)
 	{
@@ -92,6 +92,22 @@ class User_Abstract extends Model
 		if (!isset($data['ip'])) {
 			$data['ip'] = $this->getService('request')->ip();
 		}
+        //иначе пароля не будет в RSAW2
+        if (strlen($data['password'] < 4)) {
+            return;
+        }
+        if (!isset($data['login']) && !isset($data['email'])) {
+            return false;
+        }
+        if (!isset($data['login'])) {
+            $data['login'] = $data['email'];
+        }
+        $cryptManager = $this->getService('cryptManager');
+        $configManager = $this->getService('configManager');
+        $userConfig = $configManager->get('User');
+        $crypt = $cryptManager->get($userConfig->cryptManager);
+        $passwordCrypted = $crypt->encode($data['password']);
+        $data['password'] = $passwordCrypted;
 		$user = new User($data);
 		return $user->save();
 	}

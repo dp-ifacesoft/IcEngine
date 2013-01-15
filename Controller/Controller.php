@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Контроллер контроллеров.
  *
- * @desc Контроллер контроллеров.
- * @author Юрий
- * @package IcEngine
- *
+ * @author Юрий, neon
  */
 class Controller_Controller extends Controller_Abstract
 {
@@ -43,7 +42,7 @@ class Controller_Controller extends Controller_Abstract
 	}
 
 	/**
-	 * @desc Вызов экшена контроллера по названию из входных параметров
+	 * Вызов экшена контроллера по названию из входных параметров
 	 */
 	public function auto($controller, $action)
 	{
@@ -56,24 +55,20 @@ class Controller_Controller extends Controller_Abstract
         $helperDate = $this->getService('helperDate');
         $filename = IcEngine::root() . 'Ice/Controller/' .
 			str_replace('_', '/', $name) . '.php';
-		if (file_exists($filename))
-		{
+		if (file_exists($filename)) {
 			return;
 		}
 		$dir = dirname($filename);
-		if (!is_dir ($dir))
-		{
+		if (!is_dir($dir)) {
 			mkdir($dir, 0750, true);
 		}
 		$action = explode(',', $action);
-		foreach ($action as &$a)
-		{
+		foreach ($action as &$a) {
 			$a = trim ($a);
 		}
-
 		$output = $helperCodeGenerator->fromTemplate(
 			'controller',
-			array (
+			array(
 				'name'		=> $name,
 				'actions'	=> $action,
 				'comment'	=> $comment,
@@ -86,15 +81,12 @@ class Controller_Controller extends Controller_Abstract
 		file_put_contents($filename, $output);
 		$dir = IcEngine::root() . 'Ice/View/Controller/' .
 			str_replace('_', '/', $name) . '/';
-		if (!is_dir ($dir))
-		{
+		if (!is_dir($dir)) {
 			mkdir($dir, 0750, true);
 		}
-		foreach ($action as $a)
-		{
+		foreach ($action as $a) {
 			$filename = $dir . $a . '.tpl';
-			if (file_exists($filename))
-			{
+			if (file_exists($filename)) {
 				continue;
 			}
 			echo 'View: ' . $filename . PHP_EOL;
@@ -102,22 +94,57 @@ class Controller_Controller extends Controller_Abstract
 		}
 	}
 
+    /**
+     * Выполнить несколько action'ов и вернуть результаты
+     * @param array $actions
+     */
 	public function multiAction($actions)
 	{
         $controllerManager = $this->getService('controllerManager');
 		$results = array();
-		foreach ($actions as $name => $action)
-		{
+		foreach ($actions as $name => $action) {
 			$results[$name] = $controllerManager->html(
 				$action['action'],
 				$action
 			);
 		}
-		$this->output->send (array (
-			'data'	=> array (
+		$this->output->send(array(
+			'data'	=> array(
 				'results' => $results
 			)
 		));
 		$this->task->setTemplate(null);
+	}
+
+    /**
+	 * Ajax вызов контроллера (синхронный)
+     *
+     * @Route(
+     *      "/Controller/sync/",
+     *      "name"="syncPage",
+     *      "weight"=10,
+     *      "params"={
+     *          "View_Render__id"=5
+     *      }
+     * )
+	 */
+	public function sync($call, $back, $params)
+	{
+        $controllerManager = $this->getService('controllerManager');
+		if (is_string($params)) {
+			$params = json_decode(
+				urldecode($params),
+				true
+			);
+		}
+		$result = $controllerManager->html(
+			urldecode($call),
+			$params ? $params : array(),
+			false
+		);
+		$this->output->send(array(
+			'back'		=> $back,
+			'result'	=> $result
+		));
 	}
 }

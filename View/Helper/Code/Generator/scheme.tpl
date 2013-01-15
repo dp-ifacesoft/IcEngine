@@ -1,8 +1,8 @@
 <?php
 
 return array (
-	{if !empty($admin_panel)}
-		{$admin_panel},
+	{if !empty($adminPanel)}
+		{$adminPanel},
 	{/if}
 
     {if !empty($languageScheme)}

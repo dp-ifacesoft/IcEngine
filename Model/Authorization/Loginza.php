@@ -3,7 +3,7 @@
 /**
  * Авторизация через логинзу
  *
- * @author goorus, morph
+ * @author neon, goorus, morph
  */
 class Authorization_Loginza extends Authorization_Abstract
 {
@@ -30,45 +30,58 @@ class Authorization_Loginza extends Authorization_Abstract
 	 * Авторегистрация
 	 *
 	 * @param Authorization_Loginza_Token $token
-	 * @return User|string
+	 * @return User|int
 	 */
 	public function autoregister($token)
 	{
 		if (!$token->email) {
 			return;
 		}
+        $identity = (string) $token->identity;
+        $email = (string) $token->email;
 		$data = $token->data('data');
-		$userService = $this->getService('user');
-		$user = $userService->create(array(
-			'firstName'		=> (string) $token->email,
-			'login'		=> (string) $token->identity,
-			'email'		=> (string) $token->email,
-			'password'	=> md5(time()),
-			'active'	=> 1
-		));
+		//$userService = $this->getService('user');
 		$modelManager = $this->getService('modelManager');
-		$query = $this->getService('query');
-		$ul = $modelManager->byKey(
-			'User_Loginza',
-			$query->where('identity', (string) $token->identity)
-		);
-		if ($ul) {
-			$ul->update(array(
+		$queryBuilder = $this->getService('query');
+        $userLoginza = $modelManager->byQuery(
+            'User_Loginza',
+            $queryBuilder->where('identity', $identity)
+        );
+        if ($userLoginza) {
+            $user = $userLoginza->User;
+        }
+        if (!$user) {
+            $userQuerySelect = $queryBuilder->select('*')
+                ->from('User')
+                ->where('Login', $identity);
+            $user = $modelManager->byQuery($userQuerySelect);
+        }
+        /*if (!$user) {
+            $user = $userService->create(array(
+                'firstName'		=> $email,
+                'login'         => $identity,
+                'email'         => $email,
+                'password'      => md5(time()),
+                'active'        => 1
+            ));
+        }*/
+		if ($userLoginza && $user) {
+			$userLoginza->update(array(
 				'User__id'	=> $user->key()
 			));
 		} else {
 			$helperDate = $this->getService('helperDate');
-			$ul = new User_Loginza(array(
-				'User__id'	=> $user->key(),
-				'identity'	=> (string) $token->identity,
-				'email'		=> (string) $token->email,
+			$userLoginza = new User_Loginza(array(
+				'User__id'	=> $user ? $user->key() : 0,
+				'identity'	=> $identity,
+				'email'		=> $email,
 				'provider'	=> (string) $token->provider,
-				'result'		=> json_encode($data),
+				'result'	=> json_encode($data),
 				'createdAt'	=> $helperDate->toUnix()
 			));
-			$ul->save();
+			$userLoginza->save();
 		}
-		return $user;
+		return $user ? $user : 0;
 	}
 
 	/**

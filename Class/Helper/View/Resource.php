@@ -92,6 +92,7 @@ class Helper_View_Resource
             array_shift($args);
             $args = reset($args);
         }
+
         foreach ($args as $argsData) {
             $pathName = isset($argsData[1]) ? $argsData[1] : null;
             $filename = $argsData[0];
@@ -120,6 +121,7 @@ class Helper_View_Resource
 	/**
 	 * Добавляет js файлы
 	 *
+     * @example appendJs('Controller/Loginza.js', 'noPack')
 	 * @param string $filename
 	 */
 	public function appendJs($filename, $pathName = null)
@@ -132,9 +134,9 @@ class Helper_View_Resource
 	 *
 	 * @param string $filename
 	 */
-	public function appendJtpl($filename, $pathName = null)
+	public function appendJtpl($filename)
 	{
-		$this->append(self::JTPL, func_get_args());
+		$this->append(self::JTPL, array($filename, 'default'));
 	}
 
 	/**

@@ -20,26 +20,23 @@ var Controller = {
 	 * @param callback
 	 * @param nocache
 	 */
-	call: function (controller, params, callback, nocache)
+	call: function(controller, params, callback, nocache)
 	{
 		var back = Controller._lastback++;
 		Controller._callbacks [back] = callback;
-		Controller._callbacksData [back] = params ['back'] ? params ['back'] : null;
-		if (!Controller._transports.length)
-		{
-			Controller._transports.push (JsHttpRequest);
+		Controller._callbacksData [back] = params['back'] ?
+            params ['back'] : null;
+		if (!Controller._transports.length) {
+			Controller._transports.push(JsHttpRequest);
 		}
-		var transport = Controller._transports [Controller._transports.length - 1];
+		var transport = Controller._transports[Controller._transports.length - 1];
 		var targetUrl;
-		if (!('targetUrl' in transport))
-		{
+		if (!('targetUrl' in transport)) {
 			targetUrl = '/Controller/ajax/';
-		}
-		else
-		{
+		} else {
 			targetUrl = transport.targetUrl;
 		}
-		transport.query (
+		transport.query(
 			targetUrl,
 			{
 				'call': controller,

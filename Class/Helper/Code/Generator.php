@@ -15,7 +15,7 @@ class Helper_Code_Generator
 	 * @param array $data Данные для замены
 	 * @return string
 	 */
-	public static function fromTemplate($tpl, $data = array())
+	public function fromTemplate($tpl, $data = array())
 	{
 		$locator = IcEngine::serviceLocator();
 		$viewRenderManager = $locator->getService('viewRenderManager');

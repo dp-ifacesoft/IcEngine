@@ -3,16 +3,21 @@
 /**
  * Контроллер модели
  *
- * @author ..., neon
+ * @author ..., neon, markov
  */
 class Controller_Model extends Controller_Abstract
-{
-	/**
+{   
+    /**
 	 * Сравнение схем моделей и таблиц
 	 */
 	public function compare($author, $filename, $modelName)
 	{
-		$this->_task->setTemplate(null);
+        $helperDataSource = $this->getService('helperDataSource');
+        $modelSchemeService = $this->getService('modelScheme');
+        $controllerManager = $this->getService('controllerManager');
+        $queryBuilder = $this->getService('query');
+        $dds = $this->getService('dds');
+		$this->task->setTemplate(null);
 		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
 		$exec = 'find ' . $dir . '*';
 		ob_start();
@@ -29,32 +34,32 @@ class Controller_Model extends Controller_Abstract
         $models = array();
         if (!$modelName) {
             foreach ($files as $file) {
-			if (!is_file($file)) {
-				continue;
-			}
-			$file = str_replace(
-				str_replace('/', '_', IcEngine::root()) .
-				'Ice_Config_Model_Mapper_',
-				'',
-				str_replace ('/', '_', $file)
-			);
-			$className = substr($file, 0, -4);
-			if ($className == 'Scheme') {
-				continue;
-			}
-			$models[] = $className;
-		}
+                if (!is_file($file)) {
+                    continue;
+                }
+                $file = str_replace(
+                    str_replace('/', '_', IcEngine::root()) .
+                    'Ice_Config_Model_Mapper_',
+                    '',
+                    str_replace('/', '_', $file)
+                );
+                $className = substr($file, 0, -4);
+                if ($className == 'Scheme') {
+                    continue;
+                }
+                $models[] = $className;
+            }
         } else {
             $models  = array($modelName);
         }
 		foreach ($models as $model) {
-			$fields = Helper_Data_Source::fields($model);
-			$table = Model_Scheme::table($model);
+			$fields = $helperDataSource->fields($model);
+			$table = $modelScheme->table($model);
 			if (!$fields) {
 				echo 'Model "' . $model . '" not have a table. Create?[Y/n] ';
 				$a = fgets(STDIN);
 				if ($a[0] == 'Y') {
-					Controller_Manager::call(
+					$controllerManager->call(
 						'Model', 'create', array(
 							'name'		=> $model,
 							'author'	=> $author
@@ -62,8 +67,8 @@ class Controller_Model extends Controller_Abstract
 					);
 				}
 			} else {
-				$tableFields = Model_Scheme::makeScheme($fields);
-				$modelScheme = Model_Scheme::getScheme($model);
+				$tableFields = $modelSchemeService->makeScheme($fields);
+				$modelScheme = $modelSchemeService->getScheme($model);
 				if (!$modelScheme) {
 					continue;
 				}
@@ -76,175 +81,15 @@ class Controller_Model extends Controller_Abstract
 						array_keys($deletedFields)
 					)
 				);
-				if ($addedFields) {
-					foreach ($addedFields as $fieldName => $data) {
-						echo 'In model "' . $model . '" had added field "' .
-							$fieldName . '". Create?[Y/n] ';
-						$a = fgets(STDIN);
-						if ($a[0] == 'Y') {
-							$field = new Model_Field($fieldName);
-							$field->setNullable(false)
-								->setType($data['type'])
-								->setComment($data['comment']);
-							if (!empty($data['default'])) {
-								$field->setDefault($data['default']);
-							}
-							if (!empty($data['size'])) {
-								$field->setSize($data['size']);
-							}
-							if (!empty($data['auto_inc'])) {
-								$field->setAutoIncrement(true);
-							}
-							$query = Query::instance()
-								->alterTable($table)
-								->add($field);
-							if ($filename) {
-								file_put_contents(
-									$filename,
-									$query->translate() . PHP_EOL,
-									FILE_APPEND
-								);
-							} else {
-								DDS::execute($query);
-							}
-						}
-					}
-				}
-				if ($deletedFields) {
-					foreach ($deletedFields as $fieldName => $data) {
-						echo 'In model "' . $model . '" had deleted field "' .
-							$fieldName . '". Delete?[Y/n] ';
-						$a = fgets(STDIN);
-						if ($a[0] == 'Y') {
-							$field = new Model_Field($fieldName);
-							$query = Query::instance()
-								->alterTable($table)
-								->drop($field);
-							if ($filename) {
-								file_put_contents(
-									$filename,
-									$query->translate() . PHP_EOL,
-									FILE_APPEND
-								);
-							} else {
-								DDS::execute($query);
-							}
-						}
-					}
-				}
-				if ($remainingFields) {
-					foreach ($remainingFields as $fieldName => $tableData) {
-						if (!isset($modelFields[$fieldName])) {
-							continue;
-						}
-						$fieldData = $modelFields[$fieldName];
-						$changedAttributes = @array_diff_assoc(
-							$tableData, $fieldData
-						);
-						$modelChangedFields = @array_diff_assoc(
-							$fieldData, $tableData
-						);
-						if (count($modelChangedFields) !=
-							count($changedAttributes)) {
-							foreach ($modelChangedFields as $attrName => $value) {
-								if (isset($changedAttributes[$attrName])) {
-									continue;
-								}
-								echo 'In model "' . $model .
-									'" had changed field "' .
-									$fieldName . '" with added attribute "' .
-									$attrName .	'". Apply changes?[Y/n] ';
-								$a = fgets(STDIN);
-								if ($a[0] == 'Y') {
-									$field = new Model_Field($fieldName);
-									$field->setNullable(false)
-										->setType($tableData['type'])
-										->setComment($tableData['comment']);
-									if (!empty($tableData['default'])) {
-										$field->setDefault($tableData['default']);
-									}
-									if (!empty($tableData['size'])) {
-										$field->setSize($tableData['size']);
-									}
-									if (!empty($tableData['auto_inc'])) {
-										$field->setAutoIncrement(true);
-									}
-									if ($attrName == 'auto_inc') {
-										$attrName = 'auto_increment';
-									}
-									$attrName = 'ATTR_' . strtoupper($attrName);
-									$attr = constant('Model_Field::' . $attrName);
-									$field->setAttr($attr, $value);
-									$query = Query::instance()
-										->alterTable($table)
-										->change($fieldName, $field);
-									if ($filename) {
-										file_put_contents(
-											$filename,
-											$query->translate() . PHP_EOL,
-											FILE_APPEND
-										);
-									} else {
-										DDS::execute($query);
-									}
-								}
-							}
-						}
-						if ($changedAttributes) {
-							foreach ($changedAttributes as $attrName => $value) {
-								if (isset($modelChangedFields[$attrName])) {
-									continue;
-								}
-								if (!isset($fieldData[$attrName])) {
-									continue;
-								}
-								echo 'In model "' . $model .
-									'" had changed field "' .
-									$fieldName . '" with changed attribute "' .
-									$attrName .	'". Apply changes?[Y/n] ';
-								$a = fgets(STDIN);
-								if ($a[0] == 'Y') {
-									$field = new Model_Field($fieldName);
-									$field->setNullable(false)
-										->setType($tableData['type'])
-										->setComment($tableData['comment']);
-									if (!empty($tableData['default'])) {
-										$field->setDefault($tableData['default']);
-									}
-									if (!empty($tableData['size'])) {
-										$field->setSize($tableData['size']);
-									}
-									if (!empty($tableData['auto_inc'])) {
-										$field->setAutoIncrement(true);
-									}
-									$oldAttr = $attrName;
-									if ($attrName == 'auto_inc') {
-										$attrName = 'auto_increment';
-									}
-									$attrName = 'ATTR_' . strtoupper($attrName);
-									$attr = constant('Model_Field::' . $attrName);
-									if (isset($fieldData[$oldAttr])) {
-										$field->setAttr(
-											$attr, $fieldData[$oldAttr]
-										);
-									}
-									$query = Query::instance()
-										->alterTable($table)
-										->change($fieldName, $field);
-									if ($filename) {
-										file_put_contents(
-											$filename,
-											$query->translate() . PHP_EOL,
-											FILE_APPEND
-										);
-									} else {
-										DDS::execute($query);
-									}
-								}
-							}
-						}
-					}
-				}
+				$helperControllerModel->compareAddedFields($addedFields, 
+                    $model, $table, $filename
+                );
+                $helperControllerModel->compareDeletedFields($deletedFields,
+                    $model, $table, $filename
+                );
+                $helperControllerModel->compareRemainingFields($remainingFields, 
+                    $modelFields, $model, $filename
+                );
 			}
 		}
 	}
@@ -254,16 +99,16 @@ class Controller_Model extends Controller_Abstract
 	 *
 	 * @param string $name Название модели
 	 * @param string $author Автор
-	 * @param boolean $without_table Создавать ли таблицу
+	 * @param boolean $withoutTable Создавать ли таблицу
 	 * @param string $extends От кого наследовать модель? По умолчанию от Model
-	 * @param boolean $with_load Нужно ли подгружать через Loader::load класс родителя
+	 * @param boolean $withLoad Нужно ли подгружать через Loader::load класс родителя
 	 * @param string $comment Комментарий
-	 * @param boolean $without_collection Создавать ли коллекцию
-	 * @param boolean $without_options Создавать ли директорию для опшинов
+	 * @param boolean $withoutCollection Создавать ли коллекцию
+	 * @param boolean $withoutOptions Создавать ли директорию для опшинов
 	 * @param integer $id Айди сущности, если необходимо
 	 */
-	public function create($name, $author, $without_table, $extends, $with_load,
-		$comment, $without_collection, $without_options, $id = 0)
+	public function create($name, $author, $withoutTable, $extends, $withLoad,
+		$comment, $withoutCollection, $withoutOptions, $id = 0)
 	{
 		$this->task->setTemplate(null);
 		$configManager = $this->getService('configManager');
@@ -277,32 +122,32 @@ class Controller_Model extends Controller_Abstract
 			return;
 		}
 		$dir = IcEngine::root() . 'Ice/Model/';
-		$name_dir = explode('_', $name);
-		$filename = array_pop($name_dir);
-		$current_dir = $dir;
-		if ($name_dir) {
-			foreach ($name_dir as $dir) {
-				$current_dir .= $dir . '/';
-				if (!is_dir($current_dir)) {
-					mkdir($current_dir);
+		$nameDir = explode('_', $name);
+		$filename = array_pop($nameDir);
+		$currentDir = $dir;
+		if ($nameDir) {
+			foreach ($nameDir as $dir) {
+				$currentDir .= $dir . '/';
+				if (!is_dir($currentDir)) {
+					mkdir($currentDir);
 				}
 			}
 		}
-		$dir = $current_dir . $filename . '/';
-		if (!$without_collection) {
+		$dir = $currentDir . $filename . '/';
+		if (!$withoutCollection) {
 			if (!is_dir($dir)) {
 				mkdir($dir);
 			}
 		}
-		if (!$without_options) {
+		if (!$withoutOptions) {
 			if (!is_dir($dir . 'Option')) {
 				mkdir($dir . 'Option');
 			}
 		}
-		$filename = $current_dir . $filename . '.php';
+		$filename = $currentDir . $filename . '.php';
 		$author = $author ? $author : $config->author;
 		if (!is_file($filename)) {
-			$properties = array ();
+			$properties = array();
 			if ($config->fields) {
 				foreach ($config->fields as $field => $values) {
 					$type = $values[0];
@@ -326,7 +171,7 @@ class Controller_Model extends Controller_Abstract
 				'model',
 				array(
 					'extends'	=> $extends ? $extends : 'Model',
-					'with_load'	=> $with_load,
+					'with_load'	=> $withLoad,
 					'comment'	=> $comment ? $comment : $config->comment,
 					'date'		=> $helperDate->toUnix(),
 					'author'	=> $author,
@@ -338,17 +183,17 @@ class Controller_Model extends Controller_Abstract
 				)
 			);
 			echo 'File: ' . $filename . PHP_EOL;
-			file_put_contents ($filename, $output);
+			file_put_contents($filename, $output);
 			echo $output . PHP_EOL . PHP_EOL;
 		}
-		if (!$without_collection) {
+		if (!$withoutCollection) {
 			$filename = $dir . 'Collection.php';
 			if (!is_file($filename)) {
 				$output = $helperCodeGenerator->fromTemplate(
 					'model',
 					array(
 						'extends'	=> $extends ? $extends : 'Model_Collection',
-						'with_load'	=> $with_load,
+						'with_load'	=> $withLoad,
 						'comment'	=> 'Collection for model ' . $name,
 						'date'		=> $helperDate->toUnix(),
 						'author'	=> $author,
@@ -363,7 +208,7 @@ class Controller_Model extends Controller_Abstract
 				echo $output . PHP_EOL . PHP_EOL;
 			}
 		}
-		if (!$without_table && $config->fields) {
+		if (!$withoutTable && $config->fields) {
 			$controllerManager->call(
 				'Model', 'createTable',
 				array(
@@ -482,38 +327,38 @@ class Controller_Model extends Controller_Abstract
 		foreach ($names as $name) {
 			$fields = $helperDataSource->fields('`' . $name . '`', $ds);
 			$info = $helperDataSource->table('`' . $name . '`', $ds);
-			$model_name = $modelScheme->tableToModel($name);
+			$modelName = $modelScheme->tableToModel($name);
 			$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
-			$name_dir = explode('_', $model_name);
-			$filename = array_pop($name_dir);
-			$current_dir = $dir;
-			$exists_scheme = $configManager->get('Model_Mapper_' . $model_name);
+			$nameDir = explode('_', $modelName);
+			$filename = array_pop($nameDir);
+			$currentDir = $dir;
+			$existsScheme = $configManager->get('Model_Mapper_' . $modelName);
 			$references = array();
-			$admin_panel = array();
+			$adminPanel = array();
             $languageScheme = array();
             $createScheme = array();
-			if ($exists_scheme) {
-				$author = $author ? $author : $exists_scheme->author;
-				$comment = $comment ? $comment : $exists_scheme->comment;
-				$references = $exists_scheme->references;
-				$admin_panel = $exists_scheme->admin_panel;
-                $languageScheme = $exists_scheme->languageScheme;
-                $createScheme = $exists_scheme->createScheme;
+			if ($existsScheme) {
+				$author = $author ? $author : $existsScheme->author;
+				$comment = $comment ? $comment : $existsScheme->comment;
+				$references = $existsScheme->references;
+				$adminPanel = $existsScheme->admin_panel;
+                $languageScheme = $existsScheme->languageScheme;
+                $createScheme = $existsScheme->createScheme;
 			}
-			if ($name_dir) {
-				foreach ($name_dir as $dir) {
-					$current_dir .= $dir . '/';
-					if (!is_dir($current_dir)) {
-						mkdir($current_dir);
+			if ($nameDir) {
+				foreach ($nameDir as $dir) {
+					$currentDir .= $dir . '/';
+					if (!is_dir($currentDir)) {
+						mkdir($currentDir);
 					}
 				}
 			}
-			$filename = $current_dir . $filename . '.php';
+			$filename = $currentDir . $filename . '.php';
 			if (is_file($filename) && !$rewrite) {
 				continue;
 			}
-			$result_fields = array();
-			$result_keys = array();
+			$resultFields = array();
+			$resultKeys = array();
 			$query = $queryBuilder->show('KEYS')
 				->from('`' . $name . '`');
 			$keys = $ds->execute($query)->getResult()->asTable();
@@ -539,15 +384,15 @@ class Controller_Model extends Controller_Abstract
 						$size = '';
 					}
 				}
-				$result_fields[$field['Field']] = array(
+				$resultFields[$field['Field']] = array(
 					ucfirst($type),
 					array()
 				);
 				if ($size) {
-					$result_fields[$field['Field']][1]['Size'] = $size;
+					$resultFields[$field['Field']][1]['Size'] = $size;
 				}
 				if ($values) {
-					$result_fields[$field['Field']][1]['Enum'] = $values;
+					$resultFields[$field['Field']][1]['Enum'] = $values;
 				}
 				if (
 					strpos($field['Type'], 'text') === false &&
@@ -560,48 +405,48 @@ class Controller_Model extends Controller_Abstract
 						strpos(strtolower($type), 'int') === false ||
 						is_numeric($field['Default'])
 					) {
-						$result_fields[$field['Field']][1]['Default'] =
+						$resultFields[$field['Field']][1]['Default'] =
 							$field['Default'];
 					}
 
 				}
 				if (!empty($field['Comment']))
 				{
-					$result_fields[$field['Field']][1]['Comment'] = addslashes(
+					$resultFields[$field['Field']][1]['Comment'] = addslashes(
 						$field['Comment']
 					);
 				}
 				if ($unsigned) {
-					$result_fields[$field['Field']][1][] = 'Unsigned';
+					$resultFields[$field['Field']][1][] = 'Unsigned';
 				}
 				if ($field['Null'] == 'YES') {
-					$result_fields[$field['Field']][1][] = 'Not_Null';
+					$resultFields[$field['Field']][1][] = 'Not_Null';
 				} else {
-					$result_fields[$field['Field']][1][] = 'Null';
+					$resultFields[$field['Field']][1][] = 'Null';
 				}
 				if ($field['Extra'] == 'auto_increment') {
-					$result_fields[$field['Field']][1][] = 'Auto_Increment';
+					$resultFields[$field['Field']][1][] = 'Auto_Increment';
 				}
 			}
 			foreach ($keys as $key) {
 				$name = $key['Key_name'];
-				if (!isset($result_keys[$name])) {
-					$result_keys[$name] = $key;
+				if (!isset($resultKeys[$name])) {
+					$resultKeys[$name] = $key;
 				}
-				if (!is_array($result_keys[$name]['Column_name'])) {
-					$result_keys[$name]['Column_name'] = array();
+				if (!is_array($resultKeys[$name]['Column_name'])) {
+					$resultKeys[$name]['Column_name'] = array();
 				}
-				$result_keys[$name]['Column_name'][] = $key['Column_name'];
+				$resultKeys[$name]['Column_name'][] = $key['Column_name'];
 			}
-			$keys = array_values($result_keys);
-			$result_keys = array();
+			$keys = array_values($resultKeys);
+			$resultKeys = array();
 			foreach ($keys as $key) {
-				$key_name = $key['Key_name'] != 'PRIMARY'
+				$keyName = $key['Key_name'] != 'PRIMARY'
 					? $key['Key_name'] : 'id';
-				$key_name .= '_index';
+				$keyName .= '_index';
 				$type = $key['Non_unique'] ? 'Key' : 'Unique';
 				$type = $key['Key_name'] == 'PRIMARY' ? 'Primary' : $type;
-				$result_keys[$key_name] = array(
+				$resultKeys[$keyName] = array(
 					$type,
 					$key['Column_name']
 				);
@@ -609,9 +454,9 @@ class Controller_Model extends Controller_Abstract
 			if (!$comment && !empty($info['Comment'])) {
 				$comment = $info['Comment'];
 			}
-			if (!empty($admin_panel)) {
-				$admin_panel =  '\'admin_panel\' => ' .
-					$helperConverter->arrayToString($admin_panel);
+			if (!empty($adminPanel)) {
+				$adminPanel =  '\'admin_panel\' => ' .
+					$helperConverter->arrayToString($adminPanel);
 			}
             if (!empty($languageScheme)) {
 				$languageScheme =  '\'languageScheme\' => ' .
@@ -624,12 +469,12 @@ class Controller_Model extends Controller_Abstract
 			$output = $helperCodeGenerator->fromTemplate(
 				'scheme',
 				array(
-					'author'		=> $author,
-					'comment'		=> $comment,
-					'fields'		=> $result_fields,
-					'indexes'		=> $result_keys,
-					'references'	=> $references,
-					'admin_panel'	=> $admin_panel,
+					'author'            => $author,
+					'comment'           => $comment,
+					'fields'            => $resultFields,
+					'indexes'           => $resultKeys,
+					'references'        => $references,
+					'admin_panel'       => $adminPanel,
                     'languageScheme'    => $languageScheme,
                     'createScheme'      => $createScheme
 				)
@@ -639,118 +484,106 @@ class Controller_Model extends Controller_Abstract
 		}
 	}
 
-	public function missing ()
+	public function missing()
 	{
-		$tables = Helper_Data_Source::tables ();
-		$exists_models = array ();
+        $helperDataSource = $this->getService('helperDataSource');
+        $modelSchemeService = $this->getService('modelScheme');
+		$tables = $helperDataSource->tables();
+		$exists_models = array();
 		foreach ($tables as $table)
 		{
-			$exists_models[] = Model_Scheme::tableToModel ($table->Name);
+			$exists_models[] = $modelSchemeService->tableToModel($table->Name);
 		}
-		$dir = IcEngine::root () . 'Ice/Config/Model/Mapper/';
+		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
 		$exec = 'find ' . $dir . '*';
-		ob_start ();
+		ob_start();
 		system ($exec);
-		$content = ob_get_contents ();
-		ob_end_clean ();
+		$content = ob_get_contents();
+		ob_end_clean();
 		if (!$content)
 		{
 			return;
 		}
-		$files = explode (PHP_EOL, $content);
+		$files = explode(PHP_EOL, $content);
 		if (!$files)
 		{
 			return;
 		}
-		$config_models = array ();
+		$configModels = array();
 		foreach ($files as $file)
 		{
 			if (!is_file ($file))
 			{
 				continue;
 			}
-			$class_name = str_replace (
-				IcEngine::root () . 'Ice/Config/Model/Mapper/',
+			$className = str_replace(
+				IcEngine::root() . 'Ice/Config/Model/Mapper/',
 				'',
 				$file
 			);
-			$class_name = substr (str_replace ('/', '_', $class_name), 0, -4);
-			if ($class_name == 'Scheme')
+			$className = substr(str_replace('/', '_', $className), 0, -4);
+			if ($className == 'Scheme')
 			{
 				continue;
 			}
-			$config_models[] = $class_name;
+			$configModels[] = $className;
 		}
-		$result = array ();
-		foreach ($config_models as $model)
+		$result = array();
+		foreach ($configModels as $model)
 		{
-			if (!in_array ($model, $exists_models))
+			if (!in_array($model, $exists_models))
 			{
-				$result[]  = $model;
+				$result[] = $model;
 			}
 		}
-		$this->_output->send (array (
+		$this->output->send(array(
 			'missings'	=> $result
 		));
-		print_r ($result);
+		print_r($result);
 	}
 
 	/**
 	 * Создает схему модели
-	 * 
-     * @param string $name
+     * 
+	 * @param string $name
 	 * @param string $comment
 	 * @param string $author
 	 */
-	public function scheme($name, $comment, $author, $fields, $indexes,
-        $references)
+	public function scheme($name, $comment, $author, $fields, $indexes)
 	{
+        $helperCodeGenerator = $this->getService('helperCodeGenerator');
 		$this->task->setTemplate(null);
-		if (!$name) {
+		if (!$name)
+		{
 			echo 'Scheme must contains name.' . PHP_EOL;
 			return;
 		}
-        $task = $this->getService('controllerManager')->call(
-            'Annotation_Orm', 'create', array(
-                'className' => $name
-            )
-        );
-        $buffer = $task->getTransaction()->buffer();
-        if (isset($buffer['modelScheme'])) {
-            $comment = $buffer['modelScheme']['comment'];
-            $fields = $buffer['modelScheme']['fields'];
-            $indexes = $buffer['modelScheme']['indexes'];
-            $references = $buffer['modelScheme']['references'];
-        } 
 		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
-		$name_dir = explode('_', $name);
-		$filename = array_pop ($name_dir) . '.php';
-		if (is_file ($filename)) {
+		$dirname = explode('_', $name);
+		$filename = array_pop($dirname) . '.php';
+		if (is_file($dir.$filename))
+		{
 			return;
 		}
-		$current_dir = $dir;
-		if ($name_dir)
+		$currentDir = $dir;
+		if ($dirname)
 		{
-			foreach ($name_dir as $dir)
+			foreach ($dirname as $dir)
 			{
-				$current_dir .= $dir . '/';
-				if (!is_dir ($current_dir))
+				$currentDir .= $dir . '/';
+				if (!is_dir($currentDir))
 				{
-					mkdir ($current_dir);
+					mkdir($currentDir);
 				}
 			}
 		}
-		$filename = $current_dir . $filename;
-        if (file_exists($filename)) {
-            return;
-        }
+		$filename = $currentDir . $filename;
 		echo 'File: ' . $filename . PHP_EOL . PHP_EOL;
-
         if (!$fields) {
-            $fields = array (
-                'id'	=> array (
+            $fields = array(
+                'id'	=> array(
                     'Int',
-                    array (
+                    array(
                         'Size'	=> 11,
                         'Not_Null',
                         'Auto_Increment'
@@ -759,168 +592,76 @@ class Controller_Model extends Controller_Abstract
             );
         }
         if (!$indexes) {
-            $indexes = array (
-                'id'	=> array (
+            $indexes = array(
+                'id'	=> array(
                     'Primary',
-                    array ('id')
+                    array('id')
                 )
             );
         }
-
-		$admin_panel = "'admin_panel' => array (
-			// Сортировки
-//			'sort'		=> '',
-//
-//			'search_fields'	=> array (
-//
-//			),
-//
-//			// Выводимые поля
-//			'fields'  => array ('id'),
-//
-//			// Стили
-//			'styles'	=> array (
-//
-//			),
-//
-//			// Стили ссылок
-//			'link_styles' => array (
-//
-//			),
-//
-//			// Поля, являющиеся ссылками
-//			'links'		=> array (
-//
-//			),
-//
-//			// Лимиты
-//			'limit'	=> 1000,
-//
-//			// Эвенты
-//			'event' => array (
-//
-//			),
-//
-//			// Фильтры
-//			'filter'	=> array (
-//
-//			),
-//
-//			// Фильтры значений при подстановки
-//			'field_filters'	=> array (
-//
-//			),
-//
-//			// Плагины
-//			'plugin'	=> array (
-//
-//			),
-//
-//			// Заголовок
-//			'title'	=>  'title',
-//
-//			// Подстановки
-//			'includes'	=> array (
-//
-//			),
-//
-//			// Ограничители
-//			'limitators'	=> array (
-//
-//			),
-//
-//			// Автозаполнители
-//			'auto_select'  => array (
-//
-//			),
-//
-//			// Модификаторы
-//			'modificators' => array (
-//
-//			),
-//
-//			'afterSave'	=> array (
-//
-//			)
-		)";
-			$output = Helper_Code_Generator::fromTemplate (
-				'scheme',
-				array (
-					'author'	=> $author,
-					'comment'	=> $comment,
-					'fields'	=> $fields,
-					'indexes'       => $indexes,
-                    'references'    => $references,
-					'admin_panel'	=> $admin_panel
-				)
-			);
-
-		echo $output;
-
-		file_put_contents ($filename, $output);
         
-        $this->output->send(array(
-            'success'   => true
-        ));
+        $adminPanel = $helperCodeGenerator->fromTemplate('schemeAdminPanel', array());
+        $output = $helperCodeGenerator->fromTemplate('scheme',
+            array(
+                'author'        => $author,
+                'comment'       => $comment,
+                'fields'        => $fields,
+                'indexes'       => $indexes,
+                'adminPanel'	=> $adminPanel
+            )
+        );
+		echo $output;
+		file_put_contents($filename, $output);
 	}
 
 	/**
-	 * @desc Обновляет схему модели
+	 * Обновляет схему модели
 	 */
-	public function schemeUpdate ($name, $comment, $author, $fields, $indexes, $admin_panel)
+	public function schemeUpdate($name, $comment, $author, $fields, $indexes, 
+        $adminPanel)
 	{
 		$this->_task->setTemplate (null);
-
+        $configManager = $this->getService('configManager');
+        $helperCodeGenerator = $this->getService('helperCodeGenerator');
 		if (!$name)
 		{
 			echo 'Scheme must contains name.' . PHP_EOL;
 			return;
 		}
-		$dir = IcEngine::root () . 'Ice/Config/Model/Mapper/';
-		$name_dir = explode ('_', $name);
-		$filename = array_pop ($name_dir) . '.php';
-		var_dump ($filename);
-
-		$scheme = Config_Manager::get ('Model_Mapper_' . $name);
-
-		$current_dir = $dir;
-		if ($name_dir)
+		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
+		$dirname = explode('_', $name);
+		$filename = array_pop($dirname) . '.php';
+		var_dump($filename);
+		$scheme = $configManager->get('Model_Mapper_' . $name);
+		$currentDir = $dir;
+		if ($dirname)
 		{
-			foreach ($name_dir as $dir)
+			foreach ($dirname as $dir)
 			{
-				$current_dir .= $dir . '/';
-				if (!is_dir ($current_dir))
+				$currentDir .= $dir . '/';
+				if (!is_dir($currentDir))
 				{
-					mkdir ($current_dir);
+					mkdir($currentDir);
 				}
 			}
 		}
-		$filename = $current_dir . $filename;
-
+		$filename = $currentDir . $filename;
 		echo 'File: ' . $filename . PHP_EOL . PHP_EOL;
-
 		$fields = !$fields ? $scheme['fields'] : $fields;
-
 		$indexes = !$indexes ? $scheme['indexes'] : $indexes;
-
-		$admin_panel = !$admin_panel ? $scheme['admin_panel'] : $admin_panel;
-
-		$admin_panel = "'admin_panel' => " . $admin_panel;
-
-		$output = Helper_Code_Generator::fromTemplate (
-				'scheme',
-				array (
+		$adminPanel = !$adminPanel ? $scheme['admin_panel'] : $adminPanel;
+		$adminPanel = "'admin_panel' => " . $adminPanel;
+		$output = $helperCodeGenerator->fromTemplate('scheme',
+				array(
 					'author'	=> $author,
 					'comment'	=> $comment,
 					'fields'	=> $fields,
 					'indexes'	=> $indexes,
-					'admin_panel'	=> $admin_panel
+					'adminPanel'	=> $adminPanel
 				)
 			);
-
 		echo $output;
-
-		file_put_contents ($filename, $output);
+		file_put_contents($filename, $output);
 	}
 
 }
