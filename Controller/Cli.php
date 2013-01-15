@@ -27,7 +27,8 @@ class Controller_Cli extends Controller_Abstract
             $tmp = $actionName;
             $actionName = substr($actionName, 0, $hasParams);
             $actionParams = '@' . ucfirst($actionName) . 
-                substr($tmp, $hasParams) . ')';
+                substr($tmp, $hasParams) .
+                    (count($executeParts) > 1 ? ')' : '');
         }
         $parser = new Annotation_Source_Standart;
         if ($actionParams) {
