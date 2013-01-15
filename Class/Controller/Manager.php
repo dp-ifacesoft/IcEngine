@@ -225,7 +225,7 @@ class Controller_Manager extends Manager_Abstract
         // передано, то будет использоваться его входной транспорт
 		if (!$task) {
 			$task = $this->createEmptyTask($controllerName, $actionName); 
-		} else {
+		} elseif (!$input) {
             $input = $task->getInput();
         }
         // Полуваем контроллер и запоминаем его транспорты и задание, чтобы

@@ -17,7 +17,6 @@ class Controller_Cli_Simple extends Controller_Abstract
 	{
 		$buffer = new Data_Provider_Buffer ();
 		$argv = $this->input->receiveAll ();
-
 		foreach ($argv as $arg)
 		{
 			$p = strpos ($arg, '=');
