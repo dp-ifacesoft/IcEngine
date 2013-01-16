@@ -18,6 +18,8 @@ class Controller_Cli extends Controller_Abstract
             return;
         }
         echo 'Begining... ';
+        $slot = new \Event_Slot_Cli_Error();
+        $slot->register('RuntimeError');
         list($controllerData, $actionData) = explode('::', $command);
         $executeParts = explode(').', $actionData);
         $actionName = $executeParts[0];

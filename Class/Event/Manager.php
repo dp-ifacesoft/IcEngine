@@ -61,7 +61,11 @@ class Event_Manager
 	 */
 	public function getSignal($signalName)
 	{
-		if (!isset(self::$signals[$signalName])) {
+        if (is_object($signalName)) {
+            $signal = $signalName;
+            $signalName = $signal->getName();
+            self::$signals[$signalName] = $signal;
+        } elseif (!isset(self::$signals[$signalName])) {
 			$className = 'Event_Signal_' . $signalName;
             if (IcEngine::getLoader()->tryLoad($className)) {
                 $signal = new $className;

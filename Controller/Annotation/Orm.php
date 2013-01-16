@@ -66,6 +66,9 @@ class Controller_Annotation_Orm extends Controller_Abstract
         $fields = array();
         $references = array();
         $indexes = array();
+        $booleanOnlyArgs = array(
+            'Unsigned', 'Auto_Increment', 'Not_Null', 'Null'
+        );
         foreach ($annotation['properties'] as $property => $data) {
             if (!$data) {
                 continue;
@@ -95,6 +98,11 @@ class Controller_Annotation_Orm extends Controller_Abstract
                             break;
                         }
                         $fieldComment .= $line;
+                    }
+                    foreach ($booleanOnlyArgs as $arg) {
+                        if (isset($fieldData[$arg])) {
+                            $fieldData[$arg] = true;
+                        }
                     }
                     $fieldData['Comment'] = $fieldComment;
                     $fields[$property] = array($value, $fieldData);

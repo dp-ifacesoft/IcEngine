@@ -549,36 +549,46 @@ class Controller_Model extends Controller_Abstract
 	 * @param string $comment
 	 * @param string $author
 	 */
-	public function scheme($name, $comment, $author, $fields, $indexes)
+	public function scheme($name, $comment, $author, $references, 
+        $fields, $indexes)
 	{
         $helperCodeGenerator = $this->getService('helperCodeGenerator');
 		$this->task->setTemplate(null);
-		if (!$name)
-		{
+		if (!$name) {
 			echo 'Scheme must contains name.' . PHP_EOL;
 			return;
 		}
 		$dir = IcEngine::root() . 'Ice/Config/Model/Mapper/';
 		$dirname = explode('_', $name);
 		$filename = array_pop($dirname) . '.php';
-		if (is_file($dir.$filename))
-		{
+		if (is_file($dir.$filename)) {
 			return;
 		}
 		$currentDir = $dir;
-		if ($dirname)
-		{
-			foreach ($dirname as $dir)
-			{
+		if ($dirname) {
+			foreach ($dirname as $dir) {
 				$currentDir .= $dir . '/';
-				if (!is_dir($currentDir))
-				{
+				if (!is_dir($currentDir)){
 					mkdir($currentDir);
 				}
 			}
 		}
 		$filename = $currentDir . $filename;
 		echo 'File: ' . $filename . PHP_EOL . PHP_EOL;
+        $task = $this->getService('controllerManager')->call(
+            'Annotation_Orm', 'create', array(
+                'className' => $name
+            )
+        );
+        $buffer = $task->getTransaction()->buffer();
+        if (isset($buffer['modelScheme'])) {
+            $data = $buffer['modelScheme'];
+            $fields = $data['fields'];
+            $indexes = $data['indexes'];
+            $references = $data['references'];
+            $pos = strpos($data['comment'], 'Created at:');
+            $comment = substr($data['comment'], 0, $pos);
+        }
         if (!$fields) {
             $fields = array(
                 'id'	=> array(
@@ -599,19 +609,24 @@ class Controller_Model extends Controller_Abstract
                 )
             );
         }
-        
-        $adminPanel = $helperCodeGenerator->fromTemplate('schemeAdminPanel', array());
+        $adminPanel = $helperCodeGenerator->fromTemplate(
+            'schemeAdminPanel', array()
+        );
         $output = $helperCodeGenerator->fromTemplate('scheme',
             array(
                 'author'        => $author,
                 'comment'       => $comment,
                 'fields'        => $fields,
                 'indexes'       => $indexes,
+                'references'    => $references,
                 'adminPanel'	=> $adminPanel
             )
         );
 		echo $output;
 		file_put_contents($filename, $output);
+        $this->output->send(array(
+            'success'   => true
+        ));
 	}
 
 	/**

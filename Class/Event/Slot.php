@@ -33,7 +33,7 @@ class Event_Slot
 	 *
 	 * @var array
 	 */
-	protected $params;
+	protected $params = array();
 
 	/**
 	 * Конструктор
