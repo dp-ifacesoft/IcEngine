@@ -270,27 +270,27 @@ function encodePoints (points)
 	return Base64.encode (array);
 };
 
-$(document).ready (function ()
-{
-    if (typeof $('#saveGeoObject').live !== 'undefined')
-    {
-	$('#saveGeoObject').live ('click', function ()
-	{
-		var geo_layers = editor.getObjectDescriptions ();
-
-		Controller.call (
-			'Admin_Database_Map/save',
-			{
-				table: table,
-				row_id: row_id,
-				data: geo_layers
-			},
-			function (result)
-			{
-
-			},
-			false
-		);
-	});
-    }
-});
+//$(document).ready (function ()
+//{
+//    if (typeof $('#saveGeoObject').live !== 'undefined')
+//    {
+//	$('#saveGeoObject').live ('click', function ()
+//	{
+//		var geo_layers = editor.getObjectDescriptions ();
+//
+//		Controller.call (
+//			'Admin_Database_Map/save',
+//			{
+//				table: table,
+//				row_id: row_id,
+//				data: geo_layers
+//			},
+//			function (result)
+//			{
+//
+//			},
+//			false
+//		);
+//	});
+//    }
+//});
