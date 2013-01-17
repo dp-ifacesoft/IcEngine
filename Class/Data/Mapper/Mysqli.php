@@ -155,7 +155,6 @@ class Data_Mapper_Mysqli extends Data_Mapper_Abstract
         echo $this->sql;
         var_dump($result);
 		if (!$result) {
-            echo 1;
 			$this->errno = mysql_errno($this->linkIdentifier);
 			$this->error = mysql_error($this->linkIdentifier);
 			return null;
