@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Model_Collection_Iterator extends Model_Collection_Iterator_Array
+class Model_Collection_Iterator_Single extends Model_Collection_Iterator_Array
 {
 	/**
 	 * Коллекция для итерации
@@ -20,7 +20,7 @@ class Model_Collection_Iterator extends Model_Collection_Iterator_Array
 	 * @var Model
 	 */
 	protected $current;
-    
+
 	/**
 	 * Является ли модель фабрикой
 	 *
