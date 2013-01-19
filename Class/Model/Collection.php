@@ -314,9 +314,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      *
 	 * @return Model
 	 */
-	public function first()
+	public function &first()
 	{
-        $items = &$this->items();
+        $items = $this->items();
         if ($items) {
             $first = reset($items);
             return $first;
@@ -349,8 +349,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function getIterator()
 	{
-		$this->items();
-		return new ArrayIterator($this->items);
+		return new Model_Collection_Iterator_Array($this);
 	}
 
 	/**
@@ -409,10 +408,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      *
 	 * @return array
 	 */
-	public function &items()
+	public function items()
 	{
-		if (!is_array($this->items))
-		{
+		if (!is_array($this->items)){
 			$this->load();
 		}
 		return $this->items;
@@ -426,7 +424,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	public function iterator($isFactory = false)
 	{
 		if (!$this->iterator) {
-			$this->iterator = new Model_Collection_Iterator($this, $isFactory);
+			$this->iterator = new Model_Collection_Iterator_Single(
+                $this, $isFactory
+            );
 		}
 		if (!is_array($this->items))
 		{

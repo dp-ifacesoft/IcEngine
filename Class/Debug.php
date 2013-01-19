@@ -68,7 +68,7 @@ class Debug
 		 * @desc Остановить выполнение скрипта при ошибке.
 		 * @var boolean
 		 */
-		'die_on_error'				=> true,
+		'die_on_error'				=> false,
 
 		/**
 		 * @desc Отображение в браузер, вывод через stdOut.
@@ -231,43 +231,6 @@ class Debug
 			}
 			$validError = false;
 
-			if ($validError && ($needLog || !$exists)) {
-				file_put_contents(
-					$filename,
-					time() . '|' . date('Y-m-d H:i:s') . '|' .
-						$errfile . '|' . $errline. '|' .
-						$errstr . PHP_EOL,
-					FILE_APPEND
-				);
-				$pnos = array(
-					'79505795261',
-					'79133271039',
-					'79049937511',
-					'79511784601',
-					'79045796469'
-				);
-				require_once IcEngine::root() . 'Ice/includes/LittlesmsOriginal.class.php';
-
-				$client = new LittleSMSoriginal (
-					'forguest',
-					'tUUm3vW3Zkrqa7JgggNAFxXFeVUPOmpo',
-					false
-				);
-				$locator = IcEngine::serviceLocator();
-				$helperSiteLocation = $locator->getService('helperSiteLocation');
-				foreach ($pnos as $pno) {
-					$text =
-						$helperSiteLocation->getLocation() . PHP_EOL .
-						date('Y-m-d H:i:s') . PHP_EOL .
-						$errfile . ' ' . $errline;
-					$client->sendSMS (
-						$pno,
-						$text,
-						'Vipgeo'
-					);
-				}
-			}
-
 		}
 
 		if (self::$config ['print_backtrace'])
@@ -317,12 +280,13 @@ class Debug
 
 		self::log ($log_text, $errno);
 
-		if (
-			($errno == E_ERROR || $errno == E_USER_ERROR) &&
-			self::$config ['die_on_error']
-		)
-		{
-			die ("<b>Terminated on fatal error.</b><br />" . str_replace("\n", "<br/>\n", $log_text));
+		if ($errno == E_ERROR || $errno == E_USER_ERROR) {
+            if (self::$config ['die_on_error']) {
+                die("<b>Terminated on fatal error.</b><br />" . 
+                    str_replace("\n", "<br/>\n", $log_text));
+            } else {
+                throw new Exception($log_text);
+            }
 		}
 
 		return true;
