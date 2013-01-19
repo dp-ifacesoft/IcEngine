@@ -460,7 +460,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @param integer $index Индекс
 	 * @return Model|null
 	 */
-	public function item($index)
+	public function &item($index)
 	{
 		if (!is_array($this->items)) {
 			$this->load();

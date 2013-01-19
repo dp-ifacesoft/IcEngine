@@ -97,6 +97,6 @@ class Model_Collection_Iterator_Array extends ArrayIterator
 	 */
 	public function valid()
 	{
-		return !is_null($this->data->item($this->index));
+		return isset($this->data->getItems()[$this->index]);
 	}
 }

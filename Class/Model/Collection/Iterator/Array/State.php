@@ -45,6 +45,7 @@ class Model_Collection_Iterator_Array_State implements ArrayAccess
     public function __set($key, $value) 
     {
         $this->iterator->getData()->item($this->iterator->key())[$key] = $value;
+  
     }
     
     /**
