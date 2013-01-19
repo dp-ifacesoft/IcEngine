@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Model_Collection_Iterator_Array implements Iterator
+class Model_Collection_Iterator_Array extends ArrayIterator
 {
 	/**
 	 * Данные для итерации
@@ -20,6 +20,13 @@ class Model_Collection_Iterator_Array implements Iterator
 	 * @var integer
 	 */
 	protected $index;
+    
+    /**
+     * Состояние итерации
+     * 
+     * @var Model_Collection_Iterator_Array_State
+     */
+    private $state;
 
     /**
      * Конструктор
@@ -29,17 +36,28 @@ class Model_Collection_Iterator_Array implements Iterator
     public function __construct($collection)
     {
         $this->index = 0;
-        $this->data = $collection->items();
+        $this->data = $collection;
+        $this->state = new Model_Collection_Iterator_Array_State($this);
     }
     
 	/**
 	 * @inheritdoc
 	 */
-	public function &current()
+	public function current()
 	{
-		return $this->data[$this->index];
+		return $this->state;
 	}
 
+    /**
+	 * Получить данные для итерации
+	 *
+	 * @return array
+	 */
+	public function getData()
+	{
+		return $this->data;
+	}
+    
 	/**
 	 * @inheritdoc
 	 */
@@ -63,12 +81,22 @@ class Model_Collection_Iterator_Array implements Iterator
 	{
 		$this->index = 0;
 	}
-
+    
+    /**
+	 * Изменить данные для итерации
+	 *
+	 * @param array $data
+	 */
+	public function setData($data)
+	{
+		$this->data = $data;
+	}
+    
 	/**
 	 * @inheritdoc
 	 */
 	public function valid()
 	{
-		return isset($this->data[$this->index]);
+		return !is_null($this->data->item($this->index));
 	}
 }

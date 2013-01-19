@@ -99,16 +99,6 @@ class Model_Collection_Iterator extends Model_Collection_Iterator_Array
 	}
 
 	/**
-	 * Получить данные для итерации
-	 *
-	 * @return array
-	 */
-	public function getData()
-	{
-		return $this->data;
-	}
-
-	/**
 	 * Получить индекс итерации
 	 *
 	 * @return integer
@@ -136,16 +126,6 @@ class Model_Collection_Iterator extends Model_Collection_Iterator_Array
 	public function setCurrent($current)
 	{
 		$this->current = $current;
-	}
-
-	/**
-	 * Изменить данные для итерации
-	 *
-	 * @param array $data
-	 */
-	public function setData($data)
-	{
-		$this->data = $data;
 	}
 
 	/**
