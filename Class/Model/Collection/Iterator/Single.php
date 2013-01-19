@@ -5,7 +5,7 @@
  *
  * @author morph
  */
-class Model_Collection_Iterator implements Iterator
+class Model_Collection_Iterator extends Model_Collection_Iterator_Array
 {
 	/**
 	 * Коллекция для итерации
@@ -20,21 +20,7 @@ class Model_Collection_Iterator implements Iterator
 	 * @var Model
 	 */
 	protected $current;
-
-	/**
-	 * Данные для итерации
-	 *
-	 * @var array
-	 */
-	protected $data;
-
-	/**
-	 * Индекс итерации
-	 *
-	 * @var integer
-	 */
-	protected $index;
-
+    
 	/**
 	 * Является ли модель фабрикой
 	 *
@@ -133,30 +119,6 @@ class Model_Collection_Iterator implements Iterator
 	}
 
 	/**
-	 * @inheritdoc
-	 */
-	public function key()
-	{
-		return $this->index;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function next()
-	{
-		++$this->index;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function rewind()
-	{
-		$this->index = 0;
-	}
-
-	/**
 	 * Изменить коллекцию итерации
 	 *
 	 * @param Model_Collection $collection
@@ -194,13 +156,5 @@ class Model_Collection_Iterator implements Iterator
 	public function setIndex($index)
 	{
 		$this->index = $index;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function valid()
-	{
-		return isset($this->data[$this->index]);
 	}
 }

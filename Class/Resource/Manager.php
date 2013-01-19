@@ -100,7 +100,7 @@ class Resource_Manager extends Manager_Abstract
 		}
 		return $this->resources[$type][$name];
 	}
-
+    
 	/**
 	 * Получить обновленные ресурсы
 	 * 

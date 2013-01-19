@@ -120,11 +120,9 @@ abstract class Model implements ArrayAccess
         $joinField = $field . '__id';
         if (isset($this->joints[$field])) {
             return $this->joints[$field];
-        }
-        if (array_key_exists($field, $this->fields)) {
+        } elseif (array_key_exists($field, $this->fields)) {
             return $this->fields[$field];
-        }
-        if (array_key_exists($joinField, $this->fields)) {
+        } elseif (array_key_exists($joinField, $this->fields)) {
             return $this->joint($field, $this->fields[$joinField]);
         }
         $references = $this->scheme()->references;
@@ -155,7 +153,7 @@ abstract class Model implements ArrayAccess
         if (!$this->fields) {
             $this->load();
         }
-        if ($field == 'data') {
+        if ($field == self::DATA_FIELD) {
             return $this->data($value);
         }
         $fields = $this->scheme()->fields;
@@ -192,7 +190,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function asRow()
 	{
-		return $this->fields ? $this->fields : array();
+		return $this->fields ?: array();
 	}
 
     /**
@@ -372,7 +370,7 @@ abstract class Model implements ArrayAccess
 	 *
 	 * @return array
 	 */
-	public function getData()
+	public function &getData()
 	{
 		return $this->data;
 	}
