@@ -526,6 +526,17 @@ abstract class Model implements ArrayAccess
         }
 	}
 
+    /**
+     * Получить данные модели массивом
+     * @return array
+     */
+    public function raw()
+    {
+        return array_merge($this->asRow(), array(
+            'data'      => $this->data
+        ));
+    }
+
 	/**
 	 * Название ресурса модели. Состоит из название модели и первичного ключа
      *

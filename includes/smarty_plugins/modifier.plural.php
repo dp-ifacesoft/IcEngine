@@ -3,6 +3,7 @@
 /**
  * Выводит слово с нужным окончанием
  *
+ * @author neon
  * @param int $number
  * @param array $forms
  * @return string
@@ -10,12 +11,6 @@
 function smarty_modifier_plural($number, $forms)
 {
 	$locator = IcEngine::serviceLocator();
-	$viewHelperManager = $locator->getService('viewHelperManager');
-	return $viewHelperManager->get(
-		'Plural',
-		array(
-			'value'	=> $number,
-			'forms'	=> $forms
-		)
-	);
+    $helperPlural = $locator->getService('helperPlural');
+	return $helperPlural->plural($number, $forms);
 }
