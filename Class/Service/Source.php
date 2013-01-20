@@ -96,6 +96,9 @@ class Service_Source
                 $object = $reflection->newInstanceWithoutConstructor();
                 self::$services[$serviceName]['isAbstract'] = true;
             } else {
+                if ($className == 'Social_User_Dialog') {
+                    print_r('asdf');die;
+                }
                 $object = new $className;
             }
         }

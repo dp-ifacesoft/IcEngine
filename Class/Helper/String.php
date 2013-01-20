@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Помощник для работы со строками
  *
- * @desc Помощник для работы со строками
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author Юрий Шведов, neon
  */
 class Helper_String
 {
@@ -522,18 +521,25 @@ class Helper_String
 	 * @param string $str
 	 * @return string
 	 */
-	public static function ucfirst($str)
+	public function ucfirst($str)
 	{
 		return mb_strtoupper(
 			mb_substr($str, 0, 1, 'UTF-8'), 'UTF-8'
 		) . mb_substr($str, 1, mb_strlen($str, 'UTF-8') - 1, 'UTF-8');
 	}
 
-	public static function lcfirst($str)
+    /**
+     * Первую букву в нижний регистр
+     *
+     * @param string $str
+     * @param string $encoding
+     * @return string
+     */
+	public function lcfirst($str, $encoding = 'UTF-8')
 	{
 		return mb_strtolower(
-			mb_substr($str, 0, 1, 'UTF-8'), 'UTF-8'
-		) . mb_substr($str, 1, mb_strlen($str, 'UTF-8') - 1, 'UTF-8');
+			mb_substr($str, 0, 1, $encoding), $encoding
+		) . mb_substr($str, 1, mb_strlen($str, $encoding) - 1, $encoding);
 	}
 
 	/**
