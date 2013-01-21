@@ -9,11 +9,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
      * Функции, которые будут применены после загрузки
-     * 
+     *
      * @var array
      */
     protected $afterLoad = array();
-    
+
 	/**
 	 * Связанные данные
      *
@@ -23,18 +23,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * Помощник коллекции
-     * 
+     *
      * @var Helper_Model_Collection
      */
     protected $helper;
-    
+
     /**
      * Загружается ли коллекция через метод raw
-     * 
+     *
      * @var boolean
      */
     protected $isRaw = false;
-    
+
 	/**
 	 * Элементы коллекции
      *
@@ -149,14 +149,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * Получить методы для вызова после загрузки коллекции
-     * 
+     *
      * @return array
      */
     public function &afterLoad()
     {
         return $this->afterLoad;
     }
-    
+
 	/**
 	 * Клонировать модель
      *
@@ -364,14 +364,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * Получить помощник коллекции
-     * 
+     *
      * @return Helper_Model_Collection
      */
     public function getHelper()
     {
         return $this->helper;
     }
-    
+
 	/**
 	 * Получить коллекцию опшинов
      *
@@ -440,10 +440,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     {
         return self::$serviceLocator;
     }
-    
+
     /**
      * Получить/создать помощник модели
-     * 
+     *
      * @return Helper_Model_Collection
      */
     public function helper()
@@ -472,7 +472,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             $items = &$this->items[$index];
             return $items;
         }
-        return null; 
+        return null;
 	}
 
 	/**
@@ -789,14 +789,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * Изменить помощник коллекции моделей
-     * 
+     *
      * @param Helper_Model_Collection $helper
      */
     public function setHelper($helper)
     {
         $this->helper = $helper;
     }
-    
+
 	/**
 	 * Заменить модели коллекции
      *
