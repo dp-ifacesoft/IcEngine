@@ -8,10 +8,27 @@
  */
 class Dto
 {
+    /**
+     * Параметры по умолчанию
+     * @var array
+     */
     protected static $defaults = array();
 
+    /**
+     * Данные
+     * @var array
+     */
     protected $fields = array();
 
+    /**
+     * Схема
+     * @var array
+     */
+    protected static $scheme = array();
+
+    /**
+     * (non-PHPDoc)
+     */
     public function __construct()
     {
         $this->fields = static::$defaults;
@@ -70,5 +87,24 @@ class Dto
             return new $className();
         }
         return new self();
+    }
+
+    /**
+     * Установить значения массива
+     * @param array $array
+     * @return Dto
+     */
+    public function set($array)
+    {
+        if (empty(static::$scheme)) {
+            return $this;
+        }
+        foreach ($array as $key => $value) {
+            if (!in_array($key, static::$scheme)) {
+                continue;
+            }
+            $this->fields[$key] = $value;
+        }
+        return $this;
     }
 }

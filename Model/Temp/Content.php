@@ -3,7 +3,7 @@
 /**
  * Временный контент - специальная модель, предназначенная для
  * хранения дополнительной информации о форме для редактирования.
- * 
+ *
  * @author goorus, morph
  * @Service("tempContent")
  *
@@ -19,7 +19,7 @@ class Temp_Content extends Model
 
 	/**
 	 * Созданные за этот запрос
-	 * 
+	 *
      * @param 0 = name
 	 * @param 1 = value
 	 * @var array
@@ -48,18 +48,18 @@ class Temp_Content extends Model
 	public function attr($key, $value = null)
 	{
 		if (is_null($this->data)) {
-			$this->data = json_decode(urlencode($this->json), true);
+			$this->data = json_decode(urldecode($this->json), true);
 		}
 		$args = func_get_args();
 		if (count($args) == 1 && !is_array($args[0])) {
-			return isset($this->_data[$args[0]])
-					? $this->_data[$args[0]] : null;
+			return isset($this->data[$args[0]])
+					? $this->data[$args[0]] : null;
 		} elseif (is_array($args[0])) {
 			foreach ($args[0] as $key => $value) {
-				$this->_setAttr($key, $value);
+				$this->setAttr($key, $value);
 			}
 		} elseif (count($args) == 2) {
-			$this->_setAttr($args[0], $args[1]);
+			$this->setAttr($args[0], $args[1]);
 		}
 	}
 
