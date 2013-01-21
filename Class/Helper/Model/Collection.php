@@ -33,12 +33,9 @@ class Helper_Model_Collection
                         $collection->rawFields()[] = $fieldName;
                     }
                 } else {
-                    $data = array_merge((array) $item['data'], array(
+                    $item['data'] = array_merge((array) $item['data'], array(
                         $fieldName  => $fieldValue
                     ));
-                    foreach ($data as $key => $value) {
-                        $item['data'][$key] = $value;
-                    }
                 }
             }
         }
