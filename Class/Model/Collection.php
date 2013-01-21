@@ -744,7 +744,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             foreach (array_keys($data) as $fieldName) {
                 if (in_array($fieldName, $this->rawFields)) {
                     unset($data[$fieldName]);
-                    echo $fieldName . PHP_EOL;
                 }
             }
             $result[$item[$keyField]]['data'] = array_merge(
