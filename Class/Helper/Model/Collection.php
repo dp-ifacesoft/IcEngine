@@ -7,7 +7,7 @@ class Helper_Model_Collection
 {
     /**
      * Восстановить данные коллекции
-     * 
+     *
      * @param Model_Collection $collection
      */
     public function restoreData($collection)
@@ -29,7 +29,9 @@ class Helper_Model_Collection
             foreach ($currentData as $fieldName => $fieldValue) {
                 if (in_array($fieldName, $fieldsFromData)) {
                     $item[$fieldName] = $fieldValue;
-                    $collection->rawFields()[] = $fieldName;
+                    if (!in_array($fieldName, $collection->rawFields())) {
+                        $collection->rawFields()[] = $fieldName;
+                    }
                 } else {
                     $data = array_merge((array) $item['data'], array(
                         $fieldName  => $fieldValue

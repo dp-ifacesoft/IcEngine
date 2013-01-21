@@ -86,11 +86,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * Включенные для raw-запроса поля
-     * 
+     *
      * @var array
      */
     protected $rawFields = array();
-    
+
     /**
      * Локатор сервисов
      *
@@ -727,10 +727,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 if ($scheme->fields) {
                     $columns = array_keys($scheme->fields->asArray());
                 }
-                if ($this->rawFields) { 
-                    $columns = array_merge($columns, $this->rawFields);
-                    $this->rawFields = array();
-                }
+            }
+            if ($this->rawFields) {
+                $columns = array_merge($columns, $this->rawFields);
             }
             $result = $helperArray->column($this->items, $columns, $keyField);
         }
@@ -741,16 +740,26 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             if (!isset($result[$item[$keyField]]['data'])) {
                 $result[$item[$keyField]]['data'] = array();
             }
+            $data = (array) $item['data'];
+            foreach (array_keys($data) as $fieldName) {
+                if (in_array($fieldName, $this->rawFields)) {
+                    unset($data[$fieldName]);
+                    echo $fieldName . PHP_EOL;
+                }
+            }
             $result[$item[$keyField]]['data'] = array_merge(
-                $result[$item[$keyField]]['data'], (array) $item['data']
+                $result[$item[$keyField]]['data'], $data
             );
+        }
+        if ($this->rawFields) {
+            $this->rawFields = array();
         }
         return array_values((array) $result);
     }
-    
+
     /**
      * Получить список полей для raw-запроса
-     * 
+     *
      * @return array
      */
     public function &rawFields()
