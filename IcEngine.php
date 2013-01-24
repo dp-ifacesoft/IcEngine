@@ -288,6 +288,16 @@ class IcEngine
     {
         return self::$serviceLocator;
     }
+    
+    /**
+     * Получить задание фронт контроллера
+     * 
+     * @return Controller_Front_Task
+     */
+    public static function getTask()
+    {
+        return self::$task;
+    }
 
 	/**
 	 * Путь до корня движка
