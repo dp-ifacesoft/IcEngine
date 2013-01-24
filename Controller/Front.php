@@ -12,18 +12,37 @@ class Controller_Front extends Controller_Abstract
 	 */
 	public function index()
 	{
+        if (Tracer::$enabled) {
+			$subStartTime = microtime(true);
+		}
 		$route = $this->getService('router')->getRoute();
+        $this->task->setRoute($route);
+        $this->task->setOutput($this->output);
+        if (Tracer::$enabled) {
+			$subEndTime = microtime(true);
+			Tracer::setRoutingTime($subEndTime - $subStartTime);
+		}
 		try
 		{
-			if (Tracer::$enabled) {
+            if (Tracer::$enabled) {
 				$startTime = microtime(true);
 			}
+            // Получаем стратегию для фронт контроллера
+            $strategy = $this->task->getStrategy();
+            if ($strategy) {
+                $strategy->run($this->task);
+                if ($strategy->getIgnore()) {
+                    return;
+                }
+            }
 			/**
 			 * Начинаем цикл диспетчеризации и получаем список
 			 * выполняемых руот экшинов.
 			 */
             $dispatcher = $this->getService('controllerDispatcher');
-			$actions = $dispatcher->loop($route->actions());
+			$actions = $dispatcher->loop(
+                $this->task->getActions() ?: $route->actions
+            );
             $controllerManager = $this->getService('controllerManager');
 			// Создаем задания для выполнения. В них отдает входные данные.
 			$tasks = $controllerManager->createTasks($actions, $this->getInput());

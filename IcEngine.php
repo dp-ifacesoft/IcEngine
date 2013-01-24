@@ -42,13 +42,6 @@ class IcEngine
 	 */
 	protected static $frontRender = 'Front';
 
-	/**
-	 * Лайаут
-	 *
-     * @var string
-	 */
-	protected static $frontTemplate;
-
     /**
      * Загрузчик
      *
@@ -100,6 +93,21 @@ class IcEngine
 	{
 		return self::$bootstrap;
 	}
+    
+    /**
+     * Создать задание для front-контроллера
+     * 
+     * @return Controller_Front_Task
+     */
+    public static function createFrontControllerTask()
+    {
+        $action = self::createTaskAction();
+        $task = new Controller_Front_Task($action);
+        $viewRenderManager = self::getManager('View_Render');
+        $viewRender = $viewRenderManager->byName(self::$frontRender);
+		$task->setViewRender($viewRender);
+        return $task;
+    }
 
     /**
      * Создать экшин для фронт контроллера
@@ -121,9 +129,6 @@ class IcEngine
 	 */
 	public static function flush()
 	{
-		if (self::$frontTemplate) {
-			self::$task->setTemplate(self::$frontTemplate);
-		}
         $controllerManager = self::getManager('Controller');
 		$controllerManager->call('Render', 'index', array(
             'task'  => self::$task
@@ -283,6 +288,16 @@ class IcEngine
     {
         return self::$serviceLocator;
     }
+    
+    /**
+     * Получить задание фронт контроллера
+     * 
+     * @return Controller_Front_Task
+     */
+    public static function getTask()
+    {
+        return self::$task;
+    }
 
 	/**
 	 * Путь до корня движка
@@ -327,14 +342,13 @@ class IcEngine
 	public static function run()
 	{
 		self::$bootstrap->run();
-        $action = self::createTaskAction();
-		self::$task = new Controller_Task($action);
-        $viewRenderManager = self::getManager('View_Render');
-        $viewRender = $viewRenderManager->byName(self::$frontRender);
-		self::$task->setViewRender($viewRender);
+        if (!self::$task) {
+            self::$task = self::createFrontControllerTask();
+        }
         $controllerManager = self::getManager('Controller');
         $transportManager = self::getManager('Data_Transport');
         $transport = $transportManager->get(self::$frontInput);
+        self::$task->setStrategies(self::$bootstrap->getStrategies());
 		$controllerManager->call(
 			self::$frontController,
 			self::$frontAction,
@@ -404,16 +418,6 @@ class IcEngine
     public static function setFrontRender($renderName)
     {
         self::$frontRender = $renderName;
-    }
-
-    /**
-     * Изменить название шаблона фронт контроллера
-     *
-     * @param string $template
-     */
-    public static function setFrontTemplate($template)
-    {
-        self::$frontTemplate = $template;
     }
 
     /**
