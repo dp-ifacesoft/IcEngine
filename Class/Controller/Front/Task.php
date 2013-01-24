@@ -8,6 +8,13 @@
 class Controller_Front_Task extends Controller_Task
 {
     /**
+     * Действия, измененые для задачи фронт контроллера
+     * 
+     * @var array
+     */
+    protected $actions;
+    
+    /**
      * Выходной транспорт
      * 
      * @var Data_Transport
@@ -41,6 +48,16 @@ class Controller_Front_Task extends Controller_Task
      * @var Controller_Front_Strategy_Manager
      */
     protected $strategyManager;
+    
+    /**
+     * Получить действия фронт-контроллера
+     * 
+     * @return array
+     */
+    public function getActions()
+    {
+        return $this->actions;
+    }
     
     /**
      * Получить выходной транспорт
@@ -115,6 +132,16 @@ class Controller_Front_Task extends Controller_Task
             $this->strategyManager = new Controller_Front_Strategy_Manager();
         }
         return $this->strategyManager;
+    }
+    
+    /**
+     * Изменить действия фронт-контроллера
+     * 
+     * @param array $actions
+     */
+    public function setActions($actions)
+    {
+        $this->actions = $actions;
     }
     
     /**
