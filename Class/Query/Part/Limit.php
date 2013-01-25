@@ -3,7 +3,7 @@
 /**
  * Опшен для ограничения вывода
  *
- * @author markov, neon
+ * @author neon
  */
 class Query_Part_Limit extends Query_Part
 {
@@ -12,10 +12,12 @@ class Query_Part_Limit extends Query_Part
 	 */
 	public function query()
 	{
-		$this->query->limit(
-			(int) isset($this->params['perPage']) ?
-                $this->params['perPage'] : $this->params['count'],
-			isset($this->params['offset']) ? $this->params['offset'] : 0
-		);
+        $perPage = (int) isset($this->params['perPage']) ?
+                $this->params['perPage'] : $this->params['count'];
+        $offset = isset($this->params['offset']) ? $this->params['offset'] : 0;
+        if (!isset($this->params['offset']) && isset($this->params['page'])) {
+            $offset = $perPage * $this->params['page'];
+        }
+		$this->query->limit($perPage, $offset);
 	}
 }
