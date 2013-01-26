@@ -16,7 +16,7 @@ class Query_Part_Limit extends Query_Part
                 $this->params['perPage'] : $this->params['count'];
         $offset = isset($this->params['offset']) ? $this->params['offset'] : 0;
         if (!isset($this->params['offset']) && isset($this->params['page'])) {
-            $offset = $perPage * $this->params['page'];
+            $offset = $perPage * ($this->params['page'] - 1);
         }
 		$this->query->limit($perPage, $offset);
 	}

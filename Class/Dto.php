@@ -48,6 +48,11 @@ class Dto
             return;
         }
         $value = $matches[1] != 'disable';
+        $arg = func_get_arg(1);
+        if ($arg) {
+            $argReseted = reset($arg);
+            $value = $argReseted;
+        }
         $key = lcfirst($matches[2]);
         $this->fields[$key] = $value;
         return $this;
