@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Провайдер для отправки сообщений пользователя.
  *
- * @desc Провайдер для отправки сообщений пользователя.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author Юрий Шведов, neon
  */
 class Mail_Provider_Abstract extends Model_Factory_Delegate
 {
@@ -26,6 +25,24 @@ class Mail_Provider_Abstract extends Model_Factory_Delegate
 	 * @var stringы
 	 */
 	const MAIL_STATE_SUCCESS	= 'success';
+
+    /**
+     * Получить экземпляр по имени
+     *
+     * @param string $name
+     * @return Mail_Provider_Abstract
+     */
+    public function byName($name)
+	{
+		$modelManager = $this->getService('modelManager');
+        return $modelManager->byOptions(
+            'Mail_Provider',
+            array(
+                'name'  => '::Name',
+                'value' => $name
+            )
+        );
+	}
 
 	/**
 	 * @desc Запись в лог состояния сообщения.

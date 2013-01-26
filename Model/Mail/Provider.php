@@ -1,21 +1,49 @@
 <?php
+
 /**
- * 
- * @desc Класс-фабрика провайдера сообщений
- * @author Юрий Шведов
- * @package IcEngine
+ * Класс-фабрика провайдера сообщений
+ *
+ * @author neon
  * @Service("mailProvider")
  */
-class Mail_Provider extends Model_Factory
+class Mail_Provider extends Model_Defined
 {
-	public function byName ($name)
-	{
-		$model_manager = $this->getService('modelManager');
-		$query = $this->getService('query');
-		return $model_manager->byQuery (
-			'Mail_Provider',
-			$query->instance ()
-				->where ('name', $name)
-		);
-	}
+
+    /**
+     * @inheritdoc
+     * @var array
+     */
+    public static $rows = array(
+        array(
+            'id'     => 1,
+            'name'   => 'Mimemail',
+            'title'  => 'Отправка на почту',
+            'active' => 1
+        ),
+        array(
+            'id'     => 2,
+            'name'   => 'Sms_Dcnk',
+            'title'  => 'Смс через dc-nk.ru',
+            'active' => 1
+        ),
+        array(
+            'id'     => 3,
+            'name'   => 'Sms_Littlesms',
+            'title'  => 'Смс через littlesms',
+            'active' => 1
+        ),
+        array(
+            'id'     => 4,
+            'name'   => 'Sms_Yakoon',
+            'title'  => 'Смс через yakoon',
+            'active' => 1
+        ),
+        array(
+            'id'     => 5,
+            'name'   => 'First_Success',
+            'title'  => 'Отправка до первого успешного',
+            'active' => 1
+        )
+    );
+
 }

@@ -265,15 +265,22 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 
      /**
      * Прикрепить массив
-     *
-     * @param array $data
      */
-    public function set($data)
+    public function set()
     {
-        if (is_array($data)) {
-            foreach ($data as $key => $value) {
-                $this->$key = $value;
-            }
+        $argsCount = func_num_args();
+        if ($argsCount == 1) {
+            $this->setArray(func_get_arg(0));
+        } elseif ($argsCount == 2) {
+            list($key, $value) = func_get_args();
+            $this->data[$key] = $value;
+        }
+    }
+
+    public function setArray($array)
+    {
+        foreach ($array as $key => $value) {
+            $this->data[$key] = $value;
         }
     }
 }

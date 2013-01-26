@@ -96,10 +96,26 @@ class Dto
 
     /**
      * Установить значения массива
-     * @param array $array
      * @return Dto
      */
-    public function set($array)
+    public function set()
+    {
+        $argsCount = func_num_args();
+        if ($argsCount == 1) {
+            $this->setArray(func_get_arg(0));
+        } elseif ($argsCount == 2) {
+            list($key, $value) = func_get_args();
+            $this->fields[$key] = $value;
+        }
+        return $this;
+    }
+
+    /**
+     *
+     * @param array $array
+     * @return void
+     */
+    public function setArray($array)
     {
         if (empty(static::$scheme)) {
             return $this;
@@ -110,6 +126,5 @@ class Dto
             }
             $this->fields[$key] = $value;
         }
-        return $this;
     }
 }
