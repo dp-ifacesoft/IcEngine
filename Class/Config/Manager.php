@@ -42,13 +42,13 @@ class Config_Manager
 		$first = $path;
 		$path = str_replace('_', '/', $path);
 		$filename =
-				IcEngine::root() . (strstr($first, '__') ?
-					str_replace(
-						'_',
-						'/',
-						str_replace('__', '/Config/', $first)
-					) : $this->pathToConfig[0] . $path) .
-				'.php';
+            IcEngine::root() . (strstr($first, '__') ?
+                str_replace(
+                    '_',
+                    '/',
+                    str_replace('__', '/Config/', $first)
+                ) : $this->pathToConfig[0] . $path) .
+            '.php';
 		if (is_file($filename)) {
 			$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
 			$class = 'Config_' . $ext;
@@ -101,7 +101,7 @@ class Config_Manager
 		$storedConfig = $resourceManager->get('Config', $resourceKey);
 		$this->inLoading = false;
 		if (!$storedConfig) {
-            if (!$config && class_exists($type)) {
+            if (!$config && class_exists($type, false)) {
                 $reflection = new \ReflectionClass($type);
                 if ($reflection->hasProperty('config')) {
                     $property = $reflection->getProperty('config');

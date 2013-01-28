@@ -36,13 +36,15 @@ class Router extends Manager_Abstract
         $request = $this->getService('request');
 		$url = $request->uri();
 		$route =  $this->getService('route')->byUrl($url);
-		$this->route = $route;
-		if (!$this->route || !isset($this->route['route'])) {
+		if (!$route || !isset($route['route'])) {
 			return;
 		}
-		if (!empty($route['params'])) {
-			foreach ($route['params'] as $paramName => $paramValue) {
-                if (is_string($paramValue) && strpos($paramValue, '::') !== false) {
+        $this->route = $route;
+        $hashRoute = $route->__toArray();
+		if (!empty($hashRoute['params'])) {
+			foreach ($hashRoute['params'] as $paramName => $paramValue) {
+                if (is_string($paramValue) && strpos($paramValue, '::') 
+                    !== false) {
                     list($className, $method) = explode('::', $paramValue);
                     $serviceName = $this->getServiceLocator()->normalizeName(
                         $className
@@ -53,13 +55,13 @@ class Router extends Manager_Abstract
 				$request->param($paramName, $paramValue);
 			}
 		}
-		$firstParamPos = strpos($route['route'], '{');
-		if ($firstParamPos !== false && isset($route['patterns']) &&
-			isset($route['pattern'])) {
+		$firstParamPos = strpos($hashRoute['route'], '{');
+		if ($firstParamPos !== false && isset($hashRoute['patterns']) &&
+			isset($hashRoute['pattern'])) {
 			$baseMatches = array();
-			preg_match_all($route['pattern'], $url, $baseMatches);
+			preg_match_all($hashRoute['pattern'], $url, $baseMatches);
 			if (!empty($baseMatches[0][0])) {
-				$keys = array_keys($route['patterns']);
+				$keys = array_keys($hashRoute['patterns']);
 				foreach ($baseMatches as $i => $data) {
 					if (!$i) {
 						continue;
@@ -67,7 +69,7 @@ class Router extends Manager_Abstract
 					if (!empty($data[0])) {
 						$request->param($keys[$i - 1], $data[0]);
 					} else {
-						$part = $route['patterns'][$keys[$i - 1]];
+						$part = $hashRoute['patterns'][$keys[$i - 1]];
 						if (isset($part['default'])) {
 							$request->param($keys[$i - 1], $part['default']);
 						}
@@ -76,7 +78,7 @@ class Router extends Manager_Abstract
 			}
 		}
 		$this->setParamsFromRequest();
-		return $route;
+		return $this->route;
 	}
 
 	/**

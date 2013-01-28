@@ -96,12 +96,19 @@ abstract class Model implements ArrayAccess
 	public function __construct(array $fields = array())
 	{
 		$this->fields = $fields;
+        if ($fields) {
+            foreach ($fields as $fieldName => $value) {
+                $this->$fieldName = $value;
+            }
+        }
         $selfFields = $this->helper()->getVars($this);
         foreach ($selfFields as $fieldName) {
 			if (!$fieldName || $fieldName[0] == '_') {
 				continue;
 			}
-            $this->fields[$fieldName] = $this->$fieldName;
+            if (!in_array($fieldName, $selfFields)) {
+                $this->fields[$fieldName] = $this->$fieldName;
+            }
         }
         $this->_afterConstruct();
 	}
@@ -167,6 +174,7 @@ abstract class Model implements ArrayAccess
             }
             $this->fields[$field] = $value;
 		} else {
+            echo $this->table() . PHP_EOL;
 			throw new Exception ('Field unexists "' . $field . '".');
 		}
 	}

@@ -19,7 +19,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 *
      * @param array $data
 	 */
-	public function __construct($data)
+	public function __construct($data = array())
 	{
         if (!$data || !is_array($data)) {
             return;
