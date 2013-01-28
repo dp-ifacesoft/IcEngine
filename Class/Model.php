@@ -604,9 +604,13 @@ abstract class Model implements ArrayAccess
         if ($scheme->fields) {
             $schemeFields = array_keys($scheme->fields->__toArray());
         }
+        $selfFields = $this->helper()->getVars($this);
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
                 $this->$field = $value;
+                if (array_key_exists($field, $selfFields)) {
+                    $this->fields[$field] = $value;
+                }
             } else {
                 $data[$field] = $value;
             }
