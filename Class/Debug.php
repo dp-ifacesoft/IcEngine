@@ -16,11 +16,11 @@ function internal_exception_handler_ignore ($exception)
 }
 
 /**
+ * Класс для отладки.
  *
- * @desc Класс для отладки.
- * @author Гурус
+ * @author Гурус, neon
  * @package IcEngine
- *
+ * @Service("debug")
  */
 class Debug
 {
@@ -174,14 +174,15 @@ class Debug
 	}
 
 	/**
-	 * @desc Внутренний обработчик ошибок.
+	 * Внутренний обработчик ошибок.
+     *
 	 * @param string $errno Код ошибки.
 	 * @param string $errstr Текст ошибки.
 	 * @param string $errfile Файл.
 	 * @param string $errline Строка.
 	 * @return boolean
 	 */
-	public static function errorHandler ($errno, $errstr, $errfile, $errline)
+	public static function errorHandler($errno, $errstr, $errfile, $errline)
 	{
 		if (
 			// Игнорим сообщение про open_basedir из smarty
@@ -233,8 +234,7 @@ class Debug
 
 		}
 
-		if (self::$config ['print_backtrace'])
-		{
+		if (self::$config ['print_backtrace']) {
 			echo '<pre>';
 			debug_print_backtrace ();
 			echo '</pre>';
@@ -242,7 +242,6 @@ class Debug
 
 		$debug = array_slice (debug_backtrace (), 1, 10);
 		self::removeUninterestingObjects ($debug);
-
 		$log_text =
 			(
 				isset ($_SERVER ['HTTP_HOST']) ?
@@ -263,32 +262,27 @@ class Debug
 			'[' . $errno . ':' . $errfile . '@' . $errline . '] ' .
 			$errstr . "\r\n";
 
-		foreach ($debug as $debug_step)
-		{
-			if (isset ($debug_step ['file']))
-			{
+		foreach ($debug as $debug_step) {
+			if (isset($debug_step['file'])) {
 				$log_text .=
-					'[' . $debug_step ['file'] . '@' .
-					$debug_step ['line'] . ':' .
-					$debug_step ['function'] . ']' . "\r\n";
-			}
-			else
-			{
+					'[' . $debug_step['file'] . '@' .
+					$debug_step['line'] . ':' .
+					$debug_step['function'] . ']' . "\r\n";
+			} else {
 				break;
 			}
 		}
-
-		self::log ($log_text, $errno);
-
+        $locator = IcEngine::serviceLocator();
+        $debugService = $locator->getService('debug');
+		$debugService->log($log_text, $errno);
 		if ($errno == E_ERROR || $errno == E_USER_ERROR) {
             if (self::$config ['die_on_error']) {
-                die("<b>Terminated on fatal error.</b><br />" . 
+                die("<b>Terminated on fatal error.</b><br />" .
                     str_replace("\n", "<br/>\n", $log_text));
             } else {
                 throw new Exception($log_text);
             }
 		}
-
 		return true;
 	}
 
@@ -311,13 +305,11 @@ class Debug
 
 		$memory_start = function_exists ('memory_get_usage') ? memory_get_usage(true) : 0;
 
-		foreach (func_get_args () as $cfg)
-		{
+		foreach (func_get_args() as $cfg) {
 			self::setOptions ($cfg);
 		}
-
-		set_error_handler (array (__CLASS__, 'errorHandler'));
-		register_shutdown_function (array (__CLASS__, 'shutdownHandler'));
+		set_error_handler(array(__CLASS__, 'errorHandler'));
+		register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
 	}
 
 	/**
@@ -518,15 +510,15 @@ class Debug
 	}
 
 	/**
-	 * @desc Отображение в лог нового события.
+	 * Отображение в лог нового события.
+     *
 	 * @param mixed $text Отладочная информация.
 	 * @param string|integer $type Тип события.
 	 */
-	public static function log ($text, $type = 'log')
+	public function log($text, $type = 'log')
 	{
-		if (is_numeric ($type))
-		{
-			$error_type_convertor = array (
+		if (is_numeric($type)) {
+			$error_type_convertor = array(
 				E_WARNING		=> 'warn',
 				E_USER_WARNING	=> 'warn',
 				E_ERROR			=> 'error',
@@ -534,95 +526,77 @@ class Debug
 				E_NOTICE		=> 'log',
 				E_USER_NOTICE	=> 'log'
 			);
-
-			if (isset ($error_type_convertor [$type]))
-			{
-				$type = $error_type_convertor [$type];
-			}
-			else
-			{
+			if (isset($error_type_convertor[$type])) {
+				$type = $error_type_convertor[$type];
+			} else {
 				$type = 'log';
 			}
 		}
-		$time = date ('Y-m-d H:i:s');
-		$text = is_scalar ($text) ? $text : var_export ($text, true);
-
+		$time = date('Y-m-d H:i:s');
+		$text = is_scalar($text) ? $text : var_export($text, true);
 		// В стандартный лог
-		if (self::$config ['phplog'])
-		{
-			error_log ($text . PHP_EOL, E_USER_ERROR, 3);
+		if (self::$config['phplog']) {
+			error_log($text . PHP_EOL, E_USER_ERROR, 3);
 		}
-
 		// В файл
-		if (self::$config ['file_active'])
-		{
-			if (isset (self::$config ['file_' . $type]))
-			{
-				$f = self::$config ['file_' . $type];
+		if (self::$config['file_active']) {
+			if (isset(self::$config['file_' . $type])) {
+				$f = self::$config['file_' . $type];
+			} else {
+				$f = self::$config['file_log'];
 			}
-			else
-			{
-				$f = self::$config ['file_log'];
-			}
-
-			if ($f)
-			{
-				$fh = fopen ($f, 'ab');
-				fwrite ($fh, "$time $type $text");
-				fclose ($fh);
+			if ($f) {
+				$fh = fopen($f, 'ab');
+				fwrite($fh, "$time $type $text");
+				fclose($fh);
 			}
 		}
-
+        $locator = IcEngine::serviceLocator();
+        $dds = $locator->getService('dds');
+        $queryBuilder = $locator->getService('query');
 		// В базу
-		if (self::$config ['database_active'] && DDS::inited ())
-		{
-			DDS::execute (
-				Query::instance ()
-				->insert (self::$config ['database_table'])
-				->values (array (
+		if (self::$config['database_active'] && $dds->inited()) {
+			$dds::execute(
+				$queryBuilder->insert(self::$config['database_table'])
+				->values(array(
 					'time'	=> $time,
 					'where'	=> '',
 					'text'	=> $text,
-					'type'	=> substr ($type, 0, 6)
+					'type'	=> substr($type, 0, 6)
 				))
 			);
 		}
-
 		// FirePHP
 		$limit = self::$config ['firebug_messages_limit'];
 		if (
-			self::$config ['firebug_active'] &&
+			self::$config['firebug_active'] &&
 			(self::$debug_messages_count++ < $limit) &&
 			function_exists ('fb') &&
 			!headers_sent ()
-		)
-		{
-			fb ($text, $type);
+		) {
+			fb($text, $type);
 		}
-
 		// В браузер
-		if (self::$config ['echo_active'])
-		{
+		if (self::$config['echo_active']) {
 			echo "<pre>$type $text</pre>";
 		}
 	}
 
 	/**
-	 * @desc Отображение в лог значения переменной.
+	 * Отображение в лог значения переменной.
+     *
 	 * @param mixed $var Переменная.
 	 * @param string $name Имя переменной.
 	 */
-	public static function logVar ($var, $name = '')
+	public function logVar($var, $name = '')
 	{
-		if (empty ($name))
-		{
-			self::log (print_r ($var, true));
-		}
-		else
-		{
-			self::log ($name . ' => ' . print_r ($var, true));
+		if (empty($name)) {
+			$this->log(print_r($var, true));
+		} else {
+			$this->log($name . ' => ' . print_r($var, true));
 		}
 	}
+
 	/**
 	 * @desc вывод в лог времени загрузки фаилов
 	 * @author Eriomin Ivan

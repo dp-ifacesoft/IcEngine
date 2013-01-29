@@ -120,7 +120,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 
 	/**
 	 * Выполняет запрос на получение данных.
-	 * 
+	 *
      * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return null|array

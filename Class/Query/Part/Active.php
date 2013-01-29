@@ -3,7 +3,7 @@
 /**
  * Часть запроса для поля active
  *
- * @author morph
+ * @author morph, neon
  */
 class Query_Part_Active extends Query_Part
 {
@@ -12,6 +12,7 @@ class Query_Part_Active extends Query_Part
 	 */
 	public function query()
 	{
-		$this->query->where($this->modelName . '.active', 1);
+        $value = isset($this->params['value']) ? $this->params['value'] : 1;
+		$this->query->where($this->modelName . '.active', $value);
 	}
 }
