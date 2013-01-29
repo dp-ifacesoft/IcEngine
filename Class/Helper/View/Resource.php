@@ -300,7 +300,7 @@ class Helper_View_Resource
         if ($config->js) {
         	$ruleParams = $config->js->params->__toArray();
         }
-		$routeParams = array_keys($route->params);
+		$routeParams = array_keys($route->params->__toArray());
 		foreach ($routeParams as $routeParam) {
 			if (isset($ruleParams[$routeParam])) {
 				$ruleParam = $ruleParams[$routeParam];

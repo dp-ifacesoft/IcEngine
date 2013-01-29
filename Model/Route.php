@@ -6,7 +6,7 @@
  * @author goorus, morph
  * @Service("route")
  */
-class Route extends Model_Child
+class Route extends Objective
 {
 	/**
 	 * Загружены ли роуты из конфига
@@ -137,6 +137,17 @@ class Route extends Model_Child
 		}
 		return $this->list;
 	}
+    
+    /**
+     * Получить сервис по имени
+     * 
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        return IcEngine::serviceLocator()->getService($serviceName);
+    }
 
 	/**
 	 * Возвращает объект рендера для роутера

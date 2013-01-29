@@ -5,7 +5,7 @@
  *
  * @author goorus, morph
  */
-class Controller_Action extends Model
+class Controller_Action extends Objective
 {
 	/**
 	 * Флаг игнорирования

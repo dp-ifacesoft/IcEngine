@@ -3,7 +3,7 @@
 /**
  * Базовая модель для всех сущностей
  *
- * @author goorus, morph, neon
+ * @author goorus, morph
  */
 abstract class Model implements ArrayAccess
 {
@@ -96,12 +96,19 @@ abstract class Model implements ArrayAccess
 	public function __construct(array $fields = array())
 	{
 		$this->fields = $fields;
+        if ($fields) {
+            foreach ($fields as $fieldName => $value) {
+                $this->$fieldName = $value;
+            }
+        }
         $selfFields = $this->helper()->getVars($this);
         foreach ($selfFields as $fieldName) {
 			if (!$fieldName || $fieldName[0] == '_') {
 				continue;
 			}
-            $this->fields[$fieldName] = $this->$fieldName;
+            if (!in_array($fieldName, $selfFields)) {
+                $this->fields[$fieldName] = $this->$fieldName;
+            }
         }
         $this->_afterConstruct();
 	}
@@ -167,9 +174,8 @@ abstract class Model implements ArrayAccess
             }
             $this->fields[$field] = $value;
 		} else {
-			throw new Exception(
-                'Field unexists "' . $field . '" ' . get_class($this)
-            );
+            echo $this->table() . PHP_EOL;
+			throw new Exception ('Field unexists "' . $field . '".');
 		}
 	}
 
@@ -598,9 +604,13 @@ abstract class Model implements ArrayAccess
         if ($scheme->fields) {
             $schemeFields = array_keys($scheme->fields->__toArray());
         }
+        $selfFields = $this->helper()->getVars($this);
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
                 $this->$field = $value;
+                if (array_key_exists($field, $selfFields)) {
+                    $this->fields[$field] = $value;
+                }
             } else {
                 $data[$field] = $value;
             }
