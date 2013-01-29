@@ -43,12 +43,13 @@ var View_Render = {
 
 	/**
 	 * Компилировать шаблон в строку
-     * 
+     *
 	 * @param tpl Название шаблона.
 	 * @return string
 	 */
 	fetch: function(tpl)
 	{
+        Loader.load('Helper_Render_Smarty', 'engine');
 		if (!View_Render.templates[tpl]) {
 			Debug.echo('No template: ', tpl);
 			return null;

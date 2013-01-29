@@ -119,7 +119,7 @@ abstract class Model implements ArrayAccess
 	 * @param string $field Поле
 	 * @return mixed
 	 */
-	public function &__get($field)
+	public function __get($field)
 	{
         if (is_null($this->fields)) {
             $this->load();
@@ -518,7 +518,8 @@ abstract class Model implements ArrayAccess
 	 */
 	public function &offsetGet($offset)
 	{
-		return $this->__get($offset);
+        $value = $this->__get($offset);
+        return $value;
 	}
 
 	/**

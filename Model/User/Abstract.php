@@ -33,7 +33,7 @@ class User_Abstract extends Model
 	{
         $session = $this->getService('session')->getCurrent();
 		$session->updateSession($this->key());
-		$this->current = $this;
+        $userService = $this->getService('user')->setCurrent($this);
 		return $this;
 	}
 
