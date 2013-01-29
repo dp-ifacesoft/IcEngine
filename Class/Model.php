@@ -119,7 +119,7 @@ abstract class Model implements ArrayAccess
 	 * @param string $field Поле
 	 * @return mixed
 	 */
-	public function &__get($field)
+	public function __get($field)
 	{
         if (is_null($this->fields)) {
             $this->load();
@@ -177,8 +177,9 @@ abstract class Model implements ArrayAccess
             }
             $this->fields[$field] = $value;
 		} else {
-            echo $this->table() . PHP_EOL;
-			throw new Exception ('Field unexists "' . $field . '".');
+			throw new Exception(
+                'Field unexists "' . $field . '" ' . $this->table()
+            );
 		}
 	}
 
@@ -517,7 +518,8 @@ abstract class Model implements ArrayAccess
 	 */
 	public function &offsetGet($offset)
 	{
-		return $this->__get($offset);
+        $value = $this->__get($offset);
+        return $value;
 	}
 
 	/**
