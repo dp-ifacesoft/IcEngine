@@ -19,7 +19,6 @@ class User_Cli extends User
 			'id'		=> -1,
 			'active'	=> 1,
 			'login'		=> '',
-			'name'		=> '',
 			'email'		=> '',
 			'password'	=> ''
 		)

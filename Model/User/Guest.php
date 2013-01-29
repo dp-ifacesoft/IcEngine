@@ -21,7 +21,6 @@ class User_Guest extends User_Cli
 			'id'		=> 0,
 			'active'	=> 1,
 			'login'		=> '',
-			'name'		=> '',
 			'email'		=> '',
 			'password'	=> ''
 		)

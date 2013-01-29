@@ -158,7 +158,9 @@ class Controller_Annotation_Orm extends Controller_Abstract
      */
     public function update($data, $author, $context)
     {
-        foreach (array_keys($data) as $className) {
+        foreach ($data as $className => $values) {
+            $classData = reset($values);
+            $className = $classData['class'];
             $task = $context->controllerManager->call(
                 'Model', 'scheme', array(
                     'name'      => $className,
@@ -166,7 +168,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
                 )
             );
             $buffer = $task->getTransaction()->buffer();
-            if (!empty($buffer['success'])) {
+            if (!empty($buffer['success']) && empty($values[0]['source'])) {
                 $context->controllerManager->call(
                     'Model', 'create', array(
                         'name'  => $className

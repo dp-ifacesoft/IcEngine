@@ -119,13 +119,14 @@ abstract class Model implements ArrayAccess
 	 * @param string $field Поле
 	 * @return mixed
 	 */
-	public function __get($field)
+	public function &__get($field)
 	{
         if (is_null($this->fields)) {
             $this->load();
         }
 		if ($field == self::DATA_FIELD) {
-			return $this->getData();
+			$data = &$this->data;
+            return $data;
 		}
         $joinField = $field . '__id';
         if (isset($this->joints[$field])) {
@@ -164,7 +165,9 @@ abstract class Model implements ArrayAccess
             $this->load();
         }
         if ($field == self::DATA_FIELD) {
-            return $this->data($value);
+            $data = &$this->data($value);
+            echo $this->table() . PHP_EOL;
+            return $data;
         }
         $fields = $this->scheme()->fields;
 		if (isset($fields[$field])) {
@@ -315,7 +318,7 @@ abstract class Model implements ArrayAccess
 	 * @param mixed $value [optional] Значение (не обязательно).
 	 * @return mixed Текущее значение или null.
 	 */
-	public function data($key, $value = null)
+	public function &data($key, $value = null)
 	{
 		if (func_num_args()  == 1) {
 			if (is_scalar($key)) {
@@ -513,7 +516,7 @@ abstract class Model implements ArrayAccess
 	/**
 	 * @see Model::__get
 	 */
-	public function offsetGet($offset)
+	public function &offsetGet($offset)
 	{
 		return $this->__get($offset);
 	}

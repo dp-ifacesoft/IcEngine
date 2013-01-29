@@ -62,8 +62,9 @@ class Model_Collection_Iterator_Single extends Model_Collection_Iterator_Array
 	 */
 	public function current()
 	{
-		$modelManager = $this->getService('modelManager');
-		$resourceManager = $this->getService('resourceManager');
+        $serviceLocator = IcEngine::serviceLocator();
+		$modelManager = $serviceLocator->getService('modelManager');
+		$resourceManager = $serviceLocator->getService('resourceManager');
 		$index = $this->index;
 		$fields = $this->data[$index];
 		if (!$this->isFactory) {
@@ -136,5 +137,13 @@ class Model_Collection_Iterator_Single extends Model_Collection_Iterator_Array
 	public function setIndex($index)
 	{
 		$this->index = $index;
+	}
+    
+    /**
+	 * @inheritdoc
+	 */
+	public function valid()
+	{
+		return $this->current();
 	}
 }

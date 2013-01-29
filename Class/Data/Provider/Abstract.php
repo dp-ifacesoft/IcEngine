@@ -496,10 +496,9 @@ class Data_Provider_Abstract
      * @param integer $expiration Время жизни ключа.
      * @param array $tags Теги.
 	 */
-	public function set ($key, $value, $expiration = 0, $tags = array ())
+	public function set($key, $value, $expiration = 0, $tags = array ())
 	{
-		if ($this->tracer)
-		{
+		if ($this->tracer) {
 			$this->tracer->add ('set', $key);
 		}
 	}

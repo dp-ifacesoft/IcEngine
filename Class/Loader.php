@@ -14,6 +14,13 @@ class Loader
      * @var array
 	 */
 	protected $paths = array();
+    
+    /**
+     * Провайдер для загрузчика
+     * 
+     * @var Data_Provider_Abstract
+     */
+    protected $provider;
 
 	/**
 	 * Подключенные классы
@@ -83,6 +90,16 @@ class Loader
         $pathes = isset($this->paths[$type]) ? $this->paths[$type] : array();
 		return $pathes;
 	}
+    
+    /**
+     * Получить провайдера для загрузчика
+     * 
+     * @return Data_Provider_Abstract
+     */
+    public function getProvider()
+    {
+        return $this->provider;
+    }
 
 	/**
 	 * Проверяет был ли уже подключен файл
@@ -131,7 +148,16 @@ class Loader
         if (!isset($this->paths[$type])) {
             return false;
         }
-        $filename = $this->findFile($file, $type);
+        if ($this->provider) {
+            $key = $type . '/' . $file;
+            $filename = $this->provider->get($key);
+            if (is_bool($filename)) {
+                $filename = $this->findFile($file, $type);
+                $this->provider->set($key, $filename ?: null);
+            }
+        } else {
+            $filename = $this->findFile($file, $type);
+        }
         if ($filename) {
             if (!isset($this->required[$type])) {
                 $this->required[$type] = array();
@@ -163,6 +189,16 @@ class Loader
 		self::$paths[$type] = (array) $path;
 	}
 
+    /**
+     * Изменить провайдер
+     * 
+     * @param Data_Provider_Abstract $provider
+     */
+    public function setProvider($provider)
+    {
+        $this->provider = $provider;
+    }
+    
 	/**
 	 * Делает отметку о подключении файла.
 	 *

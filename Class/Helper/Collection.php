@@ -35,22 +35,23 @@ class Helper_Collection
 	public static function sortByParent($collection,
 		$include_unparented = false)
 	{
-		$list = &$collection->items();
+		$list = $collection->items();
 		if (empty($list)) {
 			// Список пуст
 			return $collection;
 		}
 		$firstIDS = $collection->column('id');
 		$parents = array();
-		$child_of = $list[0]->parentRootKey();
+		$child_of = 0;
 		$result = array();
 		$i = 0;
+        $keyField = $collection->keyField();
 		$index = array(0 => 0);
 		$full_index = array(-1 => '');
 		do {
 			$finish = true;
 			for ($i = 0; $i < count($list); ++$i) {
-				if ($list[$i]->parentKey() == $child_of) {
+				if ($list[$i]['parentId'] == $child_of) {
 					//
 					if (!isset($index[count($parents)])) {
 						$index[count($parents)] = 1;
@@ -59,8 +60,8 @@ class Helper_Collection
 					}
 					$n = count($result);
 					$result[$n] = $list[$i];
-					$result[$n]->data('level', count($parents));
-					$result[$n]->data('index', $index[count($parents)]);
+					$result[$n]['data']['level'] = count($parents);
+					$result[$n]['data']['index'] = $index[count($parents)];
 					$parents_count = count($parents);
 					if ($parents_count > 0) {
 						$full_index = $full_index[$parents_count - 1] .
@@ -68,11 +69,11 @@ class Helper_Collection
 					} else {
 						$full_index = (string) $index[count($parents)];
 					}
-					$result[$n]->data('full_index', $full_index);
-					$result[$n]->data('broken_parent', false);
+					$result[$n]['data']['full_index'] = $full_index;
+					$result[$n]['data']['broken_parent'] = false;
 					$full_index[$parents_count] = $full_index . '.';
 					array_push($parents, $child_of);
-					$child_of = $list[$i]->key();
+					$child_of = $list[$i][$keyField];
 					for ($j = $i; $j < count($list) - 1; $j++) {
 						$list[$j] = $list[$j + 1];
 					}
@@ -104,14 +105,14 @@ class Helper_Collection
 			//отсортированные дочерние: level > 0
 			$resultSubIDS = array();
 			for ($i = 0; $i < count($list); $i++) {
-				$listIDS[$list[$i]->key()] = $i;
+				$listIDS[$list[$i][$keyField]] = $i;
 			}
 			for ($i = 0; $i < count($result); $i++) {
 				if ($result[$i]->parentId == 0) {
-					$parentId = $result[$i]->key();
-					$resultIDS[$result[$i]->key()] = $i;
+					$parentId = $result[$i][$keyField];
+					$resultIDS[$result[$i][$keyField]] = $i;
 				} else {
-					$resultSubIDS[$parentId][$result[$i]->key()] = $i;
+					$resultSubIDS[$parentId][$result[$i][$keyField]] = $i;
 				}
 			}
 			for ($i = 0; $i < count($firstIDS); $i++) {
