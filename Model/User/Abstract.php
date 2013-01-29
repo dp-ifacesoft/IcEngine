@@ -94,7 +94,7 @@ class User_Abstract extends Model
 			$data['ip'] = $this->getService('request')->ip();
 		}
         //иначе пароля не будет в RSAW2
-        if (strlen($data['password'] < 4)) {
+        if (strlen($data['password']) < 4) {
             return;
         }
         if (!isset($data['login']) && !isset($data['email'])) {
