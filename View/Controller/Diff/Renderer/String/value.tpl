@@ -1,0 +1,1 @@
+{if is_object($value) || is_array($value)}{$value.0}{else}{$value}{/if}
