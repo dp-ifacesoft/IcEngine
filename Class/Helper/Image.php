@@ -183,7 +183,7 @@ class Helper_Image
 
 	private function _log ($message)
 	{
-		$filename = IcEngine::root () . '/log/image.log';
+		$filename = IcEngine::root () . 'log/image.log';
 		file_put_contents (
 			$filename,
 			date () . ' ' . $message . PHP_EOL . PHP_EOL,

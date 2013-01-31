@@ -57,7 +57,7 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 
 		}
 
-		$fname = IcEngine::root () . '/cache/js.pack.log';
+		$fname = IcEngine::root () . 'cache/js.pack.log';
 		file_put_contents ($fname, time() . PHP_EOL, FILE_APPEND);
 
 		return $result . $this->config ()->item_postfix;
