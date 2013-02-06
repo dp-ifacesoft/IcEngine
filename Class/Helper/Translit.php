@@ -98,7 +98,7 @@ class Helper_Translit
 	{
 		$value = trim ($value);
 
-		$value = Helper_String::removeSpecialChars($value);
+		$value = Helper_String::replaceSpecialChars($value);
 		if (!isset ($lang))
 		{
 			$regexpRus = '/^[а-яА-Я]+/';
