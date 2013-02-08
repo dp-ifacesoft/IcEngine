@@ -8,6 +8,13 @@
  */
 class Loader
 {
+    /**
+     * Перегруженные классы
+     * 
+     * @var array
+     */
+    protected $overrides;
+    
 	/**
 	 * Пути.
 	 *
@@ -44,7 +51,7 @@ class Loader
 	}
 
 	/**
-	 * @desc Добавление путей
+	 * Добавление путей
      *
 	 * @param array $paths
 	 */
@@ -70,6 +77,10 @@ class Loader
         if (!isset($this->paths[$type])) {
             return false;
         }
+        $overrides = $this->getOverrides();
+        if (isset($overrides[$file])) {
+            return $overrides[$file];
+        }
 		foreach (array_reverse($this->paths[$type]) as $path) {
 			$filename = $path . $file;
 			if (file_exists($filename)) {
@@ -79,6 +90,26 @@ class Loader
 		return false;
 	}
 
+    /**
+     * Получить перегруженные пути
+     * 
+     * @return array
+     */
+    public function getOverrides()
+    {
+        if (is_null($this->overrides)) {
+            $filename = IcEngine::root() . 'Ice/Config/Loader/Override.php';
+            if (is_file($filename)) {
+                $overrides = include($filename);
+                $this->overrides = $overrides;
+            }
+        }
+        if (is_null($this->overrides)) {
+            $this->overrides = array();
+        }
+        return $this->overrides;
+    }
+    
 	/**
 	 * Возвращает все пути для указанного типа.
 	 *
@@ -178,6 +209,16 @@ class Loader
         }
 	}
 
+    /**
+     * Изменить перегруженные классы
+     * 
+     * @param array $overrides
+     */
+    public function setOverrides($overrides)
+    {
+        $this->overrides = $overrides;
+    }
+    
 	/**
 	 * Заного устанавливает пути до файлов. Предыдущие пути будут удалены.
 	 *

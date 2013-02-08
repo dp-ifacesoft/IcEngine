@@ -4,7 +4,7 @@
  * Менеджер опций
  *
  * @author morph, goorus
- * @Service("collectionOptionManager")
+ * @Service("modelOptionManager")
  */
 class Model_Option_Manager extends Manager_Abstract
 {
@@ -40,6 +40,9 @@ class Model_Option_Manager extends Manager_Abstract
                 continue;
             }
             $option = $this->create($data[0], $collection, $data[1]);
+            if (!$option->isSatisfiedBy()) {
+                continue;
+            }
             $option->query = $collection->query();
             call_user_func(array($option, $method));
         }
