@@ -78,4 +78,14 @@ class Model_Option
 			$queryPart->inject($this->query);
 		}
 	}
+    
+    /**
+     * Удовлетворяет ли опция условиям применения
+     * 
+     * @return boolean
+     */
+    public function isSatisfiedBy()
+    {
+        return true;
+    }
 }

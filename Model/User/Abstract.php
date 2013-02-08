@@ -169,7 +169,11 @@ class User_Abstract extends Model
 	{
         $roleNames = array();
         $roles = array();
-		foreach (func_get_args() as $role) {
+        $args = func_get_args();
+        if (count($args) == 1 && is_array($args[0])) {
+            $args = $args[0];
+        }
+		foreach ($args as $role) {
 			if (!$role) {
                 continue;
             }

@@ -140,7 +140,12 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                 switch($ch) {
                     case '\'': case '"': 
                         break;
-                    case ' ': case "\t":
+                    case ' ': 
+                        if ($collectionValue) {
+                            $currentValue .= $ch;
+                        } 
+                        break;
+                    case "\t":
                         break;
                     case ',': 
                         if ($currentName) {
