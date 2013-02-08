@@ -28,7 +28,7 @@ class Controller_Annotation_Override extends Controller_Abstract
                 $type = reset($annotationData[0]);
             }
             $filename = str_replace('_', '/', $className) . '.php';
-            $path = IcEngine::root() . 'Ice/' . $paths[$type];
+            $path = 'Ice/' . $paths[$type];
             $pathParts = explode('/', $path);
             $fileParts = explode('/', $filename);
             if ($fileParts[0] == $pathParts[count($pathParts) - 1]) {

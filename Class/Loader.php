@@ -79,7 +79,7 @@ class Loader
         }
         $overrides = $this->getOverrides();
         if (isset($overrides[$file])) {
-            return $overrides[$file];
+            return IcEngine::root() . $overrides[$file];
         }
 		foreach (array_reverse($this->paths[$type]) as $path) {
 			$filename = $path . $file;
