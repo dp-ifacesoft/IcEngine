@@ -41,6 +41,7 @@ class User_Session extends Model
         $modelManager = $this->getService('modelManager');
 		$session = $modelManager->byKey('User_Session', $sessionId);
         $date = $this->getService('helperDate');
+        $request = $this->getService('request');
 		if (!$session && $autocreate) {
     		$session = $modelManager->create('User_Session', array(
     			'id'			=> $sessionId,
@@ -48,7 +49,8 @@ class User_Session extends Model
     			'phpSessionId'	=> $sessionId,
     			'startTime'	    => $date->toUnix(),
     			'lastActive'	=> $date->toUnix(),
-    			'remoteIp'		=> $this->getService('request')->ip(),
+                'url'           => $request->uri(),
+    			'remoteIp'		=> $request->ip(),
 				'eraHourNum'	=> $date->eraHourNum(),
     			'userAgent'	    => substr(getenv('HTTP_USER_AGENT'), 0, 100)
     		));
@@ -134,6 +136,7 @@ class User_Session extends Model
 				'eraHourNum'	=> $date->eraHourNum()
 			);
 		}
+        $updateData['url'] = $this->getService('request')->uri();
         if ($updateData) {
             $this->update($updateData);
         }
