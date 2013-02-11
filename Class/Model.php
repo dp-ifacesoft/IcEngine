@@ -329,6 +329,7 @@ abstract class Model implements ArrayAccess
 		} else {
 			$this->data[$key] = $value;
 		}
+        return $this->data;
 	}
 
 	/**

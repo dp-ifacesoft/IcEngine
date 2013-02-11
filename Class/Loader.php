@@ -21,10 +21,10 @@ class Loader
      * @var array
 	 */
 	protected $paths = array();
-    
+
     /**
      * Провайдер для загрузчика
-     * 
+     *
      * @var Data_Provider_Abstract
      */
     protected $provider;
@@ -121,10 +121,10 @@ class Loader
         $pathes = isset($this->paths[$type]) ? $this->paths[$type] : array();
 		return $pathes;
 	}
-    
+
     /**
      * Получить провайдера для загрузчика
-     * 
+     *
      * @return Data_Provider_Abstract
      */
     public function getProvider()
@@ -232,14 +232,14 @@ class Loader
 
     /**
      * Изменить провайдер
-     * 
+     *
      * @param Data_Provider_Abstract $provider
      */
     public function setProvider($provider)
     {
         $this->provider = $provider;
     }
-    
+
 	/**
 	 * Делает отметку о подключении файла.
 	 *
