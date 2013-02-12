@@ -94,9 +94,11 @@ class Helper_Translit
 	 */
 	public function translit($value, $lang = null)
 	{
-		$value = trim($value);
-
-        $value = Helper_String::replaceSpecialChars($value, '');
+		$locator = IcEngine::serviceLocator();
+        $helperString = $locator->getService('helperString'); 
+        $value = trim($value);
+        
+        $value = $helperString->replaceSpecialChars($value, '');
 		if (!isset($lang)) {
 			$regexpRus = '/^[а-яА-Я]+/';
 			$lang = preg_match($regexpRus, $value) ? 'en' : 'ru';
