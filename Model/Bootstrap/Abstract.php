@@ -87,6 +87,16 @@ abstract class Bootstrap_Abstract
 	}
     
     /**
+     * Получить сервис по имени
+     * 
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        return IcEngine::serviceLocator()->getService($serviceName);
+    }
+    
+    /**
      * Получить добавленные стратегии
      * 
      * @return array

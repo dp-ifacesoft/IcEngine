@@ -285,6 +285,21 @@ var Helper_Render_Smarty;
 		{
 			return str.replace(/(["'\\])/g, "\\$1").replace('/\0/g', "\\0");
 		},
+        'plural'     : function (n, forms) {
+            if (typeof forms == "string")
+            {
+                forms = forms.split (',');
+            }
+
+            plural = (n % 10 == 1 && n % 100 != 11 ? 0 : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2));
+
+            if (forms [plural])
+            {
+                return forms [plural];
+            }
+
+            return forms.shift ();
+        },
 		"eat"        : function (v)    { return ""; },
 		"escape"     : function (s)    { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); },
 		"capitalize" : function (s)    { return String(s).toUpperCase(); },
