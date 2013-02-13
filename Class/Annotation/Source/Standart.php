@@ -99,10 +99,9 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                 $currentString
             );
             if ($openedCount != $endedCount) {
-                if ($i == count($parts) - 1) {
+                if ($i == $count - 1) {
                     continue;
-                }
-                if ($i < $count - 1) {
+                } elseif ($i < $count - 1) {
                     $currentString = $parts[$i] . ',' . $parts[$i + 1];
                 }
                 $parts[$i + 1] = $currentString;

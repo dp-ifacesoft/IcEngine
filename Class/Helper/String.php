@@ -3,7 +3,7 @@
 /**
  * Помощник для работы со строками
  *
- * @author goorus, neon, markov
+ * @author goorus, neon, markov, morph
  * @Service("helperString")
  */
 class Helper_String
