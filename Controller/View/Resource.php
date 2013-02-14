@@ -22,34 +22,30 @@ class Controller_View_Resource extends Controller_Abstract
 				$vars['{$' . $key . '}'] = $value;
 			}
 		}
-        $resultResources = array();
 		$moduleCollection = $context->collectionManager->create('Module');
-		foreach ($moduleCollection as $module) {
-            $configName = 'Controller_View_Resource';
-            $mainModule = false;
-            if (!$module->isMain) {
-                $configName = 'Module_' . $module->name. '_' . $configName;
-            } else {
-                $mainModule = true;
-            }
-			$config = $context->configManager->get($configName);
-			if (!$mainModule && empty($module['hasResource'])) {
+        $configName = 'Controller_View_Resource';
+        $moduleManager = $this->getService('moduleManager');
+		foreach ($moduleCollection->items() as $module) {
+			if (!$module->isMain && !$module->hasResource) {
+                continue;
+			}
+            $config = $moduleManager->getConfig($module->name, $configName);
+			if (!$config || !$config->targets) {
 				continue;
 			}
-			$vars['{$moduleName}'] = $module->name;
-			$vars['{$modulePath}'] = $module->path;
-			if (!$config || !$config->targets) {
-				return;
-			}
+            $vars['{$moduleName}'] = $module->name;
+			$vars['{$modulePath}'] = $module->path();
 			foreach ($config->targets as $targetName => $target) {
-				if ($type && $type != $target->type) {
+				$resultResources = array();
+                $existsResources = array();
+                if ($type && $type != $target->type) {
                     continue;
                 }
                 if ($name && $name != $targetName) {
                     continue;
                 }
 				$resources = array();
-				foreach ($target->sources as $source) {
+				foreach ($target->sources as $sourceName => $source) {
 					if (is_string($source)) {
 						$sourceDir = IcEngine::root();
 						$sourceFiles = array($source);
@@ -62,10 +58,11 @@ class Controller_View_Resource extends Controller_Abstract
 					foreach ($sourceFiles as $filename) {
                         $filename = strtr($filename, $vars);
                         $loadedResources = $context->viewResourceManager->load(
-                            '/', $sourceDir, array($filename), $target->type . $module->name
+                            '/', $sourceDir, array($filename), 
+                            $target->type . $module->name
                         );
 						$resources = array_merge(
-							$resources, (array)$loadedResources
+							$resources, (array) $loadedResources
 						);
 					}
 				}
@@ -91,13 +88,7 @@ class Controller_View_Resource extends Controller_Abstract
                     $resultResources, $destinationFile, $packerConfig, true
                 );
 				$packer->popConfig();
-                $resultResources[$name] = array(
-					'type'	=> $target->type,
-					'url'	=> strtr($target->url, $vars),
-					'ts'	=> $packer->cacheTimestamp()
-				);
 			}
-			$this->output->send('resources', $resultResources);
 		}
 	}
 }

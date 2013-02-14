@@ -44,7 +44,10 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 */
 	public function index()
 	{
-        
+        IcEngine::getTask()->setTemplate('Controller/Front/login');
+        IcEngine::getTask()->getOutput()->send(array(
+            'helperViewResource'    => $this->getService('helperViewResource')
+        ));
 	}
 
 	/**

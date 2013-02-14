@@ -134,16 +134,16 @@ class Module_Manager extends Manager_Abstract
      */
     public function getConfig($moduleName, $configName = 'Index')
     {
-        $resourceKey = $this->resourceKey($moduleName);
         $configName = str_replace('_', '/', $configName);
-        $resourceManager = $this->getService('resourceManager', $configName);
+        $resourceKey = $this->resourceKey($moduleName, $configName);
+        $resourceManager = $this->getService('resourceManager');
         $tryConfig = $resourceManager->get('Config', $resourceKey);
         if ($tryConfig) {
             return $tryConfig;
         }
         $baseConfigFile = IcEngine::root() . $moduleName . '/Config/' .
             $configName . '.php';
-        $selfConfig = self::config();
+        $selfConfig = $this->config();
         $defaultModule = $selfConfig->defaultModule;
         $resultConfig = array();
         if (is_file($baseConfigFile)) {
@@ -169,6 +169,9 @@ class Module_Manager extends Manager_Abstract
      */
 	public function init()
 	{
+        if ($this->modules) {
+            return;
+        }
         $config = $this->config();
         if ($config->fromModel) {
             $this->loadFromModel();

@@ -83,8 +83,12 @@ class Controller_Annotation_Route extends Controller_Abstract
                 $theRoute = array(
                     'route'     => $route,
                     'weight'    => $weight, 
-                    'actions'   => $actions
+                    'actions'   => $actions,
+                    'params'    => array()
                 );
+                if ($data['Route']['module']) {
+                    $theRoute['params']['module'] = $data['Route']['module'];
+                }
                 $routeIds[] = $route;
                 if ($params) {
                     $theRoute['params'] = $params;

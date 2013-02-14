@@ -115,6 +115,8 @@ class Controller_Annotation extends Controller_Abstract
             ));
             $annotation = $annotationManager->getAnnotation($class['class'])
                 ->getData();
+            $moduleName = !empty($annotation['class']['Module']) 
+                ? reset($annotation['class']['Module'][0]) : null;
             foreach ($annotation as $delegeeType => $annotationData) {
                 if (!isset($delegees[$delegeeType]) || !$annotationData) {
                     continue;
@@ -150,9 +152,10 @@ class Controller_Annotation extends Controller_Abstract
                                 $delegeeData[$delegee][$key]
                                 [$subAnnotationName] =
                                 array(
-                                    'class' => $className,
-                                    'part'  => $annotationName,
-                                    'data'  => $subData
+                                    'class'     => $className,
+                                    'part'      => $annotationName,
+                                    'module'    => $moduleName,
+                                    'data'      => $subData
                                 );
                             }
                         }

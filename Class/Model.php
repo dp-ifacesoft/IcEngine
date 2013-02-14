@@ -97,21 +97,14 @@ abstract class Model implements ArrayAccess
 	{
 		$this->fields = $fields;
         $selfFields = $this->helper()->getVars($this);
-        if ($fields && $selfFields) {
-            foreach ($fields as $fieldName => $value) {
-                if (!isset($this->$fieldName)) {
-                    continue;
-                }
-                $this->$fieldName = $value;
-            }
-        }
-        foreach ($selfFields as $fieldName) {
-			if (!$fieldName || $fieldName[0] == '_') {
+        foreach (array_keys($selfFields) as $fieldName) {
+            if (!$fieldName || $fieldName[0] == '_') {
 				continue;
 			}
-            if (!in_array($fieldName, $selfFields)) {
+            if (!array_key_exists($fieldName, $this->fields)) {
                 $this->fields[$fieldName] = $this->$fieldName;
             }
+            unset($this->$fieldName);
         }
         $this->_afterConstruct();
 	}
@@ -175,10 +168,6 @@ abstract class Model implements ArrayAccess
         }
         $fields = $this->scheme()->fields;
 		if (isset($fields[$field])) {
-            $selfFields = $this->helper()->getVars($this);
-            if (in_array($field, $selfFields)) {
-                $this->$field = $value;
-            }
             $this->fields[$field] = $value;
 		} else {
 			throw new Exception(
@@ -622,13 +611,9 @@ abstract class Model implements ArrayAccess
         if ($scheme->fields) {
             $schemeFields = array_keys($scheme->fields->__toArray());
         }
-        $selfFields = $this->helper()->getVars($this);
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
-                $this->$field = $value;
-                if (array_key_exists($field, $selfFields)) {
-                    $this->fields[$field] = $value;
-                }
+                $this->fields[$field] = $value;
             } else {
                 $data[$field] = $value;
             }
