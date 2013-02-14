@@ -5,10 +5,31 @@
  *
  * @author neon
  * @Service("mailProvider")
+ * @Orm\Entity(source="Defined")
  */
 class Mail_Provider extends Model_Defined
 {
-
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null, Auto_Increment)
+     * @Orm\Index\Primary
+     */
+    public $id;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $name;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $title;
+    
+    /**
+     * @Orm\Field\Tinyint(Size=1, Not_Null)
+     */
+    public $active;
+    
     /**
      * @inheritdoc
      * @var array

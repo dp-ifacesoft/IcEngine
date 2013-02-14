@@ -1,16 +1,14 @@
 <?php
+
 /**
- *
- * @desc Контроллер для авторизации по емейлу, паролю и смс.
+ * Контроллер для авторизации по емейлу, паролю и смс.
  * Предназначен для авторизации контентов в админке, поэтому
  * сверяет данные из БД с данными из файла конфига.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * 
+ * @author goorus, morph
  */
 class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 {
-
 	/**
 	 * @param Аттрибут с кодом, высланным в СМС
 	 * @var string
@@ -33,7 +31,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 * @desc Конфиг
 	 * @var array
 	 */
-	protected $_config = array (
+	protected $config = array(
 		// Лимит смс в 1 минуту
 		'sms_send_limit_1m'			=> 60,
 
@@ -42,155 +40,124 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	);
 
 	/**
-	 * @desc Вовзращает модель авторизации.
-	 * @return Authorization_Login_Password_Sms
+	 * Просто форма авторизации
 	 */
-	protected function _authorization ()
+	public function index()
 	{
-		return $this->getService('modelManager')->byQuery (
-			'Authorization',
-				$this->getService('query')->instance ()
-				->where ('name', 'Login_Password_Sms')
-		);
+        
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Controller_Abstract::index()
-	 */
-	public function index ()
-	{
-		// Просто форма авторизации
-	}
-
-	/**
-	 * @desc Авторизация
-	 * @param string $name Емейл пользователя
+	 * Авторизация
+	 * 
+     * @param string $name Емейл пользователя
 	 * @param string $pass Пароль
 	 * @param string $code Код активации из СМС
 	 */
-	public function login ()
+	public function login($name, $pass, $a_id, $code, $href)
 	{
-		list (
-			$login,
-			$password,
-			$activation_id,
-			$activation_code,
-			$redirect
-		) = $this->input->receive (
-			'name',
-			'pass',
-			'a_id',
-			'code',
-			'href'
-		);
-
-		$model_manager = $this->getService('modelManager');
-		if (!$activation_id && $activation_code)
-		{
-			// Сразу указали код активации, мб старая активация
-			$activation = $model_manager->byQuery (
-				'Activation',
-				$this->getService('query')->instance ()
-					->from ('Activation')
-					->singleInnerJoin (
-						'User',
-						'Activation.User__id=User.id'
-					)
-					->where ('Activation.code', $activation_code)
-					->where ('User.login', $login)
-					->where (
-						'(
-							md5(User.password)=md5(?) OR
-							User.password=md5(?)
-						)',
-						array ($password, $password)
-					)
-			);
-
-			if ($activation)
-			{
-				$activation_id = $activation->id;
+		$this->task->setTemplate(null);
+		$modelManager = $this->getService('modelManager');
+		if (!$a_id && $code) {
+            $user = $modelManager->byOptions(
+                'User',
+                '::Active',
+                array(
+                    'name'  => 'Login',
+                    'value' => $name
+                ),
+                array(
+                    'name'  => 'Password',
+                    'value' => $pass
+                )
+            );
+            if (!$user) {
+                return;
+            }
+            $activation = $modelManager->byOptions(
+                'Activation',
+                array(
+                    'name'  => '::User',
+                    'id'    => $user->key()
+                ),
+                array(
+                    'name'  => '::Code',
+                    'code'  => $code
+                )
+            );
+            if ($activation) {
+				$a_id = $activation->key();
 			}
-		}
-
-		if (!$activation_id || !$activation_code)
-		{
-			return $this->replaceAction ($this, 'sendSmsCode');
-		}
-
-		$user = $this->_authorization ()->authorize (array (
-			'login'				=> $login,
-			'password'			=> $password,
-			'activation_id'		=> $activation_id,
-			'activation_code'	=> $activation_code
+        }
+        if (!$a_id || !$code) {
+            return $this->replaceAction($this, 'sendSmsCode');
+        }
+        $authozization = $modelManager->byOptions(
+            'Authorization',
+            array(
+                'name'  => '::Name',
+                'value' => 'Login_Password_Sms'
+            )
+        );
+		$user = $authozization->authorize(array(
+			'login'				=> $name,
+			'password'			=> $pass,
+			'activation_id'		=> $a_id,
+			'activation_code'	=> $code
 		));
-
-		if (!is_object ($user))
-		{
+		if (!is_object($user)) {
 			// Пользователя не существует
-			$this->sendError (
+			return $this->sendError(
 				'authorization error: ' . $user,
 				$user ? $user : __METHOD__,
 				$user ? null : '/passwordIncorrect'
 			);
-			return ;
 		}
-
 		// Сбрасываем счетчик СМС.
-		$user->attr (array (
+		$user->attr(array(
 			self::SMS_SEND_COUNTER_ATTR	=> 0,
 			self::SMS_CODE_ATTR			=> ''
 		));
-
-		$redirect = Helper_Uri::validRedirect ($redirect);
-		$this->output->send (array (
-			'redirect'		=> $redirect,
-			'data'	=> array (
-				'redirect'	=> $redirect
-			)
-		));
+		$redirect = $this->getService('helperUri')->validRedirect($href);
+		$this->output->send(array(
+            'data'  => array(
+                'redirect'  => $redirect
+            )
+        ));
 	}
 
 	/**
-	 * @desc Отправка СМС кода
+	 * Отправка СМС кода
 	 */
-	public function sendSmsCode ()
+	public function sendSmsCode($provider, $name, $pass, $send)
 	{
-		list(
-			$provider,
-			$login,
-			$password,
-			$send
-		) = $this->input->receive(
-			'provider',
-			'name',
-			'pass',
-			'send'
-		);
-		$model_manager = $this->getService('modelManager');
-		$user = $model_manager->byOptions(
+        $modelManager = $this->getService('modelManager');
+        $this->task->setTemplate(null);
+        if (!$name || !$pass) {
+            return $this->sendError('empty login or password');
+        }
+		$user = $modelManager->byOptions(
 			'User',
 			array(
 				'name'	=> 'Login',
-				'value'	=> $login
+				'value'	=> $name
 			),
 			array(
 				'name'	=> 'Password',
-				'value'	=> $password
+				'value'	=> $pass
 			)
 		);
 		if (!$user) {
-			$user = $model_manager->byOptions (
+			$user = $modelManager->byOptions(
 				'User',
 				array(
 					'name'	=> 'Login',
-					'value'	=> $login
+					'value'	=> $name
 				),
 				array(
 					'name'	=> 'Password',
 					'type'	=> 'RSA',
-					'value'	=> $password
+					'value'	=> $pass
 				)
 			);
 		}
@@ -200,67 +167,59 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 				'Data_Validator_Authorization_Password/invalid'
 			);
 		}
-
 		if (!$user->active) {
 			return $this->sendError(
 				'user unactive',
 				'Data_Validator_Authorization_User/unactive'
 			);
 		}
-
 		if (!$user->phone) {
 			return $this->sendError('noPhone');
 		}
-
-		$count = $user->attr (self::SMS_SEND_COUNTER_ATTR);
-		$time = $this->getService('helperDate')->toUnix ();
-		$last_time = $user->attr (self::SMS_SEND_TIME_ATTR);
-		$delta_time = $this->getService('helperDate')->secondsBetween ($last_time);
-
-		if (
-			(
-				$count >= $this->config ()->sms_send_limit_1m &&
-				$delta_time < 60
-			) ||
-			(
-				$count >= $this->config ()->sms_send_limit_10m &&
-				$delta_time < 600
-			)
-		)
-		{
-			//return $this->sendError ('smsLimit');
-		}
-		
-		$activation = $this->_authorization ()->sendActivationSms (array (
-			'login'		=> $login,
-			'password'	=> $password,
+		$count = $user->attr(self::SMS_SEND_COUNTER_ATTR);
+		$time = $this->getService('helperDate')->toUnix();
+		$lastTime = $user->attr(self::SMS_SEND_TIME_ATTR);
+		$deltaTime = $this->getService('helperDate')->secondsBetween(
+            $lastTime
+        );
+        $config = $this->config();
+        if ($count >= $config->sms_send_limit_1m && $deltaTime < 60) {
+            return $this->sendError('smsLimit');
+        }
+        if ($count >= $config->sms_send_limit_10m && $deltaTime < 600) {
+            return $this->sendError('smsLimit');
+        }
+        $authozization = $modelManager->byOptions(
+            'Authorization',
+            array(
+                'name'  => '::Name',
+                'value' => 'Login_Password_Sms'
+            )
+        );
+		$activation = $authozization->sendActivationSms(array(
+			'login'		=> $name,
+			'password'	=> $pass,
 			'phone'		=> $user->phone,
 			'user'		=> $user,
 			'provider'	=> $provider,
 			'send'		=> $send
 		));
-
-		if (!is_object ($activation))
-		{
-			$this->sendError (
+		if (!is_object($activation)) {
+			return $this->sendError(
 				'send activation code fail (' . (string) $activation . ')',
 				$activation ? $activation : 'accessDenied'
 			);
-			return ;
 		}
-
-		$user->attr (array (
-			self::SMS_SEND_TIME_ATTR		=> $time,
-			self::SMS_SEND_COUNTER_ATTR		=> $count + 1
+		$user->attr(array(
+			self::SMS_SEND_TIME_ATTR    => $time,
+			self::SMS_SEND_COUNTER_ATTR	=> $count + 1
 		));
-
-		$this->output->send (array (
+		$this->output->send(array(
 			'activation'	=> $activation,
 			'time'			=> $time,
-			'data'			=> array (
-				'activation_id'		=> $activation->id
+			'data'			=> array(
+				'activation_id'		=> $activation->key()
 			)
 		));
 	}
-
 }

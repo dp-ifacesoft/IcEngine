@@ -1,43 +1,113 @@
 <?php
+
 /**
- *
- * @desc Активация чего-либо, требующая код подтверждения от пользователя.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * Активация чего-либо, требующая код подтверждения от пользователя.
+ * 
+ * @author goorus, morph
+ * @Service("activation")
+ * @Orm\Entity
  */
 class Activation extends Model
-{
-
+{   
 	/**
-	 * @desc Время завершения по умолчанию.
+	 * Время завершения по умолчанию.
 	 * @var string
 	 */
 	const EMPTY_FINISH_TIME = '2000-01-01';
 
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null, Auto_Increment)
+     * @Orm\Index\Primary
+     */
+    public $id;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $address;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $type;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $code;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $callbackMessage;
+    
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null)
+     */
+    public $finished;
+    
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null)
+     */
+    public $day;
+    
+    /**
+     * @Orm\Field\Datetime(Not_Null)
+     */
+    public $createTime;
+    
+    /**
+     * @Orm\Field\Datetime(Not_Null)
+     */
+    public $finishTime;
+    
+    /**
+     * @Orm\Field\Datetime(Not_Null)
+     */
+    public $expirationTime;
+    
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null)
+     */
+    public $User__id;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $createIp;
+    
+    /**
+     * @Orm\Field\Varchar(Size=128, Not_Null)
+     */
+    public $finishIp;
+    
 	/**
 	 * Находит активацию по коду, при условии, что она не истекла по времени.
 	 *
 	 * @param string $code Код активации.
 	 * @return Activation|null Найденная активация.
 	 */
-	public static function byCode($code, $type = '')
+	public function byCode($code, $type = '')
 	{
-		return $this->getService('modelManager')->byQuery(
-			'Activation',
-			Query::instance()
-				->where('type', $type)
-				->where('code', $code)
-				->where(
-					'expirationTime<?', 
-					$this->getService('helperDate')->toUnix()
-				)
-		);
+        $helperDate = $this->getService('helperDate');
+        $activationQuery = $this->getService('query')
+            ->select('id')
+            ->from('Activation')
+            ->where('type', $type)
+            ->where('code', $code)
+            ->where('expirationTime<?', $helperDate->toUnix());
+		$actionvationId = $this->getService('dds')->execute($activationQuery)
+            ->getResult()->asValue();
+        $actionvation = $this->getService('modelManager')->byKey(
+            'Activation', $actionvationId
+        );
+        return $actionvation;
 	}
 
 	/**
-	 * @desc Создает и возвращает новую активацию.
-	 * @param array $params Параметры активации.
+	 * Создает и возвращает новую активацию.
+	 * 
+     * @param array $params Параметры активации.
 	 * $params ['address'] Адрес для отправки сообщения.
 	 * $params ['type'] [optional] Тип (smsauth/review и т.п.)
 	 * $params ['code'] Код активации.
@@ -48,64 +118,44 @@ class Activation extends Model
 	 * 	после успешной активации.
 	 * @return Activation Созданная активация.
 	 */
-	public static function create (array $params)
+	public function create(array $params)
 	{
-		$activation = new Activation (array (
-			'address'			=> $params ['address'],
-			'type'				=>
-				isset ($params ['type']) ?
-					$params ['type'] :
-					'',
-			'code'				=> $params ['code'],
-			'finished'			=>
-				isset ($params ['finished']) ?
-					$params ['finished'] :
-					0,
-			'createTime'		=> Helper_Date::toUnix (),
+        $helperDate = $this->getService('helperDate');
+		$activation = new Activation(array (
+			'address'			=> $params['address'],
+			'type'				=> isset($params['type']) 
+                ? $params['type'] : '',
+			'code'				=> $params['code'],
+			'finished'			=> isset($params['finished']) 
+                ? $params['finished'] : 0,
+			'createTime'		=> $helperDate->toUnix(),
 			'finishTime'		=> self::EMPTY_FINISH_TIME,
-			'expirationTime'	=>
-				isset ($params ['expirationTime']) ?
-					$params ['expirationTime'] :
-					'2040-01-01 00:00:00',
-			'User__id'			=>
-				isset ($params ['User__id']) ?
-					$params ['User__id'] :
-					User::id (),
-			'createIp'			=> Request::ip (),
+			'expirationTime'	=> isset($params['expirationTime']) 
+                ? $params['expirationTime'] : '2040-01-01 00:00:00',
+			'User__id'			=> isset($params['User__id']) 
+                ? $params['User__id'] : $this->getService('user')->id(),
+			'createIp'			=> $this->getService('request')->ip(),
 			'finishIp'			=> '',
-			'day'				=> Helper_Date::eraDayNum (),
-			'callbackMessage'	=>
-				isset ($params ['callbackMessage']) ?
-					$params ['callbackMessage'] :
-					''
+			'day'				=> $helperDate->eraDayNum(),
+			'callbackMessage'	=> isset($params['callbackMessage']) 
+                ? $params['callbackMessage'] : ''
 		));
-		return $activation->save ();
+		return $activation->save();
 	}
 
 	/**
-	 * @desc Успешное окончание активации
-	 * @return Activation Эта активация.
+	 * Успешное окончание активации
+	 * 
+     * @return Activation Эта активация.
 	 */
-	public function activate ()
+	public function activate()
 	{
-		$this->update (array (
+        $helperDate = $this->getService('helperDate');
+		$this->update(array(
 			'finished'		=> 1,
-			'finishTime'	=> Helper_Date::toUnix (),
-			'finishIp'		=> Request::ip ()
+			'finishTime'	=> $helperDate->toUnix(),
+			'finishIp'		=> $this->getService('request')->ip()
 		));
-
-		// Сообщение об успешной активации
-		if ($this->callbackMessage)
-		{
-			IcEngine::$messageQueue->push (
-				$this->callbackMessage,
-				array (
-					'activation'	=> $this
-				)
-			);
-		}
-
 		return $this;
 	}
-
 }
