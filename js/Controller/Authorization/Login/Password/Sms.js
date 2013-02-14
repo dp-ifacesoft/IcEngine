@@ -50,9 +50,9 @@ var Authorization_Login_Password_Sms = {
 				return ;
 			}
 			
-			if (result.redirect)
+			if (result.data.redirect)
 			{
-				window.location.href = result.redirect;
+				window.location.href = result.data.redirect;
 			}
 		}
 		

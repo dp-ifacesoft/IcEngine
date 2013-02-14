@@ -204,21 +204,40 @@ class Controller_Abstract
         $this->input->send(array(
             'origin'    => $controllerAction
         ));
-		$this->task->setTemplate(
-			'Controller/' . str_replace('_', '/', $controller) . '/' . $action
-		);
         $eventManager = $this->getService('eventManager');
         $signal = $eventManager->getSignal($controllerAction);
         $slot = $eventManager->getSlot('Controller_After');
         $signal->unbind($slot);
-		if ($controller == get_class($this)) {
-			return $this->$action();
+		if ($controller != get_class($this)) {
+            $controller = $other;
+			$controller->setInput($this->input);
+			$controller->setOutput($this->output);
+			$controller->setTask($this->task);
 		} else {
-			$other->setInput($this->input);
-			$other->setOutput($this->output);
-			$other->setTask($this->task);
-            $other->$action();
-		}
+            $controller = $this;
+        }
+        $reflection = new \ReflectionMethod($controller, $action);
+        $params = $reflection->getParameters();
+        $currentInput = $controller->getInput();
+        $provider = $currentInput->getProvider(0);
+        $resultParams = array();
+        if ($params) {
+            foreach ($params as $param) {
+                $value = $currentInput->receive($param->name);
+                if (!$value && $param->isOptional()) {
+                    $value = $param->getDefaultValue();
+                }
+                if ($provider) {
+                    $provider->set($param->name, $value);
+                }
+                $resultParams[$param->name] = $value;
+            }
+        }
+        $reflection->invokeArgs($controller, $resultParams);
+        $this->task->setTemplate(
+			'Controller/' . str_replace('_', '/', $controller->name()) . 
+                '/' . $action
+		);
 	}
 
 	/**

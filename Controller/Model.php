@@ -146,7 +146,7 @@ class Controller_Model extends Controller_Abstract
 		}
 		$filename = $currentDir . $filename . '.php';
 		$author = $author ? $author : $config->author;
-		if (!is_file($filename)) {
+		if (!is_file($filename) && !isset($name)) {
 			$properties = array();
 			if ($config->fields) {
 				foreach ($config->fields as $field => $values) {
@@ -186,7 +186,7 @@ class Controller_Model extends Controller_Abstract
 			file_put_contents($filename, $output);
 			echo $output . PHP_EOL . PHP_EOL;
 		}
-		if (!$withoutCollection) {
+		if (!$withoutCollection && !isset($name)) {
 			$filename = $dir . 'Collection.php';
 			if (!is_file($filename)) {
 				$output = $helperCodeGenerator->fromTemplate(

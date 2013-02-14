@@ -21,6 +21,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
         if (!isset($annotation['class']['Orm\\Entity'])) {
             return;
         }
+        echo $className . PHP_EOL; 
         $entity = $annotation['class']['Orm\\Entity'][0]; 
         if (is_array($entity)) {
             $scheme = $this->getService('modelScheme'); 

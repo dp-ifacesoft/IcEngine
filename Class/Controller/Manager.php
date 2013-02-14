@@ -262,19 +262,19 @@ class Controller_Manager extends Manager_Abstract
                 $this->delegee($delegeeName)->call($controller, $context);
             }
         }
-        $callable = array($controller, $actionName);
         // Начинаем транзацию для экшина контроллера и выполняем его. Транспорты
         // и задачу после этого возвращаем на место
-        $output->beginTransaction();
-        //print_r($this->eventManager()->getMap());die;
         if (!$controller->getTask()->getIgnore()) {
+            $output->beginTransaction();
+            $callable = array($controller, $actionName);
             $this->getExecutor($task)->execute($callable, $context->getArgs());
-            $task->setTransaction($output->endTransaction());
+            $lastTransaction = $output->endTransaction();
+            $task->setTransaction($lastTransaction);
             $this->eventManager()->notify(
                 $controller->getName() . '/' . $actionName,
                 array('task'  => $task)
             );
-        }//die;
+        }
 		$controller
 			->setInput($lastInput)
 			->setOutput($lastOutput)

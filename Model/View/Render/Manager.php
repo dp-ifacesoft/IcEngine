@@ -32,7 +32,7 @@ class View_Render_Manager extends Manager_Abstract
 	/**
 	 * @inheritdoc
 	 */
-	protected $config = array (
+	protected $config = array(
 		/**
 		 * @desc Рендер по умолчанию
 		 * @var string
@@ -168,6 +168,6 @@ class View_Render_Manager extends Manager_Abstract
 	 */
 	public function render(array $outputs)
 	{
-		return $this->getView ()->render($outputs);
+		return $this->getView()->render($outputs);
 	}
 }

@@ -123,6 +123,9 @@ class Event_Map
 	 */
 	public function removeSlot($signal, $slot)
 	{
+        if (!isset($this->slots[$signal->getName()])) {
+            return;
+        }
 		$slots = $this->slots[$signal->getName()];
 		$newSlots = array();
         if (!$slots) {
