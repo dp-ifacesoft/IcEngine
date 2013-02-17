@@ -14,6 +14,6 @@ class Controller_Nope extends Controller_Abstract
      */
     public function nope()
     {
-        
+        $this->task->setTemplate(null);
     }
 }
