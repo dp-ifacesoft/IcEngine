@@ -69,6 +69,13 @@ class Controller_Annotation_Orm extends Controller_Abstract
         $booleanOnlyArgs = array(
             'Unsigned', 'Auto_Increment', 'Not_Null', 'Null'
         );
+        $profileName = isset($annotation['class']['Orm\\Profile']) 
+            ? reset($annotation['class']['Orm\Profile'][0]) : null;
+        $profileData= array();
+        if ($profileName) {
+            $profileData = $this->getService('configManager')
+                ->get('Orm_Profile')[$profileName];
+        }
         foreach ($annotation['properties'] as $property => $data) {
             if (!$data) {
                 continue;
@@ -105,6 +112,21 @@ class Controller_Annotation_Orm extends Controller_Abstract
                         }
                     }
                     $fieldData['Comment'] = $fieldComment;
+                    if ($profileData) {
+                        if (isset($profileData['fields']) &&
+                            isset($profileData['fields'][$value])) {
+                            $profileFieldData = $profileData['fields'][$value];
+                            foreach ($profileFieldData as $arg => $value) {
+                                if (is_numeric($arg)) {
+                                    $arg = $value;
+                                    $value = true;
+                                }
+                                if (empty($fieldData[$arg])) {
+                                    $fieldData[$arg] = $value;
+                                }
+                            }
+                        }
+                    }
                     $fields[$property] = array($value, $fieldData);
                 } elseif ($type == 'Index') {
                     if ($value == 'Primary') {
