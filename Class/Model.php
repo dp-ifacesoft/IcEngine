@@ -169,9 +169,11 @@ abstract class Model implements ArrayAccess
         $fields = $this->scheme()->fields;
 		if (isset($fields[$field])) {
             $this->fields[$field] = $value;
+		} elseif (property_exists($this, $field)) {
+            $this->$field = $value;
 		} else {
 			throw new Exception(
-                'Field unexists "' . $field . '" ' . $this->table()
+                'Field or property unexists "' . $field . '" ' . $this->table()
             );
 		}
 	}

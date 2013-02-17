@@ -9,11 +9,15 @@ class Query_Part_Not_Key extends Query_Part
 	/**
 	 * @inheritdoc
 	 */
-	public function query() 
+	public function query()
 	{
 		$key = $this->params['key'];
 		$modelName = $this->modelName;
-		$keyField = Model_Scheme::keyField($modelName);
+        $keyField = isset($this->params['keyField']) ?
+            $this->params['keyField'] : '';
+        if (!$keyField) {
+            $keyField = Model_Scheme::keyField($modelName);
+        }
 		if (!is_array($key)) {
 			$this->query->where($modelName . '.' . $keyField . ' != ?',
 				array($key));
