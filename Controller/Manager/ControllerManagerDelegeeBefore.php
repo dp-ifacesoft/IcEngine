@@ -18,7 +18,6 @@ class ControllerManagerDelegeeBefore extends ControllerManagerDelegeeAbstract
         $scheme = $controller->getAnnotations();
         $params = $context->getArgs();
         $actionScheme = $scheme->getMethod($context->getAction());
-        $controllerManager = $context->getControllerManager();
         if (!empty($actionScheme['Before'])) {
             $actions = reset($actionScheme['Before']);
             $result = array();
