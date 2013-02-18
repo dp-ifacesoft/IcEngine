@@ -60,6 +60,24 @@ class Controller_Migration extends Controller_Abstract
 		$helperMigration->setLastData($name, $action, $base);
 		$helperMigration->logFlush();
 	}
+    
+    /**
+     * Выполнить все миграции базиса через apply
+     */
+    public function applyUpAuto($base)
+    {
+        $helperMigration = $this->getService('helperMigration');
+        $queue = $helperMigration->getQueue($base);
+        $controllerManager = $this->getService('controllerManager');
+        foreach ($queue as $migrationName) {
+            echo $migrationName . PHP_EOL;
+            $controllerManager->call('Migration', 'apply', array(
+                'method'    => 'up',
+                'base'      => $base,
+                'name'      => $migrationName
+            ));
+        }
+    }
 
 	/**
 	 * Создать миграцию
