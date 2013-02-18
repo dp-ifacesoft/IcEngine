@@ -250,6 +250,7 @@ class Controller_Migration extends Controller_Abstract
 			$base = $args ['base'];
 			unset ($args ['base']);
 		}
+        $helperMigration = $this->getService('helperMigration');
 		$helperMigration->migration($to, 1, $args, $base);
 	}
 }
