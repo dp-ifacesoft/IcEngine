@@ -123,7 +123,7 @@ class Controller_Model extends Controller_Abstract
 		}
         $modelScheme = $this->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($name);
-        if ($dataSource instanceof Data_Source_Defined) {
+        if (get_class($dataSource) == 'Data_Source_Defined') {
             return;
         }
 		$dir = IcEngine::root() . 'Ice/Model/';
