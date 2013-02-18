@@ -256,6 +256,7 @@ class Helper_Migration
 				'comment'	=> $comment,
 				'seq'		=> $seq,
 				'params'	=> $params,
+                'filectime' => date($helperDate->UNIT_FORMAT, filectime($file)),
 				'filemtime'	=> date($helperDate->UNIX_FORMAT, filemtime($file))
 			);
 		}
@@ -265,8 +266,8 @@ class Helper_Migration
 		$tmp = array();
 		$i = 0;
 		foreach ($result as $class_name => $data) {
-			$seq = !empty($data['seq']) ? $data['seq'] : $i--;
-			$tmp[$seq] = $class_name;
+			$ctime = $data['filectime'];
+			$tmp[$ctime] = $class_name;
 		}
 		ksort($tmp);
 		$return = array();
