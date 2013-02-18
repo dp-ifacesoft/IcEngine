@@ -312,7 +312,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
                     unset(self::$caches[$tag]);
                 }
             } else {
-                unset(self::$tagsValid[$tag]);
+                unset(self::$tagsValid[$key]);
                 if (!isset(self::$caches[$key])) {
                     continue;
                 }
