@@ -167,7 +167,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	public function getMulti(array $keys, $numeric_index = false)
 	{
         if (count($keys) == 1) {
-            $key = $this->keyEncode($keys[0]);
             $value = $this->get($keys[0]);
             if ($numeric_index) {
                 return array($value);

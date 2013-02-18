@@ -158,7 +158,6 @@ class Data_Provider_Abstract
 		}
 		$current_values = $this->getMulti($tags_keys, true);
 		if (count($tags_keys) != count($current_values)) {
-		    debug_print_backtrace();
 		    return false;
 		}
 		for ($i = 0, $count = count($tags_vals); $i < $count; $i++) {

@@ -146,9 +146,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			$cacheValid = $expiresValid && $tagsValid;
 		}
 		if ($cacheValid) {
-            if (!isset(self::$caches[$key])) {
-                self::$caches[$key] = $cache;
-            }
+            self::$caches[$key] = $cache;
 			$this->numRows = count($cache['v']);
 			$this->foundRows = $cache['f'];
 			if (Tracer::$enabled) {
@@ -186,7 +184,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		$tags = $query->getTags();
         $providerTags = $this->cacher->getTags($tags);
         if ($tags) {
-            foreach ($tags as $tag) {
+            foreach (array_keys($providerTags) as $tag) {
                 self::$tagsValid[$tag] = true;
                 self::$tagsCaches[$tag][] = $key;
             }
@@ -236,7 +234,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		if (!$this->errno && is_null($result)) {
 			$result = array();
 		}
-		$finish = microtime (true);
+		$finish = microtime(true);
 		return new Query_Result(array(
 			'error'			=> $this->error,
 			'errno'			=> $this->errno,
@@ -269,13 +267,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     protected function isTagsValid($tags)
     {
-		$validTags = $this->cacher->checkTags($tags);
-		if (!$validTags) {
-			return false;
-		}
         $isValid = true;
         foreach ($tags as $tag) {
-            if (empty(self::$tagsValid[$tag])) {
+            if (empty(self::$tagsCaches[$tag])) {
                 $isValid = false;
                 break;
             }
@@ -283,10 +277,12 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         if ($isValid) {
             return true;
         }
-        if ($validTags) {
-            foreach ($tags as $tag) {
-                self::$tagsValid[$tag] = true;
-            }
+		$validTags = $this->cacher->checkTags($tags);
+		if (!$validTags) {
+			return false;
+		}
+        foreach (array_keys($tags) as $tag) {
+            self::$tagsValid[$tag] = true;
         }
         return $validTags;
     }
@@ -298,21 +294,12 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     protected function tagDelete($tag)
     {
-        if (!isset(self::$tagsValid[$tag])) {
-            return;
+        if (isset(self::$tagsValid[$tag])) {
+            unset(self::$tagsValid[$tag]);
         }
-        unset(self::$tagsValid[$tag]);
-        foreach (self::$tagsCaches as $i => $key) {
-            if (is_array($key)) {
-                foreach ($key as $j => $tag) {
-                    unset(self::$tagsValid[$i][$j]);
-                    if (!isset(self::$caches[$tag])) {
-                        continue;
-                    }
-                    unset(self::$caches[$tag]);
-                }
-            } else {
-                unset(self::$tagsValid[$key]);
+        foreach (self::$tagsCaches as $tag => $keys) {
+            unset(self::$tagsCaches[$tag]);
+            foreach ($keys as $key) {
                 if (!isset(self::$caches[$key])) {
                     continue;
                 }
