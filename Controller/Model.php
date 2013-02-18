@@ -121,6 +121,11 @@ class Controller_Model extends Controller_Abstract
 				PHP_EOL;
 			return;
 		}
+        $modelScheme = $this->getService('modelScheme');
+        $dataSource = $modelScheme->dataSource($name);
+        if ($dataSource instanceof Data_Source_Defined) {
+            return;
+        }
 		$dir = IcEngine::root() . 'Ice/Model/';
 		$nameDir = explode('_', $name);
 		$filename = array_pop($nameDir);
