@@ -240,13 +240,15 @@ class Helper_Migration
 			if ($base_name != $base) {
 				continue;
 			}
+            $dateRegexp = '#Created at: (.*)#';
+            $dateMatches = array();
+            preg_match_all($dateRegexp, $content, $dateMatches);
+            $cdate = $dateMatches[1][0];
 			$comment = $this->_normalizeComment($content, 'desc');
 			$author_name = $this->_normalizeComment($content, 'author');
 			$seq = $this->_normalizeComment($content, 'seq');
 			$params = isset($migrations[$class_name])
 				? $migrations[$class_name] : null;
-			$locator = IcEngine::serviceLocator();
-			$helperDate = $locator->getService('helperDate');
 			$result[$class_name] = array(
 				'file'		=> $file,
 				'base'		=> $base_name,
@@ -256,8 +258,8 @@ class Helper_Migration
 				'comment'	=> $comment,
 				'seq'		=> $seq,
 				'params'	=> $params,
-                'filectime' => date($helperDate->UNIT_FORMAT, filectime($file)),
-				'filemtime'	=> date($helperDate->UNIX_FORMAT, filemtime($file))
+                'filectime' => $cdate,
+				'filemtime'	=> date('Y-m-d H:i:s', filemtime($file))
 			);
 		}
 		if (!$result) {
