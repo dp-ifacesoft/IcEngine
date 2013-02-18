@@ -126,9 +126,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function get($key, $plain = false)
 	{
-        if (isset(self::$keys[$key])) {
-            return self::$keys[$key];
-        }
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}

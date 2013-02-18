@@ -268,8 +268,8 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
     protected function isTagsValid($tags)
     {
         $isValid = true;
-        foreach ($tags as $tag) {
-            if (empty(self::$tagsCaches[$tag])) {
+        foreach (array_keys($tags) as $tag) {
+            if (empty(self::$tagsValid[$tag])) {
                 $isValid = false;
                 break;
             }
