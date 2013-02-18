@@ -236,7 +236,7 @@ class Controller_Migration extends Controller_Abstract
 		if ($userService->id() >= 0)
 		{
 			echo 'Access denied' . PHP_EOL;
-			return;
+			return; 
 		}
 
 		$args = $this->input->receiveAll();
