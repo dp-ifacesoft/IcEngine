@@ -72,7 +72,7 @@ class Controller_Migration extends Controller_Abstract
         foreach ($queue as $migrationName) {
             echo $migrationName . PHP_EOL;
             $controllerManager->call('Migration', 'apply', array(
-                'method'    => 'up',
+                'action'    => 'up',
                 'base'      => $base,
                 'name'      => $migrationName
             ));
