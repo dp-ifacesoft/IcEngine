@@ -18,7 +18,6 @@ class ControllerManagerDelegeeBefore extends ControllerManagerDelegeeAbstract
         $scheme = $controller->getAnnotations();
         $params = $context->getArgs();
         $actionScheme = $scheme->getMethod($context->getAction());
-        $task = $controller->getTask();
         if (!empty($actionScheme['Before'])) {
             $actions = reset($actionScheme['Before']);
             $result = array();
@@ -32,8 +31,7 @@ class ControllerManagerDelegeeBefore extends ControllerManagerDelegeeAbstract
                 $buffer = $context->getControllerManager()->call(
                     $controllerName,
                     $actionName,
-                    $context->getArgs(),
-                    $task
+                    $controller->getInput()
                 )->getTransaction()->buffer();
                 if ($buffer) {
                     $result = array_merge($result, $buffer);
