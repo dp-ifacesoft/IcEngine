@@ -4,20 +4,21 @@ namespace IcEngine\Controller\Manager;
 
 /**
  * Делигат для before-вызова
- * 
+ *
  * @author morph
  */
 class ControllerManagerDelegeeBefore extends ControllerManagerDelegeeAbstract
 {
     /**
-     * @inheritdoc 
-     * @see IcEngine\Controller\Manager\ControllerManagerDelegeeAbstract::call 
+     * @inheritdoc
+     * @see IcEngine\Controller\Manager\ControllerManagerDelegeeAbstract::call
      */
     public function call($controller, $context)
     {
         $scheme = $controller->getAnnotations();
         $params = $context->getArgs();
         $actionScheme = $scheme->getMethod($context->getAction());
+        $task = $controller->getTask();
         if (!empty($actionScheme['Before'])) {
             $actions = reset($actionScheme['Before']);
             $result = array();
@@ -25,14 +26,14 @@ class ControllerManagerDelegeeBefore extends ControllerManagerDelegeeAbstract
                 if (strpos($action, '/') !== false) {
                     list($controllerName, $actionName) = explode('/', $action);
                 } else {
-                    $controller = $controller->getName();
+                    $controllerName = $controller->getName();
                     $actionName = $action;
                 }
                 $buffer = $context->getControllerManager()->call(
-                    $controllerName, 
-                    $actionName, 
+                    $controllerName,
+                    $actionName,
                     $context->getArgs(),
-                    $controller->getTask()
+                    $task
                 )->getTransaction()->buffer();
                 if ($buffer) {
                     $result = array_merge($result, $buffer);
