@@ -63,6 +63,7 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
+            'InEngine\\Controller\\Manager\\ControllerManagerDelegeeInputTransport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputProvider',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeStatic',
