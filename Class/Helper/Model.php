@@ -36,7 +36,7 @@ class Helper_Model
      */
     public function getConst($const)
     {
-        list($className, $constName) = explode('/', $const);
+        list($className, $constName) = explode('::', $const);
         $reflection = new \ReflectionClass($className);
         return $reflection->getConstant($constName);
     }
