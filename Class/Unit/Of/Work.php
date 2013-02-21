@@ -108,10 +108,8 @@ class Unit_Of_Work
 			'unitOfWorkLoaderManager'
 		);
 		$query = $this->queries[$key];
-		//echo $key . ' ' . $query['query']->translate() . '<br />';
 		$result = $modelScheme->dataSource($query['modelName'])
 			->execute($query['query']);
-		//print_r($result);die;
 		$this->rawCount--;
 		if (isset($query['loader'])) {
 			$loader = $unitOfWorkLoaderManager->get($query['loader']);
@@ -150,10 +148,8 @@ class Unit_Of_Work
 	{
 		$uniqName = get_class($object) . '@' .
 			implode(':', array_keys($object->getFields()));
-		//echo $uniqName . '<br />';
 		$this->buildOne($uniqName);
 		$this->_execute($uniqName);
-		//$this->reset();
 	}
 
 	/**
