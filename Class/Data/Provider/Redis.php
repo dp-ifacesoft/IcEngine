@@ -61,9 +61,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	public function delete($keys, $time = 0, $set_deleted = false)
 	{
 		if (!is_array($keys)) {
-			if (isset($this->locks[$keys])) {
-				unset($this->locks[$keys]);
-			}
 			if (Tracer::$enabled) {
 				$startTime = microtime(true);
 			}

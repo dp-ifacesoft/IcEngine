@@ -28,13 +28,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     protected static $tagsCaches = array();
 
-    /**
-     * Валидны ли тэги
-     *
-     * @var array
-     */
-    protected static $tagsValid = array();
-
 	/**
 	 * Получение хэша запроса
 	 *
@@ -185,7 +178,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
         $providerTags = $this->cacher->getTags($tags);
         if ($tags) {
             foreach (array_keys($providerTags) as $tag) {
-                self::$tagsValid[$tag] = true;
                 self::$tagsCaches[$tag][] = $key;
             }
         }
@@ -267,24 +259,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     protected function isTagsValid($tags)
     {
-        $isValid = true;
-        foreach (array_keys($tags) as $tag) {
-            if (empty(self::$tagsValid[$tag])) {
-                $isValid = false;
-                break;
-            }
-        }
-        if ($isValid) {
-            return true;
-        }
-		$validTags = $this->cacher->checkTags($tags);
-		if (!$validTags) {
-			return false;
-		}
-        foreach (array_keys($tags) as $tag) {
-            self::$tagsValid[$tag] = true;
-        }
-        return $validTags;
+        return $this->cacher->checkTags($tags);
     }
 
     /**
@@ -294,9 +269,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
     public function tagDelete($tag)
     {
-        if (isset(self::$tagsValid[$tag])) {
-            unset(self::$tagsValid[$tag]);
-        }
         foreach (self::$tagsCaches as $tag => $keys) {
             unset(self::$tagsCaches[$tag]);
             foreach ($keys as $key) {

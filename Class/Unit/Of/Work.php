@@ -108,18 +108,15 @@ class Unit_Of_Work
 			'unitOfWorkLoaderManager'
 		);
 		$query = $this->queries[$key];
-		//echo $key . ' ' . $query['query']->translate() . '<br />';
         $ds = $modelScheme->dataSource($query['modelName']);
 		$result = $ds->execute($query['query']);
         $mapper = $ds->getDataMapper();
         if (method_exists($mapper, 'getCacher')) {
             $cacher = $mapper->getCacher();
             $tag = $modelScheme->table($query['modelName']);
-            //print_r($tag);die;
             $mapper->tagDelete($tag);
             $cacher->tagDelete($tag);
         }
-		//print_r($result);die;
 		$this->rawCount--;
 		if (isset($query['loader'])) {
 			$loader = $unitOfWorkLoaderManager->get($query['loader']);
@@ -158,10 +155,8 @@ class Unit_Of_Work
 	{
 		$uniqName = get_class($object) . '@' .
 			implode(':', array_keys($object->getFields()));
-		//echo $uniqName . '<br />';
 		$this->buildOne($uniqName);
 		$this->_execute($uniqName);
-		//$this->reset();
 	}
 
 	/**
@@ -171,7 +166,8 @@ class Unit_Of_Work
 	 * @param Model $object модель, для возврата данных SELECT
 	 * @param string|null $loaderName
 	 */
-	public function push(Query_Abstract $query, $object = null, $loaderName = null)
+	public function push(Query_Abstract $query, $object = null, 
+        $loaderName = null)
 	{
 		$locator = IcEngine::serviceLocator();
 		$unitOfWorkManager = $locator->getService('unitOfWorkManager');
