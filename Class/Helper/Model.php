@@ -27,7 +27,7 @@ class Helper_Model
         $optionManager->executeAfter($modelCollection, $options);
         return $modelCollection->first();
     }
-    
+
     /**
      * Получить константу класса
      * 
