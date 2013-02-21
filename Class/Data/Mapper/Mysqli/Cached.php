@@ -126,14 +126,16 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		}
 		$key = $this->sqlHash($query);
 		$expiration = $options->getExpiration();
+        $fromCache = false;
         if (!isset(self::$caches[$key])) {
             $cache = $this->cacher->get($key);
         } else {
             $cache = self::$caches[$key];
+            $fromCache = true;
         }
 		$cacheValid = false;
 		if ($cache) {
-            $tagsValid = $this->isTagsValid($cache['t']);
+            $tagsValid = $fromCache ?: $this->isTagsValid($cache['t']);
             $expiresValid = $cache['a'] + $expiration > time() ||
                 $expiration = 0;
 			$cacheValid = $expiresValid && $tagsValid;
