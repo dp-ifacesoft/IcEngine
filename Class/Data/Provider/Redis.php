@@ -14,13 +14,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	protected $connections = array();
 
-    /**
-     * Уже полученные ключи
-     *
-     * @var array
-     */
-    public static $keys = array();
-
 	/**
 	 * @inheritdoc
 	 */
@@ -137,7 +130,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			Tracer::incRedisGetTime($endTime - $startTime);
 		}
 		$value = $this->valueDecode($result);
-        self::$keys[$key] = $value;
         return $value;
 	}
 
@@ -168,7 +160,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             if ($numeric_index) {
                 return array($value);
             }
-            return array($key => $value);
+            return array($keys[0] => $value);
         }
         $result = array();
         $keys = array_map(array($this, 'keyEncode'), $keys);
