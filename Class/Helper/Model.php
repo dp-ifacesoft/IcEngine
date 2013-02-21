@@ -27,6 +27,19 @@ class Helper_Model
         $optionManager->executeAfter($modelCollection, $options);
         return $modelCollection->first();
     }
+    
+    /**
+     * Получить константу класса
+     * 
+     * @param string $const
+     * @return string
+     */
+    public function getConst($const)
+    {
+        list($className, $constName) = explode('/', $const);
+        $reflection = new \ReflectionClass($className);
+        return $reflection->getConstant($constName);
+    }
 
     /**
      * Получить public поля подели
