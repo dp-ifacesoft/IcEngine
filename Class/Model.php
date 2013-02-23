@@ -319,9 +319,8 @@ abstract class Model implements ArrayAccess
         }
 		if (func_num_args()  == 1) {
 			if (is_scalar($key)) {
-                $nullValue = null;
-				return isset($this->data[$key]) 
-                    ? $this->data[$key] : $nullValue;
+                $result = isset($this->data[$key]) ? $this->data[$key] : null;
+				return $result;
 			}
 			$this->data = array_merge($this->data, $key);
 		} else {

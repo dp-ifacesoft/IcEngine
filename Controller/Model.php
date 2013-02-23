@@ -349,6 +349,7 @@ class Controller_Model extends Controller_Abstract
 				$comment = $comment ? $comment : $existsScheme->comment;
 				$references = $existsScheme->references;
 				$adminPanel = $existsScheme->admin_panel;
+				$admin = $existsScheme->admin;
                 $languageScheme = $existsScheme->languageScheme;
                 $createScheme = $existsScheme->createScheme;
 			}
@@ -465,6 +466,10 @@ class Controller_Model extends Controller_Abstract
 				$adminPanel =  '\'admin_panel\' => ' .
 					$helperConverter->arrayToString($adminPanel);
 			}
+            if (!empty($admin)) {
+				$admin =  '\'admin\' => ' .
+					$helperConverter->arrayToString($admin);
+			}
             if (!empty($languageScheme)) {
 				$languageScheme =  '\'languageScheme\' => ' .
 					$helperConverter->arrayToString($languageScheme);
@@ -482,6 +487,7 @@ class Controller_Model extends Controller_Abstract
 					'indexes'           => $resultKeys,
 					'references'        => $references,
 					'admin_panel'       => $adminPanel,
+					'admin'             => $admin,
                     'languageScheme'    => $languageScheme,
                     'createScheme'      => $createScheme
 				)

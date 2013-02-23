@@ -5,9 +5,9 @@
 array (
 {if count($data)}
 {foreach from=$data item="field" key="name" name="field"}
-{$pad}'{$name}' => {Helper_Converter::arrayToString($field,$offs+1)}{if !$smarty.foreach.field.last},{/if}
+{$pad}{if !is_numeric($name)}'{$name}' => {/if}{Helper_Converter::arrayToString($field,$offs+1)}{if !$smarty.foreach.field.last},{/if}
 
 {/foreach}
 {/if}
-{$pad2}){else}
+{$pad}){else}
 '{$data}'{/if}{/if}
