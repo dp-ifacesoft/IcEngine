@@ -135,6 +135,15 @@ var Controller = {
 			},
 			delay
 		);
-	}
+	},
+
+    /**
+     * Синхронный запрос
+     * TODO доделаю потом
+     */
+    sync: function(controller, params, callback, nocache)
+    {
+
+    }
 
 };

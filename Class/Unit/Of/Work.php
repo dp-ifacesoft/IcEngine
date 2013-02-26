@@ -166,7 +166,7 @@ class Unit_Of_Work
 	 * @param Model $object модель, для возврата данных SELECT
 	 * @param string|null $loaderName
 	 */
-	public function push(Query_Abstract $query, $object = null, 
+	public function push(Query_Abstract $query, $object = null,
         $loaderName = null)
 	{
 		$locator = IcEngine::serviceLocator();
@@ -217,10 +217,11 @@ class Unit_Of_Work
 	/**
 	 * Сброс
 	 */
-	private function reset()
+	public function reset()
 	{
 		$this->queries = array();
 		$this->raw = array();
 		$this->rawCount = 0;
+		$this->rawModel = array();
 	}
 }
