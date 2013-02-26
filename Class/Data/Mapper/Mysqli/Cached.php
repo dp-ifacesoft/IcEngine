@@ -194,6 +194,12 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		return $rows;
 	}
 
+    public function clearCache()
+    {
+        self::$caches = array();
+        self::$tagsCaches = array();
+    }
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Mapper_Abstract::execute()
