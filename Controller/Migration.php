@@ -56,11 +56,17 @@ class Controller_Migration extends Controller_Abstract
 			}
 			echo 'Migration done' . PHP_EOL;
 		}
+        $dataSourceManager = $this->getService('dataSourceManager');
+        $defaultDataSource = $dataSourceManager->get('default');
+        $dataSourceManager->setDataMapper($defaultDataSource);
+        $mapper = $defaultDataSource->getDataMapper();
+        $mapper->clearCache();
+        echo 'Mapper clear' . PHP_EOL;
 		$helperMigration->log($name, $action);
 		$helperMigration->setLastData($name, $action, $base);
 		$helperMigration->logFlush();
 	}
-    
+
     /**
      * Выполнить все миграции базиса через apply
      */
@@ -254,7 +260,7 @@ class Controller_Migration extends Controller_Abstract
 		if ($userService->id() >= 0)
 		{
 			echo 'Access denied' . PHP_EOL;
-			return; 
+			return;
 		}
 
 		$args = $this->input->receiveAll();
