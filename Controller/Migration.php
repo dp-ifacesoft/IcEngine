@@ -70,13 +70,24 @@ class Controller_Migration extends Controller_Abstract
     /**
      * Выполнить все миграции базиса через apply
      */
-    public function applyUpAuto($base)
+    public function applyUpAuto($base, $fromName = null)
     {
         $helperMigration = $this->getService('helperMigration');
         $queue = $helperMigration->getQueue($base);
         $controllerManager = $this->getService('controllerManager');
         $f = fopen(IcEngine::root() . 'log/migration.txt', 'w+');
+        $from = false;
+        if ($fromName) {
+            $from = true;
+        }
         foreach ($queue as $migrationName) {
+            if ($migrationName == $fromName) {
+                $from = false;
+            }
+            if ($from) {
+                echo 'Skip ' . $migrationName . PHP_EOL;
+                continue;
+            }
             echo $migrationName . PHP_EOL;
             $start = time();
             fwrite($f, $migrationName . ' : ');
