@@ -79,6 +79,7 @@ class Controller_Migration extends Controller_Abstract
         foreach ($queue as $migrationName) {
             echo $migrationName . PHP_EOL;
             $start = time();
+            fwrite($f, $migrationName . ' : ');
             $controllerManager->call('Migration', 'apply', array(
                 'action'    => 'up',
                 'base'      => $base,
@@ -86,7 +87,7 @@ class Controller_Migration extends Controller_Abstract
             ));
             $end = time();
             $delta = $end - $start;
-            fwrite($f, $migrationName . ' : ' . $delta . ' сек.' . PHP_EOL);
+            fwrite($f, $delta . ' сек.' . PHP_EOL);
         }
         fclose($f);
     }
