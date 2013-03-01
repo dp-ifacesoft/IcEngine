@@ -588,18 +588,10 @@ class Helper_String
      * @param string $value Исходна стока
      * @return Результат очистки.
      */
-    public static function replaceSpecialChars($string, $value=' ')
+    public static function replaceSpecialChars($value)
     {
         $value = str_replace(
-                array(
-                    "\r", "\n", "\t", ',', '(', ')',
-                    '[', ']', '{', '}', '-', '_',
-                    '!', '@', '#', '$', '%', '^', ':',
-                    '&', '*', ',', '.', '+', '=',
-                    '/', ' \\', '|', '\'', '"', '~', ' '
-                    ), 
-                $value,
-                $string
+            array("\r", "\n", "\t", ',', '(', ')', '[', ']', '{', '}'), '', $value
         );
         return $value;
     }
