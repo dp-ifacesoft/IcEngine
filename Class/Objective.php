@@ -51,7 +51,7 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function __get($key)
 	{
-		return isset($this->data[$key]) ? $this->data[$key] : new self(array());
+		return isset($this->data[$key]) ? $this->data[$key] : null;
 	}
 
 	/**
@@ -76,7 +76,6 @@ class Objective implements ArrayAccess, IteratorAggregate, Countable
 		} else {
 			$this->data[$key] = $value;
 		}
-        return $this;
 	}
 
 	/**
