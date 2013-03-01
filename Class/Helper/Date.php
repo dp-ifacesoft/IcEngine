@@ -180,8 +180,12 @@ class Helper_Date
 				break;
 		}
 		$_date = explode(' ', $string);
-		$hour = strtok($_date[1], ':');
-		$minute = strtok(':');
+        $hour = 0;
+        $minute = 0;
+        if (isset($_date[1])) {
+            $hour = strtok($_date[1], ':');
+            $minute = strtok(':');
+        }
         if(!$format){
             return intval($day) . "&nbsp;" . $month .
 				(($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;г.") : "") .
