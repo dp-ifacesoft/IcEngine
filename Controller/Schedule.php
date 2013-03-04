@@ -2,7 +2,7 @@
 
 /**
  * Планировщик
- * 
+ *
  * @author morph
  */
 class Controller_Schedule extends Controller_Abstract
@@ -30,8 +30,7 @@ class Controller_Schedule extends Controller_Abstract
                 continue;
             }
             $schedule->update(array(
-                'lastTs'    => $currentTs,
-                'lastDate'  => $helperDate->toUnix()
+                'lastTs'    => $currentTs
             ));
             echo $schedule['controllerAction'] . PHP_EOL;
             exec('./ice ' . $schedule['controllerAction']);
