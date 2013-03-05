@@ -83,19 +83,18 @@ class Mail_Message extends Model
 		if (!$provider) {
 			$provider = new Mail_Provider_Mimemail();
 		}
-		try {
-			$result = $provider->send(
-				$this,
-				(array) json_decode($this->params, true)
-    		);
-            $this->update(array(
-                'sended'	=> 1
-            ));
-    		return $result;
-		} catch (Exception $e) {
+        $result = $provider->send(
+            $this,
+            (array) json_decode($this->params, true)
+        );
+        $this->update(array(
+            'sended'	=> 1
+        ));
+        if (!$result) {
             $debug = $this->getService('debug');
-		    $debug->logVar($e, 'Sendmail error message');
+		    $debug->logVar('Sendmail error message');
 		    return false;
 		}
+        return true;
 	}
 }
