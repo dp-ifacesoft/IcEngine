@@ -559,7 +559,7 @@ abstract class Model implements ArrayAccess
             }
         }
         return array_merge($result, array(
-            'data'      => $this->data->__toArray()
+            'data'      => $this->data ? $this->data->__toArray() : array()
         ));
     }
 
