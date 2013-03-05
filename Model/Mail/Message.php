@@ -88,11 +88,9 @@ class Mail_Message extends Model
 				$this,
 				(array) json_decode($this->params, true)
     		);
-    		if ($result) {
-    			$this->update(array(
-    				'sended'	=> 1
-    			));
-    		}
+            $this->update(array(
+                'sended'	=> 1
+            ));
     		return $result;
 		} catch (Exception $e) {
             $debug = $this->getService('debug');
