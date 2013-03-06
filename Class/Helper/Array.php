@@ -382,8 +382,11 @@ class Helper_Array
     {
 		$valid = true;
 		foreach ($filter as $field => $value) {
-			$value = (array)$value;
-			$trimedValue = array_map('trim', $value);
+			$value = (array) $value;
+            $trimedValue = $value;
+            if (is_string(reset($value))) {
+                $trimedValue = array_map('trim', $value);
+            }
 			if (!isset($row[$field]) || !in_array($row[$field], $trimedValue)) {
 				$valid = false;
 				break;
