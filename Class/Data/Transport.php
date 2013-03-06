@@ -198,7 +198,7 @@ class Data_Transport
 			$this->currentTransaction()->send($key, $data);
 		} else {
             $args = func_get_args();
-            if (count($args) == 1) {
+            if (count($args) == 2 && is_array($key) && is_numeric($data)) {
                 $providerIndex = $data;
                 foreach ($key as $currentKey => $currentValue) {
                     $this->sendForce(
