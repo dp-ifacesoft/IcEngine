@@ -322,7 +322,7 @@ abstract class Model implements ArrayAccess
                 $result = isset($this->data[$key]) ? $this->data[$key] : null;
 				return $result;
 			}
-			$this->data = array_merge($this->data, $key);
+			$this->data = array_merge($this->data->__toArray(), $key);
 		} else {
 			$this->data[$key] = $value;
 		}
