@@ -191,7 +191,9 @@ class Controller_Authorization extends Controller_Abstract
 	 */
 	public function logout()
 	{
-		$this->task->setTemplate(null);
+        if ($this->getService('request')->isAjax()) {
+            $this->task->setTemplate(null);
+        }
 		$user = $this->getService('user')->getCurrent();
 		$user->logout();
 		$session = $this->getService('session')->getCurrent();
@@ -205,8 +207,10 @@ class Controller_Authorization extends Controller_Abstract
 		$redirect = $helperUri->validRedirect(
 			$redirect ? $redirect : self::DEFAULT_REDIRECT
 		);
-		$this->output->send('data', array(
-			'redirect'	=> $redirect
+		$this->output->send(array(
+			'data'  => array(
+                'redirect'	=> $redirect
+            )
 		));
 	}
 
