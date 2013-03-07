@@ -50,6 +50,9 @@ class Model_Manager_Delegee_Factory
 		}
 		$delegeeModelName = self::$factories[$factoryName]
 			->delegateClass($modelName, $key, $object);
+        if (!$delegeeModelName) {
+            $delegeeModelName = $modelName . '_Abstract';   
+        }
 		$result = new $delegeeModelName(array());
 		$result->setModelFactory(self::$factories[$factoryName]);
 		if (is_array($object) && $object) {
