@@ -58,10 +58,10 @@ class Paginator
 
     /**
      * Предыдущая страница от выбранной
-     * @var array 
+     * @var array
      */
     public $prevPage;
-	
+
     /**
 	 * Следующая страница
 	 * @var array
@@ -70,10 +70,10 @@ class Paginator
 
     /**
      * Следующая страница от выбранной
-     * @var array 
+     * @var array
      */
     public $nextPage;
-    
+
 	/**
 	 *
 	 * @param integer $page Текущая страница
@@ -205,7 +205,6 @@ class Paginator
 	 * @return Paginator
 	 */
 	public function fromInput($input, $total = 0, $notGet = false) {
-        $locator = IcEngine::serviceLocator();
 		return new self(
 			max($input->receive('page'), 1),
 			max($input->receive('limit'), 10),
