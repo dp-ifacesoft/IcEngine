@@ -1,4 +1,4 @@
-'admin_panel' => array (
+'admin' => array (
 			// Сортировки
 //			'sort'		=> '',
 //
