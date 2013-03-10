@@ -53,7 +53,7 @@ class Helper_View_Resource
             self::JTPL  => '.js'
 		),
 		'packTemplates'	=> array(
-			self::CSS	=> '<style type="text/css">@import url("{$filename}")</style>',
+			self::CSS	=> '<style type="text/css">@import url("{$filename}");</style>',
 			self::JS		=> '<script type="text/javascript" src="{$filename}"></script>',
             self::JTPL	=> '<script type="text/javascript" src="{$filename}"></script>'
 		),
@@ -426,7 +426,7 @@ class Helper_View_Resource
 	{
 		self::$files[self::CSS] = array();
 	}
-    
+
     /**
      * Сбросить файла js
      */
