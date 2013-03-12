@@ -134,7 +134,7 @@ abstract class User_Session_Abstract extends Model
 				'eraHourNum'	=> $date->eraHourNum()
 			);
 		} else {
-			// Обновляем сессию не чаще, чем раз в 10 минут.
+			// Обновляем сессию не чаще, чем раз в 15 минут.
 			// strlen ('YYYY-MM-DD HH:I_:__') =
 			if (strncmp($now, $this->lastActive, 15) == 0) {
 				return $this;
