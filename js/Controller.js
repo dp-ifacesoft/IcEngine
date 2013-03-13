@@ -139,11 +139,22 @@ var Controller = {
 
     /**
      * Синхронный запрос
-     * TODO доделаю потом
      */
-    sync: function(controller, params, callback, nocache)
+    sync: function(call, params, callback, nocache)
     {
-
+        Loader.load('Sync', 'engine');
+        Controller._transports.push(Sync);
+        Controller.call(
+            call,
+            params,
+            function (result) {
+                Controller._transports.pop();
+                if (typeof(callback) == 'function') {
+                    callback(result);
+                }
+            },
+            nocache
+        );
     }
 
 };

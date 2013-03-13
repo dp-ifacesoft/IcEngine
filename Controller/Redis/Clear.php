@@ -177,9 +177,12 @@ class Controller_Redis_Clear extends Controller_Abstract
 		if ($user && $user->hasRole('admin')) {
 			$isAdmin = 1;
 		}
+        $tempContent = $this->getService('tempContent');
+        $tc = $tempContent->create(__METHOD__, 'User', $user->key());
 		$this->output->send(array(
 			'isAdmin'		=> $isAdmin,
 			'indexes'		=> $indexes,
+            'utcode'        => $tc->key(),
 			'controllers'	=> $this->config()->controller_actions
 		));
 	}
