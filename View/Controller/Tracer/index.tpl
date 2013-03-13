@@ -28,6 +28,14 @@
 	<p><b>Общее время рендеринга:</b> {$renderTime} с. </p>
 	<p><b>Всего загружено классов:</b> {$loadedClassCount}</p>
 	<p><b>Всего создано моделей:</b> {$totalModelCount}</p>
+    {if $models}
+        <p><b>Созданые модели:</b></p>
+        <ul>
+            {foreach from=$models item="model"}
+                <li>{$model->table()}, {$model->key()}</li>
+            {/foreach}
+        </ul>
+    {/if}
 	<p><b>Всего вызвано контроллеров:</b> {$controllerCount}, из них из кэша: <b>{$cachedControllerCount}</b></p>
 	<br />
 	<p><b>Всего select запросов к БД:</b> {$selectQueryCount}, из них из кэша: <b>{$cachedSelectQueryCount}</b>,

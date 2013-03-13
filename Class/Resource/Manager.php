@@ -101,6 +101,18 @@ class Resource_Manager extends Manager_Abstract
 		return $this->resources[$type][$name];
 	}
     
+    /**
+     * Получить ресурсы по типу
+     * 
+     * @param string $type
+     * @return integer
+     */
+    public function getByType($type)
+    {
+        return isset($this->resources[$type])
+            ? $this->resources[$type] : array();
+    }
+    
 	/**
 	 * Получить обновленные ресурсы
 	 * 

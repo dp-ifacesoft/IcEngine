@@ -26,6 +26,7 @@ class Controller_Tracer extends Controller_Abstract
 		}
 		$sessions = Tracer::getSessions();
 		array_pop($sessions);
+        $resourceManager = $this->getService('resourceManager');
 		$this->output->send(array(
 			'totalTime'				=> Tracer::getTotalTime(),
 			'maxMemory'				=> $maxMemory,
@@ -72,7 +73,10 @@ class Controller_Tracer extends Controller_Abstract
 			'bootstrapInitUserSession'		=> 
                 Tracer::getBootstrapInitUserSessionTime(),
 			'routingTime'					=> Tracer::getRoutingTime(),
-            'allQueryVector'                => Tracer::getAllQueryVector()
+            'allQueryVector'                => Tracer::getAllQueryVector(),
+            'models'                        => $resourceManager->getByType(
+                'Model'
+            )
 		));
 	}
 }
