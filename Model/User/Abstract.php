@@ -24,6 +24,13 @@ class User_Abstract extends Model
      * @var User
 	 */
 	protected $current;
+    
+    /**
+     * Доступные пользователю роли
+     * 
+     * @var array
+     */
+    protected $roleExists = array();
 
 	/**
 	 * Авторизоваться этим пользователем.
@@ -207,12 +214,21 @@ class User_Abstract extends Model
                 ->addOptions(array(
                     'name'  => '::Name',
                     'value' => $roleNames
-                ));
-            if ($roleCollection->count()) {
-                $roles = array_merge($roles, $roleCollection->items());
+                ))->raw();
+            if ($roleCollection) {
+                $roles = array_merge($roles, $roleCollection);
             }
         }
-        $roleIds = $this->getService('helperArray')->column($roles, 'id');
+        $existsRoleNames = $this->getService('helperArray')->column(
+            $roles, 'name'
+        );
+        foreach ($existsRoleNames as $roleName) {
+            if (isset($this->roleExists[$roleName])) {
+                return true;
+            }
+        }
+        $helperArray = $this->getService('helperArray');
+        $roleIds = $helperArray->column($roles, 'id');
         if (!$roleIds) {
             return false;
         }
@@ -225,8 +241,22 @@ class User_Abstract extends Model
             ->where('fromRowId', $roleIds)
             ->where('toRowId', $this->key());
         $dds = $this->getService('dds');
-        $exists = (bool) $dds->execute($query)->getResult()->asValue();
-		return $exists;
+        $existsRoleIds = (bool) $dds->execute($query)->getResult()->asColumn();
+        if (!$existsRoleIds) {
+            return false;
+        }
+        $roleExists = false;
+        foreach ($existsRoleIds as $roleId) {
+            $roleFiltered = $helperArray->filter($roles, array(
+                'id'    => $roleId
+            ));
+            if (!$roleFiltered) {
+                continue;
+            }
+            $roleExists = true;
+            $this->roleExists[$roleFiltered[0]['name']] = true;
+        }
+        return $roleExists;
 	}
 
 	/**
