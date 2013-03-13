@@ -55,8 +55,10 @@ class Helper_GeoIP
                 'id'    => $netCityId
             )
         );
-        $sessionResource->cityId = $city->key();
-		return $city;
+        if ($city) {
+            $sessionResource->cityId = $city->key();
+            return $city;
+        }
 	}
 
     /**
