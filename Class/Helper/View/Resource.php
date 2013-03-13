@@ -53,7 +53,7 @@ class Helper_View_Resource
             self::JTPL  => '.js'
 		),
 		'packTemplates'	=> array(
-			self::CSS	=> '<style type="text/css">@import url("{$filename}")</style>',
+			self::CSS	=> '<style type="text/css">@import url("{$filename}");</style>',
 			self::JS		=> '<script type="text/javascript" src="{$filename}"></script>',
             self::JTPL	=> '<script type="text/javascript" src="{$filename}"></script>'
 		),
@@ -206,9 +206,6 @@ class Helper_View_Resource
 	 */
 	public function createPackFile($type, $key, $fileName = null)
 	{
-		if (empty(self::$files[$type])) {
-			return;
-		}
 		$config = $this->config();
 		$root = IcEngine::root();
 		if (!$fileName) {
@@ -218,6 +215,9 @@ class Helper_View_Resource
 		}
 		if (is_file($fileName)) {
 			return true;
+		}
+        if (empty(self::$files[$type])) {
+			return;
 		}
 		$content = '';
 		foreach (self::$files[$type] as $data) {

@@ -118,6 +118,13 @@ class Tracer
 	 */
 	protected static $lowQueryVector = array();
 
+    /**
+     * Все select запросы к бд
+     * 
+     * @var array
+     */
+    protected static $allQueryVector = array();
+    
 	/**
 	 * Время на запросы
 	 *
@@ -305,6 +312,26 @@ class Tracer
 	 */
 	public static $stack = array();
 
+    /**
+     * Добавить запрос в вектор
+     * 
+     * @param string $query
+     */
+    public static function appendQueryToVector($query)
+    {
+        self::$allQueryVector[] = $query;
+    }
+    
+    /**
+     * Получить вектор запросов
+     * 
+     * @return array
+     */
+    public static function getAllQueryVector()
+    {
+        return self::$allQueryVector;
+    }
+    
 	/**
 	 * Изменить время инициализации БД
 	 *

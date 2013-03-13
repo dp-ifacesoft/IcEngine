@@ -19,6 +19,7 @@ class Controller_Annotation_Cache extends Controller_Abstract
             if (!$data) {
                 continue;
             }
+            $controllerName = str_replace('Controller_', '', $controllerName);
             $hasAnnotation = false;
             foreach (array_keys($data) as $annotationName) {
                 if (strpos($annotationName, 'Cache') === 0) {
@@ -35,8 +36,8 @@ class Controller_Annotation_Cache extends Controller_Abstract
             }
             $expiration = !empty($data['CacheExpiration']['data'])
                 ? reset($data['CacheExpiration']['data'][0]) : 0;
-            $profile = !empty($cacheData['profile'])
-                ? $cacheData['profile'] : null;
+            $profile = !empty($cache['profile'])
+                ? $cache['profile'] : null;
             if ($profile) {
                 $profile = $config->profiles[$profile];
                 if ($profile) {

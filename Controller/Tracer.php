@@ -71,7 +71,8 @@ class Controller_Tracer extends Controller_Abstract
                 Tracer::getBootstrapInitUserTime(),
 			'bootstrapInitUserSession'		=> 
                 Tracer::getBootstrapInitUserSessionTime(),
-			'routingTime'					=> Tracer::getRoutingTime()
+			'routingTime'					=> Tracer::getRoutingTime(),
+            'allQueryVector'                => Tracer::getAllQueryVector()
 		));
 	}
 }

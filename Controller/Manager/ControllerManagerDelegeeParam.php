@@ -26,7 +26,7 @@ class ControllerManagerDelegeeParam extends ControllerManagerDelegeeAbstract
         }
         foreach ($params as $param) {
             $value = $currentInput->receive($param->name);
-            if (!$value && $param->isOptional()) {
+            if (is_null($value) && $param->isOptional()) {
                 $value = $param->getDefaultValue();
             }
             if ($provider) {

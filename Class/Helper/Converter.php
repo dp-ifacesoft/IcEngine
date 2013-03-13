@@ -8,6 +8,7 @@
  */
 class Helper_Converter
 {
+
 	/**
 	 * создает текстовое представление массива по синтаксису php
 	 */
@@ -15,8 +16,7 @@ class Helper_Converter
 	{
 		$locator = IcEngine::serviceLocator();
 		$viewRenderManager = $locator->getService('viewRenderManager');
-		$render = $viewRenderManager->byName('Smarty');
-
+		$smarty = $viewRenderManager->byName('Smarty');
 		$padding = null;
 		$padding2 = 0;
 		for ($i = 0; $i < $offset; $i++) {
@@ -25,12 +25,13 @@ class Helper_Converter
 			}
 			$padding .= '	';
 		}
-		$render->assign('data', $data);
-		$render->assign('offset', $offset);
-		$render->assign('padding', $padding);
-		$render->assign('padding2', $padding2);
-		$content = $render->fetch('Helper/Converter/arrayToString');
-		unset($render);
+		$smarty->assign('data', $data);
+		$smarty->assign('offset', $offset);
+		$smarty->assign('padding', $padding);
+		$smarty->assign('padding2', $padding2);
+		$content = $smarty->fetch('Helper/Converter/arrayToString');
+		unset($smarty);
 		return $content;
 	}
+
 }

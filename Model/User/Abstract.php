@@ -24,6 +24,13 @@ class User_Abstract extends Model
      * @var User
 	 */
 	protected $current;
+    
+    /**
+     * Доступные пользователю роли
+     * 
+     * @var array
+     */
+    protected $roleExists = array();
 
 	/**
 	 * Авторизоваться этим пользователем.
@@ -207,26 +214,47 @@ class User_Abstract extends Model
                 ->addOptions(array(
                     'name'  => '::Name',
                     'value' => $roleNames
-                ));
-            if ($roleCollection->count()) {
-                $roles = array_merge($roles, $roleCollection->items());
+                ))->raw();
+            if ($roleCollection) {
+                $roles = array_merge($roles, $roleCollection);
             }
         }
-        $roleIds = $this->getService('helperArray')->column($roles, 'id');
-        if (!$roleIds) {
+        $helperArray = $this->getService('helperArray');
+        $existsRoleNames = $helperArray->column($roles, 'name');
+        if (!$existsRoleNames) {
             return false;
         }
+        foreach ($existsRoleNames as $roleName) {
+            if (isset($this->roleExists[$roleName])) {
+                return true;
+            }
+        }
+        $roleIds = $helperArray->column($roles, 'id');
         $queryBuilder = $this->getService('query');
         $query = $queryBuilder
-            ->select('id')
+            ->select('fromRowId')
             ->from('Link')
             ->where('fromTable', 'Acl_Role')
             ->where('toTable', 'User')
             ->where('fromRowId', $roleIds)
             ->where('toRowId', $this->key());
         $dds = $this->getService('dds');
-        $exists = (bool) $dds->execute($query)->getResult()->asValue();
-		return $exists;
+        $existsRoleIds = (bool) $dds->execute($query)->getResult()->asColumn();
+        if (!$existsRoleIds) {
+            return false;
+        }
+        $roleExists = false;
+        foreach ($existsRoleIds as $roleId) {
+            $roleFiltered = $helperArray->filter($roles, array(
+                'id'    => $roleId
+            ));
+            if (!$roleFiltered) {
+                continue;
+            }
+            $roleExists = true;
+            $this->roleExists[$roleFiltered[0]['name']] = true;
+        }
+        return $roleExists;
 	}
 
 	/**

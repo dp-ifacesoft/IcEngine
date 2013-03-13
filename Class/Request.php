@@ -391,7 +391,7 @@ class Request
         }
 
         if (!isset($_COOKIE['PHPSESSID'])) {
-            setcookie('PHPSESSID', session_id(), 3600);
+            setcookie('PHPSESSID', session_id(), 86400);
             $_COOKIE['PHPSESSID'] = session_id();
         }
 

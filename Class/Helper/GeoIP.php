@@ -28,6 +28,13 @@ class Helper_GeoIP
 	public function getCity($ip = null)
 	{
         $locator = IcEngine::serviceLocator();
+        $sessionResource = $locator->getService('sessionResource')
+            ->newInstance('Geo');
+        if (isset($sessionResource->cityId)) {
+            return $locator->getService('modelManager')->byKey(
+                'City', $sessionResource->cityId
+            );
+        }
         $request = $locator->getService('request');
 		$ip = $this->ip2int($ip !== null ? $ip : $request->ip());
 		$dds = $locator->getService('dds');
@@ -48,6 +55,7 @@ class Helper_GeoIP
                 'id'    => $netCityId
             )
         );
+        $sessionResource->cityId = $city->key();
 		return $city;
 	}
 
