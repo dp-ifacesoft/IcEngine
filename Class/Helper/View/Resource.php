@@ -206,9 +206,6 @@ class Helper_View_Resource
 	 */
 	public function createPackFile($type, $key, $fileName = null)
 	{
-		if (empty(self::$files[$type])) {
-			return;
-		}
 		$config = $this->config();
 		$root = IcEngine::root();
 		if (!$fileName) {
@@ -218,6 +215,9 @@ class Helper_View_Resource
 		}
 		if (is_file($fileName)) {
 			return true;
+		}
+        if (empty(self::$files[$type])) {
+			return;
 		}
 		$content = '';
 		foreach (self::$files[$type] as $data) {
