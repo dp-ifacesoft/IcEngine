@@ -123,6 +123,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	{
 		if (Tracer::$enabled) {
 			Tracer::incSelectQueryCount();
+            Tracer::appendQueryToVector($query->translate('Mysql'));
 		}
 		$key = $this->sqlHash($query);
 		$expiration = $options->getExpiration();
@@ -175,7 +176,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 				memory_get_usage()
             );
 			Tracer::incDeltaQueryCount();
-            Tracer::appendQueryToVector($this->sql);
 		}
 		$tags = $query->getTags();
         $providerTags = $this->cacher->getTags($tags);
