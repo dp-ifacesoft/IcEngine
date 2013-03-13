@@ -30,7 +30,12 @@ class Helper_GeoIP
         $locator = IcEngine::serviceLocator();
         $sessionResource = $locator->getService('sessionResource')
             ->newInstance('Geo');
-        
+        if (isset($sessionResource->cityId)) {
+            echo $sessionResource->cityId;
+            return $this->getService('modelManager')->byKey(
+                'City', $sessionResource->cityId
+            );
+        }
         $request = $locator->getService('request');
 		$ip = $this->ip2int($ip !== null ? $ip : $request->ip());
 		$dds = $locator->getService('dds');
