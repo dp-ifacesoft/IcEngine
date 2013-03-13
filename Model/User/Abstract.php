@@ -219,22 +219,20 @@ class User_Abstract extends Model
                 $roles = array_merge($roles, $roleCollection);
             }
         }
-        $existsRoleNames = $this->getService('helperArray')->column(
-            $roles, 'name'
-        );
+        $helperArray = $this->getService('helperArray');
+        $existsRoleNames = $helperArray->column($roles, 'name');
+        if (!$existsRoleNames) {
+            return false;
+        }
         foreach ($existsRoleNames as $roleName) {
             if (isset($this->roleExists[$roleName])) {
                 return true;
             }
         }
-        $helperArray = $this->getService('helperArray');
         $roleIds = $helperArray->column($roles, 'id');
-        if (!$roleIds) {
-            return false;
-        }
         $queryBuilder = $this->getService('query');
         $query = $queryBuilder
-            ->select('id')
+            ->select('fromRowId')
             ->from('Link')
             ->where('fromTable', 'Acl_Role')
             ->where('toTable', 'User')
