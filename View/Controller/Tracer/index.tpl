@@ -42,6 +42,14 @@
 			{/foreach}
 		</ul>
 	{/if}
+    {if $allQueryVector}
+        <p><b>Все запросы:</b></p>
+        <ul>
+            {foreach from=$allQueryVector item="query"}
+                <li>{$query}</li>
+            {/foreach}
+        </ul>
+    {/if}
 	<p><b>Всего запросов update к БД:</b> {$updateQueryCount}, за <b>{$updateQueryTime} с.</b></p>
 	<p><b>Всего запросов insert к БД:</b> {$insertQueryCount}, за <b>{$insertQueryTime} с.</b></p>
 	<p><b>Всего запросов delete к БД:</b> {$deleteQueryCount}, за <b>{$deleteQueryTime} с.</b></p>
