@@ -61,6 +61,7 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         if (!$rows) {
             $this->getService('helperModelSync')->resync($modelName);
         }
+        $ds = $this->getService('modelScheme')->dataSource($modelName);
         $filters = $modelName::$filters;
         $priorityFields = $modelName::$priorityFields;
         $criterias = $this->getCriterias($query);
@@ -68,17 +69,17 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         ksort($filters);
         $criteriasNames = array_keys($criterias);
         if (!$filters && !$criterias) {
-            return $this->staticMapper->execute($query, $options);
+            return $this->staticMapper->execute($ds, $query, $options);
         } elseif (!array_diff($criterias, $filters)) {
-            return $this->staticMapper->execute($query, $options);
+            return $this->staticMapper->execute($ds, $query, $options);
         } elseif (!array_diff($priorityFields, $criteriasNames)) {
-            $result = $this->staticMapper->execute($query, $options);
+            $result = $this->staticMapper->execute($ds, $query, $options);
             if (!$result) {
-                return $this->dynamicMapper->execute($query, $options);
+                return $this->dynamicMapper->execute($ds, $query, $options);
             }
             return $result;
         }
-        return $this->dynamicMapper->execute($query, $options);
+        return $this->dynamicMapper->execute($ds, $query, $options);
 	}
 
 	/**
