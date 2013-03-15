@@ -30,7 +30,10 @@ class Helper_GeoIP
         $locator = IcEngine::serviceLocator();
         $sessionResource = $locator->getService('sessionResource')
             ->newInstance('Geo');
-        if (!empty($sessionResource->cityId)) {
+        if (isset($sessionResource->cityId)) {
+            if (!$sessionResource->cityId) {
+                return;
+            }
             return $locator->getService('modelManager')->byKey(
                 'City', $sessionResource->cityId
             );
