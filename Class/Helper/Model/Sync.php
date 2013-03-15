@@ -42,9 +42,7 @@ class Helper_Model_Sync extends Helper_Abstract
         $syncSource = $dataSourceManager->get('Sync');
         $dataSourceManager->setDataMapper($syncSource);
         $dynamicMapper = $syncSource->getDataMapper()->getDynamicMapper();
-        $options = new Query_Options();
-        $table = $dynamicMapper->execute($syncSource, $query, $options)
-            ->asTable();
+        $table = $dynamicMapper->execute($syncSource, $query)->asTable();
         $output = $this->getService('helperCodeGenerator')->fromTemplate(
             'modelSync', array('data' => $table)
         );

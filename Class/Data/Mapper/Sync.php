@@ -40,8 +40,7 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeDynamic(Query_Abstract $query,
-        Query_Options $options)
+	protected function _executeDynamic(Query_Abstract $query, $options)
 	{
         $modelName = $this->getModelName($query);
         $this->dynamicMapper->execute($query, $options);
@@ -55,8 +54,7 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return boolean
 	 */
-	protected function _executeStatic(Query_Abstract $query,
-        Query_Options $options)
+	protected function _executeStatic(Query_Abstract $query, $options)
 	{
 		$modelName = $this->getModelName($query);
         $rows = $modelName::$rows;
@@ -88,7 +86,7 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
      * @inheritdoc
 	 * @see Data_Mapper_Abstract::_execute()
 	 */
-	public function _execute(Query_Abstract $query, Query_Options $options)
+	public function _execute(Query_Abstract $query, $options = null)
 	{
 		$m = $this->queryMethods[$query->type()];
 		$result = $this->{$m}($query, $options);
