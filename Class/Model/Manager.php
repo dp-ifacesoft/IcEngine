@@ -16,7 +16,8 @@ class Model_Manager extends Manager_Abstract
 			'Model'             => 'Simple',
 			'Component'         => 'Simple',
 			'Model_Defined'		=> 'Defined',
-			'Model_Factory'		=> 'Factory'
+			'Model_Factory'		=> 'Factory',
+            'Model_Sync'        => 'Simple'
 		),
         'heavyDelegees'         => array(
             'Model_Factory', 'Model_Defined'

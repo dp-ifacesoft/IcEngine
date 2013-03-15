@@ -33,7 +33,6 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
         if ($keys[0] == '*') {
             return $rows;
         }
-        print_r($select);
         return $helperArray->column($rows, $keys);
     }
 }

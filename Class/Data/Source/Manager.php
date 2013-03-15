@@ -123,20 +123,15 @@ class Data_Source_Manager extends Manager_Abstract
     public function setDataMapper($source)
     {
         $sourceConfig = $source->getConfig();
-        $mapper = $source->getDataMapper();
-        $mapperClass = null;
-        if (isset($sourceConfig['mapper'])) {
-            $mapperClass = 'Data_Mapper_' . $sourceConfig['mapper'];
+        if (empty($sourceConfig['mapper'])) {
+            return;
         }
-        if ($mapperClass && !($mapper instanceof $mapperClass)) {
-            $mapper = new $mapperClass();
-            $source->setDataMapper($mapper);
-        }
-        if (isset($sourceConfig['mapper_options'])) {
-            $options = $sourceConfig['mapper_options'];
-            foreach ($options as $key => $value) {
-                $mapper->setOption($key, $value);
-            }
-        }
+        $mapperManager = $this->getService('dataMapperManager');
+        $mapperConfig = isset($sourceConfig['mapper_options'])
+            ? $sourceConfig['mapper_options'] : array();
+        $currentMapper = $mapperManager->get(
+            $sourceConfig['mapper'], $mapperConfig
+        );
+        $source->setDataMapper($currentMapper);
     }
 }
