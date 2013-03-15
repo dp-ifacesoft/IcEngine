@@ -88,11 +88,8 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
      * @inheritdoc
 	 * @see Data_Mapper_Abstract::_execute()
 	 */
-	public function _execute(Query_Abstract $query, $options = null)
+	public function _execute(Query_Abstract $query, Query_Options $options)
 	{
-		if (!($query instanceof Query_Abstract)) {
-			return;
-		}
 		$m = $this->queryMethods[$query->type()];
 		$result = $this->{$m}($query, $options);
 		return $result;
