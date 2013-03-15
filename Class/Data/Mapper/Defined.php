@@ -30,7 +30,7 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
         }
         $select = $query->getPart(Query::SELECT);
         $keys = array_keys($select);
-        if ($keys[0] == '*') {
+        if (strpos($keys[0], '*') !== false) {
             return $rows;
         }
         return $helperArray->column($rows, $keys);
