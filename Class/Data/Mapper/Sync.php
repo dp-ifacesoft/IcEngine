@@ -77,7 +77,7 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
             $result = $this->staticMapper->execute($ds, $query, $options);
         } elseif (!array_diff($criteriasNames, $priorityFields)) {
             $result = $this->staticMapper->execute($ds, $query, $options);
-            if (!$result) {
+            if (!$result->foundRows()) {
                 $result = $this->dynamicMapper->execute($ds, $query, $options);
             }
         } else {
@@ -115,7 +115,7 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
                     list($table, $quotedfield) = explode('.', $where);
                     $field = trim($quotedfield, '`');
                 } else {
-                    $field = $where;
+                    $field = trim($where, '`');
                 }
                 $criteria[$field] = $part[Query::VALUE];
             }
