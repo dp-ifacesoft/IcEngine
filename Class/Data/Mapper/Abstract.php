@@ -200,7 +200,7 @@ abstract class Data_Mapper_Abstract
 			'query'			=> $query,
 			'startAt'		=> $start,
 			'result'		=> $result,
-			'touchedRows'	=> count ($result),
+			'touchedRows'	=> count($result),
 			'insertKey'		=> 0,
 			'finishedAt'	=> $finish,
 			'source'		=> $source
