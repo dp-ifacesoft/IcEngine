@@ -172,6 +172,16 @@ class User_Abstract extends Model
 		return $this->hasRole('admin');
 	}
 
+    /**
+     * Проверяет является ли пользователь консольным пользователем
+     * 
+     * @return boolean
+     */
+    public function isCli()
+    {
+        return $this->key() < 0;
+    }
+    
 	/**
 	 * Проверяет, является ли этот пользователем текущим.
 	 * Т.е. авторизован от имени этого пользователя.

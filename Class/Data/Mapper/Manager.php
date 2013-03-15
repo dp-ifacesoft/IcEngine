@@ -1,34 +1,37 @@
 <?php
 /**
- *
- * @desc Manager
- * @author Shvedov_U
- * @package IcEngine
- *
+ * Менеджер дата мэперов
+ * 
+ * @author goorus, morph
+ * @Service("dataMapperManager")
  */
-class Data_Mapper_Manager
+class Data_Mapper_Manager extends Manager_Abstract
 {
-
 	/**
-	 * @desc
-	 * @var array of Data_Mapper_Abstract
+	 * Уже созданные мэперы
+     * 
+	 * @var array
 	 */
-	protected static $_mappers = array();
+	protected $mappers = array();
 
 	/**
-	 * @desc
+	 * Получить мэппер по имени
+     * 
 	 * @param string $name
+     * @param array $params
 	 * @return Data_Mapper_Abstract
 	 */
-	public static function get ($name)
+	public function get($name, $params = array())
 	{
-		if (!isset (self::$_mappers [$name]))
-		{
-			$class = 'Data_Mapper_' . $name;
-			self::$_mappers [$name] = new $class;
+		if (!isset($this->mappers[$name])) {
+			$className = 'Data_Mapper_' . $name;
+			$this->mappers[$name] = new $className;
 		}
-
-		return self::$_mappers [$name];
+        if ($params) {
+            foreach ($params as $key => $value) {
+                $this->mappers[$name]->setOption($key, $value);
+            }
+        }
+		return $this->mappers[$name];
 	}
-
 }

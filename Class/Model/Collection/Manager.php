@@ -17,7 +17,8 @@ class Model_Collection_Manager extends Manager_Abstract
 			'Model'				=> 'Simple',
 			'Model_Config'		=> 'Simple',
 			'Model_Defined'		=> 'Defined',
-			'Model_Factory'		=> 'Simple'
+			'Model_Factory'		=> 'Simple',
+            'Model_Sync'        => 'Simple'
 		)
 	);
 

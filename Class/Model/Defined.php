@@ -20,24 +20,24 @@ class Model_Defined extends Model
 	 */
 	public function delete()
 	{
-		throw new Exception ('It\'s a defined model');
+		throw new Exception('It\'s a defined model');
 	}
 
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::save
 	 */
-	public function save ($hard_insert = false)
+	public function save($hard_insert = false)
 	{
-		throw new Exception ('It\'s a defined model');
+		throw new Exception('It\'s a defined model');
 	}
 
 	/**
 	 * (non-PHPDoc)
 	 * @see Model::update
 	 */
-	public function update (array $data, $hard = false)
+	public function update(array $data, $hard = false)
 	{
-		throw new Exception ('It\'s a defined model');
+		throw new Exception('It\'s a defined model');
 	}
 }
