@@ -24,7 +24,14 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
         if ($where) {
             $criteria = array();
             foreach ($where as $part) {
-                $criteria[$part[Query::WHERE]] = $part[Query::VALUE];
+                $where = $part[Query::WHERE];
+                if (strpos($where, '.') !== false) {
+                    list($table, $quotedfield) = explode('.', $where);
+                    $field = trim($quotedfield, '`');
+                } else {
+                    $field = trim($where, '`');
+                }
+                $criteria[$field] = $part[Query::VALUE];
             }
             $rows = $helperArray->filter($rows, $criteria);
         }
