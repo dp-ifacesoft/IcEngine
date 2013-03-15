@@ -59,6 +59,8 @@ class Helper_GeoIP
         if ($city) {
             $sessionResource->cityId = $city->key();
             return $city;
+        } else {
+            $sessionResource->cityId = false;
         }
 	}
 
