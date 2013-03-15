@@ -46,6 +46,7 @@ class Helper_GeoIP
         $netCityId = $dds->execute($netCityIdQuerySelect)
             ->getResult()->asValue();
         if (!$netCityId) {
+            $sessionResource->cityId = false;
             return;
         }
         $modelManager = $locator->getService('modelManager');
