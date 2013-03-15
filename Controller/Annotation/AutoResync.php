@@ -20,6 +20,7 @@ class Controller_Annotation_AutoResync extends Controller_Abstract
         }
         foreach ($data as $className => $annotationData) {
             $context->helperModelSync->resync($className);
+            echo 'Resync model: ' . $className . PHP_EOL;
         }
     }
 }
