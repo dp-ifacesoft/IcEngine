@@ -69,7 +69,7 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         ksort($criterias);
         ksort($filters);
         $criteriasNames = array_keys($criterias);
-        if (!$filters && !$criterias) {
+        if (!$filters && !$priorityFields) {
             $result = $this->staticMapper->execute($ds, $query, $options);
         } elseif (!array_diff($criterias, $filters)) {
             $result = $this->staticMapper->execute($ds, $query, $options);
