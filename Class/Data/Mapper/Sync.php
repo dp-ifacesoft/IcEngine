@@ -108,7 +108,14 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         $where = $query->getPart(Query::WHERE);
         if ($where) {
             foreach ($where as $part) {
-                $criteria[$part[Query::WHERE]] = $part[Query::VALUE];
+                $where = $part[Query::WHERE];
+                if (strpos($where, '.') !== false) {
+                    list($table, $quotedfield) = explode('.', $where);
+                    $field = trim($quotedfield, '`');
+                } else {
+                    $field = $where;
+                }
+                $criteria[$field] = $part[Query::VALUE];
             }
         }
         return $criteria;
