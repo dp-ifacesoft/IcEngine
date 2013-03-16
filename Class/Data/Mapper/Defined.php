@@ -14,6 +14,7 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
     {
         $serviceLocator = IcEngine::serviceLocator();
         $helperArray = $serviceLocator->getService('helperArray');
+        $helperString = $serviceLocator->getService('helperString');
         $from = $query->getPart(Query::FROM);
         if (!$from) {
             return array();
@@ -37,6 +38,18 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
         }
         $select = $query->getPart(Query::SELECT);
         $keys = array_keys($select);
+        $keysExploded = array();
+        foreach ($keys as $key) {
+            if (strpos($key, ',') === false) {
+                $keysExploded[] = $key;
+                continue;
+            }
+            $exploded = explode(',', $key);
+            foreach ($exploded as $item) {
+                $keysExploded[] = trim($item);
+            }
+        }
+        $keys = array_unique($keysExploded);
         if (strpos($keys[0], '*') !== false) {
             return $rows;
         }
