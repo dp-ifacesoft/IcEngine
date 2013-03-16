@@ -72,18 +72,10 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         $filtersNames = array_keys($filters);
         if (!$filters && !$priorityFields) {
             $result = $this->staticMapper->execute($ds, $query, $options);
-        } elseif (is_array($criteriasNames) && is_array($filtersNames) && 
+        } elseif (is_array($filters) && is_array($criterias) && 
             !array_diff($filters, $criterias) && 
             !array_diff($filtersNames, $criteriasNames)) {
             $result = $this->staticMapper->execute($ds, $query, $options);
-            file_put_contents(
-                IcEngine::root() . 'log/sync',
-                print_r($filters, true) .
-                print_r($criterias, true) .
-                print_r($filtersNames, true) .
-                print_r($criteriasNames, true) . PHP_EOL,
-                FILE_APPEND
-            );
         } elseif (!array_diff($criteriasNames, $priorityFields)) {
             $result = $this->staticMapper->execute($ds, $query, $options);
             if (!$result->touchedRows()) {
