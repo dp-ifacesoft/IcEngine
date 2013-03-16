@@ -72,7 +72,8 @@ class Data_Mapper_Sync extends Data_Mapper_Abstract
         $filtersNames = array_keys($filters);
         if (!$filters && !$priorityFields) {
             $result = $this->staticMapper->execute($ds, $query, $options);
-        } elseif ($filters && $criterias && !array_diff($filters, $criterias) && 
+        } elseif (is_array($criteriasNames) && is_array($filtersNames) && 
+            !array_diff($filters, $criterias) && 
             !array_diff($filtersNames, $criteriasNames)) {
             $result = $this->staticMapper->execute($ds, $query, $options);
         } elseif (!array_diff($criteriasNames, $priorityFields)) {
