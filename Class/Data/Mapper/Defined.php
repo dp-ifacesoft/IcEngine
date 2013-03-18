@@ -49,10 +49,17 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
                 $keysExploded[] = trim($item);
             }
         }
-        $keys = array_unique($keysExploded);
-        if (strpos($keys[0], '*') !== false) {
+        $resultKeys = array_unique($keysExploded);
+        if (strpos($resultKeys[0], '*') !== false) {
             return $rows;
         }
-        return $helperArray->column($rows, $keys);
+        $result = $helperArray->column($rows, $resultKeys);
+        if (count($resultKeys) > 1) {
+            return $result;
+        }
+        foreach ($result as $i => $row) {
+            $result[$i] = array($resultKeys[0] => $row);
+        }
+        return $result;
     }
 }
