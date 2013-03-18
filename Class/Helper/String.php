@@ -9,6 +9,30 @@
 class Helper_String
 {
     /**
+     * Возвращает массив строк, разделенных через запятую, с убранными 
+     * пробелами по бокам
+     * 
+     * @param string $text
+     * @return array
+     */
+    public function expand($text)
+    {
+        $result = array();
+        if ($text) {
+            if (strpos($text, ',') === false) {
+                $result[] = $text;
+                return $result;
+            }
+            $textExploded = explode(',', $text);
+            foreach ($textExploded as $item) {
+               $result[] = trim($item);
+            }
+        }
+        return $result;
+    }
+    
+    
+    /**
      * Переносы строки
      * 
      * @param string $title
