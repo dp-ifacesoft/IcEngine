@@ -31,11 +31,13 @@ class Helper_View_Resource
 	protected static $config = array(
         'defaultPaths'  => array(
             self::CSS   => array(
-                'noPack'    => 'Ice/Static/css/noPack/'
+                'noPack'            => 'Ice/Static/css/noPack/',
+                'adminNoPack'       => 'Admin/Static/css/noPack/',
             ),
             self::JS    => array(
-                'noPack'    => 'Ice/Static/js/noPack/',
-                'core'      => 'IcEngine/js/'
+                'noPack'            => 'Ice/Static/js/noPack/',
+                'adminNoPack'       => 'Admin/Static/js/noPack/',
+                'core'              => 'IcEngine/js/'
             ),
             self::JTPL  => array(
                 'default'   => 'Ice/Static/jtpl/',
