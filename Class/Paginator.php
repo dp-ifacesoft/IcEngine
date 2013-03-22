@@ -86,7 +86,6 @@ class Paginator
 		$spaced = false;
 
 		$href = isset ($this->href) ? $this->href : Request::uri (false);
-
 		// Удаление из запроса GET параметра page
 		$p = 'page';
 		$href = preg_replace (
