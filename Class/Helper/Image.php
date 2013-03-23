@@ -256,14 +256,14 @@ class Helper_Image
 	{
 		//$this->_log ('test');
         $locator = IcEngine::serviceLocator();
-        $requestService = $locator->getService('request');
+        $request = $locator->getService('request');
 		$helperSiteLocation = $locator->getService('siteLocation');
         $modelManager = $locator->getService('modelManager');
         $helperImageResize = $locator->getService('helperImageResize');
 		$host = $helperSiteLocation->getLocation();
-        $userService = $locator->getService('user');
+        $user = $locator->getService('user')->getCurrent();
         $helperDate = $locator->getService('date');
-        $file = $requestService->fileByIndex(0);
+        $file = $request->fileByIndex(0);
 		if ($host == 'localhost') {
 			$host = '';
 		}
@@ -287,7 +287,7 @@ class Helper_Image
 			'largeUrl'		=> '',
 			'smallUrl'		=> '',
 			'originalUrl'	=> '',
-			'User__id'		=> $userService->id()
+			'User__id'		=> $user->key()
 		));
 		$image->save();
 		$dst_path = $this->config['upload_path'];
@@ -361,7 +361,7 @@ class Helper_Image
 		$attributes = array();
 		if (!empty ($sizing['attributes'])) {
 			foreach ($sizing['attributes'] as $key => $v) {
-				$attributes[$key] = $requestService->post('attr_' . $key);
+				$attributes[$key] = $request->post('attr_' . $key);
 			}
 		}
 		$sizing ['sizes'][self::ORIGINAL] = array(

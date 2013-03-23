@@ -476,8 +476,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 			$index += count($this->items);
 		}
         if (isset($this->items[$index])) {
-            $items = &$this->items[$index];
-            return $items;
+            $item = $this->items[$index];
+            return $item;
         }
         return null;
 	}
