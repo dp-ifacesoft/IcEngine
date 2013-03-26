@@ -42,7 +42,7 @@ class User_Loginza extends Model
 				'identity'		=> $token->identity,
 				'email'			=> $token->email,
 				'provider'		=> $token->provider,
-				'result'		=> $token->result,
+				'result'		=> urlencode($token->result),
 				'createdAt'		=> $helperDate->toUnix()
 			));
 			$loginza->save();
