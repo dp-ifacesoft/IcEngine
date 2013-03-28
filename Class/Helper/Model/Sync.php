@@ -2,7 +2,7 @@
 
 /**
  * Помощник синхронизирующихся моделей
- * 
+ *
  * @author morph
  * @Service("helperModelSync")
  */
@@ -10,12 +10,12 @@ class Helper_Model_Sync extends Helper_Abstract
 {
     /**
      * Пересобрать записи модели
-     * 
+     *
      * @param string $modelName
      */
     public function resync($modelName)
     {
-        $filename = IcEngine::root() . 'Ice/Model/' . 
+        $filename = IcEngine::root() . 'Ice/Model/' .
             str_replace('_', '/', $modelName) . '.php';
         if (!is_file($filename)) {
             return;
@@ -52,7 +52,7 @@ class Helper_Model_Sync extends Helper_Abstract
                 unset($parts[$i]);
                 continue;
             }
-            if (strpos($part, 'array') !== false || 
+            if (strpos($part, 'array') !== false ||
                 strpos($part, ')') !== false) {
                 $part = "\t" . $part;
             }
