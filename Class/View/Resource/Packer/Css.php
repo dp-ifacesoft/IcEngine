@@ -2,42 +2,42 @@
 
 /**
  * Упаковщик Css ресурсов представления
- * 
+ *
  * @author goorus, morph
  */
 class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 {
 	/**
 	 * Импортируемые стили.
-	 * 
+	 *
      * @var array
 	 */
 	protected $imports = array();
 
 	/**
 	 * Домен второго уровня
-	 * 
+	 *
      * @var string
 	 */
 	protected $domain = 'localhost';
 
 	/**
 	 * Шаблоны имен доменов
-	 * 
+	 *
      * @var Objective
 	 */
 	protected $domains;
 
 	/**
 	 * Последний использованный домен.
-	 * 
+	 *
      * @var integer
 	 */
 	protected $last = 0;
 
 	/**
 	 * Расширения конфига
-	 * 
+	 *
      * @var array
 	 */
 	protected $configExt = array(
@@ -58,7 +58,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	/**
 	 * Сформированные адреса изображений.
 	 * Необходимо чтобы на одно изображние не получалось несколько ссылок.
-	 * 
+	 *
      * @var array <String>
 	 */
 	protected $formedUrls = array();
@@ -68,7 +68,9 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 	 */
 	public function __construct()
 	{
-		$this->domain = Helper_Uri::mainDomain();
+        $locator = IcEngine::serviceLocator();
+        $helperUri = $locator->getService('helperUri');
+		$this->domain = $helperUri->mainDomain();
 		$this->config = array_merge(
 			$this->config,
 			$this->configExt
@@ -78,7 +80,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 
 	/**
 	 * Callback для preg_replace вырезания @import.
-	 * 
+	 *
      * @param array $matches
 	 * @return string
 	 */
@@ -88,7 +90,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			$this->imports[] = $matches[0];
 		} else {
 			$this->imports[] =
-				'@import "' . $this->currentResource->urlPath . 
+				'@import "' . $this->currentResource->urlPath .
                 $matches[1] . '";';
 		}
 		return '';
@@ -96,7 +98,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 
 	/**
 	 * Callback для preg_replace замены путей к изображениям.
-	 * 
+	 *
      * @param array $matches
 	 * @return string
 	 */
@@ -169,7 +171,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			$replacedStyle
 		);
 		$trimmedStyle = preg_replace(
-            '!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', 
+            '!/\*[^*]*\*+([^/][^*]*\*+)*/!', '',
             $excludedStyle
         );
 		$style = str_replace(
