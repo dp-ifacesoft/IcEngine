@@ -121,6 +121,9 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			self::SMS_SEND_COUNTER_ATTR	=> 0,
 			self::SMS_CODE_ATTR			=> ''
 		));
+        if ($user->hasRole('client-manager')) {
+            $href = '/admin/manager/';
+        }
 		$redirect = $this->getService('helperUri')->validRedirect($href);
 		$this->output->send(array(
             'data'  => array(
