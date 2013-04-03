@@ -55,7 +55,17 @@ class Service_State
      */
     public function __call($method, $args)
     {
-        if ($this->instanceCallback) {
+        if (is_bool($this->instanceCallback)) {
+            if (!$this->classReflection) {
+                $this->classReflection = new \ReflectionClass($this->className);
+            }
+            $methodReflection = $this->classReflection->getMethod($method);
+            if ($methodReflection->isStatic()) {
+                return call_user_func_array(
+                    array($this->className, $method), $args
+                );
+            }
+        } elseif (!is_null($this->instanceCallback)) {
             $result = call_user_func_array(
                 $this->instanceCallback[0], $this->instanceCallback[1]
             );

@@ -66,7 +66,7 @@ class Query
 	 */
 	public function __call($method, $params)
 	{
-		$name = $this->normalizaName($method);
+		$name = $this->normalizeName($method);
 		$query = $this->factory($name);
 		return call_user_func_array(array($query, $method), $params);
 	}
@@ -104,7 +104,7 @@ class Query
 	 *
      * @param string $name
 	 */
-	public function normalizaName($name)
+	public function normalizeName($name)
 	{
 		$matches = array();
 		$reg_exp = '#([A-Z]*[a-z]+)#';
