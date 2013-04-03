@@ -12,9 +12,6 @@
  */
 function smarty_block_cache($params, $content, $smarty, &$repeat)
 {
-    if ($repeat) {
-        return;
-    }
     $key = md5(json_encode($params));
     $blockName = $params['key'];
     $serviceLocator = IcEngine::serviceLocator();
@@ -36,13 +33,15 @@ function smarty_block_cache($params, $content, $smarty, &$repeat)
             }
         }
     }
-    if (!$notCache && $expiration) {
-        $time = time();
-        $provider = $dataProviderManager->get('Block');
+    $time = time();
+    $provider = $dataProviderManager->get('Block');
+    if (!$content && !$notCache && $expiration) {
         $cache = $provider->get($key);
         if ($cache) {
             if ($cache['e'] + $expiration > $time) {
-                return $cache['v'];
+                $repeat = false;
+                echo $cache['v'];
+                return true;
             }
         }
     }
