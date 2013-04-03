@@ -195,7 +195,16 @@ class Service_Source
             $this->loadServices();
         }
         if (!isset(self::$services[$serviceName])) {
-            return null;
+            $className = $this->normalizeName($serviceName);
+            if (!class_exists($className)) {
+                return null;
+            }
+            $classReflection = new \ReflectionClass($className);
+            self::$services[$serviceName] = array(
+                'class'             => $className,
+                'isAbstract'        => $classReflection->isAbstract(),
+                'instanceCallback'  => false
+            );
         }
         $serviceData = &self::$services[$serviceName];
         if (!isset($serviceData['class']) && !isset($serviceData['source'])) {
@@ -212,7 +221,8 @@ class Service_Source
         }
         $instanceCallback = array();
         if (!empty(self::$services[$serviceName]['instanceCallback'])) {
-           $instanceCallback = self::$services[$serviceName]['instanceCallback'];
+           $instanceCallback = 
+               self::$services[$serviceName]['instanceCallback'];
         }
         if ($instanceCallback || !empty($serviceData['isAbstract'])) {
             $state = new Service_State(
@@ -239,6 +249,22 @@ class Service_Source
         }
     }
 
+    /**
+	 * Привести имя метод из вида methodName к виду Method_Name
+	 *
+     * @param string $name
+	 */
+	public function normalizeName($name)
+	{
+		$matches = array();
+		$reg_exp = '#([A-Z]*[a-z]+)#';
+		preg_match_all($reg_exp, $name, $matches);
+		if (empty($matches[1][0])) {
+			return $name;
+		}
+		return implode('_', array_map('ucfirst', $matches[1]));
+	}
+    
     /**
      * Менеджер аннотаций
      *

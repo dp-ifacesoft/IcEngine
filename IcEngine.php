@@ -172,7 +172,7 @@ class IcEngine
 	{
 		require $path;
 		$name = basename($path, '.php');
-		require_once __DIR__ . '/Model/Bootstrap/Manager.php';
+		require_once __DIR__ . '/Class/Bootstrap/Manager.php';
         $bootstrapManager = self::getManager('Bootstrap');
 		self::$bootstrap = $bootstrapManager->get($name, $path);
 	}
