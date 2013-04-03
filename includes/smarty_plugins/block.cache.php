@@ -12,21 +12,24 @@
  */
 function smarty_block_cache($params, $content, $smarty, &$repeat)
 {
+    if ($repeat) {
+        return;
+    }
     $key = md5(json_encode($params));
     $blockName = $params['key'];
     $serviceLocator = IcEngine::serviceLocator();
-    $dataProviderManager = $serviceLocator->get('dataProviderManager');
-    $configManager = $serviceLocator->get('configManager');
+    $dataProviderManager = $serviceLocator->getService('dataProviderManager');
+    $configManager = $serviceLocator->getService('configManager');
     $blockConfig = $configManager->get('Block');
     $expiration = 0;
     $notCache = false;
     if ($blockConfig && $blockConfig[$blockName]) {
         $blockConfig = $blockConfig[$blockName];
         $expiration = $blockConfig['expiration'];
-        $notCache = $blockConfig['notCache'];
-        if ($notCache) {
-            foreach ($notCache as $param => $value) {
-                if (isset($params[$param]) && $params[$param] == $value) {
+        $notCacheConfig = $blockConfig['notCache'];
+        if ($notCacheConfig) {
+            foreach ($notCacheConfig as $param => $value) {
+                if (isset($params[$param]) && $params[$param] === $value) {
                     $notCache = true;
                     break;
                 }
@@ -43,11 +46,12 @@ function smarty_block_cache($params, $content, $smarty, &$repeat)
             }
         }
     }
-    $content = $smarty->display('string:' . $content);
-    $cache = array(
-        'e' => $time,
-        'v' => $content
-    );
-    $provider->set($key, $cache);
+    if (!$notCache && $expiration) {
+        $cache = array(
+            'e' => $time,
+            'v' => $content
+        );
+        $provider->set($key, $cache);
+    }
     return $content;
 }
