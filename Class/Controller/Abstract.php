@@ -222,6 +222,7 @@ class Controller_Abstract
             'controller'    => $controller->name(),
             'action'        => $action
         ));
+        $controller->getTask()->setCallable($controller, $action);
         $reflection = new \ReflectionMethod($controller, $action);
         $params = $reflection->getParameters();
         $currentInput = $controller->getInput();
@@ -239,7 +240,7 @@ class Controller_Abstract
                 $resultParams[$param->name] = $value;
             }
         }
-        $reflection->invokeArgs($controller, $resultParams);
+        //$reflection->invokeArgs($controller, $resultParams);
         $controller->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller->name()) . 
                 '/' . $action
