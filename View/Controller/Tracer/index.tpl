@@ -19,12 +19,12 @@
 		<li>Инициализация менеджера атрибутов: {$bootstrapInitAttributeManager} с.</li>
 		<li>Инициализация схемы моделей: {$bootstrapInitModelScheme} с. </li>
 		<li>Инициализация менеджера моделей: {$bootstrapInitModelManager} с.</li>
-		<li>Инициализация ACL: {$bootstrapInitAcl} с.</li>
 		<li>Инициализация пользователей: {$bootstrapInitUser} с. </li>
 	</ul>
 	<p><b>Время инициализации сессии пользователя:</b> {$bootstrapInitUserSession} с.</li>
 	<p><b>Время диспетчеризации:</b> {$dispatcherTime} с. </p>
 	<p><b>Время работы фронт контроллера:</b> {$frontControllerTime} с. </p>
+    <p><b>Время работы стратегии фронт контроллера:</b> {$controllerFrontStrategyTime} с. </p>
 	<p><b>Общее время рендеринга:</b> {$renderTime} с. </p>
 	<p><b>Всего загружено классов:</b> {$loadedClassCount}</p>
 	<p><b>Всего создано моделей:</b> {$totalModelCount}</p>
@@ -36,7 +36,7 @@
             {/foreach}
         </ul>
     {/if}
-	<p><b>Всего вызвано контроллеров:</b> {$controllerCount}, из них из кэша: <b>{$cachedControllerCount}</b></p>
+	<p><b>Всего вызвано контроллеров:</b> {$controllerCount + $cachedControllerCount}, из них из кэша: <b>{$cachedControllerCount}</b></p>
 	<br />
 	<p><b>Всего select запросов к БД:</b> {$selectQueryCount}, из них из кэша: <b>{$cachedSelectQueryCount}</b>,
 		за <b>{$selectQueryTime + $lowQueryTime} с.</b></p>
@@ -80,6 +80,7 @@
 					<p>Выполнено запросов не из кэша: {$session.logs[0].args[1]}</p>
 					<p>Затраты памяти: {$session.logs[0].args[2]/1024/1024}/{$maxMemory}</p>
 					<p>Время рендеринга: {$session.logs[0].args[3]} с.</p>
+                    <p>Обращений get к redis: {$session.logs[0].args[4]} с.</p>
 				</li>
 			{/if}
 		{/foreach}

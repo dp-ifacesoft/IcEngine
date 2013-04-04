@@ -313,6 +313,66 @@ class Tracer
 	public static $stack = array();
 
     /**
+     * Время выполнения стратегии фронт контроллера
+     * 
+     * @var integer 
+     */
+    protected static $controllerFrontStrategyTime;
+    
+    /**
+     * Дельта количество get-запросов к редису
+     * 
+     * @var integer
+     */
+    protected static $redisGetDelta;
+    
+    /**
+     * Инкрементировать количество дельта get-запросов к редису
+     */
+    public static function incRedisGetDelta()
+    {
+        self::$redisGetDelta++;
+    }
+    
+    /**
+     * Сбросить количество дельта get-запросов к редису
+     */
+    public static function resetRedisGetDelta()
+    {
+        self::$redisGetDelta = 0;
+    }
+    
+    /**
+     * Получить количество дельта get-запросов к редису
+     * 
+     * @return integer 
+     */
+    public static function getRedisGetDelta()
+    {
+        return self::$redisGetDelta;
+    }
+    
+    /**
+     * Изменить время выполнения стратегии фронт контроллера
+     * 
+     * @param integer $time
+     */
+    public static function setControllerFrontStrategyTime($time)
+    {
+        self::$controllerFrontStrategyTime = $time;
+    }
+    
+    /**
+     * Получить время выполнения стратегии фронт контроллера
+     * 
+     * @return integer 
+     */
+    public static function getControllerFrontStategyTime()
+    {
+        return self::$controllerFrontStrategyTime;
+    }
+    
+    /**
      * Добавить запрос в вектор
      * 
      * @param string $query

@@ -76,7 +76,9 @@ class Controller_Tracer extends Controller_Abstract
             'allQueryVector'                => Tracer::getAllQueryVector(),
             'models'                        => $resourceManager->getByType(
                 'Model'
-            )
+            ),
+            'controllerFrontStrategyTime'   => 
+                Tracer::getControllerFrontStrategyTime()
 		));
 	}
 }
