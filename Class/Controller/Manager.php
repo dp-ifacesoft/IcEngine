@@ -287,8 +287,8 @@ class Controller_Manager extends Manager_Abstract
         }
 		$controller
 			->setInput($lastInput)
-			->setOutput($lastOutput);
-			//->setTask($lastTask);
+			->setOutput($lastOutput)
+			->setTask($lastTask);
 		if (Tracer::$enabled && !$notLogging) {
 			$deltaModelCount = Tracer::getDeltaModelCount();
 			$deltaQueryCount = Tracer::getDeltaQueryCount();
