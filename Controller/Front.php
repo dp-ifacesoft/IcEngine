@@ -45,7 +45,9 @@ class Controller_Front extends Controller_Abstract
             );
             $controllerManager = $this->getService('controllerManager');
 			// Создаем задания для выполнения. В них отдает входные данные.
-			$tasks = $controllerManager->createTasks($actions, $this->getInput());
+			$tasks = $controllerManager->createTasks(
+                $actions, $this->getInput()
+            );
 			if (Tracer::$enabled) {
 				$endTime = microtime(true);
 				Tracer::setDispatcherTime($endTime - $startTime);
@@ -53,6 +55,10 @@ class Controller_Front extends Controller_Abstract
 			// Выполненяем задания
 			$resultTasks = $controllerManager->runTasks($tasks);
 			$this->output->send('tasks', $resultTasks);
+            if (Tracer::$enabled) {
+				$endTime = microtime(true);
+				Tracer::setFrontControllerTime($endTime - $subStartTime);
+			}
 		} catch (Exception $e) {
             Error::render($e);
 		}

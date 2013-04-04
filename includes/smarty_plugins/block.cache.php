@@ -34,6 +34,12 @@ function smarty_block_cache($params, $content, $smarty, &$repeat)
         }
     }
     if (!$notCache) {
+        $helperSiteLocation = $serviceLocator->getService('helperSiteLocation');
+        if (!$helperSiteLocation->get('enabledBlockCache')) {
+            $notCache = true;
+        }
+    }
+    if (!$notCache) {
         $user = $serviceLocator->getService('user')->getCurrent();
         if ($user->key()) {
             $notCache = $user->hasRole('editor');

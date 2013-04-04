@@ -224,6 +224,7 @@ class Controller_Manager extends Manager_Abstract
 		if (Tracer::$enabled && !$notLogging) {
 			Tracer::resetDeltaModelCount();
 			Tracer::resetDeltaQueryCount();
+            Tracer::resetRedisGetDelta();
 			Tracer::begin(
                 __CLASS__, __METHOD__, __LINE__, $controllerName, $actionName
             );
@@ -290,9 +291,10 @@ class Controller_Manager extends Manager_Abstract
 		if (Tracer::$enabled && !$notLogging) {
 			$deltaModelCount = Tracer::getDeltaModelCount();
 			$deltaQueryCount = Tracer::getDeltaQueryCount();
+            $deltaRedisGet = Tracer::getRedisGetDelta();
 			Tracer::incControllerCount();
 			Tracer::end($deltaModelCount, $deltaQueryCount,
-				memory_get_usage(), 0);
+				memory_get_usage(), 0, $deltaRedisGet);
 		}
 		return $task;
 	}
@@ -683,6 +685,7 @@ class Controller_Manager extends Manager_Abstract
 		if (Tracer::$enabled) {
 			Tracer::resetDeltaModelCount();
 			Tracer::resetDeltaQueryCount();
+            Tracer::resetRedisGetDelta();
 			Tracer::begin(
                 __CLASS__, __METHOD__, __LINE__,
                 $controllerAction[0], $controllerAction[1]
@@ -708,11 +711,12 @@ class Controller_Manager extends Manager_Abstract
             $endTime = microtime(true);
 			$deltaModelCount = Tracer::getDeltaModelCount();
 			$deltaQueryCount = Tracer::getDeltaQueryCount();
+            $deltaRedisGet = Tracer::getRedisGetDelta();
 			$delta = $endTime - $startTime;
 			Tracer::incRenderTime($delta);
 			Tracer::incControllerCount();
 			Tracer::end($deltaModelCount, $deltaQueryCount, memory_get_usage(),
-				$delta);
+				$delta, $deltaRedisGet);
 		}
 		if (!empty($options['with_buffer'])) {
 			$options = array('full_result' => true);

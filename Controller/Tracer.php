@@ -66,8 +66,6 @@ class Controller_Tracer extends Controller_Abstract
                 Tracer::getBootstrapInitModelSchemeTime(),
 			'bootstrapInitModelManager'		=> 
                 Tracer::getBootstrapInitModelManagerTime(),
-			'bootstrapInitAcl'				=> 
-                Tracer::getBootstrapInitAclTime(),
 			'bootstrapInitUser'				=> 
                 Tracer::getBootstrapInitUserTime(),
 			'bootstrapInitUserSession'		=> 
@@ -76,7 +74,11 @@ class Controller_Tracer extends Controller_Abstract
             'allQueryVector'                => Tracer::getAllQueryVector(),
             'models'                        => $resourceManager->getByType(
                 'Model'
-            )
+            ),
+            'controllerFrontStrategyTime'   => 
+                Tracer::getControllerFrontStrategyTime(),
+            'bootstrapInitModuleManagerTime'    => 
+                Tracer::getBootstrapModuleManagerInitTime()
 		));
 	}
 }

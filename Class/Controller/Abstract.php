@@ -212,7 +212,7 @@ class Controller_Abstract
             $controller = $other;
 			$controller->setInput($this->input);
 			$controller->setOutput($this->output);
-			$controller->setTask($this->task);
+			//$controller->setTask($this->task);
 		} else {
             $controller = $this;
         }
@@ -234,7 +234,7 @@ class Controller_Abstract
             }
         }
         $reflection->invokeArgs($controller, $resultParams);
-        $this->task->setTemplate(
+        $controller->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller->name()) . 
                 '/' . $action
 		);
