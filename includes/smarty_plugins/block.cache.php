@@ -33,12 +33,7 @@ function smarty_block_cache($params, $content, $smarty, &$repeat)
             }
         }
     }
-    if (!$notCache) {
-        $user = $serviceLocator->getService('user')->getCurrent();
-        if ($user->key()) {
-            $notCache = $user->hasRole('editor');
-        }
-    }
+    
     $time = time();
     $provider = $dataProviderManager->get('Block');
     if (!$content && !$notCache && $expiration) {
