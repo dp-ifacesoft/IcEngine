@@ -15,6 +15,7 @@
 	<p><b>Время роутинга:</b> {$routingTime} с.</p>
 	<p><b>Время бутстрапинга:</b> {$bootstrapTime} c. </p>
 	<ul>
+        <li>Инициализация менеджера модулей: {$bootstrapInitModuleManager} с.</li>
 		<li>Инициализация БД: {$bootstrapInitDb} с.</li>
 		<li>Инициализация менеджера атрибутов: {$bootstrapInitAttributeManager} с.</li>
 		<li>Инициализация схемы моделей: {$bootstrapInitModelScheme} с. </li>
@@ -80,7 +81,7 @@
 					<p>Выполнено запросов не из кэша: {$session.logs[0].args[1]}</p>
 					<p>Затраты памяти: {$session.logs[0].args[2]/1024/1024}/{$maxMemory}</p>
 					<p>Время рендеринга: {$session.logs[0].args[3]} с.</p>
-                    <p>Обращений get к redis: {$session.logs[0].args[4]} с.</p>
+                    <p>Обращений get к redis: {$session.logs[0].args[4]}</p>
 				</li>
 			{/if}
 		{/foreach}

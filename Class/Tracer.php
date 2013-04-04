@@ -327,6 +327,33 @@ class Tracer
     protected static $redisGetDelta;
     
     /**
+     * Время инициализация менеджера модулей
+     * 
+     * @var integer 
+     */
+    protected static $boostrapInitModuleManagerTime;
+    
+    /**
+     * Получить время инициализация менеджера модулей
+     * 
+     * @return integer 
+     */
+    public static function getBootstrapModuleManagerInitTime()
+    {
+        return self::$boostrapInitModuleManagerTime;
+    }
+    
+    /**
+     * Изменить время инициализация менеджера модулей
+     * 
+     * @param integer $time
+     */
+    public static function setBoostrapModuleManagerInitTime($time)
+    {
+        self::$boostrapInitModuleManagerTime = $time;
+    }
+    
+    /**
      * Инкрементировать количество дельта get-запросов к редису
      */
     public static function incRedisGetDelta()
