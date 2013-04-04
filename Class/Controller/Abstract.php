@@ -198,12 +198,8 @@ class Controller_Abstract
             $controllerManager = $this->getService('controllerManager');
 			$other = $controllerManager->get($controller);
 		}
-        $controllerAction = implode(
-            '/', $this->task->controllerAction()
-        );
-        $this->input->send(array(
-            'origin'    => $controllerAction
-        ));
+        $controllerAction = implode('/', $this->task->controllerAction());
+        $this->input->send(array('origin' => $controllerAction));
         $eventManager = $this->getService('eventManager');
         $signal = $eventManager->getSignal($controllerAction);
         $slot = $eventManager->getSlot('Controller_After');
@@ -241,8 +237,7 @@ class Controller_Abstract
             }
         }
         $args = array_merge(
-            $controller->getTask()->getContext()->getArgs(),
-            $resultParams
+            $controller->getTask()->getContext()->getArgs(), $resultParams
         );
         $controller->getTask()->getContext()->setArgs($args);
         $reflection->invokeArgs($controller, $resultParams);
