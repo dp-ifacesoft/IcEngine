@@ -78,7 +78,7 @@ class Controller_Tracer extends Controller_Abstract
             'controllerFrontStrategyTime'   => 
                 Tracer::getControllerFrontStrategyTime(),
             'bootstrapInitModuleManagerTime'    => 
-                Tracer::getBootstrapInitModelManagerTime()
+                Tracer::getBootstrapModuleManagerInitTime()
 		));
 	}
 }
