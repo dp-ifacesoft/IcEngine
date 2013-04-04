@@ -3,7 +3,7 @@
 /**
  * Объект для хранения списка страниц.
  *
- * @author Юрий Шведов, neon
+ * @author goorus, neon
  * @package IcEngine
  * @Service("paginator", disableConstruct=true)
  */
