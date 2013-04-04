@@ -66,8 +66,6 @@ class Controller_Tracer extends Controller_Abstract
                 Tracer::getBootstrapInitModelSchemeTime(),
 			'bootstrapInitModelManager'		=> 
                 Tracer::getBootstrapInitModelManagerTime(),
-			'bootstrapInitAcl'				=> 
-                Tracer::getBootstrapInitAclTime(),
 			'bootstrapInitUser'				=> 
                 Tracer::getBootstrapInitUserTime(),
 			'bootstrapInitUserSession'		=> 
