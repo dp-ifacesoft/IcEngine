@@ -67,7 +67,7 @@ class Service_State
             }
         } elseif (is_array($this->instanceCallback)) {
             $result = call_user_func_array(
-                $this->instanceCallback[0], $this->instanceCallback[1]
+                $this->instanceCallback[0][0], $this->instanceCallback[0][1]
             );
             if ($this->object) {
                 $this->object = $result;
