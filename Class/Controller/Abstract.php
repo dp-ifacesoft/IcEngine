@@ -234,7 +234,7 @@ class Controller_Abstract
             }
         }
         $reflection->invokeArgs($controller, $resultParams);
-        $this->task->setTemplate(
+        $controller->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller->name()) . 
                 '/' . $action
 		);
