@@ -367,7 +367,7 @@ class Tracer
      * 
      * @return integer 
      */
-    public static function getControllerFrontStategyTime()
+    public static function getControllerFrontStrategyTime()
     {
         return self::$controllerFrontStrategyTime;
     }
