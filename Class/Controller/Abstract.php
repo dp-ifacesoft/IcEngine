@@ -240,7 +240,11 @@ class Controller_Abstract
                 $resultParams[$param->name] = $value;
             }
         }
-        $controller->getTask()->getContext()->setArgs($resultParams);
+        $args = array_merge(
+            $controller->getTask()->getContext()->getArgs(),
+            $resultParams
+        );
+        $controller->getTask()->getContext()->setArgs($args);
         //$reflection->invokeArgs($controller, $resultParams);
         $controller->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller->name()) . 
