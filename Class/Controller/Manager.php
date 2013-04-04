@@ -282,13 +282,13 @@ class Controller_Manager extends Manager_Abstract
             $task->setTransaction($lastTransaction);
             $this->eventManager()->notify(
                 $controller->getName() . '/' . $actionName,
-                array('task'  => $task)
+                array('task' => $task)
             );
         }
 		$controller
 			->setInput($lastInput)
-			->setOutput($lastOutput)
-			->setTask($lastTask);
+			->setOutput($lastOutput);
+			//->setTask($lastTask);
 		if (Tracer::$enabled && !$notLogging) {
 			$deltaModelCount = Tracer::getDeltaModelCount();
 			$deltaQueryCount = Tracer::getDeltaQueryCount();
