@@ -245,6 +245,7 @@ class Controller_Abstract
 			'Controller/' . str_replace('_', '/', $controller->name()) . 
                 '/' . $action
 		);
+        $this->getTask()->setTemplate($controller->getTask()->getTemplate());
 	}
 
 	/**
