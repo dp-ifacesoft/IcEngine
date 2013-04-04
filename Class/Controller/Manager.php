@@ -265,6 +265,7 @@ class Controller_Manager extends Manager_Abstract
         // Создает контекст вызова контроллера, отдаем его before-делегатам
         // менеджера контроллеров.
         $context = $this->createControllerContext($controller, $actionName);
+        $task->setContext($context);
         $delegees = $config->delegees;
         if ($delegees) {
             foreach ($delegees as $delegeeName) {

@@ -21,6 +21,13 @@ class Controller_Task
      */
     protected $callable;
     
+    /**
+     * Контекст выполнения контроллера
+     * 
+     * @var ControllerContext
+     */
+    protected $context;
+    
 	/**
 	 * Действие контроллера
      *
@@ -130,6 +137,16 @@ class Controller_Task
     {
         return $this->callable;
     }
+    
+    /**
+     * Получить контекст выполнения контроллера
+     * 
+     * @return ControllerContext
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
 
 	/**
 	 * Узнать игнорируется ли текущая задача
@@ -237,6 +254,16 @@ class Controller_Task
     public function setControllerAction($controllerAction)
     {
         $this->controllerAction = $controllerAction;
+    }
+    
+    /**
+     * Изменить контекст выполнения контроллера
+     * 
+     * @param ControllerContext $context
+     */
+    public function setContext($context)
+    {
+        $this->context = $context;
     }
     
 	/**
