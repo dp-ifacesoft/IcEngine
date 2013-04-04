@@ -218,6 +218,10 @@ class Controller_Abstract
 		} else {
             $controller = $this;
         }
+        $controller->getTask()->setControllerAction(array(
+            'controller'    => $controller->name(),
+            'action'        => $action
+        ));
         $reflection = new \ReflectionMethod($controller, $action);
         $params = $reflection->getParameters();
         $currentInput = $controller->getInput();
