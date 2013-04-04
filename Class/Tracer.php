@@ -348,7 +348,7 @@ class Tracer
      * 
      * @param integer $time
      */
-    public static function setBoostrapModuleManagerInitTime($time)
+    public static function setBootstrapModuleManagerInitTime($time)
     {
         self::$boostrapInitModuleManagerTime = $time;
     }
