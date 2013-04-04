@@ -15,7 +15,7 @@
 	<p><b>Время роутинга:</b> {$routingTime} с.</p>
 	<p><b>Время бутстрапинга:</b> {$bootstrapTime} c. </p>
 	<ul>
-        <li>Инициализация менеджера модулей: {$bootstrapInitModuleManager} с.</li>
+        <li>Инициализация менеджера модулей: {$bootstrapInitModuleManagerTime} с.</li>
 		<li>Инициализация БД: {$bootstrapInitDb} с.</li>
 		<li>Инициализация менеджера атрибутов: {$bootstrapInitAttributeManager} с.</li>
 		<li>Инициализация схемы моделей: {$bootstrapInitModelScheme} с. </li>
