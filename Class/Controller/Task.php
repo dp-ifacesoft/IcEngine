@@ -203,6 +203,18 @@ class Controller_Task
 		return $this->viewRender;
 	}
 
+    /**
+     * Изменить действие задачи
+     * 
+     * @param Controller_Abstract $controller
+     * @param string $actionName
+     */
+    public function setCallable($controller, $actionName)
+    {
+        $this->callable = array($controller, $actionName);
+    }
+    
+    
 	/**
      * Задать шаблон на основе названия класса
      *
@@ -216,16 +228,15 @@ class Controller_Task
 			str_replace(array('_', '::'), '/', $class) . $template
 		);
 	}
-
+    
     /**
-     * Изменить действие задачи
+     * Изменить результат диспетчеризации
      * 
-     * @param Controller_Abstract $controller
-     * @param string $actionName
+     * @param array $controllerAction
      */
-    public function setCallable($controller, $actionName)
+    public function setControllerAction($controllerAction)
     {
-        $this->callable = array($controller, $actionName);
+        $this->controllerAction = $controllerAction;
     }
     
 	/**
