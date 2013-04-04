@@ -245,7 +245,7 @@ class Controller_Abstract
             $resultParams
         );
         $controller->getTask()->getContext()->setArgs($args);
-        //$reflection->invokeArgs($controller, $resultParams);
+        $reflection->invokeArgs($controller, $resultParams);
         $controller->task->setTemplate(
 			'Controller/' . str_replace('_', '/', $controller->name()) . 
                 '/' . $action
