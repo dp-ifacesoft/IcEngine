@@ -176,7 +176,7 @@ class Module_Manager extends Manager_Abstract
         if ($config->fromModel) {
             $this->loadFromModel();
         } else {
-            $this->loadByNames((array) $config->modules);
+            $this->loadByNames($config->modules->__toArray());
         }
 	}
 
@@ -188,11 +188,7 @@ class Module_Manager extends Manager_Abstract
     public function loadByNames($names)
     {
         foreach ($names as $name) {
-			if (empty($name)) {
-				continue;
-			}
-            $moduleName = reset($name);
-			$this->addModule($moduleName);
+			$this->addModule($name);
 		}
     }
 

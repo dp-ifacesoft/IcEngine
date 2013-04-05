@@ -46,7 +46,7 @@ class Migration_Abstract extends Model
 			return;
 		}
 		$name = $this->getName ();
-		foreach ($last_log as $data)
+		foreach ($last_data as $data)
 		{
 			if ($data ['name'] == $name)
 			{
