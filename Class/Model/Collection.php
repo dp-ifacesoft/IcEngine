@@ -1519,4 +1519,44 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
 		return $this;
 	}
+    /**
+     * Вернуть Result вместо создания тучи объектов
+     *
+     * @param null|array|string $columns столбцы, которые попадут в выборку
+     * @return Query_Result
+     */
+
+    public function rawResult($columns = null)
+
+    {
+        $key_field = $this->keyField();
+        $query = clone $this->query();
+
+        if (!$columns) {
+            $query->select($this->table() . '.*');
+        } else {
+            $query->select((array)$columns);
+        }
+
+        $query->select(array($this->table() => $key_field));
+
+        $query->from($this->modelName());
+
+        if ($this->_paginator) {
+            $query->calcFoundRows();
+            $query->limit(
+                $this->_paginator->pageLimit,
+                $this->_paginator->offset());
+        }
+        $this->_options->executeBefore($query);
+        $this->_lastQuery = $query;
+
+        return DDS::execute($query)->getResult();
+    }
+
+    public function raw($colums = null)
+    {
+        return $this->rawResult($colums)->asTable();
+    }
+
 }
