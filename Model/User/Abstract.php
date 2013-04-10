@@ -205,7 +205,7 @@ class User_Abstract extends Model
         $roleNames = array();
         $roles = array();
         $args = $role;
-        if (count($role) == 1 && is_array($role[0])) {
+        if (is_array($role) && count($role) == 1 && is_array($role[0])) {
             $args = $role[0];
         }
 		foreach ((array) $args as $role) {
