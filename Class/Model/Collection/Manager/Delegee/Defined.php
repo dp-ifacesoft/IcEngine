@@ -21,6 +21,13 @@ class Model_Collection_Manager_Delegee_Defined
         $helperArray = $serviceLocator->getService('helperArray');
 		$modelName = $collection->modelName();
 		$rows = $modelName::$rows;
+        if (!$rows) {
+            $config = $serviceLocator->getService('configManager')
+                ->get($modelName);
+            if ($config && $config->rows) {
+                $rows = $config->rows->__toArray();
+            }
+        }
 		$where = $query->getPart(Query::WHERE);
 		$filter = array();
 		foreach ($where as $w) {
