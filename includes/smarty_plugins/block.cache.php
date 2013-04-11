@@ -1,12 +1,12 @@
 <?php
 /**
  * Блок для кэширования
- * 
+ *
  * @param array $params Параметры.
  * @param string $content Код шаблона.
  * @param Smarty $smarty Экземпляр смарти.
  * @param boolean $repeat
- * 
+ *
  * @tutorial
  * {cache key="someKey" param1="value1"}{/cache}
  */
@@ -26,7 +26,7 @@ function smarty_block_cache($params, $content, $smarty, &$repeat)
         $notCacheConfig = $blockConfig['notCache'];
         if ($notCacheConfig) {
             foreach ($notCacheConfig as $param => $value) {
-                if (isset($params[$param]) && $params[$param] === $value) {
+                if (isset($params[$param]) && $params[$param] == $value) {
                     $notCache = true;
                     break;
                 }
