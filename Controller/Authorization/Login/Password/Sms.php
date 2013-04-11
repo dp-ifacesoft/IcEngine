@@ -138,7 +138,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	public function sendSmsCode($provider, $name, $pass, $send)
 	{
         $modelManager = $this->getService('modelManager');
-        $this->task->setTemplate(null);
+//        $this->task->setTemplate(null);
         if (!$name || !$pass) {
             return $this->sendError('empty login or password');
         }
