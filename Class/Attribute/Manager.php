@@ -221,7 +221,9 @@ class Attribute_Manager extends Manager_Abstract
                 ->insert($table)
                 ->values($values);
             $source->execute($insertQuery);
-            $this->storeValue($model, $keyName, $keyValue);
+            if ($this->provider) {
+                $this->storeValue($model, $keyName, $keyValue);
+            }
         }
 	}
     

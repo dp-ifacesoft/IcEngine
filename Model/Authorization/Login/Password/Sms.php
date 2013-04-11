@@ -315,7 +315,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
                     ? $data['provider'] : $config['sms_provider']
             )
         );
-		$mailMessage = $this->getService('mail');
+		$mailMessage = $this->getService('mailMessage');
         $dto = $this->getService('dto')->newInstance('Mail_Message')
             ->setTemplate($config['sms_mail_template'])
             ->setAddress($user->phone)
