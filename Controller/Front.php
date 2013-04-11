@@ -34,26 +34,29 @@ class Controller_Front extends Controller_Abstract
                     return;
                 }
             }
-			/**
-			 * Начинаем цикл диспетчеризации и получаем список
-			 * выполняемых руот экшинов.
-			 */
-            $dispatcher = $this->getService('controllerDispatcher');
-            $routeActions = $route ? $route->actions : array();
-			$actions = $dispatcher->loop(
-                $this->task->getActions() ?: $routeActions
-            );
-            $controllerManager = $this->getService('controllerManager');
-			// Создаем задания для выполнения. В них отдает входные данные.
-			$tasks = $controllerManager->createTasks(
-                $actions, $this->getInput()
-            );
-			if (Tracer::$enabled) {
-				$endTime = microtime(true);
-				Tracer::setDispatcherTime($endTime - $startTime);
-			}
-			// Выполненяем задания
-			$resultTasks = $controllerManager->runTasks($tasks);
+            $resultTasks = array();
+            if (!$this->task->getIgnore()) {
+                /**
+                 * Начинаем цикл диспетчеризации и получаем список
+                 * выполняемых руот экшинов.
+                 */
+                $dispatcher = $this->getService('controllerDispatcher');
+                $routeActions = $route ? $route->actions : array();
+                $actions = $dispatcher->loop(
+                    $this->task->getActions() ?: $routeActions
+                );
+                $controllerManager = $this->getService('controllerManager');
+                // Создаем задания для выполнения. В них отдает входные данные.
+                $tasks = $controllerManager->createTasks(
+                    $actions, $this->getInput()
+                );
+                if (Tracer::$enabled) {
+                    $endTime = microtime(true);
+                    Tracer::setDispatcherTime($endTime - $startTime);
+                }
+                // Выполненяем задания
+                $resultTasks = $controllerManager->runTasks($tasks);
+            }
 			$this->output->send('tasks', $resultTasks);
             if (Tracer::$enabled) {
 				$endTime = microtime(true);
