@@ -20,7 +20,9 @@ class Controller_View_Resource extends Controller_Abstract
         $vars = array ();
 		if ($params) {
 			foreach ($params as $key => $value) {
-				$vars['{$' . $key . '}'] = $value;
+                if ($key != 'reses') {
+				    $vars['{$' . $key . '}'] = $value;
+                }
 			}
 		}
 		$moduleCollection = $context->collectionManager->create('Module');
@@ -45,6 +47,12 @@ class Controller_View_Resource extends Controller_Abstract
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = $module->path();
 			foreach ($config->targets as $targetName => $target) {
+                echo $targetName . '... ';
+                if (isset($params['reses']) && is_array($params['reses']) && !in_array($targetName, $params['reses'])) {
+                    echo "continue\n";
+                    continue;
+                }
+                echo "processed\n";
                 if ($type && $type != $target->type) {
                     continue;
                 }
@@ -63,11 +71,10 @@ class Controller_View_Resource extends Controller_Abstract
                             : $source->file->__toArray();
 					}
 
-//                    var_dump($source);
 					foreach ($sourceFiles as $filename) {
                         $filename = strtr($filename, $vars);
                         $loadedResources = $context->viewResourceManager->load(
-                            '/', $sourceDir, array($filename), 
+                            '/', $sourceDir, array($filename),
                             $target->type . $module->name
                         );
 						$resources = array_merge(
