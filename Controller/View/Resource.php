@@ -47,18 +47,18 @@ class Controller_View_Resource extends Controller_Abstract
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = $module->path();
 			foreach ($config->targets as $targetName => $target) {
-                echo $targetName . '... ';
+
                 if (isset($params['reses']) && is_array($params['reses']) && !in_array($targetName, $params['reses'])) {
-                    echo "continue\n";
                     continue;
                 }
-                echo "processed\n";
+
                 if ($type && $type != $target->type) {
                     continue;
                 }
                 if ($name && $name != $targetName) {
                     continue;
                 }
+                echo $targetName . "... processed\n";
 				$resources = array();
 				foreach ($target->sources as $source) {
 					if (is_string($source)) {
@@ -100,7 +100,8 @@ class Controller_View_Resource extends Controller_Abstract
 				}
 				$destinationFile = strtr($target->file, $vars);
 				$packer->pushConfig($packerConfig);
-				$packer->pack(
+//				var_dump($packer);
+                $packer->pack(
                     $resultResources, $destinationFile, $packerConfig, true
                 );
 				$packer->popConfig();

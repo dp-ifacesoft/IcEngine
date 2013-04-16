@@ -109,15 +109,16 @@ class View_Resource_Manager extends Manager_Abstract
 		$baseDirFiltered = str_replace('\\', '/', $baseDir);
 		$baseDir = rtrim($baseDirFiltered, '/') . '/';
         $baseUrl = $baseUrl ?: $baseDir;
+        $loaded = array();
 		foreach ($dirs as $pattern) {
             $results = $this->loadWithPattern($pattern, $baseDir, $baseUrl);
             if ($results) {
                 foreach ($results as $result) {
-                    $this->add($result['file'], $type, $result['options']);
+                    $loaded[] = $this->add($result['file'], $type, $result['options']);
                 }
             }
         }
-        return $this->getData($type);
+        return $loaded;
 	}
     
     /**
