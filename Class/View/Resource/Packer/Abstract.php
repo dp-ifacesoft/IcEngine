@@ -213,13 +213,12 @@ abstract class View_Resource_Packer_Abstract
 		}
 
 		foreach ($resources as $resource) {
-			if (!$resource->exclude) {
+            if (!$resource->exclude) {
 				$this->currentResource = $resource;
                 $package = $this->packOne($resource);
 				$noCompiledPackages[] = $package;
 			}
 		}
-
 		$packages = $this->compile($noCompiledPackages);
 		if ($config->charset_base != $config->charset_output) {
 			$packages = iconv(
