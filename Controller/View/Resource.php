@@ -28,6 +28,7 @@ class Controller_View_Resource extends Controller_Abstract
 		$moduleCollection = $context->collectionManager->create('Module');
         $configClassName = 'Controller_View_Resource';
         $moduleManager = $this->getService('moduleManager');
+        echo PHP_EOL;
 		foreach ($moduleCollection->items() as $module) {
             if (!$module->isMain && !$module->hasResource) {
                 continue;
@@ -58,7 +59,7 @@ class Controller_View_Resource extends Controller_Abstract
                 if ($name && $name != $targetName) {
                     continue;
                 }
-                echo $targetName . "... processed\n";
+                echo '  ' . $targetName . ' processed' . PHP_EOL;
 				$resources = array();
 				foreach ($target->sources as $source) {
 					if (is_string($source)) {
