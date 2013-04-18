@@ -39,7 +39,7 @@ class PaginatorTest extends PHPUnit_Framework_TestCase {
 		$_GET ['page'] = 2;
 		$_GET ['limit'] = 10;
 		
-		$p = Paginator::fromGet (1000);
+		$p = $this->getService('paginator')->fromGet (1000);
 		
 		$p->buildPages ();
 		
@@ -69,7 +69,7 @@ class PaginatorTest extends PHPUnit_Framework_TestCase {
 		
 		$_SERVER ['REQUEST_URI'] = '/index.php?show=1';
 		
-		$p = Paginator::fromGet (1000);
+		$p = $this->getService('paginator')->fromGet (1000);
 		
 		$p->buildPages ();
 		
@@ -82,25 +82,25 @@ class PaginatorTest extends PHPUnit_Framework_TestCase {
 	 * @todo Implement testFromGet().
 	 */
 	public function testFromGet() {
-		$p = Paginator::fromGet ();
+		$p = $this->getService('paginator')->fromGet ();
 		
 		$this->assertEquals (0, $p->getIndex ());
 		
 		$_GET ['page'] = 2;
 		
-		$p = Paginator::fromGet ();
+		$p = $this->getService('paginator')->fromGet ();
 		
 		$this->assertEquals ($p->pageLimit, $p->getIndex ());
 		
 		$_GET ['limit'] = 10;
 		
-		$p = Paginator::fromGet ();
+		$p = $this->getService('paginator')->fromGet ();
 		
 		$this->assertEquals (10, $p->getIndex ());
 		
 		$_GET ['page'] = 3;
 		
-		$p = Paginator::fromGet (100);
+		$p = $this->getService('paginator')->fromGet (100);
 		
 		$this->assertEquals (20, $p->getIndex ());
 	}
@@ -112,25 +112,25 @@ class PaginatorTest extends PHPUnit_Framework_TestCase {
 		$t = new Data_Transport ();
 		$t->appendProvider (new Data_Provider_Get ());
 		
-		$p = Paginator::fromInput ($t);
+		$p = $this->getService('paginator')->fromInput ($t);
 		
 		$this->assertEquals (0, $p->getIndex ());
 		
 		$_GET ['page'] = 2;
 		
-		$p = Paginator::fromInput ($t);
+		$p = $this->getService('paginator')->fromInput ($t);
 		
 		$this->assertEquals ($p->pageLimit, $p->getIndex ());
 		
 		$_GET ['limit'] = 10;
 		
-		$p = Paginator::fromInput ($t);
+		$p = $this->getService('paginator')->fromInput ($t);
 		
 		$this->assertEquals (10, $p->getIndex ());
 		
 		$_GET ['page'] = 3;
 		
-		$p = Paginator::fromInput ($t, 100);
+		$p = $this->getService('paginator')->fromInput ($t, 100);
 		
 		$this->assertEquals (20, $p->getIndex ());
 	}
@@ -173,27 +173,27 @@ class PaginatorTest extends PHPUnit_Framework_TestCase {
 	 * @todo Implement testPagesCount().
 	 */
 	public function testPagesCount() {
-		$p = Paginator::fromGet (100);
+		$p = $this->getService('paginator')->fromGet (100);
 		
 		$this->assertEquals ($p->pagesCount (), 4);
 		
 		$_GET ['limit'] = 10;
 		
-		$p = Paginator::fromGet (100);
+		$p = $this->getService('paginator')->fromGet (100);
 		
 		$this->assertEquals ($p->pagesCount (), 10);
 		
-		$p = Paginator::fromGet (1);
+		$p = $this->getService('paginator')->fromGet (1);
 		
 		$this->assertEquals ($p->pagesCount (), 1);
 		
-		$p = Paginator::fromGet (0);
+		$p = $this->getService('paginator')->fromGet (0);
 		
 		$this->assertEquals ($p->pagesCount (), 0);
 		
 		$_GET ['limit'] = 0;
 		
-		$p = Paginator::fromGet (0);
+		$p = $this->getService('paginator')->fromGet (0);
 		
 		$p->pageLimit = 0;
 		

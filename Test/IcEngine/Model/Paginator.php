@@ -19,7 +19,7 @@ class Test_Paginator extends PHPUnit_Framework_TestCase
 	protected function setUp ()
 	{
 		parent::setUp ();
-		// TODO Auto-generated Test_Paginator::setUp()
+		// TODO Auto-generated Test_$this->getService('paginator')->setUp()
 		$this->Paginator = new Paginator(/* parameters */);
 	}
 
@@ -28,7 +28,7 @@ class Test_Paginator extends PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown ()
 	{
-		// TODO Auto-generated Test_Paginator::tearDown()
+		// TODO Auto-generated Test_$this->getService('paginator')->tearDown()
 		$this->Paginator = null;
 		parent::tearDown ();
 	}
@@ -75,23 +75,23 @@ class Test_Paginator extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Tests Paginator::fromGet()
+	 * Tests $this->getService('paginator')->fromGet()
 	 */
 	public function testFromGet ()
 	{
-		// TODO Auto-generated Test_Paginator::testFromGet()
+		// TODO Auto-generated Test_$this->getService('paginator')->testFromGet()
 		$this->markTestIncomplete ("fromGet test not implemented");
-		Paginator::fromGet(/* parameters */);
+		$this->getService('paginator')->fromGet(/* parameters */);
 	}
 
 	/**
-	 * Tests Paginator::fromInput()
+	 * Tests $this->getService('paginator')->fromInput()
 	 */
 	public function testFromInput ()
 	{
-		// TODO Auto-generated Test_Paginator::testFromInput()
+		// TODO Auto-generated Test_$this->getService('paginator')->testFromInput()
 		$this->markTestIncomplete ("fromInput test not implemented");
-		Paginator::fromInput(/* parameters */);
+		$this->getService('paginator')->fromInput(/* parameters */);
 	}
 
 	/**
