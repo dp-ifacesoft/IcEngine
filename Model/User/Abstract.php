@@ -48,8 +48,8 @@ class User_Abstract extends Model
         ));
         $authorizationLog = $this->getService("authorizationLog");
         $authorizationLog->log();
-        $afterCallbackManager = $this->getService('afterCallbackManager');
-        $afterCallbackManager->apply();
+//        $afterCallbackManager = $this->getService('afterCallbackManager');
+//        $afterCallbackManager->apply();
 		return $this;
 	}
 
