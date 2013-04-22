@@ -189,7 +189,7 @@ class Loader
         } else {
             $filename = $this->findFile($file, $type);
         }
-        if ($filename) {
+        if (is_file($filename)) {
             if (!isset($this->required[$type])) {
                 $this->required[$type] = array();
             }
