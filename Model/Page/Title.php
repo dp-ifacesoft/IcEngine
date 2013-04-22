@@ -18,15 +18,84 @@
  * @package Vipgeo
  * @category Models
  * @copyright i-complex.ru
+ *
+ * @Service("pageTitle")
  */
 class Page_Title extends Model
 {
-	/**
+    /**
+     * @deprecated Выпилить. Оставил для совместимости. юзается в 32топ
+     *
+     * @desc Компиляция заголовка.
+     * @param string $field
+     * @return string
+     */
+    public function _compile ($field = 'title')
+    {
+        $vars = array();
+
+        if ($this->sfield ($field . 'Action'))
+        {
+            $a = explode ('/', $this->field ($field . 'Action'));
+            $task = $this->getService('controllerManager')->call (
+                $a [0],
+                isset ($a [1]) ? $a [1] : 'index',
+                $this->getService('request')->params ()
+            );
+
+            $vars = $this->variable($task->getTransaction ()->buffer ());
+        }
+
+        $keys = array_keys ($vars);
+        $vals = array_values ($vars);
+
+        foreach ($keys as &$key)
+        {
+            $key = '{$' . $key . '}';
+        }
+
+        return str_replace (
+            $keys,
+            $vals,
+            $this->$field
+        );
+    }
+
+    /**
+     *
+     * @deprecated Выпилить. Оставил для совместимости. юзается в 32топ
+     *
+     * @desc Получение или установка значения.
+     * @param string|array $key Ключ или массв пар ключ-значение.
+     * @internal param mixed $value [optional] Значение.
+     * @return mixed Если передан только ключ, возвращает значение, иначе null.
+     */
+    public static function variable ($key)
+    {
+        $vars = array();
+
+        if (func_num_args () > 1)
+        {
+            $vars [$key] = func_get_arg (1);
+        }
+        elseif (is_array ($key))
+        {
+            $vars = array_merge (
+                $vars,
+                $key
+            );
+        }
+
+        return $vars;
+    }
+
+    /**
 	 * Получить тайтл по городу и урлу
 	 *
 	 * @param string $cityId
 	 * @param string $uri
-	 */
+     * @return null
+     */
 	public function byAddress($cityId, $uri)
 	{
         $modelManager = $this->getService('modelManager');

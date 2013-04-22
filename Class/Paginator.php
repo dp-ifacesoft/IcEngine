@@ -247,8 +247,8 @@ class Paginator
 		if ($this->perPage > 0) {
 			if ($this->total) {
 				return ceil($this->total / $this->perPage);
-			} elseif (isset($this->fullCount)) {
-				return ceil($this->fullCount / $this->perPage);
+			} elseif (isset($this->total)) {
+				return ceil($this->total / $this->perPage);
 			} else {
 				return 1;
 			}

@@ -21,6 +21,13 @@ class Data_Mapper_Defined extends Data_Mapper_Abstract
         }
         $modelName = reset($from)[Query::TABLE];
         $rows = $modelName::$rows;
+        if (!$rows) {
+            $config = $serviceLocator->getService('configManager')
+                ->get($modelName);
+            if ($config && $config->rows) {
+                $rows = $config->rows->__toArray();
+            }
+        }
         $where = $query->getPart(Query::WHERE);
         if ($where) {
             $criteria = array();

@@ -12,7 +12,7 @@ class Data_Provider_Apc extends Data_Provider_Abstract
      */
     public function get($key, $plain = false)
     {
-        return apc_fetch($key);
+        return apc_fetch($this->prefix . $key);
     }
     
     /**
@@ -20,6 +20,6 @@ class Data_Provider_Apc extends Data_Provider_Abstract
      */
     public function set($key, $value, $expiration = 0, $tags = array())
     {
-        apc_store($key, $value);
+        apc_store($this->prefix . $key, $value);
     }
 }

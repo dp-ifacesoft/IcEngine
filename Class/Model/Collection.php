@@ -134,7 +134,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		} elseif (is_array($item)) {
 			$this->items[] = &$item;
 		} else {
-			throw new Model_Exception('Model add error');
+			throw new Exception('Model add error');
 		}
 		return $this;
 	}

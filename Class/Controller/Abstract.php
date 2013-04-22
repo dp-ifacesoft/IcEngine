@@ -50,17 +50,17 @@ class Controller_Abstract
 	 */
 	protected $config = array();
 
-	/**
-	 * Завершение работы контроллера ошибкой
+    /**
+     * Завершение работы контроллера ошибкой
      *
-	 * @param string $text Текст ошибки. Не отображается пользователю,
-	 * виден в консоли отладки.
-	 * @param string $method Экшен, в котором произошла ошибка (__METHOD__)
-	 * или шаблон (в этому случае метод будет взять из _currentAction).
-	 * Необходим для определения шаблона. Если не передан, будет
-	 * взято из $text.
-	 * @param string $tpl [optional] Шаблон.
-	 */
+     * @param string $text Текст ошибки. Не отображается пользователю,
+     * виден в консоли отладки.
+     * @param string $method Экшен, в котором произошла ошибка (__METHOD__)
+     * или шаблон (в этому случае метод будет взять из _currentAction).
+     * Необходим для определения шаблона. Если не передан, будет
+     * взято из $text.
+     * @param bool|string $tpl [optional] Шаблон.
+     */
 	protected function sendError($text, $method = null, $tpl = false)
 	{
 		$this->output->send(array(

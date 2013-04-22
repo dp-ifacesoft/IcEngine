@@ -211,10 +211,12 @@ abstract class View_Resource_Packer_Abstract
 		if ($this->cacheValid($resources, $resultFile) && !$notForceRepack) {
 			return true;
 		}
+
 		foreach ($resources as $resource) {
-			if (!$resource->exclude) {
+            if (!$resource->exclude) {
 				$this->currentResource = $resource;
-				$noCompiledPackages[] = $this->packOne($resource);
+                $package = $this->packOne($resource);
+				$noCompiledPackages[] = $package;
 			}
 		}
 		$packages = $this->compile($noCompiledPackages);
@@ -223,6 +225,7 @@ abstract class View_Resource_Packer_Abstract
 				$config->charset_base, $config->charset_output, $packages
 			);
 		}
+
 		if ($resultFile) {
 			$this->saveValidState($resources, $resultFile);
 			return file_put_contents($resultFile, $packages);

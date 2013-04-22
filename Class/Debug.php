@@ -275,15 +275,16 @@ class Debug
         $locator = IcEngine::serviceLocator();
         $debugService = $locator->getService('debug');
 		$debugService->log($log_text, $errno);
-		if ($errno == E_ERROR || $errno == E_USER_ERROR) {
+        echo "<b>Terminated on fatal error.</b><br />" . str_replace("\n", "<br/>\n", $log_text);
+        if ($errno == E_ERROR || $errno == E_USER_ERROR) {
             if (self::$config ['die_on_error']) {
-                die("<b>Terminated on fatal error.</b><br />" .
-                    str_replace("\n", "<br/>\n", $log_text));
+                exit;
             } else {
                 throw new Exception($log_text);
             }
-		}
-		return true;
+        }
+//        throw  new ErrorException($errstr, $errno, 0, $errfile, $errline);
+        return true;
 	}
 
 	/**

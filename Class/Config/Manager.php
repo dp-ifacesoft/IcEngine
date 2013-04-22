@@ -148,18 +148,16 @@ class Config_Manager
 			if (is_file($filename)) {
 				$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
 				$className = 'Config_' . $ext;
-				if (is_null($result)) {
-					$result = new $className($filename);
-				} else {
-					$result = $result->merge(new $className($filename));
-				}
-			} else {
-				$result = $this->emptyConfig();
-			}
-			if ($result) {
-				return is_array($config) ? $result->merge($config) : $result;
+				$result = new $className($filename);
+                break;
 			}
 		}
+        if (is_null($result)) {
+            $result = $this->emptyConfig();
+        }
+
+        return is_array($config) ?
+            $result->merge($config) : $result;
 	}
 
 	/**

@@ -93,7 +93,7 @@ class Helper_Translit extends Helper_Abstract
 	public function translit($text, $lang = null, $strategyName = "Default")
 	{
         $this->setStrategy($strategyName);
-        return $this->getStrategy()->translit($text);
+        return $this->getStrategy()->translit($text, $lang);
 	}
 
 	/**

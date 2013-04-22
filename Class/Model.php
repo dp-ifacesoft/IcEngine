@@ -356,7 +356,7 @@ abstract class Model implements ArrayAccess
         $collection = $collectionManager->create($modelName)
             ->addOptions(array(
                 'name'  => '::External',
-                'table' => $this->table(),
+                'model' => $this->modelName(),
                 'id'    => $this->key()
             ));
 		return !is_null($index) ? $collection->item($index) : $collection;

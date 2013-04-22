@@ -11,3 +11,4 @@ syntax: glob
 
 nbproject/
 Model/newEmptyPHP.php
+.idea/**

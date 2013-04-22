@@ -86,7 +86,7 @@ class Module_Manager extends Manager_Abstract
                 ltrim($selfConfig->configPath, '/');
         }
         if (!empty($configPath) && $configPath[0] != '/') {
-            $configPath = IcEngine::root() . ltrim($configPath, '/');
+            $configPath = ltrim($configPath, '/');
         }
         $configManager = $this->getService('configManager');
         if ($configPath) {
@@ -94,7 +94,7 @@ class Module_Manager extends Manager_Abstract
         }
         if ($moduleName != $selfConfig->defaultModule) {
             $configManager->addPath(
-                IcEngine::root() . $selfConfig->defaultModule .
+                $selfConfig->defaultModule .
                 '/Config/Module/' . $moduleName . '/'
             );
         }
@@ -132,17 +132,17 @@ class Module_Manager extends Manager_Abstract
      * @param string $name
      * @author morph
      */
-    public function getConfig($moduleName, $configName = 'Index')
+    public function getConfig($moduleName, $className = 'Index')
     {
-        $configName = str_replace('_', '/', $configName);
-        $resourceKey = $this->resourceKey($moduleName, $configName);
+        $className = str_replace('_', '/', $className);
+        $resourceKey = $this->resourceKey($moduleName, $className);
         $resourceManager = $this->getService('resourceManager');
         $tryConfig = $resourceManager->get('Config', $resourceKey);
         if ($tryConfig) {
             return $tryConfig;
         }
         $baseConfigFile = IcEngine::root() . $moduleName . '/Config/' .
-            $configName . '.php';
+            $className . '.php';
         $selfConfig = $this->config();
         $defaultModule = $selfConfig->defaultModule;
         $resultConfig = array();
@@ -176,7 +176,7 @@ class Module_Manager extends Manager_Abstract
         if ($config->fromModel) {
             $this->loadFromModel();
         } else {
-            $this->loadByNames((array) $config->modules);
+            $this->loadByNames($config->modules->__toArray());
         }
 	}
 
@@ -188,11 +188,7 @@ class Module_Manager extends Manager_Abstract
     public function loadByNames($names)
     {
         foreach ($names as $name) {
-			if (empty($name)) {
-				continue;
-			}
-            $moduleName = reset($name);
-			$this->addModule($moduleName);
+			$this->addModule($name);
 		}
     }
 

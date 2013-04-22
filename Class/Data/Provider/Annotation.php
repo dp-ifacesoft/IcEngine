@@ -12,7 +12,7 @@ class Data_Provider_Annotation extends Data_Provider_Abstract
      *
      * @var string
      */
-    protected $path;
+    protected $path = 'Ice/Var/Annotation/';
 
     /**
 	 * @inheritdoc

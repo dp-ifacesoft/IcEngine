@@ -107,7 +107,7 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 		$this->_output->send (array (
 			'contents'	=> $contents,
 			'data'		=> array (
-				'full_count'	=> $paginator->fullCount
+				'full_count'	=> $paginator->total
 			)
 		));
 	}
@@ -125,7 +125,7 @@ class Controller_Admin_Content_Category extends Controller_Abstract
 		$categories = Model_Collection_Manager::create ('Content_Category')
 			->addOptions ('Root');
 
-		//$categories->setPaginator (Paginator::fromInput ($this->_input));
+		//$categories->setPaginator ($this->getService('paginator')->fromInput ($this->_input));
 
 		$this->_output->send (array (
 			'categories'	=> $categories,
