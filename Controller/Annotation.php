@@ -71,7 +71,7 @@ class Controller_Annotation extends Controller_Abstract
                 continue;
             }
             ob_start();
-            system('find ' . $path . '** | grep .php');
+            system('find ' . $path . '** | grep -e "\.php$"');
             $content = ob_get_contents();
             ob_end_clean();
             $files = explode(PHP_EOL, $content);
