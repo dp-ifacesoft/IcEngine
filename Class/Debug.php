@@ -283,7 +283,6 @@ class Debug
             }
         }
 //        throw  new ErrorException($errstr, $errno, 0, $errfile, $errline);
-        die();
         return true;
 	}
 
