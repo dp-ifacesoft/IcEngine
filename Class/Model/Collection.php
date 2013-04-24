@@ -561,6 +561,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function load($columns = array())
 	{
+            if (is_array($this->items)) {
+                return $this;
+            }
 		$this->beforeLoad($columns);
         $query = $this->lastQuery;
         $collectionManager = $this->getService('collectionManager');
