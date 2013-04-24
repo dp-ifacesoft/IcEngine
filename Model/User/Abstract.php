@@ -137,7 +137,7 @@ class User_Abstract extends Model
 	 */
 	public function getCurrent()
 	{
-		return $this->current;
+        return $this->current;
 	}
 
     /**
@@ -193,13 +193,12 @@ class User_Abstract extends Model
 		return $this->authorized() && ($this->id() == $this->key());
 	}
 
-	/**
-	 * Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
-	 *
-     * @param Acl_Role|string $role Роль или название роли
-	 * @param $_
-	 * @return boolean Имеет ли пользователь роль.
-	 */
+    /**
+     * Проверяет, имеет ли пользователь хотя бы одну из указанных ролей.
+     *
+     * @param Acl_Role|string $role Роль или название р оли
+     * @return boolean Имеет ли пользователь роль.
+     */
 	public function hasRole($role)
 	{
         $roleNames = array();
@@ -272,13 +271,14 @@ class User_Abstract extends Model
         return $roleExists;
 	}
 
-	/**
-	 * Инициализация пользователя.
-	 * Создание моделей сессии и пользователя.
-	 *
-     * @param string $session_id Идентификатор сессии.
-	 * @return User Пользователь.
-	 */
+    /**
+     * Инициализация пользователя.
+     * Создание моделей сессии и пользователя.
+     *
+     * @param null $sessionId
+     * @internal param string $session_id Идентификатор сессии.
+     * @return User Пользователь.
+     */
 	public function init($sessionId = null)
 	{
         if ($this->current) {

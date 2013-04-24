@@ -63,13 +63,13 @@ class Model_Manager extends Manager_Abstract
         return $model;
 	}
 
-	/**
-	 * Получение модели по опциям
+    /**
+     * Получение модели по опциям
      *
-	 * @param string $modelName Название модели.
-	 * @param mixed $_ [optional]
-	 * @return Model|null
-	 */
+     * @param string $modelName Название модели.
+     * @internal param mixed $_ [optional]
+     * @return Model|null
+     */
 	public function byOptions($modelName)
 	{
         $collectionManager = $this->getService('collectionManager');
@@ -265,7 +265,7 @@ class Model_Manager extends Manager_Abstract
 			$fieldName = trim(strtr($key, $filters));
 			$whereFieldsPrepared[$fieldName] = $whereField;
 		}
-		$model = $this->create($modelName);
+		$model = $this->modelManager->create($modelName);
         $model->set($whereFieldsPrepared);
 		$this->getService('unitOfWork')->push($query, $model, 'Simple');
 		return $model;
