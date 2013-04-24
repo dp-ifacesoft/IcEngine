@@ -769,6 +769,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             );
         }
         if ($this->rawFields) {
+            print_r($this->rawFields);
             foreach ($this->items as $item) {
                 $subColumns = $helperArray->column(
                     array((array) $item['data']), (array) $this->rawFields
