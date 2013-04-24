@@ -759,7 +759,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
             $data = (array) $item['data'];
             foreach (array_keys($data) as $fieldName) {
-                if (in_array($fieldName, $this->rawFields)) {
+                if (in_array($fieldName, (array) $this->rawFields)) {
                     unset($data[$fieldName]);
                 }
             }
