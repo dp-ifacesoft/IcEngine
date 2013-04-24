@@ -567,6 +567,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function load($columns = array())
 	{
+            if (is_array($this->items)) {
+                return $this;
+            }
 		$this->beforeLoad($columns);
         $query = $this->lastQuery;
         $collectionManager = $this->getService('collectionManager');
@@ -712,7 +715,17 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 $this, $this->lastQuery
             );
             if ($pack) {
-                $this->items = $pack['items'];
+                $addicts = $this->data('addicts');
+                if ($addicts) {
+                    $this->items = array();
+                    foreach ($pack['items'] as $i => $item) {
+                        $item = array_merge($item, $addicts[$i]);
+                        $this->items[] = $item;
+                        $this->rawFields = array_keys($addicts[$i]);
+                    }
+                } else {
+                    $this->items = $pack['items'];
+                }
             }
             foreach ($this->items as $key => $data) {
                 $this->items[$key]['data'] = new ArrayIterator(

@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 * Rivest/Shamir/Adelman (RSA) compatible functions
 * to generate keys and encode/decode
@@ -15,7 +15,7 @@
 *http://www.prime-numbers.org/
 */
 
-class Crypt_RSA{
+class Crypt_RSA {
     /*
     * Function for generating keys. Return array where
     * $array[0] -> modulo N
