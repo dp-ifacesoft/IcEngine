@@ -769,7 +769,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             );
         }
         if ($this->rawFields) {
-            print_r($this->rawFields);
             foreach ($this->items as $item) {
                 $subColumns = $helperArray->column(
                     array((array) $item['data']), (array) $this->rawFields
@@ -780,8 +779,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 if (!isset($result[$item[$keyField]])) {
                     $result[$item[$keyField]] = array();
                 }
-                print_r($subColumns);
-                $result[$item[$keyField]] += reset($subColumns);
+                foreach ($this->rawFields as $i => $fieldName) {
+                    $result[$item[$keyField]][$fieldName] = $subColumns[$i];
+                }
             }
             $this->rawFields = array();
         }
