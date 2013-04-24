@@ -776,6 +776,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 if (!$subColumns) {
                     continue;
                 }
+                if (!isset($result[$item[$keyField]])) {
+                    $result[$item[$keyField]] = array();
+                }
                 $result[$item[$keyField]] += reset($subColumns);
             }
             $this->rawFields = array();
