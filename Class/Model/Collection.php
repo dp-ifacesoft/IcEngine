@@ -719,9 +719,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 if ($addicts) {
                     $this->items = array();
                     foreach ($pack['items'] as $i => $item) {
-                        $item = array_merge($item, $addicts[$i]);
+                        $itemAddicts = $addicts[$i];
+                        if (!is_array($addicts[$i])) {
+                            $itemAddicts = array($addicts[$i]);
+                        }
+                        $item = array_merge($item, $itemAddicts);
                         $this->items[] = $item;
-                        $this->rawFields = array_keys($addicts[$i]);
+                        $this->rawFields = array_keys($itemAddicts);
                     }
                 } else {
                     $this->items = $pack['items'];
