@@ -720,12 +720,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     $this->items = array();
                     foreach ($pack['items'] as $i => $item) {
                         $itemAddicts = $addicts[$i];
-                        if (!is_array($addicts[$i])) {
-                            $itemAddicts = array($addicts[$i]);
+                        if (is_array($addicts[$i])) {
+                            $item = array_merge($item, $itemAddicts);
+                            $this->rawFields = array_keys($itemAddicts);
                         }
-                        $item = array_merge($item, $itemAddicts);
                         $this->items[] = $item;
-                        $this->rawFields = array_keys($itemAddicts);
                     }
                 } else {
                     $this->items = $pack['items'];
@@ -783,8 +782,8 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                     $result[$item[$keyField]] = array();
                 }
                 foreach ($this->rawFields as $i => $fieldName) {
-                    $result[$item[$keyField]][$fieldName] = 
-                        is_array($subColumns[0]) 
+                    $result[$item[$keyField]][$fieldName] =
+                        is_array($subColumns[0])
                             ? $subColumns[0][$fieldName] : $subColumns[0];
                 }
             }
