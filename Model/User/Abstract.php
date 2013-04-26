@@ -259,6 +259,14 @@ class User_Abstract extends Model
 		$session = $this->getService('userSession');
 		$session->getCurrent()->delete();
 	}
+    
+    /**
+     * @inheritdoc
+     */
+    public function table()
+    {
+        return 'User';
+    }
 
     /**
      *  @inheritodc
