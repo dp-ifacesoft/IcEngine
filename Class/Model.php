@@ -853,7 +853,7 @@ abstract class Model implements ArrayAccess
             }
             $this->updatedFields[$key] = $value;
         }
-        if (!$this->updatedFields) {
+        if (!$this->updatedFields && $this->key() && !$hardUpdate) {
             return $this;
         }
         $this->set($this->updatedFields);
