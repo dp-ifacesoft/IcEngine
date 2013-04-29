@@ -2,7 +2,7 @@
 
 /**
  * Контроллер ошибок
- * 
+ *
  * @author goorus, morph
  */
 class Controller_Error extends Controller_Abstract
@@ -58,7 +58,7 @@ class Controller_Error extends Controller_Abstract
 	}
 
 	/**
-	 * Страница устарела.
+	 * Страница устарела
 	 * В большинстве случаев означает неверный utcode или прикрепление
 	 * компонента к несуществующей модели.
 	 */
