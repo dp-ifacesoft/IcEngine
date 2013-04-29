@@ -12,7 +12,6 @@ class Query_Part_Not_User extends Query_Part
 	 */
 	public function query()
 	{
-		$this->query->where('User__id', $this->params['id']);
         if (!is_array($this->params['id'])) {
 			$this->query->where('User__id != ?', $this->params['id']);
 		} else {
