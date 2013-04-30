@@ -23,6 +23,7 @@ class Model_Manager_Delegee_Factory
 	public function factory($model)
 	{
 		$parents = class_parents($model);
+        array_unshift($parents, get_class($model));
 		foreach ($parents as $parent) {
 			if (substr($parent, -9, 9) != '_Abstract') {
                 continue;
