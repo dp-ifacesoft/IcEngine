@@ -91,14 +91,14 @@ class Helper_View_Resource
         if (!is_array($args[1][0])) {
             $tmpArgs = array($args[1][0], $args[1][1]);
             if (isset($args[1][2])) {
-                $tmpArgs[2] = $args[1][2];
+                $params = $args[1][2];
+                $tmpArgs[2] = $params;
             }
             $args = array($tmpArgs);
         } else {
             array_shift($args);
             $args = reset($args);
         }
-
         foreach ($args as $argsData) {
             $pathName = isset($argsData[1]) ? $argsData[1] : null;
             $filename = $argsData[0];
