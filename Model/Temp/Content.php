@@ -32,7 +32,7 @@ class Temp_Content extends Model
      * @param string $key
      * @param string $value
      */
-    protected function setAttr($key, $value)
+    public function setAttr($key, $value)
     {
         $this->data[$key] = $value;
         $this->update(array(
@@ -135,7 +135,7 @@ class Temp_Content extends Model
 
     /**
      * Генерация уникального кода
-     * 
+     *
      * @return string
      */
     public static function genUtcode()
@@ -146,7 +146,7 @@ class Temp_Content extends Model
 
     /**
      * Получить id нового Temp_Content
-     * 
+     *
      * @param Temp_Content $tc
      * @return string
      */
@@ -157,7 +157,7 @@ class Temp_Content extends Model
 
     /**
      * Переприсоединить компоненты
-     * 
+     *
      * @param Model $item
      * @param array $components
      * @return Temp_Content
