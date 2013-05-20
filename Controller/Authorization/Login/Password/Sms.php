@@ -55,12 +55,13 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	 *
      * @Ajax
      * @Template(null)
+     * 
+     * @Context("helperAdminRedirect")
 	 */
-	public function login($name, $pass, $a_id, $code, $href)
+	public function login($name, $pass, $a_id, $code, $context)
 	{
-		$modelManager = $this->getService('modelManager');
 		if (!$a_id && $code) {
-            $user = $modelManager->byOptions(
+            $user = $context->modelManager->byOptions(
                 'User',
                 '::Active',
                 array(
@@ -75,7 +76,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
             if (!$user) {
                 return;
             }
-            $activation = $modelManager->byOptions(
+            $activation = $context->modelManager->byOptions(
                 'Activation',
                 array(
                     'name'  => '::User',
@@ -93,7 +94,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
         if (!$a_id || !$code) {
             return $this->replaceAction($this, 'sendSmsCode');
         }
-        $authozization = $modelManager->byOptions(
+        $authozization = $context->modelManager->byOptions(
             'Authorization',
             array(
                 'name'  => '::Name',
@@ -119,7 +120,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			self::SMS_SEND_COUNTER_ATTR	=> 0,
 			self::SMS_CODE_ATTR			=> ''
 		));
-		$redirect = $this->getService('helperUri')->validRedirect($href);
+        $redirect = $context->helperAdminRedirect->uri($user);
 		$this->output->send(array(
             'data'  => array(
                 'redirect'  => $redirect

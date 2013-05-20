@@ -173,6 +173,16 @@ class Module_Manager extends Manager_Abstract
     }
 
     /**
+     * Получить текущие модули
+     *
+     * @return array
+     */
+    public function getModules()
+    {
+        return $this->modules;
+    }
+
+    /**
      * Загрузка модулей
      */
 	public function init()

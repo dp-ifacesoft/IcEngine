@@ -9,11 +9,11 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 {
     /**
      * Драйвер источника данных СУДБ
-     * 
+     *
      * @var Data_Driver_Abstract
      */
     protected $dynamicDriver;
-    
+
 	/**
 	 * @inheritdoc
 	 */
@@ -23,10 +23,10 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 		Query::UPDATE	=> 'executeDynamic',
 		Query::INSERT	=> 'executeDynamic'
 	);
-    
+
     /**
      * Драйвер источника данных справочника
-     * 
+     *
      * @var Data_Driver_Abstract
      */
     protected $staticDriver;
@@ -38,7 +38,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return Query_Result
 	 */
-	protected function executeDynamic(Query_Abstract $query, 
+	protected function executeDynamic(Query_Abstract $query,
         Query_Options $options)
 	{
         $modelName = $this->getModelName($query);
@@ -54,7 +54,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	 * @param Query_Options $options Параметры запроса.
 	 * @return Query_Result
 	 */
-	protected function executeStatic(Query_Abstract $query, 
+	protected function executeStatic(Query_Abstract $query,
         Query_Options $options)
 	{
 		$modelName = $this->getModelName($query);
@@ -63,13 +63,12 @@ class Data_Driver_Sync extends Data_Driver_Abstract
             $this->getService('helperModelSync')->resync($modelName);
         }
         $result = null;
-        $ds = $this->getService('modelScheme')->dataSource($modelName);
         $filters = $modelName::$filters;
         $priorityFields = $modelName::$priorityFields;
         $criterias = $this->getCriterias($query);
         ksort($criterias);
         ksort($filters);
-        $criteriasNames = array_keys($criterias); 
+        $criteriasNames = array_keys($criterias);
         $filtersNames = array_keys($filters);
         if (!$filters && !$priorityFields) {
             $result = $this->staticDriver->execute($query, $options);
@@ -107,8 +106,8 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	}
 
     /**
-     * Получить критерии запроса 
-     * 
+     * Получить критерии запроса
+     *
      * @param Query_Abstract $query
      * @return array
      */
@@ -130,20 +129,20 @@ class Data_Driver_Sync extends Data_Driver_Abstract
         }
         return $criteria;
     }
-    
+
     /**
      * Получить драйвер для запросов к СУБД
-     * 
+     *
      * @return Data_Driver_Abstract
      */
     public function getDynamicDriver()
     {
         return $this->dynamicDriver;
     }
-    
+
     /**
      * Получить имя модели по запросу
-     * 
+     *
      * @param Query_Abstract $query
      * @return string
      */
@@ -156,10 +155,10 @@ class Data_Driver_Sync extends Data_Driver_Abstract
         $modelName = reset($from)[Query::TABLE];
         return $modelName;
     }
-    
+
     /**
      * Получить сервис по имени
-     * 
+     *
      * @param string $serviceName
      * @return mixed
      */
@@ -167,17 +166,17 @@ class Data_Driver_Sync extends Data_Driver_Abstract
     {
         return IcEngine::serviceLocator()->getService($serviceName);
     }
-    
+
     /**
      * Получить драйвер для запросов к справочнику
-     * 
+     *
      * @return Data_Driver_Abstract
      */
     public function getStaticDriver()
     {
         return $this->staticDriver;
     }
-    
+
 	/**
 	 * @inheritdoc
 	 */
