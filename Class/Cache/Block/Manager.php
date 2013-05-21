@@ -32,6 +32,13 @@ class Cache_Block_Manager extends Manager_Abstract
     protected $data;
 
     /**
+     * Загружены ли полностью по текущего хэшу кэши
+     * 
+     * @var boolean
+     */
+    protected $isFullLoaded = array();
+    
+    /**
      * Менеджер спецификаций блоков
      *
      * @Inject("cacheBlockSpecificationManager")
@@ -82,21 +89,30 @@ class Cache_Block_Manager extends Manager_Abstract
                 );
             }
             return $this->data[$controllerAction];
+        } elseif (!empty($this->isFullLoaded[$hash])) {
+            $this->data[$controllerAction] = array();
+            return array();
         } elseif ($this->data) {
             $this->blockVector = array();
+        }
+        $hashVector = array($this->getDefaultHash());
+        if ($hash != $hashVector[0]) {
+            $hashVector[] = $hash;
         }
         $query = $this->getService('query')
             ->select('json', 'controllerAction')
             ->from('Cache_Block')
-            ->where('hash', $hash);
+            ->where('hash', $hashVector);
         if (!empty($this->blockVector[$hash])) {
             $query->where('controllerAction', $this->blockVector[$hash]);
+        } else {
+            $this->isFullLoaded[$hash] = true;
         }
         $data = $this->getService('dds')->execute($query)->getResult()
             ->asTable();
         if (!$data) {
             $this->data[$controllerAction] = array();
-            return null;
+            return array();
         }
         foreach ($data as $row) {
             $this->data[$row['controllerAction']] = $row['json'];
@@ -112,16 +128,27 @@ class Cache_Block_Manager extends Manager_Abstract
         }
         return $this->data[$controllerAction];
     }
+    
+    /**
+     * Получить хэщ по умолчанию
+     * 
+     * @return string
+     */
+    public function getDefaultHash()
+    {
+        return $this->getHash(array(), false);
+    }
 
     /**
      * Получить хэш
      *
      * @param array $params
+     * @param boolean $replaceOnCurrentHash
      * @return string
      */
-    public function getHash($params)
+    public function getHash($params, $replaceOnCurrentHash = true)
     {
-        if ($this->currentHash) {
+        if ($this->currentHash && $replaceOnCurrentHash) {
             return $this->currentHash;
         }
         ksort($params);
