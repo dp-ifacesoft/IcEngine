@@ -123,9 +123,10 @@ class Event_Manager
 		$slots = $this->getMap()->getBySignal($signal);
 		if ($slots) {
 			foreach ($slots as $slot) {
-				//$slot->setParams(array_merge($data, $slot->getParams()));
-				$slot->setParams($data);
+                $slotParams = $slot->getParams();
+				$slot->setParams(array_merge($data, $slotParams));
 				$slot->action();
+                $slot->setParams($slotParams);
 			}
 		}
 	}

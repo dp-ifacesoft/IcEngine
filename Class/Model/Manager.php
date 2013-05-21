@@ -258,11 +258,7 @@ class Model_Manager extends Manager_Abstract
 		if ($result) {
 			return $result;
 		}
-        static $filters = array(
-            '?'	=> '',
-            '<'	=> '',
-            '>'	=> ''
-        );
+        static $filters = array('?'	=> '', '<'	=> '', '>'	=> '');
 		$whereFieldsPrepared = array();
 		foreach($whereFields as $key => $whereField) {
 			$fieldName = trim(strtr($key, $filters));
