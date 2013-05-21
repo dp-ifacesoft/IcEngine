@@ -6,7 +6,7 @@
  * 
  * @author morph
  */
-class Event_Slot_Data_Driver_Back extends Event_Slot
+class Event_Slot_Model_Driver_Back extends Event_Slot
 {
     /**
      * @inheritdoc
