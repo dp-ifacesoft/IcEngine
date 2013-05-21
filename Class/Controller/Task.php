@@ -194,6 +194,16 @@ class Controller_Task
 	{
 		return $this->input;
 	}
+    
+    /**
+	 * Получить транспорт выходных данных
+     *
+	 * @return Data_Transport
+	 */
+	public function getOutput()
+	{
+		return $this->output;
+	}
 
 	/**
 	 * Возвращает имя шаблона
