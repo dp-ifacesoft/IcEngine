@@ -5,7 +5,7 @@
  *
  * @author markov
  */
-abstract class Helper_Translit_Strategy_Abstract extends Helper_Abstract
+abstract class Metagraphy_Strategy_Abstract
 {
     /**
 	 * Заменяет символы в строке согласно переданным наборам.
@@ -38,6 +38,38 @@ abstract class Helper_Translit_Strategy_Abstract extends Helper_Abstract
 		return $value;
 	}
     
-    abstract public function translit($text, $lang = null);
+    /**
+	 * Перевод строки в транслит
+	 *
+	 * @param string $text Исходная стока
+	 * @param string $lang [optional] Направление перевода
+	 * 		Если "en" - из русского на транслит,
+	 * 		если "ru" - из транслита на русский
+	 * @return Результат транслитации.
+	 */
+    abstract public function process($text, $lang = null);
+    
+    /**
+	 * Перевод строки из русского на транслит
+     * 
+     * @param string $text строка
+	 * @return string Результат транслитации.
+	 */
+    abstract public function processToEn($text);
+    
+    /**
+	 * Перевод строки из транслита на русский
+     * 
+     * @param string $text строка
+	 * @return string Результат транслитации.
+	 */
+    abstract public function processToRu($text);
+    
+    /**
+	 * Формирует из названия статьи ссылку.
+	 *
+	 * @param string $value Исходное название
+	 * @return string Ссылка
+	 */
     abstract public function makeUrlLink($text);
 }

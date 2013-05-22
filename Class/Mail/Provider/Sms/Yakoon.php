@@ -152,7 +152,7 @@ class Mail_Provider_Sms_Yakoon extends Mail_Provider_Abstract
 				'Sender'		=> $config['service_sender'],
 				'Recipient'		=> $phone,
 				'Template'		=> '',
-				'Content'		=> $this->getService('helperTranslit')
+				'Content'		=> $this->getService('helperMetagraphy')
                     ->rus2translit($text),
 				'Format'		=> '1',
 				'SendOn'		=> 120,

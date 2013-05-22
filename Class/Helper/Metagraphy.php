@@ -5,20 +5,10 @@
  *
  * @author goorus, neon, markov
  * @package IcEngine
- * @Service("helperTranslit")
+ * @Service("helperMetagraphy")
  */
-class Helper_Translit extends Helper_Abstract
+class Helper_Metagraphy extends Helper_Abstract
 {
-    /**
-     * Инициализированные стратегии
-     */
-    public $strategies = array();
-    
-    /**
-     * Название текущей стратегии
-     */
-    protected $strategyName = 'Helper_Translit_Strategy_Default';
-
 	/**
 	 * для перевода СМС.
 	 *
@@ -54,32 +44,13 @@ class Helper_Translit extends Helper_Abstract
 			'Э' => 'E',   'Ю' => 'Yu',  'Я' => 'Ya',
 		);
 		// переводим в транслит
-		$str = strtr($string, $converter);
+		$strTred = strtr($string, $converter);
 		// заменям все ненужное нам на ""
 		//$str = preg_replace('~[^-a-z0-9_]+~u', '', $str);
 		// удаляем начальные и конечные '-'
-		$str = trim($str, "-");
-		return $str;
+		$strTrimed = trim($strTred, "-");
+		return $strTrimed;
 	}
-
-    /**
-     * Устанавливает стратегию транслитерации
-     */
-    public function setStrategy($name)
-    {
-        $this->strategyName = 'Helper_Translit_Strategy_' . $name;
-    }
-    
-    /**
-     * получает стратегию транслитерации
-     */
-    public function getStrategy()
-    {
-        if (!isset($this->strategies[$this->strategyName])) {
-            $this->strategies[$this->strategyName] = new $this->strategyName;
-        }
-        return $this->strategies[$this->strategyName];
-    }
     
 	/**
 	 * Перевод строки в транслит
@@ -90,10 +61,13 @@ class Helper_Translit extends Helper_Abstract
 	 * 		если "ru" - из транслита на русский
 	 * @return Результат транслитации.
 	 */
-	public function translit($text, $lang = null, $strategyName = "Default")
+	public function process($text, $lang = null, $strategyName = "Default")
 	{
-        $this->setStrategy($strategyName);
-        return $this->getStrategy()->translit($text, $lang);
+        $metagraphyStrategyManager = $this->getService(
+            'metagraphyStrategyManager'
+        );
+        $strategy = $metagraphyStrategyManager->get($strategyName);
+        return $strategy->process($text, $lang);
 	}
 
 	/**
@@ -104,7 +78,10 @@ class Helper_Translit extends Helper_Abstract
 	 */
 	public function makeUrlLink($text, $strategyName = "Default")
 	{
-        $this->setStrategy($strategyName);
-		return $this->getStrategy()->makeUrlLink($text);
+        $metagraphyStrategyManager = $this->getService(
+            'metagraphyStrategyManager'
+        );
+        $strategy = $metagraphyStrategyManager->get($strategyName);
+		return $strategy->makeUrlLink($text);
 	}
 }
