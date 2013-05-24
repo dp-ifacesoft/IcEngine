@@ -65,13 +65,19 @@ class Data_Driver_Sync extends Data_Driver_Abstract
         $result = null;
         $filters = $modelName::$filters;
         $priorityFields = $modelName::$priorityFields;
+        $ignoreFields = $modelName::$ignoreFields;
         $criterias = $this->getCriterias($query);
+        $fetchingFields = $this->getFetchingFields($query);
         ksort($criterias);
         ksort($filters);
+        ksort($fetchingFields);
         $criteriasNames = array_keys($criterias);
         $filtersNames = array_keys($filters);
-        if (!$filters && !$priorityFields) {
+        if (!$filters && !$priorityFields && !$ignoreFields) {
             $result = $this->staticDriver->execute($query, $options);
+        } elseif ($ignoreFields && 
+            array_intersect($fetchingFields, $ignoreFields)) {
+            $result = $this->dynamicDriver->execute($query, $options);
         } elseif (!array_diff($criteriasNames, $filtersNames) &&
             !array_diff($filters, $criterias)) {
             $result = $this->staticDriver->execute($query, $options);
@@ -138,6 +144,34 @@ class Data_Driver_Sync extends Data_Driver_Abstract
     public function getDynamicDriver()
     {
         return $this->dynamicDriver;
+    }
+    
+    /**
+     * Получить поля для выборки
+     * 
+     * @param Query_Abstract $query
+     * @return array
+     */
+    protected function getFetchingFields($query)
+    {
+        $select = $query->getPart(Query::SELECT);
+        $keys = array_keys($select);
+        $keysExploded = array();
+        foreach ($keys as $key) {
+            if (strpos($key, ',') === false) {
+                $keysExploded[] = $key;
+                continue;
+            }
+            $exploded = explode(',', $key);
+            foreach ($exploded as $item) {
+                $keysExploded[] = trim($item);
+            }
+        }
+        $resultKeys = array_unique($keysExploded);
+        if (strpos($resultKeys[0], '*') !== false) {
+            $resultKeys = array();
+        }
+        return $resultKeys;
     }
 
     /**

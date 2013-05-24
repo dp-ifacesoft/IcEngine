@@ -29,9 +29,23 @@ class Helper_Model_Sync extends Helper_Abstract
         $endPos = strpos($content, ';', $startPos);
         $contentFirstPart = substr($content, 0, $startPos);
         $contentLastPast = substr($content, $endPos + 1);
+        $fields = '*';
+        if ($modelName::$ignoreFields) {
+            $schemeFields = $this->getService('modelScheme')->scheme($modelName)
+                ->fields->__toArray();
+            foreach ($modelName::$ignoreFields as $fieldName) {
+                if (isset($schemeFields[$fieldName])) {
+                    unset($schemeFields[$fieldName]);
+                }
+                $fields = array_keys($schemeFields);
+            }
+        }
         $query = $this->getService('query')
-            ->select('*')
+            ->select($fields ? implode(', ', (array) $fields) : '*')
             ->from($modelName);
+        if (!$fields) {
+            $query->where('0');
+        }
         $filters = $modelName::$filters;
         if ($filters) {
             foreach ($filters as $field => $value) {

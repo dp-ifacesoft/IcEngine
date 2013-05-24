@@ -15,6 +15,13 @@ class Model_Sync extends Model
     public static $filters = array();
     
     /**
+     * Игнорируемые при выборке поля
+     * 
+     * @var array
+     */
+    public static $ignoreFields = array();
+    
+    /**
      * Поля для выбора с приоритетом из справочника
      * 
      * @var array
