@@ -45,7 +45,7 @@ class Model_Manager_Delegee_Factory extends Model_Manager_Delegee_Abstract
 	 * @param Model|array $object Объект или данные
 	 * @return Model В случае успеха объект, иначе null.
 	 */
-	public function get($modelName, $key, $object)
+	public function get($modelName, $key, $object = null)
 	{
 		$factoryName = $modelName;
 		if (!isset(self::$factories[$factoryName])) {
