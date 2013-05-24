@@ -50,6 +50,7 @@ class Model_Collection_Manager_Delegee_Defined
         if ($result && $sort) {
             $result = $helperArray->masort($result, implode(',', $sort));
         }
+ 
 		return array('items' => $result);
 	}
 }

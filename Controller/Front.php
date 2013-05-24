@@ -41,7 +41,9 @@ class Controller_Front extends Controller_Abstract
                  * выполняемых руот экшинов.
                  */
                 $dispatcher = $this->getService('controllerDispatcher');
-                $routeActions = $route ? $route->actions : array();
+                $routeActions = $route 
+                    ? (is_string($route->actions) 
+                    ? array($route->actions) : $route->actions) : array();
                 $actions = $dispatcher->loop(
                     $this->task->getActions() ?: $routeActions
                 );

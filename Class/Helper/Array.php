@@ -140,6 +140,9 @@ class Helper_Array extends Helper_Abstract
 	 */
 	public function masort($data, $sortby)
 	{
+        if (!$data) {
+            return array();
+        }
 		static $funcs = array();
 		if (empty($funcs[$sortby])) {
 			//Не существует функции сравнения, создаем
@@ -154,6 +157,10 @@ class Helper_Array extends Helper_Abstract
 				}
 				reset($data);
 				$array = current($data);
+                $first = reset($array);
+                if (!isset($first[$key])) {
+                    return $data;
+                }
 				if (is_numeric($array[$key])) {
 					$code .= "if ( \$c = ((\$a['$key'] == \$b['$key']) ? 0 : ((\$a['$key'] " . (($asc) ? '<' : '>') . " \$b['$key']) ? -1 : 1 )) ) return \$c;";
 				} else {

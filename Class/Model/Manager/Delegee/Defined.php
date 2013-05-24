@@ -49,7 +49,7 @@ class Model_Manager_Delegee_Defined extends Model_Manager_Delegee_Abstract
     /**
      * @inheritdoc
      */
-    public function set(Model $model, $hardInsert = false)
+    public function set($model, $hardInsert = false)
     {
         throw new Exception('Model defined "' . $model->modelName() . 
             '" can not set');
