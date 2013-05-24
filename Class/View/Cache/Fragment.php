@@ -32,6 +32,13 @@ class View_Cache_Fragment
     protected $params;
     
     /**
+     * Тестовое включение кэширования
+     * 
+     * @var boolean
+     */
+    private $testCacheEnabling = true;
+    
+    /**
      * Получить контент фрагмента
      * 
      * @return string
@@ -110,7 +117,8 @@ class View_Cache_Fragment
     {
         $serviceLocator = IcEngine::serviceLocator();
         $helperSiteLocation = $serviceLocator->getService('helperSiteLocation');
-        return !$helperSiteLocation->get('enabledBlockCache');
+        return !$helperSiteLocation->get('enabledBlockCache') 
+            && $this->testCacheEnabling;
     }
     
     /**
