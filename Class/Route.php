@@ -76,7 +76,10 @@ class Route extends Objective
             return null;
         }
 		$url = '/' . ltrim($url, '/');
-		$route = $this->provider->get($url);
+        $request = $this->getService('request');
+        $host = $request->host();
+        $cacheKey = $host . $url;
+		$route = $this->provider->get($cacheKey);
 		if ($route) {
 			return $route ? new self($route) : null;
 		}
@@ -87,8 +90,6 @@ class Route extends Objective
 		$emptyRoute = $this->config['emptyRoute']->__toArray();
 		$routes = $this->getList();
 		$row = null;
-        $request = $this->getService('request');
-        $host = $request->host();
         $lastWithHost = false;
 		foreach ($routes as $route) {
 			if (empty($route['route'])) {
@@ -100,7 +101,7 @@ class Route extends Objective
             $withHost = false;
             if (!empty($route['host'])) {
                 $withHost = true;
-                $hostValid = $this->checkHost($host['route'], $host);
+                $hostValid = $this->checkHost($route['host'], $host);
             }
 			if (!empty($route['patterns'])) {
 				foreach ($route['patterns'] as $var => $routeData) {
@@ -126,7 +127,7 @@ class Route extends Objective
                 }
 			}
 		}
-		$this->provider->set($url, $row);
+		$this->provider->set($cacheKey, $row);
 		return $row ? new self($row) : null;
 	}
 

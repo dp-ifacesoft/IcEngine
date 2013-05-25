@@ -339,6 +339,64 @@ class Helper_Date
 		return null;
 	}
     
+    /**
+	 * Получение даты и времени из строки.
+	 * В качестве исходной строки может выступать запись
+	 * даты и времени практически в любом формате, не зависимо от разделителя
+	 * и порядка данных.
+	 * 
+     * @param string|integer $str Строка с датой или unix timestamp.
+	 * @param integer $default Возвращаемое значение по умолчанию.
+	 * @return integer Опередленная дата или $def, если дату определить
+	 * не удалось.
+	 */
+	public function strToTimestamp($str, $default = 0)
+	{
+		if (is_numeric($str)) {
+			return (int) $str;
+		}
+		if (strlen($str) < 8) {
+			return $default;
+		}
+		$n = 0;
+		$arr = array('', '', '', '', '', '');
+		for ($i = 0; $i < strlen($str); ++$i) {
+			if (strpos('-0123456789', $str[$i]) == 0) {
+				if (strlen($arr[$n]) > 0) {
+					$arr[$n] = (int) $arr[$n];
+					++$n;
+				}
+			} else {
+				$arr[$n] .= $str[$i];
+			}
+		}
+		for ($i = $n; $i <= 5; ++$i) {
+			$arr[$i] = (int) $arr[$i];
+		}
+		if (strlen($arr[0]) == 4) {
+			// Y-m-d H:i:s
+			return mktime(
+                $arr[3], $arr[4], $arr[5], $arr[1], $arr[2], min(2040, $arr[0])
+            );
+		} elseif (strlen($arr[2]) == 4) {
+			// d.m.Y H:i:s
+			return mktime(
+                $arr[3], $arr[4], $arr[5], $arr[1], $arr[0], min(2040, $arr[2])
+            );
+		} elseif (strlen($arr[3]) == 4) {
+			// H:i:s Y-m-d
+			return mktime(
+                $arr[0], $arr[1], $arr[2], $arr[4], $arr[5], min(2040, $arr[3])
+            );
+		} elseif (strlen($arr[5]) == 4) {
+			// H:i:s d.m.Y
+			return mktime(
+                $arr[0], $arr[1], $arr[2], $arr[4], $arr[3], min(2040, $arr[5])
+            );
+		}
+		return $default;
+	}
+    
 	/**
 	 * Перевод даты из любого распознаваемого форматав формат в Unix.
      *
