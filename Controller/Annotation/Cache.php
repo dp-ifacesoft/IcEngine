@@ -61,11 +61,20 @@ class Controller_Annotation_Cache extends Controller_Abstract
             if (!$expiration) {
                 continue;
             }
+            
             $tags = array();
             if (!empty($subData['CacheTags']['data'])) {
                 $tags = array_values($subData['CacheTags']['data'][0]);
             } elseif (isset($subData['Cache']['data'][0]['tags'])) {
                 $tags = array_values($subData['Cache']['data'][0]['tags']);
+            }
+            $cacheKey = array();
+            if (!empty($subData['CacheKey']['data'])) {
+                $cacheKey = array_values($subData['CacheKey']['data']);
+            } elseif (isset($subData['Cache']['data'][0]['cacheKey'])) {
+                $cacheKey = array_values(
+                    $subData['Cache']['data'][0]['cacheKey']
+                );
             }
             $vars = array();
             if (!empty($data['CacheVars'])) {
@@ -77,6 +86,7 @@ class Controller_Annotation_Cache extends Controller_Abstract
             $theCache = array(
                 'action'        => $key,
                 'expiration'    => $expiration, 
+                'cacheKey'      => $cacheKey,
                 'tags'          => $tags,
                 'vars'          => $vars
             );

@@ -128,6 +128,12 @@ class Executor extends Manager_Abstract
             if (is_object($keyFunction[0])) {
                 $keyFunction[0] = get_class($keyFunction[0]);
             }
+            if (isset($options['cacheKey'])) {
+                $args[] = call_user_func(array(
+                    $this->getService($options['cacheKey'][0]),
+                    $options['cacheKey'][1]
+                ));
+            }
             $key = $this->getCacheKey($keyFunction, $args);
             $cache = $this->getCacher()->get($key);
             $tagValid = $this->isTagValid($cache, $options);

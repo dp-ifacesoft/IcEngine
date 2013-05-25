@@ -21,7 +21,7 @@ return array(
                     '{$var}'{if !$smarty.foreach.vars.last},
                     {/if}
                 {/foreach}
-            ),
+            )
             {/if}
             {/if}
         ){if !$smarty.foreach.profiles.last},
@@ -50,6 +50,9 @@ return array(
                     {/if}
                 {/foreach}
             ),
+            {/if}
+            {if !empty($action.cacheKey)}
+            'cacheKey'  => array('{$action.cacheKey[0]}','{$action.cacheKey[1]}')
             {/if}
             {/if}
         ){if !$smarty.foreach.actions.last},
