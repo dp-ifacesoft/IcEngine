@@ -72,17 +72,36 @@
 	<br />
 	<p><b>Вызовы контроллеров:</b></p>
 	<ul>
+        {$lastLevel=-1}
 		{foreach from=$sessions item="session" key="key" name="sessions"}
 			{if $session.args[0] == 'Controller_Manager'}
                 {if !empty($session.logs)}
-                    <li>
+                    <li style="margin-left:30px">
+                        {if $lastLevel < 0}
+                            {$lastLevel=$session.level}
+                        {/if}
+                        {if $lastLevel<$session.level}
+                            <ul><li style="margin-left:30px">
+                        {elseif $lastLevel>$session.level}
+                            </li></ul>
+                        {/if}
+                        {$lastLevel=$session.level}
                         <p><b>Вызов:</b> {$session.args[3]}/{$session.args[4]}</p>
-                        <p>Затраченно времени: {$session.logs[0].delta} с.</p>
+                        <p>Затраченно времени: 
+                            {if $session.logs[0].delta > 0.005}
+                                <span style="color:red">
+                            {/if}
+                            {$session.logs[0].delta} с.
+                            {if $session.logs[0].delta > 0.005}
+                                <span style="color:red">
+                            {/if}
+                        </p>
                         <p>Создано моделей: {$session.logs[0].args[1]}</p>
                         <p>Выполнено запросов не из кэша: {$session.logs[0].args[1]}</p>
                         <p>Затраты памяти: {$session.logs[0].args[2]/1024/1024}/{$maxMemory}</p>
                         <p>Время рендеринга: {$session.logs[0].args[3]} с.</p>
                         <p>Обращений get к redis: {$session.logs[0].args[4]}</p>
+                        
                     </li>
                 {/if}    
 			{/if}
