@@ -85,9 +85,15 @@ class Controller_Annotation_Route extends Controller_Abstract
                 if (!$routeName && !empty($routeData['name'])) {
                     $routeName = $routeData['name'];
                 }
+                $routeHost = !empty($currentData['RouteHost'])
+                    ? reset($currentData['RouteHost']['data'][$i]) : null;
+                if (!$routeHost && !empty($routeData['host'])) {
+                    $routeHost = $routeData['host'];
+                }
                 $theRoute = array(
                     'route'     => $route,
                     'weight'    => $weight, 
+                    'host'      => $routeHost,
                     'actions'   => $actions,
                     'params'    => array()
                 );

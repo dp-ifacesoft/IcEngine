@@ -33,19 +33,17 @@ class Model_Repository_Manager extends Manager_Abstract
             } else {
                 $className = $modelName . '_Repository';
             }
-            try {
-                $parts = explode('_', $className);
-                $parts[0] = lcfirst($parts[0]);
-                $serviceName = implode('', $parts);
-                $repository = $this->getService($serviceName)->newInstance(
-                    array($model)
-                );
-                $this->repositories[$modelName] = $repository;
-            } catch (Exception $e) {
-                throw new Exception(
+            $parts = explode('_', $className);
+            $parts[0] = lcfirst($parts[0]);
+            $serviceName = implode('', $parts);
+            $repositoryService = $this->getService($serviceName);
+            if (!$repositoryService) {
+                throw new ErrorException(
                     'Repository for model "' . $modelName . '" unexists'
                 );
             }
+            $repository = $repositoryService->newInstance(array($model));
+            $this->repositories[$modelName] = $repository;
         } else {
             $repository = $this->repositories[$modelName];
         }

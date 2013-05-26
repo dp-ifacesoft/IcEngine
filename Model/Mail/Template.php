@@ -10,7 +10,7 @@
 class Mail_Template extends Model
 {
     /**
-     * @Orm\Field\Int(Size=11, Not_Null, Auto_Incrment)
+     * @Orm\Field\Int(Size=11, Not_Null, Auto_Increment)
      * @Orm\Index\Primary
      */
     public $id;
