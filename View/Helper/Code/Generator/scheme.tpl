@@ -24,7 +24,7 @@ return array (
 			'{$field[0]}'{if !empty($field[1])},
 
 			array (
-				{foreach from=$field[1] item="f" name="field1" key="field_name"}{if !$smarty.foreach.field1.first}	{/if}{if is_numeric($field_name) || is_bool($f)}{if is_numeric($field_name)}'{$f}'{else}'{$field_name}'{/if}{if !$smarty.foreach.field1.last},{/if}{else}{if !is_array($f)}'{$field_name}'	=> {if is_null($f)}null{elseif is_numeric($f)}{$f}{elseif $field[0]=='Enum'}{$f}{else}'{$f|addslashes}'{/if}{if !$smarty.foreach.field1.last},{/if}{else}'{$field_name}'	=> array ({foreach from=$f item="ff" name="fff"}{if $field[0]=='Enum'}{$ff}{else}{$ff|addslashes}{/if}{if !$smarty.foreach.fff.last}, {/if}{/foreach}){if !$smarty.foreach.field1.last},{/if}{/if}{/if}
+				{foreach from=$field[1] item="f" name="field1" key="field_name"}{if !$smarty.foreach.field1.first}	{/if}{if is_numeric($field_name) || is_bool($f)}{if is_numeric($field_name)}'{$f}'{else}'{$field_name}'{/if}{if !$smarty.foreach.field1.last},{/if}{else}{if !is_array($f)}'{$field_name}'	=> {if is_null($f)}null{elseif is_numeric($f)}{$f}{elseif $field[0]=='Enum'}array({foreach from=$f item="ff"}'{$ff}',{/foreach}){else}'{$f|addslashes}'{/if}{if !$smarty.foreach.field1.last},{/if}{else}'{$field_name}'	=> array ({foreach from=$f item="ff" name="fff"}{if $field[0]=='Enum'}{$ff}{else}{$ff|addslashes}{/if}{if !$smarty.foreach.fff.last}, {/if}{/foreach}){if !$smarty.foreach.field1.last},{/if}{/if}{/if}
 
 			{/foreach}){/if}
 
