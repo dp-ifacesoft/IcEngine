@@ -16,7 +16,7 @@ return array (
 	{if $comment}
 'comment'		=> '{$comment|addslashes}',
 	{/if}
-{if $author}'author'		=> '{$author|addslashes}',
+{if $author}'author'		=> '{$author|addslashes}', 
 	{/if}
 'fields'		=> array (
 	{foreach from=$fields item="field" name="fields" key="name"}
