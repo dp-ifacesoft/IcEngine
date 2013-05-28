@@ -3,7 +3,7 @@
 /**
  * Класс необходимый для инициализации фреймворка.
  *
- * @author goorus, morph
+ * @author goorus, morph 
  */
 class IcEngine
 {
