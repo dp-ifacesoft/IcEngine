@@ -12,6 +12,8 @@ class Query_Part_Order_Asc extends Query_Part
 	 */
 	public function query() 
 	{	
-		$this->query->order(array($this->params['field'] => Query::ASC));
+        foreach ((array) $this->params['field'] as $field) {
+            $this->query->order(array($field => Query::ASC));
+        }
 	}
 }
