@@ -6,7 +6,7 @@
  * @author morph
  * @Service("helperModelCollection")
  */
-class Helper_Model_Collection
+class Helper_Model_Collection extends Helper_Abstract
 {
     /**
 	 * Переназначение коллекции на модель
