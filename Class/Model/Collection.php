@@ -485,6 +485,20 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $this->helper;
     }
 
+    /**
+     * Получить/изменить значение поля isRaw
+     * 
+     * @param boolean $value
+     * @return mixed
+     */
+    public function isRaw($value = null)
+    {
+        if (is_null($value)) {
+            return $this->isRaw;
+        }
+        $this->isRaw = $value;
+    }
+    
 	/**
 	 * Возвращает модель из коллекции
      *
@@ -588,15 +602,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         if ($this->items) {
             return $this;
         }
-		$this->beforeLoad($columns);
-        $query = $this->lastQuery;
-        $collectionManager = $this->getService('collectionManager');
-        $optionManager = $this->getService('modelOptionManager');
-        $collectionManager->load($this, $query);
-        $optionManager->executeAfter($this, $this->options);
-		if ($this->paginator) {
-			$this->paginator->total = $this->data['foundRows'];
-		}
+        if ($this->isRaw) {
+            $this->raw();
+        } else {
+            $this->beforeLoad($columns);
+            $query = $this->lastQuery;
+            $collectionManager = $this->getService('collectionManager');
+            $optionManager = $this->getService('modelOptionManager');
+            $collectionManager->load($this, $query);
+            $optionManager->executeAfter($this, $this->options);
+            if ($this->paginator) {
+                $this->paginator->total = $this->data['foundRows'];
+            }
+        }
 		return $this;
 	}
 

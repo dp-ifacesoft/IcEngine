@@ -70,100 +70,10 @@ class Helper_Model_Collection
 	 */
 	public function sortByParent($collection, $includeUnparented = false)
 	{
-		$list = $collection->items();
-		if (empty($list)) {
-			return $collection;
-		}
-		$firstIds = $collection->column('id');
-		$parents = array();
-		$childOf = 0;
-		$result = array();
-		$i = 0;
-        $keyField = $collection->keyField();
-		$index = array(0 => 0);
-		$fullIndex = array(-1 => '');
-		do {
-			$finish = true;
-			for ($i = 0; $i < count($list); ++$i) {
-				if ($list[$i]['parentId'] != $childOf) {
-                    continue;
-                }
-                if (!isset($index[count($parents)])) {
-                    $index[count($parents)] = 1;
-                } else {
-                    $index[count($parents)]++;
-                }
-                $n = count($result);
-                $result[$n] = $list[$i];
-                $result[$n]['data']['level'] = count($parents);
-                $result[$n]['data']['index'] = $index[count($parents)];
-                $parentsCount = count($parents);
-                if ($parentsCount > 0) {
-                    $fullIndex = $fullIndex[$parentsCount - 1] .
-                        $index[count($parents)];
-                } else {
-                    $fullIndex = (string) $index[count($parents)];
-                }
-                $result[$n]['data']['fullIndex'] = $fullIndex;
-                $result[$n]['data']['brokenParent'] = false;
-                $fullIndex[$parentsCount] = $fullIndex . '.';
-                array_push($parents, $childOf);
-                $childOf = $list[$i][$keyField];
-                for ($j = $i; $j < count($list) - 1; $j++) {
-                    $list[$j] = $list[$j + 1];
-                }
-                array_pop($list);
-                $finish = false;
-                break;
-			}
-			// Элементы с неверно указанным предком
-			if ($finish && count($parents) > 0) {
-				$index[count($parents)] = 0;
-				$childOf = array_pop($parents);
-				$finish = false;
-			}
-		} while (!$finish);
-		/**
-		 * чтобы не портить сортировку, если таковая есть у
-		 * коллекции, с использованием элементов без родителей
-		 *
-		 * сортируем по level 0, докидываем дочерних
-		 */
-		if ($includeUnparented) {
-			//out досортированный
-			$newResult = array();
-			//без родителей, неотсортированные
-			$listIds = array();
-			//отсортированные родители: level = 0
-			$resultIds = array();
-			//отсортированные дочерние: level > 0
-			$resultSubIds = array();
-			for ($i = 0; $i < count($list); $i++) {
-				$listIds[$list[$i][$keyField]] = $i;
-			}
-			for ($i = 0; $i < count($result); $i++) {
-				if (!$result[$i]['parentId']) {
-					$parentId = $result[$i][$keyField];
-					$resultIds[$result[$i][$keyField]] = $i;
-				} else {
-					$resultSubIds[$parentId][$result[$i][$keyField]] = $i;
-				}
-			}
-			for ($i = 0; $i < count($firstIds); $i++) {
-				if (isset($resultIds[$firstIds[$i]])) {
-					$newResult[] = $result[$resultIds[$firstIds[$i]]];
-					if (isset($resultSubIds[$firstIds[$i]])) {
-						foreach ($resultSubIds[$firstIds[$i]] as $index) {
-							$newResult[] = $result[$index];
-						}
-					}
-				} elseif (isset($listIds[$firstIds[$i]])) {
-					$newResult[] = $list[$listIds[$firstIds[$i]]];
-				}
-			}
-			$result = $newResult;
-		}
-		$collection->setItems($result);
+        $items = $this->getService('helperArray')->sortByParent(
+            $collection->items(), $includeUnparented, $collection->keyField()
+        );
+		$collection->setItems($items);
 		return $collection;
 	}
 }
