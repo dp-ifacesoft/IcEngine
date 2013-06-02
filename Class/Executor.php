@@ -226,7 +226,7 @@ class Executor extends Manager_Abstract
         }
         $tasks = $this->getService('controllerManager')->getTaskPool();
         $last = array_pop($tasks);
-        $input = $last->getContext()->getController()->getInput();
+        $input = $last->getInput();
         foreach ($options->inputArgs as $arg) {
             if ($input->receive($arg)) {
                 $inputValid = false;
