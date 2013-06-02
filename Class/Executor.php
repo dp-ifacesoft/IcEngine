@@ -224,9 +224,11 @@ class Executor extends Manager_Abstract
 		if (!$options->inputArgs) {
             return $inputValid;
         }
-        $input = $this->getService('dataTransportManager')->get('default_input');
+        $tasks = $this->getService('controllerManager')->getTaskPool();
+        $last = array_pop($tasks);
+        $input = $last->getContext()->getController()->getInput();
         foreach ($options->inputArgs as $arg) {
-            if (!is_null($input->receive($arg))) {
+            if ($input->receive($arg)) {
                 $inputValid = false;
                 break;
             }
