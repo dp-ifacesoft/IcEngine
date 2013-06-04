@@ -99,6 +99,9 @@ class Route extends Objective
                 $route['actions'] = (array) $route['actions'];
             }
 			$route = array_merge($emptyRoute, (array) $route);
+            if (is_string($route)) {
+                return null;
+            }
 			$pattern = '#^' . $route['route'] . '$#';
             $hostValid = true;
             $withHost = false;
