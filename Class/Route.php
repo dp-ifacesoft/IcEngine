@@ -99,7 +99,7 @@ class Route extends Objective
                 $route['actions'] = (array) $route['actions'];
             }
 			$route = array_merge($emptyRoute, (array) $route);
-            if (!is_array($route)) {
+            if (is_array($route['route'])) {
                 file_put_contents(
                     IcEngine::root() . 'log/route',
                     print_r($route, true) . PHP_EOL,
