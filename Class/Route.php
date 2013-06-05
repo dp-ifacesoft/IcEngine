@@ -99,14 +99,13 @@ class Route extends Objective
                 $route['actions'] = (array) $route['actions'];
             }
 			$route = array_merge($emptyRoute, (array) $route);
-            if (is_string($route)) {
-                return null;
+            if (!is_array($route)) {
+                file_put_contents(
+                    IcEngine::root() . 'log/route',
+                    print_r($route, true) . PHP_EOL,
+                    FILE_APPEND
+                );
             }
-            file_put_contents(
-                IcEngine::root() . 'log/route',
-                print_r($route, true) . PHP_EOL,
-                FILE_APPEND
-            );
 			$pattern = '#^' . $route['route'] . '$#';
             $hostValid = true;
             $withHost = false;
