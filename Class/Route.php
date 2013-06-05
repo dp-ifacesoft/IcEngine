@@ -10,7 +10,7 @@ class Route extends Objective
 {
     /**
      * Конфигурация
-     * 
+     *
      * @var array
      */
     protected $config = array(
@@ -20,11 +20,11 @@ class Route extends Objective
                 'viewRender'   => 'Smarty'
             ),
             'patterns'  => array(),
-            'actions'   => array(), 
+            'actions'   => array(),
             'weight'    => 0
         )
     );
-    
+
 	/**
 	 * Загружены ли роуты из конфига
 	 *
@@ -38,10 +38,10 @@ class Route extends Objective
 	 * @var array
 	 */
 	protected $list = array();
-    
+
     /**
      * Провайдер для кэширования роутов
-     * 
+     *
      * @Service(
      *      "routeCache",
      *      args={"Route_Cache"},
@@ -100,6 +100,7 @@ class Route extends Objective
             }
 			$route = array_merge($emptyRoute, (array) $route);
             if (is_array($route['route'])) {
+                return null;
                 $route['route'] = reset($route['route']);
             }
 			$pattern = '#^' . $route['route'] . '$#';
@@ -169,10 +170,10 @@ class Route extends Objective
 		}
 		return $this->list;
 	}
-    
+
     /**
      * Получить сервис по имени
-     * 
+     *
      * @param string $serviceName
      * @return mixed
      */
@@ -180,4 +181,4 @@ class Route extends Objective
     {
         return IcEngine::serviceLocator()->getService($serviceName);
     }
-}   
+}
