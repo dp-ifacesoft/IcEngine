@@ -100,7 +100,6 @@ class Route extends Objective
             }
 			$route = array_merge($emptyRoute, (array) $route);
             if (is_array($route['route'])) {
-                return null;
                 $route['route'] = reset($route['route']);
             }
 			$pattern = '#^' . $route['route'] . '$#';
