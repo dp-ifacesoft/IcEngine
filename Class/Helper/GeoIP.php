@@ -77,7 +77,7 @@ class Helper_GeoIP
             ->where('begin_ip <= ?', $ip)
             ->where('end_ip >= ?', $ip);
         $netCity = $dds->execute($netCityQuerySelect)
-            ->getResult()->asTable();
+            ->getResult()->asRow();
         return $netCity;
     }
 
