@@ -139,7 +139,9 @@ class Executor extends Manager_Abstract
             $tagValid = $this->isTagValid($cache, $options);
             $expiresValid = $this->isNotExpires($cache, $options);
         }
-		$inputValid = $this->isInputValid($options);
+		$inputValid = $this->isInputValid(
+            $options, !empty($args[1]) ? $args[1] : array()
+        );
         $functionName = is_object($function[0]) 
             ? get_class($function[0]) : $function[0];
 		if ($cache && !$options->forceRecache && $inputValid) {
@@ -216,19 +218,17 @@ class Executor extends Manager_Abstract
      * Проверяет валидны ли данные входного транспорта
      * 
      * @param Objective $options
+     * @param array $args
      * @return boolean
      */
-    protected function isInputValid($options)
+    protected function isInputValid($options, $args)
     {
         $inputValid = true;
 		if (!$options->inputArgs) {
             return $inputValid;
         }
-        $tasks = $this->getService('controllerManager')->getTaskPool();
-        $last = array_pop($tasks);
-        $input = $last->getInput();
         foreach ($options->inputArgs as $arg) {
-            if ($input->receive($arg)) {
+            if (isset($args[$arg])) {
                 $inputValid = false;
                 break;
             }

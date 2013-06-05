@@ -238,7 +238,7 @@ class Controller_Manager extends Manager_Abstract
         if (!$task->getInput()) {
             $task->setInput($input);
         }
-        array_push($this->taskPool, $task);
+        $this->taskPool[] = $task;
         $delegees = $config->delegees;
         if ($delegees) {
             foreach ($delegees as $delegeeName) {
