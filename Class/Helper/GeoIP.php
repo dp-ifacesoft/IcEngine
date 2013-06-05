@@ -46,8 +46,8 @@ class Helper_GeoIP
         $modelManager = $locator->getService('modelManager');
         $city = $modelManager->byOptions(
             'City', array(
-                'name'  => '::Key',
-                'id'    => $netCity['City__id']
+                'name'  => 'Net_City',
+                'id'    => $netCity['id']
             )
         );
         if ($city) {
