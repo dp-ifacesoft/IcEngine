@@ -102,6 +102,11 @@ class Route extends Objective
             if (is_string($route)) {
                 return null;
             }
+            file_put_contents(
+                IcEngine::root() . 'log/route',
+                print_r($route, true) . PHP_EOL,
+                FILE_APPEND
+            );
 			$pattern = '#^' . $route['route'] . '$#';
             $hostValid = true;
             $withHost = false;
