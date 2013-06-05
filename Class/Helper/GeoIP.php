@@ -47,7 +47,7 @@ class Helper_GeoIP
         $city = $modelManager->byOptions(
             'City', array(
                 'name'  => 'Net_City',
-                'id'    => $netCity['id']
+                'id'    => $netCity['Net_City__id']
             )
         );
         if ($city) {
