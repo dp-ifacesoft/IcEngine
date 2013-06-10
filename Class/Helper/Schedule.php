@@ -2,7 +2,7 @@
 
 /**
  * Хелпер для Controller_Schedule
- * 
+ *
  * @author morph
  * @Service("helperSchedule")
  */
@@ -10,14 +10,14 @@ class Helper_Schedule
 {
     /**
      * Получить сформированную строку аргументов
-     * 
+     *
      * @param array $params
      * @return array
      */
-    public function get($params)
+    public function get($paramsJson)
     {
         $output = '';
-        $param = json_decode(urldecode($params), true);
+        $params = json_decode(urldecode($paramsJson), true);
         foreach ($params as $param => $value) {
             if (is_numeric($param)) {
                 $param = $value;
@@ -25,7 +25,7 @@ class Helper_Schedule
             } elseif ($param == $value) {
                 $value = null;
             }
-            $output .= ' --' . $param . ($value ? 
+            $output .= ' --' . $param . ($value ?
                 (is_numeric($value) ? $value : '"' . $value . '"') : ''
             );
         }

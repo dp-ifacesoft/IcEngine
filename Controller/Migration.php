@@ -28,9 +28,8 @@ class Controller_Migration extends Controller_Abstract
         $migration->log($action);
         $dataSourceManager = $this->getService('dataSourceManager');
         $defaultDataSource = $dataSourceManager->get('default');
-        $dataSourceManager->setDataMapper($defaultDataSource);
-        $mapper = $defaultDataSource->getDataMapper();
-        $mapper->clearCache();
+        $driver = $defaultDataSource->getDataDriver();
+        $driver->clearCache();
         echo 'Mapper clear' . PHP_EOL;
 	}
 

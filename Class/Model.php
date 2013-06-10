@@ -613,8 +613,12 @@ abstract class Model implements ArrayAccess
                 }
             }
         }
+        $data = $data ?: array();
+        if (is_object($data)) {
+            $data = $data->__toArray();
+        }
         return array_merge($result, array(
-            'data'      => $this->data ? $this->data->__toArray() : array()
+            'data'      => $data
         ));
     }
 
