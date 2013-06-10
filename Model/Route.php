@@ -144,6 +144,9 @@ class Route extends Model_Child
 					if (!$moduleConfig) {
 						continue;
 					}
+					if(!$moduleConfig['routes']) {
+						continue;
+					}
 					foreach ($moduleConfig['routes']->__toArray() as $route) {
 						if (!isset($currentRoutes[$route['route']])) {
 							$route['params']['module'] = $module->name;
