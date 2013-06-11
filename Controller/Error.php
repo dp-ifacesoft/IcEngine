@@ -28,13 +28,15 @@ class Controller_Error extends Controller_Abstract
 	 */
 	public function accessDenied()
 	{
+        $task = IcEngine::getTask();
+        $task->setTemplate('Controller/Front/index');
+        $this->getService('helperHeader')->setStatus(Helper_Header::E403);
 		$this->output->send(array(
 			'error'	=> 'access denied',
 			'data'	=> array(
 				'error' => 'access denied'
 			)
 		));
-		$this->replaceAction('Authorization', 'accessDenied');
 	}
 
 	/**
