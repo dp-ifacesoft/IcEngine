@@ -51,22 +51,28 @@ class Error_Render extends Manager_Abstract
 	 */
 	public function render (Exception $e)
 	{
-		if (!$this->render)
-		{
-			$msg = '[' . $e->getFile() . '@' .
-				$e->getLine() . ':' .
-				$e->getCode() . '] ' .
-				$e->getMessage () . PHP_EOL;
-			error_log($msg . PHP_EOL, E_USER_ERROR, 3);
+        $msg = '[' . $e->getFile() . '@' .
+            $e->getLine() . ':' .
+            $e->getCode() . '] ' .
+            $e->getMessage () . PHP_EOL;
+        $this->getService('debug')->log($msg, E_ERROR);
+        $isVerbose = $this->getService('helperSiteLocation')->get(
+            'displayErrors'
+        ) || isset($_GET['isVerbose']);
+        if (!$isVerbose) {
+            throw new Exception($msg);
+        }
+		if (!$this->render) {
 			echo '<pre>' . $msg . $e->getTraceAsString() . '</pre>';
-			return;
-		}
-		$this->render->assign('e', $e);
-        $template = $this->getTemplate($e->getCode());
-        $content = $this->render->fetch($template);
-        $this->render->assign('content', $content);
-        $layout = $this->config()->path . $this->config->layout;
-		$this->render->display($layout);
+            die;
+		} else {
+            $this->render->assign('e', $e);
+            $template = $this->getTemplate($e->getCode());
+            $content = $this->render->fetch($template);
+            $this->render->assign('content', $content);
+            $layout = $this->config()->path . $this->config->layout;
+            $this->render->display($layout);
+        }
 	}
 
 	/**

@@ -48,8 +48,11 @@ class View_Render_Front extends View_Render_Abstract
 	public function render(Controller_Task $task)
 	{
 		$transaction = $task->getTransaction();
-		$this->assign($transaction->buffer());
-		$tasks = $transaction->receive('tasks');
+        $tasks = array();
+        if ($transaction) {
+            $this->assign($transaction->buffer());
+            $tasks = $transaction->receive('tasks');
+        }
         if ($tasks) {
             foreach ($tasks as $currentTask) {
                 $render = $currentTask->getViewRender();

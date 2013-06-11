@@ -49,6 +49,8 @@ class Controller_Error extends Controller_Abstract
 	 */
 	public function notFound ()
 	{
+        $task = IcEngine::getTask();
+        $task->setTemplate('Controller/Front/index');
 		$this->output->send(array(
 			'error'	=> 'not found',
 			'data'	=> array(

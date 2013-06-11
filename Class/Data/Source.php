@@ -81,7 +81,11 @@ class Data_Source
 	{
         $options = $options ?: new Query_Options();
         $this->setQuery($query);
-        $result = $this->driver()->execute($this->query, $options);
+        try {
+            $result = $this->driver()->execute($this->query, $options);
+        } catch (Exception $e) {
+            throw new ErrorException($e->getMessage());
+        }
         if ($result->touchedRows()) {
             $tableName = $query->tableName();
             $queryType = $query->type();

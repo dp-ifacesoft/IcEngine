@@ -526,6 +526,9 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
                 strpos($alias, self::SQL_WILDCARD) !== false) {
                 $columns[] = $source;
             } else {
+                if (strpos($alias, self::SQL_DOT) !== false) {
+                    list(,$alias) = explode('.', $alias);
+                }
                 $alias = $helper->escape($alias);
                 if ($alias == $source) {
                     $columns[] = $source;
