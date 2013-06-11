@@ -51,6 +51,7 @@ class Controller_Error extends Controller_Abstract
 	{
         $task = IcEngine::getTask();
         $task->setTemplate('Controller/Front/index');
+        $this->getService('helperHeader')->setStatus(Header::E404);
 		$this->output->send(array(
 			'error'	=> 'not found',
 			'data'	=> array(
