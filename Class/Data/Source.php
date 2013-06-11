@@ -84,7 +84,7 @@ class Data_Source
         try {
             $result = $this->driver()->execute($this->query, $options);
         } catch (Exception $e) {
-            throw new ErrorException($e->getMessage());
+            throw new Exception($e->getMessage());
         }
         if ($result->touchedRows()) {
             $tableName = $query->tableName();
