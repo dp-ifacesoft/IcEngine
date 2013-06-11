@@ -614,7 +614,7 @@ abstract class Model implements ArrayAccess
                 }
             }
         }
-        $data = $data ?: array();
+        $data = $this->data() ?: array();
         if (is_object($data)) {
             $data = $data->__toArray();
         }
