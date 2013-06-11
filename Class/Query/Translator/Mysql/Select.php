@@ -532,7 +532,7 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
                 }
                 $alias = $helper->escape($alias);
                 if ($alias == $source || 
-                    strtolower($source, ' as ') !== false) {
+                    strpos(strtolower($source), ' as ') !== false) {
                     $columns[] = $source;
                 } else {
                     $columns[] = $source . ' ' . self::SQL_AS . ' ' . $alias;
