@@ -151,14 +151,11 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
         Query_Options $options)
 	{
 		$result = $this->handler->query($this->sql);
-        if (!$result) {
-            return array();
-        }
         $error = $result->errorInfo();
 		if (!empty($error[1])) {
 			$this->errno = $error[1];
 			$this->error = $error[2];
-			return array();
+			throw new Exception($this->error);
 		}
 		$rows = $result->fetchAll(PDO::FETCH_ASSOC);
         $this->numRows = count($rows);
