@@ -60,7 +60,7 @@ class Error_Render extends Manager_Abstract
             'displayErrors'
         ) || isset($_GET['isVerbose']);
         if (!$isVerbose) {
-            throw new ErrorException($msg);
+            throw new Exception($msg);
         }
 		if (!$this->render) {
 			echo '<pre>' . $msg . $e->getTraceAsString() . '</pre>';
