@@ -83,7 +83,7 @@ class Data_Source
         $this->setQuery($query);
         try {
             $result = $this->driver()->execute($this->query, $options);
-        } catch (Exception $e) {
+        } catch (Exception $e) { 
             throw new Exception($e->getMessage());
         }
         if ($result->touchedRows()) {
