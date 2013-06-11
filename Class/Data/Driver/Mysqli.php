@@ -155,7 +155,9 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		if (!empty($error[1])) {
 			$this->errno = $error[1];
 			$this->error = $error[2];
-			throw new Exception($this->error);
+			throw new Exception(
+                'Query: ' . $this->sql . PHP_EOL . $this->error
+            );
 		}
 		$rows = $result->fetchAll(PDO::FETCH_ASSOC);
         $this->numRows = count($rows);
