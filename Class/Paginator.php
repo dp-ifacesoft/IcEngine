@@ -232,10 +232,10 @@ class Paginator
         if ($input->receive('perPage')) {
             $perPage = $input->receive('perPage');
         }
-        $perPage = $perPage ? $perPage : 10;
+        $resultRerPage = $perPage ? $perPage : 10;
         return new self(
 			max($input->receive('page'), 1),
-			$perPage,
+			$resultRerPage,
 			$total,
 			$notGet
 		);

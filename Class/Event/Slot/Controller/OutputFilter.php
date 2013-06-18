@@ -21,15 +21,15 @@ class Event_Slot_Controller_OutputFilter extends Event_Slot
             ? $params['filterName'] : null;
         if ($filterName) {
             $serviceLocator = IcEngine::serviceLocator();
-            $filterManager = $serviceLocator->getService('filterManager');
+            $filterManager = $serviceLocator->getService('dataFilterManager');
             $filter = $filterManager->get($filterName);
             if (!$filter) {
                 return;
             }
             $transaction = $params['controller']->getTask()->getTransaction();
             $buffer = $filter->filter($transaction->buffer());
-            $transaction->getOutput()->flush();
-            $transaction->getOutput()->send($buffer);
+            $transaction->flush();
+            $transaction->send('data', $buffer);
         }
     }
 }

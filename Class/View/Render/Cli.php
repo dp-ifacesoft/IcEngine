@@ -30,7 +30,10 @@ class View_Render_Cli extends View_Render_Abstract
 	 */
 	public function render(Controller_Task $task)
 	{
-		
+		$tasks = $task->getTransaction()->buffer()['tasks'];
+        foreach ($tasks as $task) {
+            $task->getViewRender()->render($task);
+        }
 	}
 	
 }
