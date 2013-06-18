@@ -76,4 +76,12 @@ class Data_Transport_Transaction
     {
         $this->transport->sendForce($this->buffer);
     }
+    
+    /**
+     * Сброс буфера
+     */
+    public function flush()
+    {
+        $this->buffer = array();
+    }
 }

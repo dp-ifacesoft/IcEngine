@@ -355,7 +355,7 @@ abstract class Model implements ArrayAccess
 	 * @param mixed $value [optional] Значение (не обязательно).
 	 * @return mixed Текущее значение или null.
 	 */
-	public function &data($key, $value = null)
+	public function &data($key = null, $value = null)
 	{
         if (!is_object($this->data)) {
             $this->data = $this->getData();
