@@ -1,12 +1,4 @@
 <?php
-
-/**
- * 
- * @link http://www.i-complex.ru/
- * @copyright 2010 I-complex
- * @package Morphy
- */
-
 interface phpMorphy_GrammemsProvider_Interface {
     function getGrammems($partOfSpeech);
 }

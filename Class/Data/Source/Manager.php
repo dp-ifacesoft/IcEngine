@@ -116,7 +116,7 @@ class Data_Source_Manager extends Manager_Abstract
     {
         $sourceConfig = $source->getConfig();
         if (empty($sourceConfig['driver'])) {
-            return;
+            return null;
         }
         $driverManager = $this->getService('dataDriverManager');
         $driverConfig = isset($sourceConfig['options'])

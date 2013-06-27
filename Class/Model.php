@@ -468,16 +468,6 @@ abstract class Model implements ArrayAccess
     }
 
     /**
-     * Получить репозиторий модели
-     *
-     * @return Model_Repository
-     */
-    public function getRepository()
-    {
-        return $this->repository;
-    }
-
-    /**
      * Получить услугу по имени
      *
      * @param string $serviceName
@@ -640,13 +630,10 @@ abstract class Model implements ArrayAccess
      */
     protected function repository()
     {
-        if (!$this->repository) {
-            $modelRepositoryManager = $this->getService(
-                'modelRepositoryManager'
-            );
-            $this->repository = $modelRepositoryManager->get($this);
-        }
-        return $this->repository;
+        $modelRepositoryManager = $this->getService(
+            'modelRepositoryManager'
+        );
+        return $modelRepositoryManager->get($this);
     }
 
 	/**
@@ -729,17 +716,7 @@ abstract class Model implements ArrayAccess
 	{
 		$this->lazy = $value;
 	}
-
-    /**
-     * Изменить репозиторий модели
-     *
-     * @param Model_Repository $modelRepository
-     */
-    public function setRepository($modelRepository)
-    {
-        $this->repository = $modelRepository;
-    }
-
+    
     /**
      * Изменить схему модели
      *

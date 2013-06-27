@@ -42,7 +42,7 @@ class Model_Repository_Manager extends Manager_Abstract
                     'Repository for model "' . $modelName . '" unexists'
                 );
             }
-            $repository = $repositoryService->newInstance(array($model));
+            $repository = $repositoryService->newInstance();
             $this->repositories[$modelName] = $repository;
         } else {
             $repository = $this->repositories[$modelName];
