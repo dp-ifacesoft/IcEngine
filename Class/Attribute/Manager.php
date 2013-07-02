@@ -130,7 +130,7 @@ class Attribute_Manager extends Manager_Abstract
 			->where('key', $key);
         $value = $source->execute($selectQuery)->getResult()->asValue();
         if ($value) {
-            $value = json_decode(urlencode($value));
+            $value = json_decode(urldecode($value), true);
         }
         if ($this->provider) {
             $this->storeValue($model, $key, $value);

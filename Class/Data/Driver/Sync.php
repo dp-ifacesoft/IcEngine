@@ -140,8 +140,11 @@ class Data_Driver_Sync extends Data_Driver_Abstract
                     static $regexp = '#([\w\d_]+)\s*([<>!=])+\s*(.*?)$#';
                     $matches = array();
                     preg_match_all($regexp, $where, $matches);
-                    $matches[2][0] = trim($matches[2][0], '\'"');
-                    $criteria[$matches[1][0] . $matches[2][0]] = $matches[3][0];
+                    if (isset($matches[2][0])) {
+                        $matches[2][0] = trim($matches[2][0], '\'"');
+                        $criteria[$matches[1][0] . $matches[2][0]] = 
+                            $matches[3][0];
+                    }
                 }
             }
         }

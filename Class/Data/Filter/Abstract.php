@@ -17,4 +17,14 @@ abstract class Data_Filter_Abstract
 	{
 		return $data;
 	}
+    
+    /**
+     * Получить имя фильтра
+     * 
+     * @return string
+     */
+    public function getName()
+    {
+        return substr(get_class($this), strlen('Data_Filter_'));
+    }
 }

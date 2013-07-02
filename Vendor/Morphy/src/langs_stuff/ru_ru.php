@@ -1,12 +1,4 @@
 <?php
-
-/**
- * 
- * @link http://www.i-complex.ru/
- * @copyright 2010 I-complex
- * @package Morphy
- */
-
 class phpMorphy_GrammemsProvider_ru_RU extends phpMorphy_GrammemsProvider_ForFactory {
     static protected $self_encoding = 'windows-1251';
     static protected $instances = array();
