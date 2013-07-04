@@ -7,6 +7,8 @@
  */
 class Controller_Authorization extends Controller_Abstract
 {
+    const DEFAULT_REDIRECT = '/';
+
     /**
 	 * Выход
      *
