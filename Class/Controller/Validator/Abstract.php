@@ -94,11 +94,13 @@ abstract class Controller_Validator_Abstract
     {
         $this->context = $context;
     }
-    
+
     /**
      * Породить исключение валидатора контроллеров по имени
-     * 
+     *
      * @param string $name
+     * @param $params
+     * @return bool
      */
     protected function throwException($name, $params)
     {

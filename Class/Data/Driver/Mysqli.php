@@ -187,9 +187,10 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
 		if ($config) {
 			$this->setOption($config);
 		}
+        $dsn = 'mysql:dbname=' . $this->connectionOptions['database'] .
+            ';host=' . $this->connectionOptions['host'];
+
         try {
-            $dsn = 'mysql:dbname=' . $this->connectionOptions['database'] .
-                ';host=' . $this->connectionOptions['host'];
             $this->handler = new \PDO(
                 $dsn,
                 $this->connectionOptions['username'],
@@ -197,7 +198,7 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
             );
             $this->handler->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
+            throw new Exception('connect failed: ' . $dsn, 0, $e);
         }
         $error = $this->handler->errorInfo();
         if ($error[1]) {

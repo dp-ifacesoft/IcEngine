@@ -35,8 +35,9 @@ class Crypt_RSAW extends Crypt_Abstract
 	private function checkError($object)
 	{
 		if ($object->isError()) {
-			$error = $object->getLastError();
-			Debug::log('ERROR:' . $error->getMessage());
+			/** @var Exception $error */
+            $error = $object->getLastError();
+			Debug::log('ERROR:' . $error->getMessage() . "\n" . $error->getTraceAsString());
 		}
 	}
 

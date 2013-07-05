@@ -10,9 +10,10 @@ function internal_error_handler_ignore ($errno, $errstr, $errfile, $errline)
 //	echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n1<br />";
 }
 
-function internal_exception_handler_ignore ($exception)
+function internal_exception_handler_ignore (Exception $exception)
 {
 	echo "Uncaught exception: " , $exception->getMessage (), "\n";
+    echo "Uncaught exception: " , $exception->getTraceAsString(), "\n";
 }
 
 /**
