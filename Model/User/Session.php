@@ -42,7 +42,7 @@ class User_Session extends User_Session_Abstract
     /**
      * @Orm\Field\Varchar(Size=32, Not_Null)
      */
-    public $removeIp;
+    public $remoteIp;
     
     /**
      * @Orm\Field\Varchar(Size=64, Not_Null)

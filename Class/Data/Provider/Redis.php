@@ -252,7 +252,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         $value = $this->valueEncode($value);
         $key = $this->keyEncode($key);
         if ($expiration) {
+            try
+            {
             $result = $connection->setex($key, $expiration, $value);
+            }
+            catch (Exception $e) {
+                $result = true;
+                $e->getMessage();
+            }
         } else {
             $result = $connection->set($key, $value);
         }
