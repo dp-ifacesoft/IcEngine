@@ -592,6 +592,7 @@ abstract class Model implements ArrayAccess
 
     /**
      * Получить данные модели массивом
+     * @param array $schema
      * @return array
      */
     public function raw($schema = array())
