@@ -688,12 +688,18 @@ abstract class Model implements ArrayAccess
         if ($scheme->fields) {
             $schemeFields = array_keys($scheme->fields->__toArray());
         }
+        $updatedFields = array();
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
                 $this->fields[$field] = $value;
+                $updatedFields[$field] = $value;
             } else {
                 $data[$field] = $value;
             }
+        }
+        if ($updatedFields) {
+            $oldUpdatedFields = $this->getUpdatedFields();
+            $this->setUpdatedFields(array_merge($oldUpdatedFields, $updatedFields));
         }
         if ($data) {
             $this->data($data);
