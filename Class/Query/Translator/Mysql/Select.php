@@ -315,13 +315,13 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             ($a ? $table : ($table . ' ' . self::SQL_AS . ' ' . $alias));
     }
 
-	/**
-	 * Рендерит часть запроса from
+    /**
+     * Рендерит часть запроса from
      *
-	 * @param Query_Abstract $query
-	 * @param type $useAlias
-	 * @return string
-	 */
+     * @param Query_Abstract $query
+     * @param bool|\type $useAlias
+     * @return string
+     */
 	protected function renderFrom(Query_Abstract $query, $useAlias = true)
 	{
 		$sql = self::SQL_FROM;
