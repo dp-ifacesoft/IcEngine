@@ -55,7 +55,8 @@ class Error_Render extends Manager_Abstract
         $msg = '[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
-            $e->getMessage () . PHP_EOL;
+            $e->getMessage () . "\n" .
+            $e->getTraceAsString() . PHP_EOL;
 
         $previous = $e->getPrevious();
         if ($previous) {
