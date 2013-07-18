@@ -52,7 +52,8 @@ class Error_Render extends Manager_Abstract
      */
 	public function render (Exception $e)
 	{
-        $msg = '[' . $e->getFile() . '@' .
+        $msg = 'url: ' . $_SERVER['REQUEST_URI'] . "\n" .
+            '[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
             $e->getMessage () . "\n" .
