@@ -24,15 +24,13 @@ class Data_Driver_Manager extends Manager_Abstract
 	 */
 	public function get($name, $params = array())
 	{
-		if (!isset($this->drivers[$name])) {
-			$className = 'Data_Driver_' . $name;
-			$this->drivers[$name] = new $className;
-		}
+		$className = 'Data_Driver_' . $name;
+		$driver = new $className;
         if ($params) {
             foreach ($params as $key => $value) {
-                $this->drivers[$name]->setOption($key, $value);
+                $driver->setOption($key, $value);
             }
         }
-		return $this->drivers[$name];
+		return $driver;
 	}
 }
