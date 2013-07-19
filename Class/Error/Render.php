@@ -52,10 +52,12 @@ class Error_Render extends Manager_Abstract
      */
 	public function render (Exception $e)
 	{
-        $msg = '[' . $e->getFile() . '@' .
+        $msg = 'url: ' . $_SERVER['REQUEST_URI'] . "\n" .
+            '[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
-            $e->getMessage () . PHP_EOL;
+            $e->getMessage () . "\n" .
+            $e->getTraceAsString() . PHP_EOL;
 
         $previous = $e->getPrevious();
         if ($previous) {

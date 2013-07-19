@@ -701,7 +701,8 @@ class Controller_Manager extends Manager_Abstract
      */
     public function logError($e)
     {
-        $msg = '[' . $e->getFile() . '@' .
+        $msg = 'url: ' . $_SERVER['REQUEST_URI'] . "\n" .
+            '[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
             $e->getMessage() . "\n" .
