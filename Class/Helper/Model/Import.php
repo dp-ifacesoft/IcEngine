@@ -55,7 +55,7 @@ class Helper_Model_Import extends Helper_Abstract
                 'field'         => $fieldName,
                 'unsigned'      => $field->getUnsigned(),
                 'notNull'       => !$field->getNullable(),
-                'autoIncrement' => $field->getAutoincrement(),
+                'autoIncrement' => $field->getAutoIncrement(),
                 'comment'       => $field->getComment(),
                 'output'        => $output ? implode(', ', $output) : null,
                 'indexes'       => array()
