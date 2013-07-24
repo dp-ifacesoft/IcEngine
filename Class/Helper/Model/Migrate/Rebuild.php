@@ -62,67 +62,6 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
     }
 
     /**
-     * Преобразует поля полученные из схемы данных в необходимые для схемы
-     * маппинга моделей
-     *
-     * @param array $fields
-     * @return array
-     */
-    public function fieldsToScheme($fields)
-    {
-        $schemeFields = array();
-        foreach ($fields as $field) {
-            $attrs = array();
-            if ($field->getSize()) {
-                $attrs['Size'] = $field->getSize();
-            }
-            $default = $field->getDefault();
-            if (!is_null($default)) {
-                $attrs['Default'] = $default;
-            }
-            $comment = $field->getComment();
-            if ($comment) {
-                $attrs['Comment'] = $comment;
-            }
-            $notNull = !$field->getNullable();
-            if ($notNull) {
-                $attrs[] = 'Not_Null';
-            }
-            if ($field->getAutoIncrement()) {
-                $attrs[] = 'Auto_Increment';
-            }
-            if ($field->getUnsigned()) {
-                $attrs[] = 'Unsigned';
-            }
-            if ($field->getAttr('Rename')) {
-                $attrs['Rename'] = $field->getAttr('Rename')['from'];
-            }
-            $schemeFields[$field->getName()] = array(
-                $field->getType(), $attrs
-            );
-        }
-        return $schemeFields;
-    }
-
-    /**
-     * Преобразует индексы полученные из схемы данных в необходимые для схемы
-     * маппинга моделей
-     *
-     * @param array $fields
-     * @return array
-     */
-    public function indexesToScheme($indexes)
-    {
-        $schemeIndexes = array();
-        foreach ($indexes as $index) {
-            $schemeIndexes[$index->getName()] = array(
-                $index->getType(), $index->getFields()
-            );
-        }
-        return $schemeIndexes;
-    }
-
-    /**
      * Пересобрать модель основываясь на схеме данных из источника
      * данных
      *
@@ -207,14 +146,11 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $scheme = $this->getService('configManager')->get(
             'Model_Mapper_' . $modelName
         );
-        $fields = $this->fieldsToScheme($dto->fields);
-        $indexes = $this->indexesToScheme($dto->indexes);
         $helperConverter = $this->getService('helperConverter');
-        $references = $dto->references ?: $scheme->references;
         $author = null;
         $comment = null;
         static $convertingFields = array(
-            'admin', 'languageScheme', 'createScheme', 'signals'
+            'admin', 'languageScheme', 'createScheme'
         );
         $dataConverted = array();
         if ($scheme->count()) {
@@ -230,15 +166,20 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
                      ) : null;
             }
         }
-        $dto = $this->getService('dto')->newInstance('Model_Scheme')
-            ->setFields($fields)
-            ->setIndexes($indexes)
-            ->setReferences($references)
+        $schemeDto = $this->getService('dto')->newInstance('Model_Scheme')
             ->setAuthor($author)
             ->setComment($comment);
-        foreach ($dataConverted as $key => $data) {
-            call_user_func(array($dto, 'set' . $key), $data);
+        $helperAnnotationModel = $this->getService('helperAnnotationModel');
+        $annotations = $helperAnnotationModel->getList();
+        foreach ($annotations as $annotation) {
+            $schemeDto->set(
+                $annotation->getField(), 
+                $annotation->convertValue($dto, $scheme)
+            );
         }
-        $this->getService('helperModelScheme')->create($modelName, $dto);
+        foreach ($dataConverted as $key => $data) {
+            call_user_func(array($schemeDto, 'set' . $key), $data);
+        }
+        $this->getService('helperModelScheme')->create($modelName, $schemeDto);
     }
 }

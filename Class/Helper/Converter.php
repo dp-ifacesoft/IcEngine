@@ -9,7 +9,7 @@
 class Helper_Converter
 {
 	/**
-	 * создает текстовое представление массива по синтаксису php
+	 * Создает текстовое представление массива по синтаксису php
 	 */
 	public function arrayToString($data, $offset = 0)
 	{

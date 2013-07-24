@@ -108,58 +108,7 @@ class Service_Source
             }
         }
         if ($this->annotationManager) {
-            $realObject = $object;
-            if ($object instanceof Service_State) {
-                $realObject = $object->__object();
-            }
-            $oldServiceName = $serviceName;
-            $annotations = $this->annotationManager->getAnnotation($realObject)
-                ->getData();
-            if (!empty($annotations['properties'])) {
-                $properties = $annotations['properties'];
-                $reflection = null;
-                foreach ($properties as $propertyName => $data) {
-                    if (!isset($data['Inject']) && !isset($data['Service'])) {
-                        continue;
-                    }
-                    if (isset($data['Inject'])) {
-                        if (is_array($data['Inject'])) {
-                            $values = array_values($data['Inject'][0]);
-                            $serviceName = $values[0];
-                        } else {
-                            $serviceName = $propertyName;
-                        }
-                        $service = $this->locator->getService($serviceName);
-                    } elseif (isset($data['Service'])) {
-                        $serviceName = reset($data['Service'][0]);
-                        $this->addService($serviceName, $data['Service'][0]);
-                        $service = $this->locator->getService($serviceName);
-                    }
-                    self::$services[$oldServiceName]['injects'][$propertyName] =
-                        $service;
-                    $methodName = 'set' . ucfirst($propertyName);
-                    if (method_exists($realObject, $methodName)) {
-                        $realObject->$methodName($service);
-                    } else {
-                        if (!$reflection) {
-                            $reflection = new \ReflectionClass($className);
-                        }
-                        $propertyReflection = $reflection->getProperty(
-                            $propertyName
-                        );
-                        $propertyReflection->setAccessible(true);
-                        if ($propertyReflection->isStatic()) {
-                            $reflection->setStaticPropertyValue(
-                                $propertyName, $service
-                            );
-                        } else {
-                            $propertyReflection->setValue(
-                                $realObject, $service
-                            );
-                        }
-                    }
-                }
-            }
+            $this->processInjections($object, $serviceName, $className);
         }
         return $object;
     }
@@ -281,6 +230,67 @@ class Service_Source
         }
     }
 
+    /**
+     * Внедрить зависимости
+     * 
+     * @param Service_State $object
+     * @param string $serviceName
+     * @param string $className
+     */
+    public function processInjections($object, $serviceName, $className)
+    {
+        $realObject = $object;
+        if ($object instanceof Service_State) {
+            $realObject = $object->__object();
+        }
+        $oldServiceName = $serviceName;
+        $annotations = $this->annotationManager->getAnnotation($realObject)
+            ->getData();
+        if (!empty($annotations['properties'])) {
+            $properties = $annotations['properties'];
+            $reflection = null;
+            foreach ($properties as $propertyName => $data) {
+                if (!isset($data['Inject']) && !isset($data['Service'])) {
+                    continue;
+                }
+                if (isset($data['Inject'])) {
+                    if (is_array($data['Inject'])) {
+                        $values = array_values($data['Inject'][0]);
+                        $serviceName = $values[0];
+                    } else {
+                        $serviceName = $propertyName;
+                    }
+                    $service = $this->locator->getService($serviceName);
+                } elseif (isset($data['Service'])) {
+                    $serviceName = reset($data['Service'][0]);
+                    $this->addService($serviceName, $data['Service'][0]);
+                    $service = $this->locator->getService($serviceName);
+                }
+                self::$services[$oldServiceName]['injects'][$propertyName] =
+                    $service;
+                $methodName = 'set' . ucfirst($propertyName);
+                if (method_exists($realObject, $methodName)) {
+                    $realObject->$methodName($service);
+                } else {
+                    if (!$reflection) {
+                        $reflection = new \ReflectionClass($className);
+                    }
+                    $propertyReflection = $reflection->getProperty(
+                        $propertyName
+                    );
+                    $propertyReflection->setAccessible(true);
+                    if ($propertyReflection->isStatic()) {
+                        $reflection->setStaticPropertyValue(
+                            $propertyName, $service
+                        );
+                    } else {
+                        $propertyReflection->setValue($realObject, $service);
+                    }
+                }
+            }
+        }
+    }
+    
     /**
      * Менеджер аннотаций
      *

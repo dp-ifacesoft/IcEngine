@@ -16,6 +16,7 @@ class Controller_Deploy extends Controller_Abstract
             'Static_Resource/recache'   => array(
                 'cityId'    => 1
             ),
+            'Annotation_Tag/flush',
             'Redis_Clear/clearContent'
         )
     );

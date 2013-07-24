@@ -16,12 +16,25 @@ class Controller_Cli_Simple extends Controller_Abstract
 	{
 		$buffer = new Data_Provider_Buffer();
 		$argv = $this->input->receiveAll();
+        $bufferData = array();
 		foreach ($argv as $arg) {
 			$p = strpos($arg, '=');
 			if ($p) {
-				$buffer->set(substr($arg, 0, $p), substr($arg, $p + 1));
+                $key = substr($arg, 0, $p);
+                $value = substr($arg, $p + 1);
+                if (isset($bufferData[$key])) {
+                    if (!is_array($bufferData[$key])) {
+                        $bufferData[$key] = array($bufferData[$key]);
+                    }
+                    $bufferData[$key][] = $value;
+                } else {
+                    $bufferData[$key] = $value;
+                }
 			}
 		}
+        foreach ($bufferData as $key => $value) {
+            $buffer->set($key, $value);
+        }
 		$transport = new Data_Transport();
 		return $transport->appendProvider($buffer);
 	}
