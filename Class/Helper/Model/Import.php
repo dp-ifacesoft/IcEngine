@@ -36,7 +36,7 @@ class Helper_Model_Import extends Helper_Abstract
         foreach ($dto->fields as $fieldName => $field) {
             $output = array();
             if ($field->getSize()) {
-                $output[] = 'Size=' . implode(',', $field->getSize());
+                $output[] = 'Size=' . implode(',', (array) $field->getSize());
             }
             if ($field->getUnsigned()) {
                 $output[] = 'Unsigned';

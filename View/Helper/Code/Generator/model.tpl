@@ -15,7 +15,7 @@ class {$name} extends {$extends}
     {foreach from=$properties item="property"}
 /**
     {if $property.comment}
- * {$property.comment}
+ * {$property.comment|stripslashes}
      *
     {/if}
  * @Orm\Field\{$property.type}{if $property.output}({$property.output}){/if}
