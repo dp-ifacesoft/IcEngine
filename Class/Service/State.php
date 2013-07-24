@@ -8,6 +8,13 @@
 class Service_State
 {
     /**
+     * Аннотации
+     * 
+     * @var array
+     */
+    protected $annotations;
+    
+    /**
      * Имя класса услуги
      *
      * @var string
@@ -54,6 +61,9 @@ class Service_State
         $this->className = $className;
         $this->instanceCallback = $instanceCallback;
         $this->injects = $injects;
+        $serviceLocator = IcEngine::serviceLocator();
+        $this->annotations = $serviceLocator->getService('helperAnnotation')
+            ->getAnnotation($className)->getData();
     }
 
     /**
@@ -64,6 +74,13 @@ class Service_State
      */
     public function __call($method, $args)
     {
+        $serviceLocator = IcEngine::serviceLocator();
+        if (isset($this->annotations['methods'][$method]['Inject'])) {
+            $injectData = $this->annotations['methods'][$method]['Inject'];
+            foreach (reset($injectData) as $i => $serviceName) {
+                $args[] = $serviceLocator->getService($serviceName);
+            }
+        }
         if (is_bool($this->instanceCallback)) {
             if (!$this->classReflection) {
                 $this->classReflection = new \ReflectionClass($this->className);

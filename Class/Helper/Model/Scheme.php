@@ -51,18 +51,9 @@ class Helper_Model_Scheme extends Helper_Abstract
         }
         $filename = $path . '/' . $lastName. '.php';
         $output = $this->getService('helperCodeGenerator')->fromTemplate(
-            'scheme',
-            array(
-                'author'            => $author,
-                'comment'           => $comment,
-                'fields'            => $dto->fields,
-                'indexes'           => $dto->indexes,
-                'references'        => $dto->references,
-                'admin'             => $dto->admin,
-                'languageScheme'    => $dto->languageScheme,
-                'createScheme'      => $dto->createScheme,
-                'signals'           => $dto->signals
-            )
+            'scheme', array_merge($dto->getFields(), array(
+                'author' => $author, 'comment' => $comment
+            ))
         );
         file_put_contents($filename, $output);
     }

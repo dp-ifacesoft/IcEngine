@@ -5,6 +5,7 @@
  *
  * @author morph, goorus
  * @Service("query", source={method="instance"})
+ * @Service("queryBuilder", source={method="instance"})
  */
 class Query
 {
@@ -71,7 +72,9 @@ class Query
 	 */
 	public function __call($method, $params)
 	{
-		$name = $this->normalizeName($method);
+        $serviceLocator = IcEngine::serviceLocator();
+        $name = $serviceLocator->getService('helperService')
+            ->normalizeName($method);
 		$query = $this->factory($name);
 		return call_user_func_array(array($query, $method), $params);
 	}
@@ -102,16 +105,5 @@ class Query
 		}
 		$query = new $className;
 		return $query->reset();
-	}
-
-	/**
-	 * Привести имя метод из вида methodName к виду Method_Name
-	 *
-     * @param string $name
-	 */
-	public function normalizeName($name)
-	{
-        $locator = IcEngine::serviceLocator();
-        return $locator->getService('helperService')->normalizeName($name);
 	}
 }
