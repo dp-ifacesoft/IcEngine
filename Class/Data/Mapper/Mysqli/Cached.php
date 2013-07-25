@@ -36,7 +36,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
      */
 	protected function sqlHash($query)
 	{
-		return md5(json_encode($query->getParts()));
+		return md5(serialize($query->getParts()));
 	}
 
 	/**
