@@ -20,7 +20,6 @@ class Data_Validator_Model_Scheme extends Data_Validator_Abstract
         }
         foreach ((array) $data as $fieldName) {
             if (!isset($scheme->fields[$fieldName])) {
-                echo $fieldName;
                 return false;
             }
         }

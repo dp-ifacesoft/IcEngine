@@ -322,7 +322,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 	 */
 	protected function sqlHash($query)
 	{
-		return md5(json_encode($query->getParts()));
+		return md5(serialize($query->getParts()));
 	}
 
     /**

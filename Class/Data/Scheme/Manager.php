@@ -59,7 +59,6 @@ class Data_Scheme_Manager extends Manager_Abstract
         $driverParents = class_parents(get_class($dataDriver));
         foreach ($delegates as $parentName => $delegateName) {
             $fullParentName = 'Data_Driver_' . $parentName;
-            echo $fullParentName . ' ';
             if (!isset($driverParents[$fullParentName])) {
                 continue;
             }

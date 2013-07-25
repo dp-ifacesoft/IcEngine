@@ -178,7 +178,10 @@ abstract class Model implements ArrayAccess
             }
             return $this->modelMapperScheme->get($field);
         } elseif (array_key_exists($field, $this->fields)) {
-            return $this->fields[$field];
+            $field = $this->helper()->unserializeValue(
+                $this, $field, $this->fields[$field]
+            );
+            return $field;
         } elseif (array_key_exists($joinField, $this->fields)) {
             return $this->joint($field, $this->fields[$joinField]);
         }
@@ -736,14 +739,15 @@ abstract class Model implements ArrayAccess
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
                 $value = $helper->filterValue($this, $field, $value);
-                if ($helper->validateField($this, $field, $value)) {
+                if (array_key_exists($field, $this->fields) && 
+                    !$helper->validateField($this, $field, $value))  {
+                    $this->errors[$field] = true;
+                } else {
                     $this->fields[$field] = $value;
                     $updatedFields[$field] = $value;
                     if (isset($this->errors[$field])) {
                         unset($this->errors[$field]);
                     }
-                } else {
-                    $this->errors[$field] = true;
                 }
             } else {
                 $data[$field] = $value;
