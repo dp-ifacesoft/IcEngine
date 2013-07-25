@@ -16,6 +16,8 @@ class Controller_Model_Rebuild extends Controller_Abstract
      */
     public function index($name, $context)
     {
+        echo 'Model "' . $name . '" rebuilding...';
         $context->helperModelMigrateRebuild->rebuild($name);
+        echo ' done' . PHP_EOL;
     }
 }

@@ -51,12 +51,10 @@ class Controller_Annotation extends Controller_Abstract
         $classes = $helperAnnotationUpdate->getClasses($path);
         $delegees = $this->config();
         $delegeeData = array();
-        $loader = IcEngine::getLoader();
         foreach ($classes as $i => $class) {
             if ($name && $class['class'] != $name) {
                 continue;
             }
-            $loader->load($class['class']);
             if ($verbose) {
                 echo '#' . ($i + 1) . ' ' . $class['class'] .
                     ' (' . $class['file'] . ') done.' . PHP_EOL;
@@ -65,9 +63,15 @@ class Controller_Annotation extends Controller_Abstract
             $context->controllerManager->call('Annotation', 'flush', array(
                 'name'  => $class['class']
             ));
+            ob_start();
             $helperAnnotationUpdate->getDelegees(
                 $delegees, $className, $delegeeData, $class['file']
             );
+            $content = ob_get_contents();
+            ob_end_clean();
+            if ($content) {
+                echo 'Output: ' . $className . PHP_EOL;
+            }
         }
         foreach ($delegeeData as $delegeeName => $data) {
             $controllerName = 'Annotation_' . $delegeeName;

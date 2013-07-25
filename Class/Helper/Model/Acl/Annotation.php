@@ -96,7 +96,6 @@ class Helper_Model_Acl_Annotation extends Helper_Abstract
             $line = $helperCodeGenerator->fromTemplate('modelAclLine', array(
                 'roles' => $roles
             ));
-            echo $line . '<br />';
             $subStartPos = strpos($subContent, $subject);
             if ($subStartPos !== false) {
                 $subEndPos = strpos($subContent, ')', $subStartPos);

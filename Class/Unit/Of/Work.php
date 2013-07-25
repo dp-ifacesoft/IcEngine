@@ -175,7 +175,6 @@ class Unit_Of_Work
 		$uowQuery = $unitOfWorkManager->get($query);
 		$uowQuery->push($query, $object, $loaderName);
 		if ($this->autoFlush && $this->autoFlush <= $this->rawCount) {
-            echo $this->autoFlush . ' ' . $this->rawCount . PHP_EOL;
 			$this->flush();
 		}
 		$this->rawCount++;

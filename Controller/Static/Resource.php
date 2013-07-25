@@ -38,6 +38,7 @@ class Controller_Static_Resource extends Controller_Abstract
 			$params[$paramName] = $this->input->receive($paramName);
 		}
 		foreach ($resourceCollection as $resource) {
+            echo 'Name: ' . $resource->name . PHP_EOL;
 			$context->controllerManager->call(
 				$resource->name, 'toFile', $params
 			);

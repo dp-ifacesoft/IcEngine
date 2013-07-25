@@ -9,6 +9,39 @@
 class Helper_Model 
 {
     /**
+     * Применить фильтр
+     * 
+     * @param Model $model
+     * @param string $field
+     * @param mixed $value
+     * @param string $annotation
+     * @return mixed
+     * @throws ErrorException
+     */
+    public function applyFilter($model, $field, $value, $annotation)
+    {
+        $annotations = $model->getAnnotations()['properties'];
+        if (!isset($annotations[$field])) {
+            return $value;
+        }
+        if (isset($annotations[$field]['Data\\' . $annotation])) {
+            $serviceLocator = IcEngine::serviceLocator();
+            $dataFilterManager = $serviceLocator->getService(
+                'dataFilterManager'
+            );
+            $dataFilters = reset($annotations[$field]['Data\\' . $annotation]);
+            foreach ($dataFilters as $dataFilterName) {
+                $dataFilter = $dataFilterManager->get($dataFilterName);
+                if (!$dataFilter) {
+                    throw new ErrorException('Incorrect data filter');
+                }
+                $value = $dataFilter->filter($value);
+            }
+        }
+        return $value;
+    }
+    
+    /**
      * Накинуть на модель after опшены
      *
      * @return Model
@@ -38,25 +71,7 @@ class Helper_Model
      */
     public function filterValue($model, $field, $value)
     {
-        $annotations = $model->getAnnotations()['properties'];
-        if (!isset($annotations[$field])) {
-            return $value;
-        }
-        if (isset($annotations[$field]['Data\\Filter'])) {
-            $serviceLocator = IcEngine::serviceLocator();
-            $dataFilterManager = $serviceLocator->getService(
-                'dataFilterManager'
-            );
-            $dataFilters = reset($annotations[$field]['Data\\Filter']);
-            foreach ($dataFilters as $dataFilterName) {
-                $dataFilter = $dataFilterManager->get($dataFilterName);
-                if (!$dataFilter) {
-                    throw new ErrorException('Incorrect data filter');
-                }
-                $value = $dataFilter->filter($value);
-            }
-        }
-        return $value;
+        return $this->applyFilter($model, $field, $value, 'Mutator');
     }
     
     /**
@@ -95,6 +110,19 @@ class Helper_Model
     }
     
     /**
+     * Распаковать поле
+     * 
+     * @param Model $model
+     * @param string $field
+     * @param mixed $value
+     * @return mixed
+     */
+    public function unserializeValue($model, $field, $value) 
+    {
+        return $this->applyFilter($model, $field, $value, 'Getter');
+    }
+    
+    /**
      * Валидация поля
      * 
      * @param Model $model
@@ -120,6 +148,13 @@ class Helper_Model
                 if (is_numeric($dataValidatorName)) {
                     $dataValidatorName = $params;
                     $params = null;
+                }
+                if (substr($dataValidatorName, 0, 2) == '::') {
+                    $dataValidatorName = substr($dataValidatorName, 2);
+                    $params = array_merge((array) $params, array(
+                        'model' => $model,
+                        'field' => $field
+                    ));
                 }
                 $dataValidator = $dataValidatorManager->get($dataValidatorName);
                 if (!$dataValidator) {

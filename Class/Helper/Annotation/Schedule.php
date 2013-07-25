@@ -19,6 +19,7 @@ class Helper_Annotation_Schedule extends Helper_Abstract
         $interval = substr($scheduleData['interval'], 1, -1);
         $multiplier = substr($scheduleData['interval'], -1);
         switch(strtolower($multiplier)) {
+            case 'd': $multiplier = 86400; break;
             case 'h': $multiplier = 3600; break;
             case 'm': $multiplier = 60; break;
             default:  $multiplier = 1;

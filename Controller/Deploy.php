@@ -44,11 +44,11 @@ class Controller_Deploy extends Controller_Abstract
                 $params = $params->__toArray();
             }
             list($controller, $action) = explode('/', $controller);
-            echo '#' . $i . ' ' . $controller . '/' . $action . '...';
-            $context->controllerManager->call(
-                $controller, $action, $params
-            );
-            echo ' done. ' . PHP_EOL;
+            echo '#' . $i . ' ' . $controller . '/' . $action . 
+                ' is running...' . PHP_EOL;
+            $context->controllerManager->call($controller, $action, $params);
+            echo '#' . $i . ' ' . $controller . '/' . $action . ' has done. ' . 
+                PHP_EOL;
             $i++;
         }
         echo 'All done.' . PHP_EOL;

@@ -43,7 +43,7 @@ class Annotation_Model_Orm_Signal extends Annotation_Model_Abstract
         if ($dto->signals) {
             return $helperConverter->arrayToString($dto->signals->__toArray());
         }
-        return true;
+        return array();
     }
     
     /**
