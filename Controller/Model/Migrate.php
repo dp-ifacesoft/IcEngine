@@ -44,6 +44,7 @@ class Controller_Model_Migrate extends Controller_Abstract
      * @Validator("User_Cli")
      * @Context("migrationManager", "helperMigrationQueue", "configManager")
      * @Context("controllerManager", "helperMigrationMark")
+     * @Context("helperMigrationModel")
      * @ConfigMerge("Controller_Model_Diff")
      */
     public function index($name, $context, $mark = false)
@@ -55,12 +56,15 @@ class Controller_Model_Migrate extends Controller_Abstract
         if (!$queue) {
             echo 'No actual migrations for model "' . $name . '".' . PHP_EOL;
         }
+        $dataSourceName = $context->dds->getDataSource()->getName();
         foreach ($queue as $queueData) {
-            $migration = $context->migrationManager->get($queueData['name']);
+            $migrationName = $queueData['name'];
+            $migration = $context->migrationManager->get($migrationName);
             if ($queueData['modelName'] != $name || $queueData['isFinished']) {
                 continue;
             }
-            if ($queueData['isMarked']) {
+            $marks = $context->helperMigrationModel->getMarks($migrationName);
+            if ($queueData['isMarked'] || in_array($dataSourceName, $marks)) {
                 $migration->log('up');
                 continue;
             }
@@ -69,10 +73,11 @@ class Controller_Model_Migrate extends Controller_Abstract
             echo ' done.' . PHP_EOL;
             $migration->log('up');
             if ($mark) {
-                $context->helperMigrationMark->mark($queueData['name']);
+                $context->helperMigrationMark->mark($migrationName);
+                $context->helperMigrationModel->mark(
+                    $migrationName, $dataSourceName
+                );
             }
-            $input = array('name' => $name);
-            $context->controllerManager->call('Model_Rebuild', 'index', $input);
         }
     }
 }

@@ -14,6 +14,7 @@
  {/if}
  {if $sequence}
  * @seq {$sequence}
+ * @marks
  {/if}
  */
  class Migration_{$name} extends Migration_Abstract

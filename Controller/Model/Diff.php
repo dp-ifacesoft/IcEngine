@@ -52,7 +52,9 @@ class Controller_Model_Diff extends Controller_Abstract
             )
         );
         echo ' done.' . PHP_EOL;
-        $migrationName = $context->helperMigration->getName($name);
+        $migrationName = $context->helperMigration->getName(
+            str_replace('_', '', $name)
+        );
         echo 'Migration name: ' . $migrationName . PHP_EOL;
         $category = $this->config()->category;
         $context->helperMigration->create($migrationName, $category, array(

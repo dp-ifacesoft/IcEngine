@@ -599,7 +599,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function load($columns = array())
 	{
-        if ($this->items) {
+        if (!is_null($this->items)) {
             return $this;
         }
         if ($this->isRaw) {

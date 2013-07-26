@@ -29,6 +29,13 @@ class Data_Source
      */
     protected $filters = array();
     
+    /**
+     * Название источника данных
+     * 
+     * @var string
+     */
+    protected $name;
+    
 	/**
 	 * Текущий запрос
 	 *
@@ -152,6 +159,16 @@ class Data_Source
         return $this->filters;
     }
     
+    /**
+     * Получить название источника
+     * 
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+    
 	/**
 	 * Возвращает запрос
 	 *
@@ -258,6 +275,16 @@ class Data_Source
     {
         $this->filters = $filters;
         return $this;
+    }
+    
+    /**
+     * Изменить название источника
+     * 
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
     /**

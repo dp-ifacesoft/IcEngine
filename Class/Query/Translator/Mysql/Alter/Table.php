@@ -183,7 +183,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
         $sql = self::SQL_CHANGE . ' COLUMN ';
         $helper = $this->helper();
         foreach ($fields as $field) {
-            if ($field[Query::TYPE] != Query::CHANGE) {
+            if (!is_array($field) || $field[Query::TYPE] != Query::CHANGE) {
                 continue;
             }
             $name = $field[Query::NAME];

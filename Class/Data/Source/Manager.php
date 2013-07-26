@@ -86,6 +86,7 @@ class Data_Source_Manager extends Manager_Abstract
         }
         $source = new Data_Source();
         $source->setConfig($sourceConfig);
+        $source->setName($name);
         $this->sources[$name] = $source;
         return $source;
 	}

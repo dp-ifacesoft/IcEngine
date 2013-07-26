@@ -71,7 +71,7 @@ class Helper_Migration_Queue extends Helper_Abstract
      * @param string $annotation
      * @return string
      */
-    protected function getMatch($file, $annotation)
+    public function getMatch($file, $annotation)
     {
         $regexp = '#@' . $annotation . ' ([\d\w]+)#';
         $matches = array();

@@ -8,7 +8,8 @@ $queryBuilder = $this->getService('query');
 {/if}
 {if isset($data[Query::FIELD][Query::FIELD])}
 {$method=Query::DROP}
-{$fieldName=$data[Query::FIELD][Query::FIELD]}
+{$subData=reset($data[Query::FIELD])}
+{$fieldName=$subData[Query::FIELD]}
 {else}
 {$part=reset($data[Query::FIELD])}
 {$method=$part[Query::TYPE]}
