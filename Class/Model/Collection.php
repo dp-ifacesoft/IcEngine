@@ -625,7 +625,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 * @param function $function
 	 * @param string $data
 	 */
-	public function mapToData($function, $data)
+	public function map($function, $data)
 	{
 		$items = &$this->items();
 		foreach ($items as $item) {

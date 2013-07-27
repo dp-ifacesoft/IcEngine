@@ -238,6 +238,10 @@ class Model_Manager extends Manager_Abstract
                 $newModel->scheme()['signals']['onGet']->__toArray(), $newModel
             );
         }
+        $annotations = $newModel->getAnnotations()['class'];
+        if (isset($annotations['Event\\Register'])) {
+            $this->getService('modelEventManager')->register($newModel);
+        }
 		return $newModel;
 	}
 

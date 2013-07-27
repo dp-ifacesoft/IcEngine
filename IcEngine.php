@@ -475,6 +475,8 @@ class IcEngine
         $resourceManager = self::getManager('Resource');
 		if (!$error) {
 			$resourceManager->save();
+            $shutdownManager = self::getManager('Shutdown');
+            $shutdownManager->process();
 		} else {
 			$errno = $error['type'];
 			if ($errno == E_ERROR || $errno == E_USER_ERROR) {
