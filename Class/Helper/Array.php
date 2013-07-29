@@ -157,8 +157,7 @@ class Helper_Array extends Helper_Abstract
 				}
 				reset($data);
 				$array = current($data);
-                $first = reset($array);
-                if (!isset($first[$key])) {
+                if (!isset($array[$key])) {
                     return $data;
                 }
 				if (is_numeric($array[$key])) {
