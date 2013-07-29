@@ -4,7 +4,7 @@
  * Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
  *
- * @author goorus, morph
+ * @author goorus, morph 
  */
 class Controller_View_Resource extends Controller_Abstract
 {
@@ -41,7 +41,7 @@ class Controller_View_Resource extends Controller_Abstract
 			}
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = ltrim($module->path(), '/');
-			foreach ($config->targets as $targetName => $target) {
+			foreach ($config->targets as $targetName => $target) { 
                 if ($type && $type != $target->type) {
                     continue;
                 }
@@ -88,16 +88,19 @@ class Controller_View_Resource extends Controller_Abstract
 				}
 				$destinationFile = strtr($target->file, $vars);
 				$packer->pushConfig($packerConfig);
+                echo $module->name . ' ' . $targetName . ' ' . count($resultResources) .
+                    PHP_EOL;
 				$packer->pack(
                     $resultResources, $destinationFile, $packerConfig, true
                 );
 				$packer->popConfig();
-                $reses [$name] = array (
+                $reses[$targetName] = array (
                     'type'	=> $target->type,
                     'url'	=> strtr ($target->url, $vars),
                     'ts'	=> $packer->cacheTimestamp ()
                 );
             }
+            $this->output->send ('reses', $reses);
         }
 	}
 }

@@ -80,12 +80,16 @@ class Service_State
             foreach (reset($injectData) as $i => $serviceName) {
                 $args[] = $serviceLocator->getService($serviceName);
             }
+        } elseif (isset($this->annotations['class']['Injectible'])) {
+            $methodReflection = $this->getMethodReflection($method);
+            $methodArgs = $methodReflection->getParameters();
+            $serviceNames = array_slice($methodArgs, count($args));
+            foreach ($serviceNames as $serviceName) {
+                $args[] = $serviceLocator->getService($serviceName->name);
+            }
         }
         if (is_bool($this->instanceCallback)) {
-            if (!$this->classReflection) {
-                $this->classReflection = new \ReflectionClass($this->className);
-            }
-            $methodReflection = $this->classReflection->getMethod($method);
+            $methodReflection = $this->getMethodReflection($method);
             if ($methodReflection->isStatic()) {
                 return call_user_func_array(
                     array($this->className, $method), $args
@@ -128,6 +132,21 @@ class Service_State
         return $this->object;
     }
 
+    /**
+     * Получить рефлексию метода
+     * 
+     * @param string $method
+     * @return \ReflectionMethod
+     */
+    public function getMethodReflection($method)
+    {
+        if (!$this->classReflection) {
+            $this->classReflection = new \ReflectionClass($this->className);
+        }
+        $methodReflection = $this->classReflection->getMethod($method);
+        return $methodReflection;
+    }
+    
     /**
      * Создать новый экземпляр сервиса
      *
