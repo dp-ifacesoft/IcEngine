@@ -339,7 +339,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function &filter($fields)
 	{
-        if (in_null($fields)) {
+        if (is_null($fields)) {
             foreach ($fields as $field => $value) {
                 if (!ctype_alnum($field[strlen($field) - 1])) {
                     $field .= '?';
