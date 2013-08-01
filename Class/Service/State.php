@@ -77,7 +77,7 @@ class Service_State
         $serviceLocator = IcEngine::serviceLocator();
         if (isset($this->annotations['methods'][$method]['Inject'])) {
             $injectData = $this->annotations['methods'][$method]['Inject'];
-            foreach (reset($injectData) as $i => $serviceName) {
+            foreach (reset($injectData) as $serviceName) {
                 $args[] = $serviceLocator->getService($serviceName);
             }
         } elseif (isset($this->annotations['class']['Injectible'])) {

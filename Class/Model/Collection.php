@@ -8,24 +8,6 @@
 class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
-	 * @desc Добавленные элементы
-	 * @var string
-	 */
-	const DIFF_EDIT_ADD		= 'added';
-
-	/**
-	 * @desc Неизмененные элементы
-	 * @var string
-	 */
-	const DIFF_EDIT_NO		= 'not_changed';
-
-	/**
-	 * @desc Удаленные элементы
-	 * @var string
-	 */
-	const DIFF_EDIT_DEL		= 'removed';
-    
-    /**
      * Функции, которые будут применены после загрузки
      *
      * @var array
@@ -357,6 +339,15 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function &filter($fields)
 	{
+        if (in_null($fields)) {
+            foreach ($fields as $field => $value) {
+                if (!ctype_alnum($field[strlen($field) - 1])) {
+                    $field .= '?';
+                }
+                $this->query()->where($field, $value);
+            }
+            return $this;
+        }
         $helperArray = $this->getService('helperArray');
         $collectionManager = $this->getService('collectionManager');
         $modelScheme = $this->getService('modelScheme');
@@ -1012,6 +1003,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function slice($offset, $length)
 	{
+        if (is_null($this->items)) {
+            $this->query()->limit($length, $offset);
+            return $this;
+        }
 		$this->items();
 		$this->items = array_slice($this->items, $offset, $length);
 		return $this;
@@ -1026,9 +1021,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      */
 	public function sort()
 	{
+        $args = implode (',', func_get_args());
+        if (is_null($this->items)) {
+            $this->query()->order($args);
+            return $this;
+        }
 		$items = &$this->items();
         $helperArray = $this->getService('helperArray');
-		$helperArray->mosort($items, implode (',', func_get_args()));
+		$helperArray->mosort($items, $args);
 		return $this;
 	}
 
