@@ -12,23 +12,23 @@ class Helper_Array
 	 * Возвращает массив
      *
 	 * @param array $input Двумерный массив.
-	 * @param string $columns Название колонки.
-	 * @param string $index Имя индекса
+	 * @param string $columnNames Название колонки.
+	 * @param string $indexName Имя индекса
 	 * @return array Колонка $column исходного массива
 	 */
-	public function column($input, $columns, $index = null)
+	public function column($input, $columnNames, $indexName = null)
 	{
-        if (!$columns) {
+        if (!$columnNames) {
             return $input;
         }
         if (!is_array($input) || empty($input)) {
             return array();
         }
 		$result = array();
-        $count = count($columns);
+        $count = count($columnNames);
 		foreach ($input as $row) {
             $current = array();
-            foreach ((array) $columns as $column) {
+            foreach ((array) $columnNames as $column) {
                 $value = isset($row[$column]) ? $row[$column] : null;
                 if ($count > 1) {
                     $current[$column] = $value;
@@ -36,8 +36,8 @@ class Helper_Array
                     $current = $value;
                 }
             }
-			if ($index && isset($current[$index])) {
-				$result[$current[$index]] = $current;
+			if ($indexName && isset($row[$indexName])) {
+				$result[$row[$indexName]] = $current;
 			} else {
 				$result[] = $current;
 			}
@@ -111,24 +111,24 @@ class Helper_Array
 		return $result;
     }
 
-	/**
-	 * @desc Помечает массив для разбиения по коллонкам.
-	 * @param array $content Данные
-	 * @param integer $cols_count
-	 * 		На сколько колонок разбить
-	 * @param string $start_mark
-	 * 		Как отмечать начала колонки.
-	 * 		Это поле поле будет установлено в true, у записей из $content,
-	 * 		которые являются началом колонки.
-	 * @param string $finish_mark
-	 * 		Как отмечать завершение колонки.
-	 * 		Это поле будет установлено в true, у записей из $content,
-	 * 		которые являются концом колонки
-	 * @param string $block_mark
-	 * 		Признак начала неделимого блока.
-	 * 		Если записи из $content, идущие подряд, имеют одинаковое поле $bock_mark,
-	 * 		разбиение между ними не будет.
-	 */
+    /**
+     * @desc Помечает массив для разбиения по коллонкам.
+     * @param array $content Данные
+     * @param $colsCount
+     * @param $startMark
+     * @param $finishMark
+     * @param null $blockMark
+     * @internal param int $cols_count На сколько колонок разбить*        На сколько колонок разбить
+     * @internal param string $start_mark Как отмечать начала колонки.*        Как отмечать начала колонки.
+     *        Это поле поле будет установлено в true, у записей из $content,
+     *        которые являются началом колонки.
+     * @internal param string $finish_mark Как отмечать завершение колонки.*        Как отмечать завершение колонки.
+     *        Это поле будет установлено в true, у записей из $content,
+     *        которые являются концом колонки
+     * @internal param string $block_mark Признак начала неделимого блока.*        Признак начала неделимого блока.
+     *        Если записи из $content, идущие подряд, имеют одинаковое поле $bock_mark,
+     *        разбиение между ними не будет.
+     */
 	public function markForColumns ( &$content, $colsCount,
 		$startMark, $finishMark, $blockMark = null
 	)
@@ -149,22 +149,22 @@ class Helper_Array
 		if (empty($blockMark))
 		{
 			// без блоков
-			$index = $in_column;
+			$index = $inColumn;
 			$content[0][$startMark] = true;
 			while ($index < $rowsCount)
 			{
 				$content[$index][$startMark] = true;
 				$content[$index - 1][$finishMark] = true;
-				$index += $in_column;
+				$index += $inColumn;
 			}
 			$content [$rowsCount - 1][$finishMark] = true;
 			return;
 		}
 
 		// по блокам
-		$nextColumnFinish = $in_column;
+		$nextColumnFinish = $inColumn;
 		$index = 1;
-		$content[0][$start_mark] = true;
+		$content[0][$startMark] = true;
 		$index++;
 		while ($index < $rowsCount) {
 			if (
@@ -275,7 +275,8 @@ class Helper_Array
      *
 	 * @param array $data Массив объектов
 	 * @param string $sortby Поля для сортировки
-	 */
+     * @return bool
+     */
 	public function mosort(&$data, $sortby)
 	{
 		if (count($data) <= 1) {

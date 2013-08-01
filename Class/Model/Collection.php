@@ -674,11 +674,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this->query;
 	}
 
-	/**
-	 * Получить результат запроса коллекции
+    /**
+     * Получить результат запроса коллекции
      *
-	 * @return Query_Result
-	 */
+     * @param null $result
+     * @return Query_Result
+     */
 	public function queryResult($result = null)
 	{
 		if ($result) {
