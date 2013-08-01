@@ -38,6 +38,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
             );
             if (!$scheme->fields || 
                 !$context->helperAnnotationOrm->compare($className)) {
+                echo $className . PHP_EOL;
                 $context->helperModelMigrateSync->resync($className);
             }
             if (!$scheme->fields) {
