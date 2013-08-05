@@ -1,67 +1,58 @@
 <?php
 
-if (!class_exists ('Data_Provider_Abstract'))
-{
-	include __DIR__ . '/Abstract.php';
-}
 /**
+ * Буфер данных. Используется для хранения данных в пределах текущего процесса
  * 
- * @desc Буфер данных. Используется для хранения данных в пределах 
- * 		текущего процесса.
- * @author Юрий
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Data_Provider_Buffer extends Data_Provider_Abstract
 {
+	/**
+	 * Содержимое буфера.
+	 * 
+     * @var array
+	 */
+	protected $buffer;
 	
 	/**
-	 * @desc Содержимое буфера.
-	 * @var array
+	 * Возвращает объект буфера данных
 	 */
-	protected $_buffer;
-	
-	/**
-	 * Возвращает объект буфера данных.
-	 */
-	public function __construct ()
+	public function __construct()
 	{
-		$this->_buffer = array ();
+		$this->buffer = array();
 	}
 		
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::get()
+	 * @inheritdoc
 	 */
-	public function get ($key, $plain = false)
+	public function get($key, $plain = false)
 	{
-		return isset ($this->_buffer [$key]) ? $this->_buffer [$key] : null;
+		return isset($this->buffer[$key]) ? $this->buffer[$key] : null;
 	}
 	
 	/**
-	 * @desc Всё содержимое буфера.
-	 * @return array
+	 * Всё содержимое буфера.
+	 * 
+     * @return array
 	 */
-	public function getAll ()
+	public function getAll()
 	{
-		return $this->_buffer;
+		return $this->buffer;
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::flush()
+	 * @inheritdoc
 	 */
-	public function flush ($delay = 0)
+	public function flush($delay = 0)
 	{
-		$this->_buffer = array ();
+		$this->buffer = array();
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::set()
+	 * @inheritdoc
 	 */
-	public function set ($key, $value, $expiration = 0, $tags = array ())
+	public function set($key, $value, $expiration = 0, $tags = array())
 	{
-		$this->_buffer [$key] = $value;
+		$this->buffer[$key] = $value;
 	}
 }

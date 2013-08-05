@@ -1,23 +1,17 @@
 <?php
+
 /**
+ * Валидатор e-mail адресов
  * 
- * @desc Валидатор e-mail адресов
- * @author Юрий
- * @package IceEngine
- *
+ * @author goorus, morph
  */
 class Data_Validator_Email extends Data_Validator_Abstract
 {
-	
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Validator_Abstract::validate()
+	 * @inheritdoc
 	 */
-	public function validate ($data)
+	public function validate($data, $value = true)
 	{
-		return
-			$data && 
-			$data == filter_var ($data, FILTER_VALIDATE_EMAIL);
+		return $data && $data == filter_var($data, FILTER_VALIDATE_EMAIL);
 	}
-	
 }

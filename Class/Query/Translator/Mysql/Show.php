@@ -1,27 +1,27 @@
 <?php
 
 /**
- * @desc Транслятор запроса типа show драйвера mysql
+ * Транслятор запроса типа show драйвера mysql
+ * 
  * @author morph, goorus
  */
 class Query_Translator_Mysql_Show extends Query_Translator_Mysql_Select
 {
 	/**
-	 * @desc Рендер части SHOW.
-	 * @param Query_Abstract $query Запрос.
+	 * Рендер части SHOW.
+	 * 
+     * @param Query_Abstract $query Запрос.
 	 * @return string Сформированный запрос.
 	 */
-	public function _renderShow (Query_Abstract $query)
+	public function doRenderShow(Query_Abstract $query)
 	{
-		$sql = 'SHOW ' . $this->_partDistinct ($query) . ' ';
-
-		$sql .= $query->part (Query::SHOW);
-
+		$sql = self::SQL_SHOW . ' ' . $this->partDistinct($query) . ' ';
+		$sql .= $query->part(Query::SHOW);
 		return $sql . ' ' .
-			self::_renderFrom ($query, false) . ' ' .
-			self::_renderWhere ($query) . ' ' .
-			self::_renderOrder ($query) . ' ' .
-			self::_renderLimitoffset ($query) . ' ' .
-			self::_renderGroup ($query);
+			$this->renderFrom($query, false) . ' ' .
+			$this->renderWhere($query) . ' ' .
+			$this->renderOrder($query) . ' ' .
+			$this->renderLimitoffset($query) . ' ' .
+			$this->renderGroup($query);
 	}
 }

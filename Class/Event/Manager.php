@@ -13,21 +13,21 @@ class Event_Manager
 	 *
 	 * @var Event_Map
 	 */
-	protected static $map;
+	protected $map;
 
 	/**
 	 * Сигналы
 	 *
 	 * @var array
 	 */
-	protected static $signals;
+	protected $signals;
 
 	/**
 	 * Слоты
 	 *
 	 * @var array
 	 */
-	protected static $slots;
+	protected $slots;
 
 	/**
 	 * Добавляет слот сигналу
@@ -47,10 +47,10 @@ class Event_Manager
 	 */
 	public function getMap()
 	{
-		if (!self::$map) {
-			self::$map = new Event_Map;
+		if (!$this->map) {
+			$this->map = new Event_Map();
 		}
-		return self::$map;
+		return $this->map;
 	}
 
 	/**
@@ -64,17 +64,17 @@ class Event_Manager
         if (is_object($signalName)) {
             $signal = $signalName;
             $signalName = $signal->getName();
-            self::$signals[$signalName] = $signal;
-        } elseif (!isset(self::$signals[$signalName])) {
+            $this->signals[$signalName] = $signal;
+        } elseif (!isset($this->signals[$signalName])) {
 			$className = 'Event_Signal_' . $signalName;
             if (IcEngine::getLoader()->tryLoad($className)) {
                 $signal = new $className;
             } else {
                 $signal = new Event_Signal(array(), $signalName);
             }
-            self::$signals[$signalName] = $signal;
+            $this->signals[$signalName] = $signal;
 		}
-		return self::$signals[$signalName];
+		return $this->signals[$signalName];
 	}
 
 	/**
@@ -85,12 +85,30 @@ class Event_Manager
 	 */
 	public function getSlot($slotName)
 	{
-		if (!isset(self::$slots[$slotName])) {
+		if (!isset($this->slots[$slotName])) {
 			$className = 'Event_Slot_' . $slotName;
-			self::$slots[$slotName] = new $className;
+			$this->slots[$slotName] = new $className;
 		}
-		return self::$slots[$slotName];
+		return $this->slots[$slotName];
 	}
+
+    /**
+     * Проверяет зарегистрирован ли сигнал в конфиге
+     *
+     * @param string $signalName
+     * @return boolean
+     */
+    public function isSignalRegistered($signalName)
+    {
+        $locator = IcEngine::serviceLocator();
+        $configManager = $locator->getService('configManager');
+        $config = $configManager->get('Event_Manager');
+        $signals = $config->__toArray();
+        if (isset($signals[$signalName])) {
+            return true;
+        }
+        return false;
+    }
 
 	/**
 	 * Выполнить сигнал
@@ -105,8 +123,10 @@ class Event_Manager
 		$slots = $this->getMap()->getBySignal($signal);
 		if ($slots) {
 			foreach ($slots as $slot) {
-				$slot->setParams(array_merge($data, $slot->getParams()));
+                $slotParams = $slot->getParams();
+				$slot->setParams(array_merge($slotParams, $data));
 				$slot->action();
+                $slot->setParams($slotParams);
 			}
 		}
 	}
@@ -119,8 +139,8 @@ class Event_Manager
 	 */
 	public function register($signal, $slot)
 	{
-        self::$signals[$signal->getName()] = $signal;
-        self::$slots[$slot->getName()] = $slot;
+        $this->signals[$signal->getName()] = $signal;
+        $this->slots[$slot->getName()] = $slot;
 		$this->getMap()->add($signal, $slot);
 	}
 
@@ -131,7 +151,7 @@ class Event_Manager
 	 */
 	public function setMap($map)
 	{
-		self::$map = $map;
+		$this->map = $map;
 	}
 
 	/**

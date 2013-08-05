@@ -10,10 +10,9 @@ class Module_Option_Main extends Model_Option
 	 */
 	public function before()
 	{
-		$value = isset($this->params['value']) ? (int) (bool) $this->params['value'] :
-			1;
-		$this->query
-			->where('isMain', $value);
+		$value = isset($this->params['value']) 
+            ? (int) (bool) $this->params['value'] : 1;
+		$this->query->where('isMain', $value);
 	}
 
 }

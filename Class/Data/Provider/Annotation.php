@@ -8,6 +8,13 @@
 class Data_Provider_Annotation extends Data_Provider_Abstract
 {
     /**
+     * Загруженные аннотации
+     * 
+     * @var array
+     */
+    protected $annotations = array();
+    
+    /**
      * Путь до директории с аннотациями
      *
      * @var string
@@ -30,12 +37,20 @@ class Data_Provider_Annotation extends Data_Provider_Abstract
      */
     public function get($key, $plain = false)
     {
+        if (isset($this->annotations[$key])) {
+            $json = $this->annotations[$key];
+            $annotationSet =  new Annotation_Set(
+                $json['class'], $json['methods'], $json['properties']
+            );
+            return $annotationSet;
+        }
         $filename = IcEngine::root() . $this->path . $key;
         if (file_exists($filename)) {
             $json = json_decode(file_get_contents($filename), true);
             $annotationSet =  new Annotation_Set(
                 $json['class'], $json['methods'], $json['properties']
             );
+            $this->annotations[$key] = $json;
             return $annotationSet;
         }
     }

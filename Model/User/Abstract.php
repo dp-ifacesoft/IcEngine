@@ -4,20 +4,9 @@
  * Абстрактная модель пользователя.
  *
  * @author goorus, morph, neon
- * @Service("user")
  */
 class User_Abstract extends Model
 {
-	/**
-	 * @inheritdoc
-	 */
-	protected static $config = array(
-		// колбэк после авторизации
-		'login_callback'	=> null,
-		// функция, вызываемая при логауте.
-		'logout_callback'	=> null
-	);
-
 	/**
 	 * Текущий пользователь.
 	 *
@@ -39,14 +28,12 @@ class User_Abstract extends Model
 	 */
 	public function authorize()
 	{
-        $session = $this->getService('session')->getCurrent();
+        $session = $this->getService('userSession')->getCurrent();
 		$session->updateSession($this->key());
         $userService = $this->getService('user');
         $userService->setCurrent($this);
-        $this->update(array(
-            'phpSessionId'  => $session->key()
-        ));
-        $authorizationLog = $this->getService("authorizationLog");
+        $this->update(array('phpSessionId' => $session->key()));
+        $authorizationLog = $this->getService('authorizationLog');
         $authorizationLog->log();
 //        $afterCallbackManager = $this->getService('afterCallbackManager');
 //        $afterCallbackManager->apply();
@@ -62,33 +49,6 @@ class User_Abstract extends Model
 	{
         $userService = $this->getService('user');
 		return $userService->current->id > 0 ? true : false;
-	}
-
-	/**
-	 * Проверяет, имеет ли пользователь доступ.
-	 *
-     * @param string|integer $name
-	 * 		Алиас или id ресурса
-	 * @return boolean
-	 */
-	public function can($name)
-	{
-        $modelManager = $this->getService('modelManager');
-		if (is_numeric($name)) {
-			$resource = $modelManager->get('Acl_Resource', $name);
-		} else {
-			$resource = $modelManager->byOptions(
-				'Acl_Resource',
-                array(
-                    'name'  => '::Name',
-                    'value' => $name
-                )
-			);
-		}
-		if (!$resource) {
-			return false;
-		}
-		return $resource->userCan($this);
 	}
 
 	/**
@@ -281,16 +241,12 @@ class User_Abstract extends Model
      */
 	public function init($sessionId = null)
 	{
-        if ($this->current) {
-            return;
-        }
         $request = $this->getService('request');
-		$sessionId = $sessionId ?:$request->sessionId();
-        $session = $this->getService('session');
-        $userSession = $session->byPhpSessionId($sessionId ?: 'unknown');
-        $session->setCurrent($userSession);
-		$this->current = $session->getCurrent()->User;
-		$session->getCurrent()->updateSession();
+		$sessionId = $sessionId ?: $request->sessionId();
+        $session = $this->getService('userSession');
+        $userSession = $session->getCurrent($sessionId);
+		$this->current = $userSession->User;
+		$session->getCurrent()->updateSession($this->current->key());
 		return $this->current;
 	}
 
@@ -299,9 +255,17 @@ class User_Abstract extends Model
 	 */
 	public function logout()
 	{
-		$session = $this->getService('session');
+		$session = $this->getService('userSession');
 		$session->getCurrent()->delete();
 	}
+    
+    /**
+     * @inheritdoc
+     */
+    public function table()
+    {
+        return 'User';
+    }
 
     /**
      *  @inheritodc

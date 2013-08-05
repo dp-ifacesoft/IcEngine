@@ -21,8 +21,14 @@
             right: 0;
             top: 0;
         }
-    </style>    
-{$content}
+    </style>
+    <div style="height:380px; position:relative; background: linear-gradient(45deg, #020031 0%, #6D3353 100%) repeat scroll 0 0 transparent;
+        box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2) inset, 0 -3px 7px rgba(0, 0, 0, 0.2) inset; border-radius:0; margin:40px 0" class="main hero-unit green">
+        <h1 style="font-family:Helvetica,&#8203;Arial,&#8203;sans-serif; 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 0, 0, 0.075); letter-spacing:-2px; text-rendering: optimizelegibility; color:white; font-size:120px; text-align:center">Войдите</h1>
+        <div style="left:50%; margin-left:-300px; position:absolute; z-index:10">
+            {$content}
+        </div>
+    </div>
     {$helperViewResource->embedJs()}
     {$helperViewResource->embedCss()}
     {$helperViewResource->embedJtpl()}

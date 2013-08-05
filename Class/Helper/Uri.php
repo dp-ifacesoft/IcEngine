@@ -15,7 +15,7 @@ class Helper_Uri
 	 * @param array $params
 	 * @return string
 	 */
-	public static function fromRoute($routeName, $params = array())
+	public function fromRoute($routeName, $params = array())
 	{
         $locator = IcEngine::serviceLocator();
         $routeService = $locator->getService('route');
@@ -131,6 +131,12 @@ class Helper_Uri
 		return $url;
 	}
 
+    /**
+     * Получить основном домен
+     *
+     * @param string $server_name
+     * @return string
+     */
 	public function mainDomain($server_name = null)
 	{
 		if (!$server_name) {
@@ -151,7 +157,7 @@ class Helper_Uri
 	 * @param string $uri Полный или относительный адрес редиректа.
 	 * @return string Полный адрес перехода.
 	 */
-	public static function validRedirect($uri)
+	public function validRedirect($uri)
 	{
 		if (empty($uri)) {
 			return 'http://' . $_SERVER['HTTP_HOST'];
@@ -162,4 +168,27 @@ class Helper_Uri
 		return $uri;
 	}
 
+    /**
+     * Получить поддомен
+     *
+     * @param string $host
+     * @return string
+     */
+    public function subdomain($host = null)
+    {
+        if (!$host) {
+			$host = $_SERVER['HTTP_HOST'];
+		}
+		$parts = strrchr($host, '.');
+		if ($parts === false) {
+			return $host;
+		}
+        $regexp = '#^([^\.]+)\.([^\.]+)\.(.*?)$#';
+        $matches = array();
+        preg_match_all($regexp, $host, $matches);
+        if (empty($matches[1][0])) {
+            return 'www';
+        }
+		return $matches[1][0];
+    }
 }

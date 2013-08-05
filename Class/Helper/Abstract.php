@@ -28,6 +28,9 @@ class Helper_Abstract
      */
     public function getServiceLocator()
     {
+        if (!self::$serviceLocator) {
+            self::$serviceLocator = IcEngine::serviceLocator();
+        }
         return self::$serviceLocator;
     }
 

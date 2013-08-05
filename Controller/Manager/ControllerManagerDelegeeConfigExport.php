@@ -21,13 +21,21 @@ class ControllerManagerDelegeeConfigExport extends
         $actionScheme = $scheme->getMethod($context->getAction());
         if (!empty($actionScheme['ConfigExport'])) {
             $config = $controller->config();
-            $params = $context->getArgs();
+            $input = $controller->getInput();
             foreach ($actionScheme['ConfigExport'] as $data) {
-                $configField = reset($data);
-                $toField = isset($data['to']) ? $data['to'] : $configField;
-                $params[$toField] = $config[$configField];
+                foreach ($data as $configField) {
+                    if (is_array($configField)) {
+                        $toField = isset($configField['to']) 
+                            ? $configField['to'] : reset($configField);
+                        $configField = reset($configField);
+                    } else {
+                        $toField = $configField;
+                    }
+                    if (empty($input[$toField])) {
+                        $input[$toField] = $config[$configField];
+                    }
+                }
             }
-            $context->setArgs($params);
         }
     }
 }

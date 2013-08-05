@@ -1,47 +1,52 @@
 <?php
 /**
  *
- * @desc Хелпер управления заголовоками
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
+ * Хелпер управления заголовоками
+ * 
+ * @author goorus, morph
  * @Service("helperHeader")
  */
-class Helper_Header
+class Helper_Header extends Helper_Abstract
 {
 	/**
-	 *
-	 * @desc Код ошибки "ресурс перемещен постоянно"
-	 * @var integer
+	 * Код ошибки "ресурс перемещен постоянно"
+	 * 
+     * @var integer
 	 */
 	const E301 = 301;
 
 	/**
-	 * @desc Код ошибки "доступ закрыт"
-	 * @var integer
+	 * Код ошибки "доступ закрыт"
+	 * 
+     * @var integer
 	 */
 	const E403 = 403;
 
 	/**
-	 * @desc Код ошибки "страница не найдена"
-	 * @var integer
+	 * Код ошибки "страница не найдена"
+	 * 
+     * @var integer
 	 */
 	const E404 = 404;
 
 	/**
-	 * @desc Код ошибки "страница удалена"
-	 * @var integer
+	 * Код ошибки "страница удалена"
+	 * 
+     * @var integer
 	 */
 	const E410 = 410;
 
 	/**
-	 * @desc Флаг кодирования gzip
-	 * @var string
+	 * Флаг кодирования gzip
+	 * 
+     * @var string
 	 */
 	const CONTENT_ENCODING_GZIP = 'gzip';
 
 	/**
-	 * @desc Сообщения с ошибками
-	 * @var array
+	 * Сообщения с ошибками
+	 * 
+     * @var array
 	 */
 	public static $statuses = array (
 		self::E403 => array (
@@ -63,66 +68,54 @@ class Helper_Header
 	);
 
 	/**
-	 * @desc Отправить статус в заголовке ответа
-	 * @param integer $status Статус.
+	 * Отправить статус в заголовке ответа
+	 * 
+     * @param integer $status Статус.
 	 */
-	public static function setStatus ($status, $set_code = true)
+	public function setStatus($status, $setCode = true)
 	{
-		foreach (self::$statuses [$status] as $text)
-		{
-			if ($set_code)
-			{
-				header ($text, true, $status);
-			}
-			else
-			{
-				header ($text);
+		foreach (self::$statuses[$status] as $text) {
+			if ($setCode) {
+				header($text, true, $status);
+			} else {
+				header($text);
 			}
 		}
 	}
 
 	/**
-	 * @desc Редирект по указанному адресу.
+	 * Редирект по указанному адресу.
 	 * К переданному $uri при необходимости будет добавлено имя сервера
 	 * и "http://".
-	 * @param string $uri
+	 * 
+     * @param string $uri
 	 * @param integer $code [optional] Код редиректа.
 	 * Например Helper_Header::E301
 	 */
-	public static function redirect ($uri, $code = null)
+	public function redirect($uri, $code = null)
 	{
-		$full_uri =
-			substr ($uri, 0, 7) == 'http://' ?
-			$uri :
-			('http://' . Request::host () . $uri);
-
-		if (!headers_sent ())
-		{
-			if ($code)
-			{
-				header ("Location: $full_uri", true, $code);
+		$fullUri = substr ($uri, 0, 7) == 'http://' 
+            ? $uri :
+			('http://' . $this->getService('request')->host() . $uri);
+		if (!headers_sent()) {
+			if ($code) {
+				header("Location: $fullUri", true, $code);
+			} else {
+				header("Location: $fullUri");
 			}
-			else
-			{
-				header ("Location: $full_uri");
-			}
-		}
-		else
-		{
-			self::jsRedirect ($uri);
+		} else {
+			$this->jsRedirect($uri);
 		}
 	}
 
 	/**
-	 * @desc Редирект через javascript.
-	 * @param string $uri Адрес для редиректа
+	 * Редирект через javascript.
+	 * 
+     * @param string $uri Адрес для редиректа
 	 */
-	public static function jsRedirect ($uri)
+	public function jsRedirect($uri)
 	{
-		echo
-			'<script type="text/javascript">window.location.href="' .
-			$uri .
+		echo '<script type="text/javascript">window.location.href="' . $uri .
 			'"</script>';
 	}
-
 }

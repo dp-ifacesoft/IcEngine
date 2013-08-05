@@ -21,9 +21,12 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
      */
     protected $noPack = false;
 
+    /**
+     * Конструктор
+     */
 	public function __construct()
 	{
-		IcEngine::getLoader()->requireOnce(self::PACKER, 'includes');
+		IcEngine::getLoader()->requireOnce(self::PACKER, 'Vendor');
 	}
 
     /**

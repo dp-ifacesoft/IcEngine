@@ -1,40 +1,42 @@
 <?php
+
 /**
+ * Генерация уникальный идентификаторов.
  * 
- * @desc Генерация уникальный идентификаторов.
- * @author Юрий
- * @package IcEngine
- *
+ * @author goorus, morph
+ * @Service("helperUnique")
  */
 class Helper_Unique
 {
 	
 	/**
-	 * @desc Счетчик для избежания генерации одинаковых ID в рамках
+	 * Счетчик для избежания генерации одинаковых ID в рамках
 	 * одного процесса.
-	 * @var integer
+	 * 
+     * @var integer
 	 */
-	private static $_counter = 0;
+	private $counter = 0;
 	
 	/**
-	 * @desc Генерирует уникальный идентификатор на основе названия модели
+	 * Генерирует уникальный идентификатор на основе названия модели
 	 * или текущего времени.
-	 * @param Model $model
+	 * 
+     * @param Model $model
 	 * @return string
 	 */
-	public static function forModel (Model $model)
+	public function forModel(Model $model)
 	{
-		$ext = 1000 + self::$_counter++;
-		return $model->modelName () . uniqid (__CLASS__, true) . $ext;
+		$ext = 1000 + $this->counter++;
+		return $model->modelName() . uniqid(__CLASS__, true) . $ext;
 	}
 	
 	/**
-	 * @desc Получить уникальный хэш
-	 * @return string
+	 * Получить уникальный хэш
+	 * 
+     * @return string
 	 */
-	public static function hash ()
+	public function hash()
 	{
-		return uniqid (null, true);
+		return uniqid(null, true);
 	}
-	
 }

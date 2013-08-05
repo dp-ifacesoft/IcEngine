@@ -1,43 +1,17 @@
 <?php
+
 /**
+ * Провайдер для получения файлов из POST запроса.
  * 
- * @desc Провайдер для получения файлов из POST запроса.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
-class Data_Provider_Files extends Data_Provider_Abstract
+class Data_Provider_Files extends Data_Provider_Buffer
 {
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::get()
-	 */
-	public function get ($key, $plain = false)
-	{
-		if (isset ($_FILES [$key]))
-		{
-			return $_FILES [$key];
-		}
-		return null;
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::getAll()
-	 */
-	public function getAll ()
-	{
-		return $_FILES;
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::set()
-	 */
-	public function set ($key, $value, $expiration = 0, $tags = array ())
-	{
-		
-	}
-	
+    /**
+     * @inheritdoc
+     */
+	public function __construct()
+    {
+        $this->buffer = &$_FILES;
+    }
 }

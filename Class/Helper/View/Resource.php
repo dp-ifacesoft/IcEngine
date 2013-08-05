@@ -37,7 +37,7 @@ class Helper_View_Resource
             self::JS    => array(
                 'noPack'            => 'Ice/Static/js/noPack/',
                 'adminNoPack'       => 'Admin/Static/js/noPack/',
-                'core'              => 'IcEngine/js/'
+                'core'              => 'IcEngine/Static/js/'
             ),
             self::JTPL  => array(
                 'default'   => 'Ice/Static/jtpl/',
@@ -91,14 +91,14 @@ class Helper_View_Resource
         if (!is_array($args[1][0])) {
             $tmpArgs = array($args[1][0], $args[1][1]);
             if (isset($args[1][2])) {
-                $tmpArgs[2] = $args[1][2];
+                $params = $args[1][2];
+                $tmpArgs[2] = $params;
             }
             $args = array($tmpArgs);
         } else {
             array_shift($args);
             $args = reset($args);
         }
-
         foreach ($args as $argsData) {
             $pathName = isset($argsData[1]) ? $argsData[1] : null;
             $filename = $argsData[0];
@@ -157,7 +157,7 @@ class Helper_View_Resource
 	 * @param string $path базовый путь
 	 * @param string $source
 	 */
-	public static function appendJsMultiple($path, $source)
+	public function appendJsMultiple($path, $source)
 	{
 		$slashRight = strrpos($source, '/');
 		$directory = substr($source, 0, $slashRight);

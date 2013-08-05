@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Фабрика рендеров схемы моделей
+ * Фабрика представлений рендера схемы связей модели
  * 
  * @author morph
  * @package Ice\Orm
@@ -10,28 +10,10 @@
 class Model_Mapper_Scheme_Render
 {
 	/**
-	 * Получить рендер по параметрам
-	 * 
-     * @param string $translator_name Имя траслятор дата сорса
-	 * @param string $factory_name Имя фабрики сущности
-	 * @param string $name Имя сущности
-	 * @return Model_Mapper_Scheme_Render_Abstract
-	 */
-	public function byArgs($translatorName, $factoryName, $name)
-	{
-		$values = array($translatorName, $factoryName, $name);
-		foreach ($values as $i => $value) {
-			if (!$value) {
-				unset($values[$i]);
-			}
-		}
-		return $this->byName(implode('_', $values));
-	}
-
-	/**
-	 * Получить рендер по имени
+	 * Получить представление рендера схемы связей модели по имени
 	 * 
      * @param string $name
+	 * @return Model_Mapper_Scheme_Render_Abstract
 	 */
 	public function byName($name)
 	{

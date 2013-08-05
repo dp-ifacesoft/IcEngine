@@ -24,7 +24,7 @@ class DDS
      * @param Query_Abstract $query Запрос
 	 * @param Query_Options $options Опции
      * @param boolean $auto Пытаться ли автоматически получить источник данных
-	 * @return Data_Source_Abstract источник данных
+	 * @return Data_Source источник данных
 	 */
 	public function execute(Query_Abstract $query, $options = null,
         $auto = true)
@@ -67,9 +67,9 @@ class DDS
 	/**
 	 * Изменить источник данных по умолчанию
      *
-	 * @param Data_Source_Abstract $source
+	 * @param Data_Source $source
 	 */
-	public function setDataSource(Data_Source_Abstract $source)
+	public function setDataSource(Data_Source $source)
 	{
         $this->source = $source;
 	}

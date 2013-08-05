@@ -6,60 +6,29 @@
  * @author morph
  * @Service("dataValidatorManager")
  */
-class Data_Validator_Manager
+class Data_Validator_Manager extends Manager_Abstract
 {
-
 	/**
 	 * Валидаторы
+     * 
 	 * @var array <Data_Validator_Abstract>
 	 */
-	private static $_validators = array ();
+	private $validators = array();
 
 	/**
-	 *
+	 * Получить валидатор по имени
+     * 
 	 * @param string $name
 	 * @return Data_Validator_Abstract
 	 */
-	public static function get ($name)
+	public function get($name)
 	{
-		if (isset (self::$_validators [$name]))
-		{
-			return self::$_validators [$name];
+		if (isset ($this->validators[$name])) {
+			return $this->validators[$name];
 		}
-
-		$class = 'Data_Validator_' . $name;
-		return self::$_validators [$name] = new $class;
+		$className = 'Data_Validator_' . $name;
+		$validator = new $className;
+        $this->validators[$name] = $validator;
+        return $validator;
 	}
-
-	/**
-	 * Проверка данных
-	 * @param string $name
-	 * 		Валидатор.
-	 * @param mixed $data
-	 * @return true|string
-	 */
-	public static function validate ($name, $data)
-	{
-		return self::get ($name)->validate ($data);
-	}
-
-	/**
-	 * Проверка данных валидатором
-	 *
-	 * @param string $name
-	 * 		Валидатор.
-	 * @param string $field
-	 * 		Проверяемое поле
-	 * @param stdClass $data
-	 * @param stdClass|Objective $scheme
-	 * @return true|string
-	 * 		true, если данные прошли валидацию.
-	 * 		Иначе - строкове представление ошибки в виде:
-	 * 		"Имя_Валидатора/ошибка"
-	 */
-	public static function validateEx ($name, $field, $data, $scheme)
-	{
-		return self::get ($name)->validateEx ($field, $data, $scheme);
-	}
-
 }

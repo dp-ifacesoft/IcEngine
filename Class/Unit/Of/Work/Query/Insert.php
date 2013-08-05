@@ -22,7 +22,7 @@ class Unit_Of_Work_Query_Insert extends Unit_Of_Work_Query_Abstract
 		 * Пока так
 		 */
 		$values = array();
-		foreach ($data as $key=>$dataValues) {
+		foreach ($data as $key => $dataValues) {
 			foreach ($dataValues['values'] as $valueKey=>$value) {
 				$values[$key][$valueKey] = $value;
 			}
@@ -34,6 +34,7 @@ class Unit_Of_Work_Query_Insert extends Unit_Of_Work_Query_Abstract
 		$locator = IcEngine::serviceLocator();
 		$queryBuilder = $locator->getService('query');
 		$query = $queryBuilder->insert($modelName);
+        $query->setMultiple(true);
 		foreach ($values as $valuesPart) {
 			$query->values($valuesPart, true);
 		}
@@ -43,6 +44,9 @@ class Unit_Of_Work_Query_Insert extends Unit_Of_Work_Query_Abstract
 		);
 	}
 
+    /**
+     * @inheritdoc
+     */
 	private function prepare()
 	{
 

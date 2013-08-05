@@ -1,20 +1,20 @@
 <?php
+
 /**
+ * Проксирующая модель. Используется в случаях, когда невозможно использовать
+ * класс самой модели.
  *
- * @desc Проксирующая модель.
- * Используется в случаях, когда невозможно использовать класс самой модели.
- * @author Юрий
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Model_Proxy extends Model
 {
 
 	/**
-	 * @desc Представляемая модель.
-	 * @var string
+	 * Представляемая модель.
+	 *
+     * @var string
 	 */
-	protected $_modelName;
+	protected $modelName;
 
     /**
 	 * Изменяет значение поля
@@ -28,37 +28,65 @@ class Model_Proxy extends Model
 		if (isset($fields[$field])) {
 			$this->fields[$field] = $value;
 		} else {
-			throw new Exception ('Field unexists "' . $field . '".');
+			throw new Exception('Field unexists "' . $field . '".');
 		}
 	}
 
 	/**
-	 *
+     * Конструктор
+     *
 	 * @param string $modelName
 	 * @param array $fields
 	 * @param boolean $autojoin
 	 */
 	public function __construct ($modelName, array $fields = array ())
 	{
-		$this->_modelName = $modelName;
+		$this->modelName = $modelName;
 		parent::__construct ($fields);
 	}
 
+    /**
+     * @inheritdoc
+     */
+    public function delete()
+    {
+        return $this;
+    }
 
-
-	public function load ($key = null)
+    /**
+     * @inheritdoc
+     */
+	public function load($key = null)
 	{
 	    return $this;
 	}
 
-	public function modelName ()
+    /**
+     * @inheritdoc
+     */
+	public function modelName()
 	{
-		return $this->_modelName;
+		return $this->modelName;
 	}
 
-	public function save ($hard_insert = false)
+    /**
+     * @inheritdoc
+     */
+	public function save($hardInsert = false)
 	{
 	    return $this;
 	}
 
+    public function scheme()
+    {
+        return $this->getService('modelScheme')->scheme($this->modelName);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function update(array $data, $hardUpdate = false)
+    {
+        return $this;
+    }
 }

@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Хелпер для описания состояния процесса.
  * 
- * @desc Хелпер для описания состояния процесса.
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Helper_Process
 {

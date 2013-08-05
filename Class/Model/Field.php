@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @desc Поле модели
+ * Поле модели
+ * 
  * @author morph
  */
 class Model_Field
@@ -21,43 +22,131 @@ class Model_Field
 	const ATTR_UNSIGNED  = 'UNSIGNED';
 
 	/**
-	 * @desc Атрибуты поля
-	 * @var array
+	 * Атрибуты поля
+	 * 
+     * @var array
 	 */
-	protected $_attrs;
+	protected $attrs;
 
 	/**
-	 * @desc Имя поля
-	 * @var string
+	 * Имя поля
+	 * 
+     * @var string
 	 */
-	protected $_name;
+	protected $name;
 
 	/**
+     * Конструктор
+     * 
 	 * @param string $name имя поля
 	 */
-	public function __construct ($name)
+	public function __construct($name)
 	{
-		$this->_name = $name;
+		$this->name = $name;
 	}
 
-	/**
-	 * @desc Получить атрибуты поля
-	 * @return array
+    /**
+	 * Получить атрибут по имени
+	 * 
+     * @return array
 	 */
-	public function getAttrs ()
+	public function getAttr($name)
 	{
-		return $this->_attrs;
+		return isset($this->attr[$name]) ? $this->attr[$name] : null;
 	}
-
+    
 	/**
-	 * @desc Получить имя поля
-	 * @return string
+	 * Получить атрибуты поля
+	 * 
+     * @return array
 	 */
-	public function getName ()
+	public function getAttrs()
 	{
-		return $this->_name;
+		return $this->attrs;
 	}
+    
+    /**
+     * Есть ли у поля флаг Auto_Increment
+     * 
+     * @return boolean
+     */
+    public function getAutoIncrement()
+    {
+        return !empty($this->attrs[self::ATTR_AUTO_INCREMENT]);
+    }
 
+    /**
+     * Получить комментарии поля
+     * 
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->attrs[self::ATTR_COMMENT];
+    }
+    
+    /**
+     * Получить значение по умолчанию
+     * 
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return array_key_exists(self::ATTR_DEFAULT, $this->attrs)
+            ? $this->attrs[self::ATTR_DEFAULT] : null;
+    }
+    
+	/**
+	 * Получить имя поля
+	 * 
+     * @return string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+    
+    /**
+     * Получить флаг нулевости поля
+     * 
+     * @return boolean
+     */
+    public function getNullable()
+    {
+        return !empty($this->attrs[self::ATTR_NULL]);
+    }
+    
+    /**
+     * Получить размер поля
+     * 
+     * @return string
+     */
+    public function getSize()
+    {
+        return !empty($this->attrs[self::ATTR_SIZE])
+            ? $this->attrs[self::ATTR_SIZE] : 0;
+    }
+    
+    /**
+     * Получить тип
+     * 
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->attrs[self::ATTR_TYPE];
+    }
+
+    /**
+     * Является ли поле unsigned
+     * 
+     * @return boolean
+     */
+    public function getUnsigned()
+    {
+        return !empty($this->attrs[self::ATTR_UNSIGNED]);
+    }
+    
 	/**
 	 * Изменить значение атрибута
 	 *
@@ -67,136 +156,154 @@ class Model_Field
 	 */
 	public function setAttr($attr, $value)
 	{
-		$this->_attrs[$attr] = $value;
+		$this->attrs[$attr] = $value;
 		return $this;
 	}
+    
+    /**
+     * Изменить все атрибуты
+     * 
+     * @param array $attrs
+     */
+    public function setAttrs($attrs)
+    {
+        $this->attrs = $attrs;
+    }
 
 	/**
-	 * @desc Устанавливает атрибут поля "AUTO_INCREMENT"
-	 * @param boolean $value
+	 * Устанавливает атрибут поля "AUTO_INCREMENT"
+	 * 
+     * @param boolean $value
 	 * @return Model_Field
 	 */
-	public function setAutoIncrement ($value = true)
+	public function setAutoIncrement($value = true)
 	{
-		$this->_attrs [self::ATTR_AUTO_INCREMENT] = (bool) $value;
+		$this->attrs[self::ATTR_AUTO_INCREMENT] = (bool) $value;
 		return $this;
 	}
 
 	/**
-	 * @desc Устанавливает атрибут поля "BINARY"
-	 * @param boolean $value
+	 * Устанавливает атрибут поля "BINARY"
+	 * 
+     * @param boolean $value
 	 * @return Model_Field
 	 */
-	public function setBinary ($value = true)
+	public function setBinary($value = true)
 	{
-		$this->_attrs [self::ATTR_BINARY] = (bool) $value;
+		$this->attrs[self::ATTR_BINARY] = (bool) $value;
 		return $this;
 	}
 
 	/**
-	 * @desc Устанавливает атрибут "character set" полю
-	 * @param string $charset
+	 * Устанавливает атрибут "character set" полю
+	 * 
+     * @param string $charset
 	 * @return Model_Field
 	 */
-	public function setCharset ($charset)
+	public function setCharset($charset)
 	{
-		$this->_attrs [self::ATTR_CHARSET] = $charset;
+		$this->attrs[self::ATTR_CHARSET] = $charset;
 		return $this;
 	}
 
 	/**
-	 * @desc Устанавливает атрибут поля "collate"
-	 * @param string $collate
+	 * Устанавливает атрибут поля "collate"
+	 * 
+     * @param string $collate
 	 * @return Model_Field
 	 */
-	public function setCollate ($collate)
+	public function setCollate($collate)
 	{
-		$this->_attrs [self::ATTR_COLLATE] = $collate;
+		$this->attrs[self::ATTR_COLLATE] = $collate;
 		return $this;
 	}
 
 	/**
-	 * @desc Устанавливает атрибут "COMMENT" поля
-	 * @param string $comment
+	 * Устанавливает атрибут "COMMENT" поля
+	 * 
+     * @param string $comment
 	 * @return Model_Field
 	 */
-	public function setComment ($comment)
+	public function setComment($comment)
 	{
-		$this->_attrs [self::ATTR_COMMENT] = $comment;
+		$this->attrs[self::ATTR_COMMENT] = $comment;
 		return $this;
 	}
 
 	/**
-	 * @desc Устанавливает атрибут поля "DEFAULT"
-	 * @param string $value
+	 * Устанавливает атрибут поля "DEFAULT"
+	 * 
+     * @param string $value
 	 * @return Model_Field
 	 */
-	public function setDefault ($value)
+	public function setDefault($value)
 	{
-		$this->_attrs [self::ATTR_DEFAULT] = $value;
+		$this->attrs[self::ATTR_DEFAULT] = $value;
 		return $this;
 	}
 
 	/**
-	 * @desc Устанавливает атрибут поля "ENUM"
-	 * @param string array
+	 * Устанавливает атрибут поля "ENUM"
+	 * 
+     * @param string array
 	 * @return Model_Field
 	 */
-	public function setEnum ($values)
+	public function setEnum($values)
 	{
-		$this->_attrs [self::ATTR_ENUM] = (array) $values;
+		$this->attrs[self::ATTR_ENUM] = (array) $values;
 		return $this;
 	}
 
 	/**
-	 * @desc Будет ли поле иметь атрибут "NULL", в противном случае -
+	 * Будет ли поле иметь атрибут "NULL", в противном случае -
 	 * оно будет иметь атрибут NOT_NULL
-	 * @param boolean $value
+	 * 
+     * @param boolean $value
 	 * @return Model_Field
 	 */
-	public function setNullable ($value = true)
+	public function setNullable($value = true)
 	{
-		if ($value)
-		{
-			$this->_attrs [self::ATTR_NULL] = true;
-		}
-		else
-		{
-			$this->_attrs [self::ATTR_NOT_NULL] = true;
+		if ($value) {
+			$this->attrs[self::ATTR_NULL] = true;
+		} else {
+			$this->attrs[self::ATTR_NOT_NULL] = true;
 		}
 		return $this;
 	}
 
 	/**
-	 * @desc Задать размер поля
-	 * @param integer $size
+	 * Задать размер поля
+	 * 
+     * @param integer $size
 	 * @return Model_Field
 	 */
-	public function setSize ($size)
+	public function setSize($size)
 	{
-		$this->_attrs [self::ATTR_SIZE] = (int) $size;
+		$this->attrs[self::ATTR_SIZE] = $size;
 		return $this;
 	}
 
 	/**
-	 * @desc Задать тип поля
-	 * @param string $type
+	 * Задать тип поля
+	 * 
+     * @param string $type
 	 * @return Model_Field
 	 */
-	public function setType ($type)
+	public function setType($type)
 	{
-		$this->_attrs [self::ATTR_TYPE] = $type;
+		$this->attrs[self::ATTR_TYPE] = $type;
 		return $this;
 	}
 
 	/**
-	 * @desc Устанавливает атрибут поля "UNSIGNED"
-	 * @param boolean $value
+	 * Устанавливает атрибут поля "UNSIGNED"
+	 * 
+     * @param boolean $value
 	 * @return Model_Field
 	 */
-	public function setUnsigned ($value = true)
+	public function setUnsigned($value = true)
 	{
-		$this->_attrs [self::ATTR_UNSIGNED] = (bool) $value;
+		$this->attrs[self::ATTR_UNSIGNED] = (bool) $value;
 		return $this;
 	}
 }

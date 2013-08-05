@@ -30,18 +30,18 @@ class Model_Collection_Manager_Delegee_Defined
         }
 		$where = $query->getPart(Query::WHERE);
 		$filter = array();
-		foreach ($where as $w) {
-			$field = rtrim($w[Query::WHERE], '?');
+		foreach ($where as $currentWhere) {
+			$field = rtrim($currentWhere[Query::WHERE], '?');
 			if (strpos($field, '.') !== false) {
 				list(,$plainField) = explode('.', $field, 2);
 				$field = trim($plainField, '`');
 			}
-			$filter[$field] = $w[Query::VALUE];
+			$filter[$field] = $currentWhere[Query::VALUE];
 		}
 		$order = $query->getPart(Query::ORDER);
 		$sort = array();
-		foreach ($order as $o) {
-			$sort[] = $o[0];
+		foreach ($order as $currentOrder) {
+			$sort[] = $currentOrder[0]; 
 		}
         $result = $rows;
         if ($filter) {
@@ -50,6 +50,7 @@ class Model_Collection_Manager_Delegee_Defined
         if ($result && $sort) {
             $result = $helperArray->masort($result, implode(',', $sort));
         }
+ 
 		return array('items' => $result);
 	}
 }

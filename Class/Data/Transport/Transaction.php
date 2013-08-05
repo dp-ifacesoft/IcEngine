@@ -1,83 +1,87 @@
 <?php
+
 /**
+ * Транзакция данных. Используется для отложенного направления 
+ * данных в(из) транспорт
  * 
- * @desc Транзакция данных.
- * Используется для отложенного направления данных в(из) транспорт.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Data_Transport_Transaction
 {
-    
     /**
-     * @desc Буффер транзакции.
-     * Данные, которые были направлены в транспорт.
+     * Буффер транзакции. Данные, которые были направлены в транспорт
+     * 
      * @var array
      */
-    protected $_buffer = array ();
+    protected $buffer = array();
     
     /**
-     * @desc Транспорт, для которого создана транзакция.
+     * Транспорт, для которого создана транзакция
+     * 
      * @var Data_Transport
      */
-    protected $_transport;
+    protected $transport;
     
 	/**
-	 * @desc Создает и возвращает транзакцию.
+	 * Конструктор
+     * 
 	 * @param Data_Transport $transport Трансорт
 	 */
-    public function __construct (Data_Transport $transport)
+    public function __construct(Data_Transport $transport)
     {
-        $this->_transport = $transport;
+        $this->transport = $transport;
     }
     
     /**
-     * @desc Получает и возвращает значение из транзации.
+     * Получает и возвращает значение из транзации
+     * 
      * @param string $key Ключ
      * @return mixed Значение
      */
-    public function receive ($key)
+    public function receive($key)
     {
-        return isset ($this->_buffer [$key]) ? $this->_buffer [$key] : null;
+        return isset($this->buffer[$key]) ? $this->buffer[$key] : null;
     }
     
     /**
-     * @desc Запись значения в транзакцию.
+     * Запись значения в транзакцию
+     * 
      * @param array|string $key Ключ или массив пар (Ключ => Значение)
      * @param mixed $data Значение
      */
-    public function send ($key, $data = null)
+    public function send($key, $data = null)
     {
-        if (is_array ($key))
-        {
-            $this->_buffer = array_merge (
-                $this->_buffer,
-                $key
-            );
-        }
-        else
-        {
-            $this->_buffer [$key] = $data;
+        if (is_array($key)) {
+            $this->buffer = array_merge($this->buffer, $key);
+        } else {
+            $this->buffer[$key] = $data;
         }
     }
     
     /**
-	 * @desc Возвращает буффер транзации.
+	 * Возвращает буффер транзации.
+     * 
      * @return array
      */
-    public function buffer ()
+    public function buffer()
     {
-        return $this->_buffer;
+        return $this->buffer;
     }
     
     /**
-     * @desc Коммит транзакции.
-     * Направляет в транспорт данные, накопленные в транзакции.
+     * Коммит транзакции. Направляет в транспорт данные, 
+     * накопленные в транзакции
      */
-    public function commit ()
+    public function commit()
     {
-        $this->_transport->sendForce ($this->_buffer);
+        $this->transport->sendForce($this->buffer);
     }
     
+    /**
+     * Сброс буфера
+     */
+    public function flush()
+    {
+        $this->buffer = array();
+    }
 }

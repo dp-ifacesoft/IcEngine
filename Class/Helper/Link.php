@@ -62,6 +62,39 @@ class Helper_Link extends Manager_Abstract
 	    return $link;
 	}
 
+    /**
+     * Возвращает массив ID связанных данных
+     * 
+     * @param int $modelId id модели
+     * @param string $modelName имя модели
+     * @param string $referenceName имя связанной модели
+     * @return array
+     */
+    public function linkedIds($modelId, $modelName, $referenceName)
+    {
+        $queryBuilder = $this->getService('query');
+        $dds = $this->getService('dds');
+        $fromTable = $modelName;
+		$toTable = $referenceName;
+        $rowIdName = 'fromRowId';
+        $referenceRowIdName = 'toRowId';
+		if (strcmp($fromTable, $toTable) > 0) {
+			$tmp = $fromTable;
+			$fromTable = $toTable;
+			$toTable = $tmp;
+            $rowIdName = 'toRowId';
+            $referenceRowIdName = 'fromRowId';
+		}
+        $queryLinkSelect = $queryBuilder
+            ->select($referenceRowIdName)
+            ->from('Link')
+            ->where('fromTable', $fromTable)
+            ->where($rowIdName, $modelId)
+            ->where('toTable', $toTable);
+        $ids = $dds->execute($queryLinkSelect)->getResult()->asColumn();
+        return array_unique($ids);
+    }
+    
 	/**
 	 * Возвращает коллекцию связанных с $model моделей типа $linked_model_name
 	 *

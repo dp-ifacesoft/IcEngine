@@ -25,7 +25,8 @@ class ControllerManagerDelegeeValidator extends ControllerManagerDelegeeAbstract
             );
             foreach ($actionScheme['Validator'] as $validators) {
                 foreach ($validators as $validator => $params) {
-                    if (!is_array($params)) {
+                    if (is_numeric($validator)) {
+                        $validator = $params;
                         $params = array();
                     }
                     $validator = $validatorManager->get($validator, $context);

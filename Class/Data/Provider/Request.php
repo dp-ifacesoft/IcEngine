@@ -1,39 +1,17 @@
 <?php
+
 /**
+ * Продвайдер $_REQUEST данных.
  * 
- * @desc Продвайдер $_REQUEST данных.
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * @author goorus, morph
  */
-class Data_Provider_Request extends Data_Provider_Abstract
+class Data_Provider_Request extends Data_Provider_Buffer
 {
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::get()
-	 */
-	public function get ($key, $plain = false)
-	{
-		return isset ($_REQUEST [$key]) ? $_REQUEST [$key] : null;
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::getAll()
-	 */
-	public function getAll ()
-	{
-		return $_REQUEST;
-	}
-	
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::set()
-	 */
-	public function set ($key, $value, $expiration = 0, $tags = array ())
-	{
-		$_REQUEST [$key] = $value;
-	}
-	
+    /**
+     * @inheritdoc
+     */
+	public function __construct()
+    {
+        $this->buffer = &$_REQUEST;
+    }
 }

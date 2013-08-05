@@ -17,5 +17,6 @@ class Controller_Validator_User_Cli extends
         if ($user->key() >= 0) {
             return $this->accessDenied();
         }
+        return true;
     }
 }

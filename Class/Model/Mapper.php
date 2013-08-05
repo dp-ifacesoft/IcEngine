@@ -8,64 +8,40 @@
  */
 class Model_Mapper extends Manager_Abstract
 {
+    /**
+     * Уже полученные связи
+     * 
+     * @author morph
+     */
+    protected $references;
+    
 	/**
-	 * Схемы связей моделей
-	 * @var array
-	 */
-	private $schemes = array();
-
-	/**
-	 * (non-PHPDoc)
-	 */
-	public function __call($method, $params)
-	{
-        $serviceLocator = IcEngine::serviceLocator();
-        $modelMapperMethod = $serviceLocator->getService('modelMapperMethod');
-		$methodName = $modelMapperMethod->normalizaName($method);
-		$conreteMethod = $modelMapperMethod->byName($methodName);
-		$conreteMethod->setParams($params);
-		return $method->execute();
-	}
-
-	/**
-	 * Получить схему для моделей
+	 * Получить ресурсы связи модели
 	 *
-	 * @param string $model_name
+	 * @param string $modelName
 	 */
-	public function scheme($model)
+	public function getReferences($modelName)
 	{
-        $serviceLocator = IcEngine::serviceLocator();
-        $configManager = $serviceLocator->getService('configManager');
-        $modelMapperScheme = $serviceLocator->getService('modelMapperScheme');
-        $modelMapperSchemePart = $serviceLocator->getService(
-            'modelMapperSchemePart'
-        );
-		if (is_object($model)) {
-			$modelName = $model->modelName();
-		} else {
-			$modelName = $model;
-		}
-		$key = $modelName . '_' . $model->key();
-		if (!isset($this->schemes[$key])) {
-			$config = $configManager->get('Model_Mapper_' . $modelName);
-			if (!$config) {
-				return;
-			}
-			$schemeName = 'Simple';
-			if (isset($config->scheme)) {
-				$schemeName = $config->scheme;
-			}
-			$scheme = $modelMapperScheme->byName($schemeName);
-			$scheme->setModel($model);
-			foreach ($config as $name => $values) {
-				if ($values) {
-					$scheme = $modelMapperSchemePart->getAuto(
-						$name, $scheme, $values
-					);
-				}
-			}
-			$this->schemes[$key] = $scheme;
-		}
-		return clone $this->schemes[$key];
+        return $this->getService('modelScheme')->scheme($modelName)
+            ->references->__toArray();
 	}
+    
+    /**
+     * Получить схему связей по модели
+     * 
+     * @param Model $model
+     */
+    public function scheme($model)
+    {
+        $modelName = is_object($model) ? $model->modelName() : $model; 
+        $references = isset($this->references[$modelName])
+            ? $this->references[$modelName]
+            : $this->getReferences($modelName);
+        $this->references[$modelName] = $references;
+        $scheme = $this->getService('modelMapperScheme')->newInstance($model);
+        foreach ($references as $propertyName => $reference) {
+            $scheme->set($propertyName, $reference);
+        }
+        return $scheme;
+    }
 }

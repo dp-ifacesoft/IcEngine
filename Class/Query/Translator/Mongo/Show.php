@@ -1,38 +1,34 @@
 <?php
 
 /**
- * @desc Запрос типа show для mongodb
+ * Запрос типа show для mongodb
+ * 
  * @author morph, goorus
  */
 class Query_Translator_Mongo_Show extends Query_Translator_Mongo_Select
 {
 	/**
-	 * @desc Рендеринг SHOW запроса
-	 * @param Query $query
+	 * Рендеринг SHOW запроса
+	 * 
+     * @param Query_Abstract $query
+     * @return array
 	 */
-	public function _renderShow (Query_Abstract $query)
+	public function doRenderShow(Query_Abstract $query)
 	{
-		$from = $query->part (Query::FROM);
-
-		if (!$from)
-		{
-			return;
+		$from = $query->part(Query::FROM);
+		if (!$from) {
+			return null;
 		}
-
-		if (count ($from) > 1)
-		{
-			throw new Zend_Exception ('Multi from not supported.');
+		if (count($from) > 1) {
+			throw new Exception('Multi from not supported.');
 		}
-
-		//foreach ($from as $alias => $from)
-
-
-		reset ($from);
-		$table = key ($from);
-		return array (
-			'show'			=> $query->part (Query::SHOW),
-			'collection'	=> strtolower (Model_Scheme::table ($table)),
-			'model'			=> $table
+		reset($from);
+		$table = key($from);
+        $modelScheme = $this->modelScheme();
+		return array(
+			'show'              => $query->part(Query::SHOW),
+            self::COLLECTION	=> strtolower($modelScheme->table($table)),
+			'model'             => $table
 		);
 	}
 }

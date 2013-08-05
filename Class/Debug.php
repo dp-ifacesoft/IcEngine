@@ -10,9 +10,10 @@ function internal_error_handler_ignore ($errno, $errstr, $errfile, $errline)
 //	echo '['.$errno.':'.$errfile.'@'.$errline.'] '.$errstr."\n1<br />";
 }
 
-function internal_exception_handler_ignore ($exception)
+function internal_exception_handler_ignore (Exception $exception)
 {
 	echo "Uncaught exception: " , $exception->getMessage (), "\n";
+    echo "Uncaught exception: " , $exception->getTraceAsString(), "\n";
 }
 
 /**
@@ -173,15 +174,16 @@ class Debug
 		set_error_handler ('internal_error_handler_hide');
 	}
 
-	/**
-	 * Внутренний обработчик ошибок.
+    /**
+     * Внутренний обработчик ошибок.
      *
-	 * @param string $errno Код ошибки.
-	 * @param string $errstr Текст ошибки.
-	 * @param string $errfile Файл.
-	 * @param string $errline Строка.
-	 * @return boolean
-	 */
+     * @param string $errno Код ошибки.
+     * @param string $errstr Текст ошибки.
+     * @param string $errfile Файл.
+     * @param string $errline Строка.
+     * @throws Exception
+     * @return boolean
+     */
 	public static function errorHandler($errno, $errstr, $errfile, $errline)
 	{
 		if (
@@ -272,18 +274,19 @@ class Debug
 				break;
 			}
 		}
+
         $locator = IcEngine::serviceLocator();
         $debugService = $locator->getService('debug');
 		$debugService->log($log_text, $errno);
-        echo "<b>Terminated on fatal error.</b><br />" . str_replace("\n", "<br/>\n", $log_text);
-        if ($errno ==
-            E_ERROR || $errno == E_USER_ERROR) {
+		if ($errno == E_ERROR || $errno == E_USER_ERROR) {
             if (self::$config ['die_on_error']) {
-                exit;
+                die("<b>Terminated on fatal error.</b><br />" .
+                    str_replace("\n", "<br/>\n", $log_text));
+            } else {
+                throw new Exception($log_text);
             }
-        }
-//        throw  new ErrorException($errstr, $errno, 0, $errfile, $errline);
-        return true;
+		}
+		return true;
 	}
 
 	/**
@@ -299,7 +302,13 @@ class Debug
 
 		error_reporting (E_ALL | E_STRICT);
 
-		ini_set ('display_errors', true);
+
+        if (defined('IS_PRODUCTION') && !IS_PRODUCTION) {
+            ini_set ('display_errors', true);
+        } else {
+            ini_set ('display_errors', false);
+        }
+
 		ini_set ('html_errors', true);
 		ini_set ('track_errors', true);
 
@@ -416,7 +425,7 @@ class Debug
 				// подключение файрпхп
 				if ($config == 'fb' && !function_exists ('fb'))
 				{
-					require dirname (__FILE__) . '/../includes/FirePHPCore/fb.php';
+					require dirname (__FILE__) . '/../Vendor/FirePHPCore/fb.php';
 				}
 				$config = self::$_configPresets [$config];
 			}
@@ -425,9 +434,9 @@ class Debug
 				$path = rtrim (substr ($config, 4), '\\/') . '/';
 				$config = array (
 					'file_active'		=> true,
-					'file_error'		=> $path . 'error.txt',
-					'file_warn'			=> $path . 'warning.txt',
-					'file_log'			=> $path . 'notice.txt'
+					'file_error'		=> $path . 'error_' . date('Y_m') . '.log',
+					'file_warn'			=> $path . 'warning_' . date('Y_m') . '.log',
+					'file_log'			=> $path . 'notice_' . date('Y_m') . '.log'
 				);
 			}
 		}
@@ -601,7 +610,7 @@ class Debug
 	 * @desc вывод в лог времени загрузки фаилов
 	 * @author Eriomin Ivan
 	 * @tutorial
-	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	include $engine_dir . '/Vendor/FirePHPCore/fb.php';
 	 *	Debug::microtime ('some special message');
 	 */
 	public static function microtime ()
@@ -632,7 +641,7 @@ class Debug
 	 * @desc вывод в лог времени загрузки фаилов.
 	 * @author Yury Shvedov
 	 * @tutorial
-	 *	include $engine_dir . '/includes/FirePHPCore/fb.php';
+	 *	include $engine_dir . '/Vendor/FirePHPCore/fb.php';
 	 *	Debug::microtimeTotal ('some special message');
 	 */
 	public static function microtimeTotal ()

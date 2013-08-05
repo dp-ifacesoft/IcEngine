@@ -23,8 +23,15 @@ class ControllerManagerDelegeeTemplate extends ControllerManagerDelegeeAbstract
             $template = reset($actionScheme['Template'][0]);
             if ($template == 'null') {
                 $template = null;
+            } elseif ($template[0] == '$') {
+                $templateVar = substr($template, 1);
+                $args = $context->getArgs();
+                $template = !empty($args[$templateVar]) 
+                    ? $args[$templateVar] : '';
             }
-            $controller->getTask()->setTemplate($template);
+            if ($template || is_null($template)) {
+                $controller->getTask()->setTemplate($template);
+            }
         }
     }
 }

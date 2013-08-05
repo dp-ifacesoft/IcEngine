@@ -7,6 +7,13 @@
  */
 class Query_Translator_Abstract
 {
+    /**
+     * Схема моделей
+     * 
+     * @var Model_Scheme
+     */
+    protected static $modelScheme;
+    
 	/**
 	 * Возвращает имя транслятора
      *
@@ -14,11 +21,23 @@ class Query_Translator_Abstract
 	 */
 	public function getName()
 	{
-		return substr(
-			get_class($this),
-			strlen('Query_Translator_')
-		);
+		return substr(get_class($this), strlen('Query_Translator_'));
 	}
+    
+    /**
+     * Получить (инициализировать) схему моделей
+     * 
+     * @return Model_Scheme
+     */
+    public function modelScheme()
+    {
+        if (is_null(self::$modelScheme)) {
+            self::$modelScheme = IcEngine::serviceLocator()->getService(
+                'modelScheme'
+            );
+        }
+        return self::$modelScheme;
+    }
 
 	/**
 	 * Транслирует запрос.
@@ -34,10 +53,8 @@ class Query_Translator_Abstract
 			$part = substr(strtoupper($part), 0, 1).
 				substr(strtolower($part), 1);
 		}
-		$type = implode('', $parts);
-		return call_user_func(
-			array($this, '_render' . $type),
-			$query
-		);
+		$resultType = implode('', $parts);
+        $callable = array($this, 'doRender' . $resultType);
+		return call_user_func($callable, $query);
 	}
 }

@@ -106,7 +106,7 @@ class Helper_Image_Resize extends Helper_Abstract
         if (!file_exists($input)) {
             return false;
         }
-        list($inputWidth, $inputHeight, $inputType) = getimageSize($input);
+        list($inputWidth, $inputHeight, $inputType) = getimagesize($input);
         //пропорционально
 		if ($proportional || $scale) {
             if (!$scale) {

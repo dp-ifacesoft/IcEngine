@@ -1,31 +1,42 @@
 <?php
 
 /**
- * Абстрактный рендер схемы связей модели
+ * Абстрактное представление рендера схемы связей модели
  * 
  * @author morph
  * @package Ice\Orm
+ * @ServiceAccessor
  */
-class Model_Mapper_Scheme_Render_Abstract
+abstract class Model_Mapper_Scheme_Render_Abstract
 {
 	/**
-	 * Получить имя рендера
+	 * Получить имя схемы
 	 * 
-     * @return string
+     * @return array
 	 */
 	public function getName()
 	{
-		return substr(get_class($this), strlen('Model_Mapper_Scheme_Render_'));
+		return substr(
+            get_class($this), strlen('Model_Mapper_Scheme_Render_')
+        );
 	}
-
+    
 	/**
-	 * Отрендерить элемент схемы
+	 * Отрендерить схему модели
 	 * 
-     * @param Model_Mapper_Scheme_State $state
+     * @param Model_Mapper_Scheme_Abstract $scheme
 	 * @return string
 	 */
-	public function render($state)
-	{
-
-	}
+	abstract public function render($scheme);
+    
+    /**
+     * Get service by name
+     *
+     * @param string $serviceName
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        return IcEngine::serviceLocator()->getService($serviceName);
+    }
 }

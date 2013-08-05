@@ -19,79 +19,67 @@ class Controller_Manager extends Manager_Abstract
     const DEFAULT_VIEW = 'Smarty';
 
     /**
-     * Менеджер аннотаций
-     *
-     * @var Annotation_Manager_Abstract
+     * @inheritdoc
      */
-    protected $annotationManager;
-
-    /**
-	 * @inheritdoc
-	 */
-	protected $config = array(
-		/**
-		 * @desc Фильтры для выходных данных
-		 * @var array
-		 */
-		'output_filters'	=> array(),
-
-		/**
-		 * @desc Настройки кэширования для экшенов.
-		 * @var array
-		 */
-		'actions'			=> array(),
+    protected $config = array(
+        /**
+         * Настройки кэширования для экшенов.
+         *
+         * @var array
+         */
+        'actions' => array(),
 
         /**
          * Контекст по умолчанию
          */
-        'context'           => array(
-            'queryBuilder'      => 'query',
-            'modelManager'      => 'modelManager',
-            'dds'               => 'dds',
+        'context' => array(
+            'queryBuilder' => 'query',
+            'modelManager' => 'modelManager',
+            'dds' => 'dds',
             'collectionManager' => 'collectionManager',
-            'configManager'     => 'configManager',
+            'configManager' => 'configManager',
             'controllerManager' => 'controllerManager',
-            'userSession'       => 'session',
-            'user'              => 'user',
-            'request'           => 'request'
+            'userSession' => 'userSession',
+            'user' => 'user',
+            'request' => 'request'
         ),
 
         /**
          * Делигата менеджера контроллеров по умолчанию
          */
-        'delegees'           => array(
+        'delegees' => array(
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRole',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputTransport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputProvider',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputSend',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputFilter',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeInputValidator',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigExport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeParam',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeContext',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeValidator',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeStatic',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigMerge',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfigExport',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeConfig',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeOutputFilter',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTemplate',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeViewRender',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeLayout',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeBefore',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeAfter',
-            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot'
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSignal',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTitle',
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRedirect'
         )
-	);
-
-	/**
-	 * Текущее задание
-     *
-	 * @var Controller_Task
-	 */
-	protected $currentTask;
+    );
 
     /**
-     * Менеджер провайдеров
+     * Текущее задание
      *
-     * @Inject("dataProviderManager")
-     * @var Data_Provider_Manager
+     * @var Controller_Task
      */
-    protected $dataProviderManager;
+    protected $currentTask;
 
     /**
      * Контекст по умолчанию
@@ -122,25 +110,18 @@ class Controller_Manager extends Manager_Abstract
     protected $deleeges = array();
 
     /**
-     * Менеджер событий
-     *
-     * @var Event_Manager
-     */
-    protected $eventManager;
-
-    /**
      * "Выполнитель" действия контроллера
      *
      * @var Controller_Manager_Executor_Abstract
      */
     protected $executors;
 
-	/**
-	 * Транспорт входных данных
+    /**
+     * Транспорт входных данных
      *
-	 * @var Data_Transport
-	 */
-	protected $input;
+     * @var Data_Transport
+     */
+    protected $input;
 
     /**
      * Сообщение последней ошибки
@@ -149,40 +130,48 @@ class Controller_Manager extends Manager_Abstract
      */
     protected $lastError;
 
-	/**
-	 * Транспорт выходных данных
+    /**
+     * Транспорт выходных данных
      *
-	 * @var array
-	 */
-	protected $outputs;
+     * @var array
+     */
+    protected $outputs;
 
-	/**
-	 * Отложенные очереди заданий
+    /**
+     * Отложенные очереди заданий
      *
-	 * @var array <array>
-	 */
-	protected $tasksBuffer = array();
+     * @var array <array>
+     */
+    protected $tasksBuffer = array();
 
-	/**
-	 * Очередь заданий
+    /**
+     * Пул заданий
      *
-	 * @var array <Router_Action>
-	 */
-	protected $tasksQueue = array();
+     * @var array
+     */
+    protected $taskPool = array();
 
-	/**
-	 * Результаты выполнения очереди
+    /**
+     * Очередь заданий
      *
-	 * @var array <Controller_Task>
-	 */
-	protected $tasksResults = array();
+     * @var array <Router_Action>
+     */
+    protected $tasksQueue = array();
 
-	/**
-	 * Буффер результатов
+
+    /**
+     * Результаты выполнения очереди
      *
-	 * @var array <array <Controller_Task>>
-	 */
-	protected $tasksResultsBuffer = array();
+     * @var array <Controller_Task>
+     */
+    protected $tasksResults = array();
+
+    /**
+     * Буффер результатов
+     *
+     * @var array <array <Controller_Task>>
+     */
+    protected $tasksResultsBuffer = array();
 
     /**
      * Инжектор сервисов
@@ -192,76 +181,65 @@ class Controller_Manager extends Manager_Abstract
     protected $serviceInjector;
 
     /**
-     * Получить менеджер аннотаций
+     * Вызов экшена контроллера
      *
-     * @return Annotation_Manager_Abstract
-     */
-    public function annotationManager()
-    {
-        if (!$this->annotationManager) {
-            $this->annotationManager = new Annotation_Manager_Standart();
-            $provider = $this->dataProviderManager->get('Annotation');
-            $annotationSource = new Annotation_Source_Standart();
-            $this->annotationManager->setRepository($provider);
-            $this->annotationManager->setSource($annotationSource);
-        }
-        return $this->annotationManager;
-    }
-
-	/**
-	 * Вызов экшена контроллера
-     *
-	 * @param string $controllerName Название контроллера.
-	 * @param string $actionName Метод.
-	 * @param array|Data_Transport $input Входные данные.
-	 * @param Controller_Task $task [optional] Задание
+     * @param string $controllerName Название контроллера.
+     * @param string $actionName Метод.
+     * @param array|Data_Transport $input Входные данные.
+     * @param Controller_Task $task [optional] Задание
      * @param boolean $notLogging [optional] не логировать ли контроллер
-	 * @return Controller_Task
-	 */
-	public function call($controllerName, $actionName, $input = array(),
-		$task = null, $notLogging = false)
-	{
-		if (Tracer::$enabled && !$notLogging) {
-			Tracer::resetDeltaModelCount();
-			Tracer::resetDeltaQueryCount();
+     * @return Controller_Task
+     */
+    public function call($controllerName, $actionName, $input = array(),
+                         $task = null, $notLogging = false)
+    {
+        //echo $controllerName . ' ' . $actionName . '<br />';
+        if (Tracer::$enabled && !$notLogging) {
+            Tracer::resetDeltaModelCount();
+            Tracer::resetDeltaQueryCount();
             Tracer::resetRedisGetDelta();
-			Tracer::begin(
+            Tracer::begin(
                 __CLASS__, __METHOD__, __LINE__, $controllerName, $actionName
             );
-		}
+        }
         // Создает новое пустое с переданным контроллером/экшином если
         // не передано задание, которое необходимо подхватить. Если задание
         // передано, то будет использоваться его входной транспорт
-		if (!$task) {
-			$task = $this->createEmptyTask($controllerName, $actionName);
-		} elseif (!$input) {
+        if (!$task) {
+            $task = $this->createEmptyTask($controllerName, $actionName);
+        } elseif (!$input) {
             $input = $task->getInput();
         }
         // Полуваем контроллер и запоминаем его транспорты и задание, чтобы
         // можно было их вернуть по завершению работы менеджера. Сделано для
         // того, чтобы корректно отрабатывали конструкции подмены экшина и
         // прочие
-		$controller = $this->get($controllerName);
-		$lastInput = $controller->getInput();
-		$lastOutput = $controller->getOutput();
+        $controller = $this->get($controllerName);
+        $lastInput = $controller->getInput();
+        $lastOutput = $controller->getOutput();
         // Если входной транспорт не передан или не установлен у подхваченного
         // задания, то используем транспорт менеджера контроллеров. Если
         // входные данные переданы в виде массива, то создает транспорт с
         // провайдером Buffer на основании этого массива
-		if (is_null($input)) {
-			$input = $this->getInput();
-		} elseif (is_array($input)) {
+        if (is_null($input)) {
+            $input = $this->getInput();
+        } elseif (is_array($input)) {
             $input = $this->createTransport($input);
-		}
+        }
         $output = $this->getOutput($task);
         // Подменяем транспорты, на полученные из менеджера/задания
         $controller->setInput($input)->setOutput($output)->setTask($task);
         $task->setCallable($controller, $actionName);
-		$config = $this->config();
+        $task->setInput($input);
+        $config = $this->config();
         // Создает контекст вызова контроллера, отдаем его before-делегатам
         // менеджера контроллеров.
         $context = $this->createControllerContext($controller, $actionName);
         $task->setContext($context);
+        if (!$task->getInput()) {
+            $task->setInput($input);
+        }
+        $this->taskPool[] = $task;
         $delegees = $config->delegees;
         if ($delegees) {
             foreach ($delegees as $delegeeName) {
@@ -281,17 +259,17 @@ class Controller_Manager extends Manager_Abstract
                 array('task' => $task)
             );
         }
-		$controller->setInput($lastInput)->setOutput($lastOutput);
-		if (Tracer::$enabled && !$notLogging) {
-			$deltaModelCount = Tracer::getDeltaModelCount();
-			$deltaQueryCount = Tracer::getDeltaQueryCount();
+        $controller->setInput($lastInput)->setOutput($lastOutput);
+        if (Tracer::$enabled && !$notLogging) {
+            $deltaModelCount = Tracer::getDeltaModelCount();
+            $deltaQueryCount = Tracer::getDeltaQueryCount();
             $deltaRedisGet = Tracer::getRedisGetDelta();
-			Tracer::incControllerCount();
-			Tracer::end($deltaModelCount, $deltaQueryCount,
-				memory_get_usage(), 0, $deltaRedisGet);
-		}
-		return $task;
-	}
+            Tracer::incControllerCount();
+            Tracer::end($deltaModelCount, $deltaQueryCount,
+                memory_get_usage(), 0, $deltaRedisGet);
+        }
+        return $task;
+    }
 
     /**
      * Создает контекст для контроллера
@@ -308,7 +286,7 @@ class Controller_Manager extends Manager_Abstract
         $context->setControllerManager($this);
         $defaultContext = $this->getDefaultContext();
         $context->setArgs(array(
-            'context'   => $defaultContext
+            'context' => $defaultContext
         ));
         return $context;
     }
@@ -320,15 +298,15 @@ class Controller_Manager extends Manager_Abstract
      */
     protected function createDefaultContext()
     {
-         $config = $this->config();
-         $defaultContext = $config->context;
-         if ($defaultContext) {
+        $config = $this->config();
+        $defaultContext = $config->context;
+        if ($defaultContext) {
             $services = array();
             foreach ($defaultContext->__toArray() as $argName => $serviceName) {
                 $services[$argName] = $this->getService($serviceName);
             }
             return new Objective($services);
-         }
+        }
     }
 
     /**
@@ -353,11 +331,11 @@ class Controller_Manager extends Manager_Abstract
     protected function createEmptyTask($controller, $action)
     {
         $task = new Controller_Task(array(
-            'id'			=> null,
-            'controller'	=> $controller,
-            'action'		=> $action,
-            'assign'        => '',
-            'sort'          => 0
+            'id' => null,
+            'controller' => $controller,
+            'action' => $action,
+            'assign' => '',
+            'sort' => 0
         ));
         return $task;
     }
@@ -370,9 +348,9 @@ class Controller_Manager extends Manager_Abstract
      */
     protected function createFromArray($action)
     {
-        return new Controller_Action(array (
-            'controller'	=> $action['controller'],
-            'action'		=> $action['action']
+        return new Controller_Action(array(
+            'controller' => $action['controller'],
+            'action' => $action['action']
         ));
     }
 
@@ -384,30 +362,30 @@ class Controller_Manager extends Manager_Abstract
      */
     protected function createResult($buffer)
     {
-        return array (
-			'error' => isset($buffer['error']) ? $buffer['error'] : '',
-			'data'	=> isset($buffer['data']) ? $buffer['data'] : array(),
-			'html'	=> null
-		);
+        return array(
+            'error' => isset($buffer['error']) ? $buffer['error'] : '',
+            'data' => isset($buffer['data']) ? $buffer['data'] : array(),
+            'html' => null
+        );
     }
 
-	/**
-	 * Создаем задания из экшинов
+    /**
+     * Создаем задания из экшинов
      *
-	 * @param array $actions
-	 * @param Data_Transport $input
-	 * @return array
-	 */
-	public function createTasks($actions, Data_Transport $input)
-	{
-		$tasks = array();
-		foreach ($actions as $action) {
-			$task = new Controller_Task($action);
-			$task->setInput($input);
-			$tasks[] = $task;
-		}
-		return $tasks;
-	}
+     * @param array $actions
+     * @param Data_Transport $input
+     * @return array
+     */
+    public function createTasks($actions, Data_Transport $input)
+    {
+        $tasks = array();
+        foreach ($actions as $action) {
+            $task = new Controller_Task($action);
+            $task->setInput($input);
+            $tasks[] = $task;
+        }
+        return $tasks;
+    }
 
     /**
      * Создает новый транспорт и начинает транзакцию для него
@@ -438,62 +416,39 @@ class Controller_Manager extends Manager_Abstract
     }
 
     /**
-     * Получить менеджер событий
-     *
-     * @return Event_Manager
+     * Очистка результатов работы контроллеров
      */
-    public function eventManager()
+    public function flushResults()
     {
-        if (!$this->eventManager) {
-            $this->eventManager = new Event_Manager;
-        }
-        return $this->eventManager;
+        $this->tasksResults = array();
     }
 
-	/**
-	 * Очистка результатов работы контроллеров
-	 */
-	public function flushResults()
-	{
-		$this->tasksResults = array();
-	}
-
-	/**
-	 * Возвращает контроллер по названию
+    /**
+     * Возвращает контроллер по названию
      *
-	 * @param string $controller_name
-	 * @return Controller_Abstract
-	 */
-	public function get($controllerName)
-	{
+     * @param string $controller_name
+     * @return Controller_Abstract
+     */
+    public function get($controllerName)
+    {
         $className = 'Controller_' . $controllerName;
         if (!class_exists($className)) {
             throw new Exception("Controller $controllerName not found.");
         }
         $controller = new $className;
         return $controller;
-	}
-
-    /**
-     * Вернуть менеджер аннотаций
-     *
-     * @return Annotation_Manager_Abstract
-     */
-    public function getAnnotationManager()
-    {
-        return $this->annotationManager;
     }
 
     /**
-	 * Настройки кэширования для контроллера-экшена.
-	 *
+     * Настройки кэширования для контроллера-экшена.
+     *
      * @param string $controller Контроллер
-	 * @param string $action Экшен
-	 * @return Objective
-	 */
-	protected function getCacheConfig($controller, $action)
-	{
-		$selfConfig = $this->config();
+     * @param string $action Экшен
+     * @return Objective
+     */
+    protected function getCacheConfig($controller, $action)
+    {
+        $selfConfig = $this->config();
         $controllerAction = $controller . '::' . $action;
         $controllerConfig = $selfConfig->actions[$controllerAction];
         if (!$controllerConfig) {
@@ -516,7 +471,17 @@ class Controller_Manager extends Manager_Abstract
             $controllerConfig->current_tags = $tags;
         }
         return $controllerConfig;
-	}
+    }
+
+    /**
+     * Получить текущее задание
+     *
+     * @return Controller_Task
+     */
+    public function getCurrentTask()
+    {
+        return $this->currentTask;
+    }
 
     /**
      * Получить контекст контроллера по умолчанию
@@ -558,16 +523,6 @@ class Controller_Manager extends Manager_Abstract
     }
 
     /**
-     * Получить менеджер событий
-     *
-     * @return Event_Manager
-     */
-    public function getEventManager()
-    {
-        return $this->eventManager;
-    }
-
-    /**
      * Получить "выполнитель" для задания
      *
      * @param Controller_Task $task
@@ -582,33 +537,33 @@ class Controller_Manager extends Manager_Abstract
         return $this->getDefaultExecutor();
     }
 
-	/**
+    /**
      * Получить входной транспорт по умолчанию
      *
-	 * @return Data_Transport
-	 */
-	public function getInput()
-	{
-		if (!$this->input) {
-			$this->input  = new Data_Transport();
-		}
-		return $this->input;
-	}
+     * @return Data_Transport
+     */
+    public function getInput()
+    {
+        if (!$this->input) {
+            $this->input = new Data_Transport();
+        }
+        return $this->input;
+    }
 
-	/**
-	 * Возвращает транспорт для выходных данных по умолчанию.
-	 *
+    /**
+     * Возвращает транспорт для выходных данных по умолчанию.
+     *
      * @param Controller_Task $task
      * @return Data_Transport
-	 */
-	public function getOutput($task)
-	{
+     */
+    public function getOutput($task)
+    {
         $key = $this->taskKey($task);
         if (!isset($this->outputs[$key])) {
             return $this->getDefaultOutput();
         }
         return $this->outputs[$key];
-	}
+    }
 
     /**
      * Получить инжектор сервисов
@@ -620,24 +575,34 @@ class Controller_Manager extends Manager_Abstract
         return $this->serviceInjector;
     }
 
-	/**
-	 * Выполняет указанный контроллер, экшен с заданными параметрами
+    /**
+     * Получить пул заданий
      *
-	 * @param string $controllerAction Название контроллера или контроллер и
+     * @return array
+     */
+    public function getTaskPool()
+    {
+        return $this->taskPool;
+    }
+
+    /**
+     * Выполняет указанный контроллер, экшен с заданными параметрами
+     *
+     * @param string $controllerAction Название контроллера или контроллер и
      * экшен в формате "Controller/action".
-	 * @param array $args Параметры контроллера.
-	 * @param mixed $options=true Параметры вызова.
-	 * @return string Результат компиляции шабона.
-	 * @todo Это будет в Controller_Render
-	 * @tutorial
-	 * 		html ('Controller', array ('param'	=> 'val'));
-	 * 		html ('Controller/action')
-	 */
-	public function html($controllerAction, $args = array(),
-		$options = true)
-	{
+     * @param array $args Параметры контроллера.
+     * @param mixed $options=true Параметры вызова.
+     * @return string Результат компиляции шабона.
+     * @todo Это будет в Controller_Render
+     * @tutorial
+     *        html ('Controller', array ('param'    => 'val'));
+     *        html ('Controller/action')
+     */
+    public function html($controllerAction, $args = array(),
+                         $options = true)
+    {
         $controllerAction = explode('/', $controllerAction);
-		if (!isset($controllerAction[1])) {
+        if (!isset($controllerAction[1])) {
             $controllerAction[1] = self::DEFAULT_ACTION;
         }
         $cacheConfig = $this->getCacheConfig(
@@ -646,51 +611,59 @@ class Controller_Manager extends Manager_Abstract
         if (is_bool($options)) {
             $options = $this->createEmptyOptions($options);
         }
-		$html = $this->getService('executor')->execute(
-			array($this, 'htmlUncached'),
-			array($controllerAction, $args, $options),
-			$cacheConfig
-		);
-		return $html;
-	}
+        $html = $this->getService('executor')->execute(
+            array($this, 'htmlUncached'),
+            array($controllerAction, $args, $options),
+            $cacheConfig
+        );
+        return $html;
+    }
 
-	/**
-	 * Выполняет указанный контроллер, экшен с заданными параметрами,
-	 * не используется кэширование
+    /**
+     * Выполняет указанный контроллер, экшен с заданными параметрами,
+     * не используется кэширование
      *
-	 * @param string $action Название контроллера или контроллер и экшен
-	 * в формате "Controller/action".
-	 * @param array $args Параметры контроллера.
-	 * @param mixed $options=true Параметры вызова.
-	 * @return string Результат компиляции шабона.
-	 * @todo Это будет в Controller_Render
-	 * @tutorial
-	 * 		html ('Controller', array ('param'	=> 'val'));
-	 * 		html ('Controller/action')
-	 */
-	public function htmlUncached($controllerAction, $args = array(),
-        $options = true)
-	{
-		$controllerAction = is_array($controllerAction)
+     * @param $controllerAction
+     * @param array $args Параметры контроллера.
+     * @param mixed $options=true Параметры вызова.
+     * @internal param string $action Название контроллера или контроллер и экшен
+     * в формате "Controller/action".
+     * @return string Результат компиляции шабона.
+     * @todo Это будет в Controller_Render
+     * @tutorial
+     *        html ('Controller', array ('param'    => 'val'));
+     *        html ('Controller/action')
+     */
+    public function htmlUncached($controllerAction, $args = array(),
+                                 $options = true)
+    {
+        $controllerAction = is_array($controllerAction)
             ? $controllerAction : explode('/', $controllerAction);
         if (!isset($controllerAction[1])) {
             $controllerAction[1] = self::DEFAULT_ACTION;
         }
-		if (Tracer::$enabled) {
-			Tracer::resetDeltaModelCount();
-			Tracer::resetDeltaQueryCount();
+        if (Tracer::$enabled) {
+            Tracer::resetDeltaModelCount();
+            Tracer::resetDeltaQueryCount();
             Tracer::resetRedisGetDelta();
-			Tracer::begin(
+            Tracer::begin(
                 __CLASS__, __METHOD__, __LINE__,
                 $controllerAction[0], $controllerAction[1]
             );
-		}
+        }
         $task = $this->call(
             $controllerAction[0], $controllerAction[1], $args, null, true
         );
         $this->lastError = null;
-		$buffer = $task->getTransaction()->buffer();
-		$result = $this->createResult($buffer);
+        $transaction = $task->getTransaction();
+        if (!$transaction) {
+            $buffer = array(
+                'error' => $task->getErrorVector()
+            );
+        } else {
+            $buffer = $transaction->buffer();
+        }
+        $result = $this->createResult($buffer);
         $template = $task->getTemplate();
         if (Tracer::$enabled) {
             $startTime = microtime(true);
@@ -701,25 +674,25 @@ class Controller_Manager extends Manager_Abstract
         if ($this->lastError) {
             $result['error'] = $this->lastError;
         }
-		if (Tracer::$enabled) {
+        if (Tracer::$enabled) {
             $endTime = microtime(true);
-			$deltaModelCount = Tracer::getDeltaModelCount();
-			$deltaQueryCount = Tracer::getDeltaQueryCount();
+            $deltaModelCount = Tracer::getDeltaModelCount();
+            $deltaQueryCount = Tracer::getDeltaQueryCount();
             $deltaRedisGet = Tracer::getRedisGetDelta();
-			$delta = $endTime - $startTime;
-			Tracer::incRenderTime($delta);
-			Tracer::incControllerCount();
-			Tracer::end($deltaModelCount, $deltaQueryCount, memory_get_usage(),
-				$delta, $deltaRedisGet);
-		}
-		if (!empty($options['with_buffer'])) {
-			$options = array('full_result' => true);
-			$result['buffer'] = $buffer;
-		} elseif (is_bool($options)) {
+            $delta = $endTime - $startTime;
+            Tracer::incRenderTime($delta);
+            Tracer::incControllerCount();
+            Tracer::end($deltaModelCount, $deltaQueryCount, memory_get_usage(),
+                $delta, $deltaRedisGet);
+        }
+        if (!empty($options['with_buffer'])) {
+            $options = array('full_result' => true);
+            $result['buffer'] = $buffer;
+        } elseif (is_bool($options)) {
             $options = $this->createEmptyOptions($options);
         }
-		return !empty($options['full_result']) ? $result : $result['html'];
-	}
+        return !empty($options['full_result']) ? $result : $result['html'];
+    }
 
     /**
      * Логирует ошибку
@@ -728,25 +701,27 @@ class Controller_Manager extends Manager_Abstract
      */
     public function logError($e)
     {
-         $msg = '[' . $e->getFile() . '@' .
+        $msg = 'url: ' . $_SERVER['REQUEST_URI'] . "\n" .
+            '[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
-            $e->getMessage() . PHP_EOL;
-        error_log(
+            $e->getMessage() . "\n" .
+            $e->getTraceAsString();
+        trigger_error(
             $msg . PHP_EOL .
-            $e->getTraceAsString() . PHP_EOL,
             E_USER_ERROR, 3
         );
         $this->getService('debug')->log($msg);
     }
 
-	/**
-	 * Добавление задания в текущую очередь выполнения
+    /**
+     * Добавление задания в текущую очередь выполнения
      *
-	 * @param mixed $action
-	 */
-	public function pushTasks($action)
-	{
+     * @param mixed $action
+     * @throws Exception
+     */
+    public function pushTasks($action)
+    {
         $actions = array();
         if (!is_array($action)) {
             $actions = array($action);
@@ -762,13 +737,14 @@ class Controller_Manager extends Manager_Abstract
             }
             self::$taskQueue[] = new Controller_Task($action);
         }
-	}
+    }
 
     /**
      * Рендерит шаблон
      *
      * @param array $buffer
      * @param string $template
+     * @return null
      */
     public function renderTemplate($buffer, $template)
     {
@@ -785,51 +761,52 @@ class Controller_Manager extends Manager_Abstract
         return !empty($html) ? $html : null;
     }
 
-	/**
-	 * Запустить задание на выполнение
+    /**
+     * Запустить задание на выполнение
      *
-	 * @param Controller_Task $task
-	 * @return Controller_Task
-	 */
-	public function run($task)
-	{
-		$parentTask = $this->currentTask;
-		$this->currentTask = $task;
-		$action = $task->controllerAction();
-		$task = $this->call(
-			$action['controller'],
-			$action['action'],
-			$task->getInput(),
-			$task
-		);
-		$this->currentTask = $parentTask;
-		return $task;
-	}
+     * @param Controller_Task $task
+     * @return Controller_Task
+     */
+    public function run($task)
+    {
+        array_push($this->taskPool, $task);
+        $parentTask = $this->currentTask;
+        $this->currentTask = $task;
+        $action = $task->controllerAction();
+        $task = $this->call(
+            $action['controller'],
+            $action['action'],
+            $task->getInput(),
+            $task
+        );
+        $this->currentTask = $parentTask;
+        return $task;
+    }
 
-	/**
-	 * Выполнение очереди заданий
+    /**
+     * Выполнение очереди заданий
      *
-	 * @param array $tasks
-	 * @return array
-	 */
-	public function runTasks($tasks)
-	{
-		$this->tasksBuffer[] = $this->tasksQueue;
-		$this->tasksResultsBuffer[] = $this->tasksResults;
-		$this->tasksQueue = $tasks;
-		$this->tasksResults = array();
+     * @param array $tasks
+     * @return array
+     */
+    public function runTasks($tasks)
+    {
+        $this->tasksBuffer[] = $this->tasksQueue;
+        $this->tasksResultsBuffer[] = $this->tasksResults;
+        $this->tasksQueue = $tasks;
+        $this->tasksResults = array();
         $taskCount = count($this->tasksQueue);
-		for ($i = 0; $i < $taskCount; ++$i) {
-			$task = $this->run($this->tasksQueue[$i]);
-			if (!$task->getIgnore()) {
-				$this->tasksResults[] = $task;
-			}
-		}
-		$result = $this->tasksResults;
-		$this->tasksQueue = array_pop($this->tasksBuffer);
-		$this->tasksResults = array_pop($this->tasksResultsBuffer);
-		return $result;
-	}
+        for ($i = 0; $i < $taskCount; ++$i) {
+            $task = $this->run($this->tasksQueue[$i]);
+            if (!$task->getIgnore()) {
+                $this->tasksResults[] = $task;
+            }
+        }
+        $result = $this->tasksResults;
+        $this->tasksQueue = array_pop($this->tasksBuffer);
+        $this->tasksResults = array_pop($this->tasksResultsBuffer);
+        return $result;
+    }
 
     /**
      * Получить инжектор сервисов
@@ -845,16 +822,6 @@ class Controller_Manager extends Manager_Abstract
             );
         }
         return $this->serviceInjector;
-    }
-
-    /**
-     * Изменить менеджер аннотаций
-     *
-     * @param Annotation_Manager_Abstract $annotationManager
-     */
-    public function setAnnotationManager($annotationManager)
-    {
-        $this->annotationManager = $annotationManager;
     }
 
     /**
@@ -875,16 +842,6 @@ class Controller_Manager extends Manager_Abstract
     public function setDefaultExecutor($defaultExecutor)
     {
         $this->defaultExecutor = $defaultExecutor;
-    }
-
-    /**
-     * Изменить менеджер событий
-     *
-     * @param Event_Manager $eventManager
-     */
-    public function setEventManager($eventManager)
-    {
-        $this->eventManager = $eventManager;
     }
 
     /**

@@ -39,7 +39,7 @@ class Authorization extends Model_Defined
 	 * @param string $name Название модели авторизации
 	 * @return Authorization_Abstract
 	 */
-	public function byName ($name)
+	public function byName($name)
 	{
 		return $this->getService('modelManager')->byOptions(
 			'Authorization'

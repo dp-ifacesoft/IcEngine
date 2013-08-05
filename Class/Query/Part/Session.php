@@ -17,7 +17,7 @@ class Query_Part_Session extends Query_Part
             $sessionId = $this->params['id'];
         } else {
             $locator = IcEngine::serviceLocator();
-            $session = $locator->getService('session')->getCurrent();
+            $session = $locator->getService('userSession')->getCurrent();
             $sessionId = $session->key();
         }
 		$this->query->where($this->modelName . '.phpSessionId', $sessionId);

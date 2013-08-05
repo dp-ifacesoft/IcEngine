@@ -13,11 +13,6 @@ class Controller_Tracer extends Controller_Abstract
 	public function index()
 	{
 		$maxMemory = ini_get('memory_limit');
-		$user = $this->getService('user')->getCurrent();
-        $request = $this->getService('request');
-		if (!$user->isAdmin() || !$request->get('TRACER') || !Tracer::$enabled) {
-			//return $this->_task->setTemplate(null);
-		}
 		$lowQueryVector = Tracer::getLowQueryVector();
 		$lowQueryCount = count($lowQueryVector);
 		$lowQueryTime = 0;

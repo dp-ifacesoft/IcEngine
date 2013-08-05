@@ -2,8 +2,9 @@
 
 /**
  * Модель консольного пользователя
+ * 
  * @author goorus, morph
- * @Service("userCli")
+ * @Service("userCli", disableConstruct=true)
  */
 class User_Cli extends User
 {
@@ -11,10 +12,6 @@ class User_Cli extends User
      * @inheritdoc
      */
 	protected static $config = array(
-		/**
-		 * @desc Конфиг пользователя
-		 * @var array
-		 */
 		'fields'	=> array (
 			'id'		=> -1,
 			'active'	=> 1,
@@ -24,6 +21,22 @@ class User_Cli extends User
 		)
 	);
 
+    /**
+     * Создает новую схему
+     * 
+     * @param array $fields
+     */
+    protected function createScheme($fields)
+    {
+        $scheme = array();
+        foreach ($fields as $fieldName => $value) {
+            $scheme[$fieldName] = array(
+                is_numeric($value) ? 'Int' : 'Varchar', array()
+            ); 
+        }
+        return $fieldName;
+    }
+    
 	/**
 	 * Создает и возвращает экземпляр модели консольного пользователя
 	 * 
@@ -31,8 +44,34 @@ class User_Cli extends User
 	 */
 	public function getInstance()
 	{
-		return new self($this->config()->fields->__toArray());
+        $schemeFields = $this->getService('configManager')->get(
+            'Model_Mapper_User'
+        )->fields;
+        $configFields = $this->config()->fields->__toArray();
+        if ($schemeFields) {
+            $fields = array_keys($schemeFields->__toArray());
+        } else {
+            $scheme = $this->createScheme($configFields);
+            $fields = array_keys($configFields);
+            $this->getService('modelScheme')->setScheme(
+                'User', new Objective($scheme)
+            );
+        }
+        $resultFields = array();
+        foreach ($fields as $fieldName) {
+            $resultFields[$fieldName] = isset($configFields[$fieldName])
+                ? $configFields[$fieldName] : null;
+        }
+		return new static($resultFields);
 	}
+    
+    /**
+     * @inheritdoc
+     */
+    public function hasRole($role)
+    {
+        return false;
+    }
 
 	/**
 	 * Инициализирует модель гостя. Модель будет добавлена в менеджер ресурсов

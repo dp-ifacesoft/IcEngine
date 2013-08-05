@@ -1,11 +1,10 @@
 <?php
+
 /**
- *
  * Класс для работы с изображениями
  *
  * @Service("helperImage")
- * @author Юрий
- *
+ * @author goorus
  */
 class Helper_Image
 {
@@ -211,10 +210,9 @@ class Helper_Image
 				$type = key($sizings);
 			}
 		}
-		if (!isset ($sizing)) {
+		if (!isset($sizing)) {
 			$this->code = 400;
-			throw new Zend_Exception('Type unsupported.', 400);
-			return;
+			throw new Exception('Type unsupported.', 400);
 		}
 		$sizing = array_merge($this->_sizing($type), $sizing);
 		return $this->uploadSimple($tc->table(), $tc->key(), $type, $sizing);
@@ -257,7 +255,7 @@ class Helper_Image
 		//$this->_log ('test');
         $locator = IcEngine::serviceLocator();
         $request = $locator->getService('request');
-		$helperSiteLocation = $locator->getService('siteLocation');
+		$helperSiteLocation = $locator->getService('helperSiteLocation');
         $modelManager = $locator->getService('modelManager');
         $helperImageResize = $locator->getService('helperImageResize');
 		$host = $helperSiteLocation->getLocation();

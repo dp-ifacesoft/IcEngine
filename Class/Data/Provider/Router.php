@@ -1,21 +1,14 @@
 <?php
 
-if (!class_exists ('Data_Provider_Abstract')) {
-	include dirname (__FILE__) . '/Abstract.php';
-}
-
 /**
  * Провайдер данных из адресной строки
  *
- * @author Юрий Шведов, neon
- * @package IcEngine
+ * @author goorus, morph
  */
 class Data_Provider_Router extends Data_Provider_Abstract
 {
-
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::get()
+	 * @inheritdoc
 	 */
 	public function get($key, $plain = false)
 	{
@@ -25,8 +18,7 @@ class Data_Provider_Router extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::getAll()
+	 * @inheritdoc
 	 */
 	public function getAll()
 	{
@@ -36,10 +28,9 @@ class Data_Provider_Router extends Data_Provider_Abstract
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::set()
+	 *@inheritdoc
 	 */
-	public function set($key, $value, $expiration = 0, $tags = array ())
+	public function set($key, $value, $expiration = 0, $tags = array())
 	{
         $locator = IcEngine::serviceLocator();
         $request = $locator->getService('request');

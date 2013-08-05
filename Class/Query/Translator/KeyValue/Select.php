@@ -1,29 +1,47 @@
 <?php
 
 /**
- * @desc Транслятор для key-value хранилищь
+ * Транслятор для key-value хранилищь
+ * 
+ * @author goorus, morph
  */
-
 class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 {
-
 	/**
-	 * Разделитель таблицы и индкса.
+	 * Разделитель таблицы и индкса
+     * 
 	 * @var string
 	 */
 	public $tableIndexDelim = '_';
 
 	/**
-	 * Разделитель индекса и первичного ключа.
+	 * Разделитель индекса и первичного ключа
+     * 
 	 * @var string
 	 */
 	public $indexKeyDelim = '/';
 
 	/**
-	 * Разделитель значений индексов.
+	 * Разделитель значений индексов
+     * 
 	 * @var string
 	 */
 	public $valuesDelim = ':';
+    
+    /**
+	 * Возвращает массив масок для выбора ключей.
+	 * 
+     * @param Query_Abstract $query
+	 * @return array
+	 * 		Маски ключий для выбора.
+	 */
+	public function doRenderSelect(Query_Abstract $query)
+	{
+		return $this->compileKeyMask(
+			$this->extractTable($query),
+			$query->part(Query::WHERE)
+		);
+	}
 
 	/**
 	 * Возвращает массив масок ключей
@@ -32,245 +50,189 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	 * @param array $where Часть запроса Query::WHERE
 	 * @return array Массив масок
 	 */
-	protected function _compileKeyMask($table, array $where)
+	public function compileKeyMask($table, array $where)
 	{
-        $serviceLocator = IcEngine::serviceLocator();
-        $modelScheme = $serviceLocator->getService('modelScheme');
-		$key_field = $modelScheme->keyField ($table);
-		$indexes = $modelScheme->indexes ($table);
+        $modelScheme = $this->modelScheme();
+		$keyField = $modelScheme->keyField($table);
+		$indexes = $modelScheme->indexes($table);
 		// Покрытие индексом запроса
 		// Изначально строка "11111", по мере использования,
 		// 1 заменяются на 0. Если индекс покрывает запрос, в конце
 		// значение будет равно "000000" == 0
-		$index_use = array();
+		$indexesUsed = array();
 		// Значения для полей индекса
-		$index_values = array();
-		$keys = array_keys($indexes);
+		$indexesValues = array();
 		// Отсекаем индексы, которые заведомо не покрывают запрос (короткие)
 		// и инициализируем массивы
 		foreach ($indexes as $i => $index) {
 			if (count($index) < count($where)) {
 				unset($indexes[$i]);
 			} else {
-				$index_use[$i] = str_repeat('1', count($index));
-				$index_values[$i] = array();
+				$indexesUsed[$i] = str_repeat('1', count($index));
+				$indexesValues[$i] = array();
 			}
 		}
-		//print_r($where);die;
 		// Запоминаем значения для полей индекса
-		foreach ($where as $wi => &$wvalue){
-			$cond = $wvalue[Query::WHERE];
-			if (!is_scalar($wvalue[Query::VALUE])) {
+		foreach ($where as $i => &$part){
+			$condition = $part[Query::WHERE];
+			if (!is_scalar($part[Query::VALUE])) {
 				throw new Exception('Condition unsupported.');
 			}
-			if (!is_array($cond)) {
+			if (!is_array($condition)) {
 				// Получаем таблицу и колонку
-				$cond = explode('.', $cond, 2);
+				$condition = explode('.', $condition, 2);
 			}
-			if (empty($cond)) {
+			if (empty($condition)) {
 				throw new Exception('Condition field unsupported.');
 			}
-			$cond = trim(end($cond), '`?= ');
-			$is_like = (strtoupper(substr($cond, -4, 4)) == 'LIKE');
-			$where_value = urlencode($wvalue[Query::VALUE]);
-			if (!$is_like && $cond == $key_field) {
+			$conditionPrepared = trim(end($condition), '`?= ');
+			$isLike = (strtoupper(substr($conditionPrepared, -4, 4)) == 'LIKE');
+			$whereValue = urlencode($part[Query::VALUE]);
+			if (!$isLike && $conditionPrepared == $keyField) {
 				return array(
 					$table . $this->tableIndexDelim .
 					'k' . $this->indexKeyDelim .
-					$where_value
+					$whereValue
 				);
 			}
-			foreach ($indexes as $ii => &$icolumns) {
-				foreach ($icolumns as $ici => &$icolumn) {
-					if ($cond == $icolumn) {
-						$index_use[$ii][$ici] = 0;
-						if ($is_like) {
-							$index_values[$ii][$ici] = str_replace(
-								'%25', '*', $where_value
-							);
-						} else {
-							$index_values[$ii][$ici] = $where_value;
-						}
-					}
+			foreach ($indexes as $j => &$indexParts) {
+				foreach ($indexParts as $k => &$indexPart) {
+					if ($conditionPrepared != $indexPart) {
+                        continue;
+                    }
+                    $indexesUsed[$j][$k] = 0;
+                    if ($isLike) {
+                        $indexesValues[$j][$k] = str_replace(
+                            '%25', '*', $whereValue
+                        );
+                    } else {
+                        $indexesValues[$j][$k] = $whereValue;
+                    }
 				}
-				unset($icolumn);
+				unset($indexPart);
 			}
-			unset($icolumns);
+			unset($indexParts);
 		}
-
 		// Выбираем наиболее покрывающий индекс.
-		$best_v = 0;
-		$best_i = 0;
-		foreach ($index_use as $ii => $use)
-		{
-			$v = strpos ($use, '1');
-
-			if ($v === false)
-			{
+		$bestValue = 0;
+		$bestIndex = 0;
+		foreach ($indexesUsed as $i => $index) {
+			$usePosition = strpos($index, '1');
+			if ($usePosition !== false) {
 				// Индекс полностью покрывает запрос
-				return array ($this->_pattern (
-					$table, $ii, $use, $index_values [$ii]
+				return array ($this->pattern(
+					$table, $i, $index, $indexesValues[$i]
 				));
 			}
-
-			if ($v > $best_v)
-			{
-				$best_v = $v;
-				$best_i = $ii;
+			if ($usePosition > $bestValue) {
+				$bestValue = $usePosition;
+				$bestIndex = $i;
 			}
 		}
-
-		if ($best_v >= 0)
-		{
-			return array ($this->_pattern (
-				$table, $best_i,
-				$index_use [$best_i], $index_values [$best_i]
+		if ($bestValue >= 0) {
+			return array($this->pattern(
+				$table, $bestIndex,
+				$indexesUsed[$bestIndex], $indexesValues[$bestIndex]
 			));
 		}
-
-		return array ();
+		return array();
 	}
 
 	/**
-	 * Формирование ключей для записи.
+	 * Формирование ключей для записи
+     * 
 	 * @param string $table
 	 * @param array $values
 	 * @return array
 	 */
-	public function _compileKeys ($table, array $values)
+	public function compileKeys($table, array $values = array())
 	{
-        $serviceLocator = IcEngine::serviceLocator();
-        $modelScheme = $serviceLocator->getService('modelScheme');
-		$key_field = $modelScheme->keyField ($table);
-
-		if (!isset ($values [$key_field]))
-		{
-			throw new Exception ("Primary key must be defined.");
+        $modelScheme = $this->modelScheme();
+		$keyField = $modelScheme->keyField($table); 
+		if (!isset($values[$keyField])) {
+			throw new Exception("Primary key must be defined.");
 		}
-
 		$keys = array (
 			$table . $this->tableIndexDelim .
 			'k' . $this->indexKeyDelim .
-			$values [$key_field]
+			$values[$keyField]
 		);
-
-		$indexes = $modelScheme->indexes ($table);
-		foreach ($indexes as $i => $index)
-		{
+		$indexes = $modelScheme->indexes($table);
+		foreach ($indexes as $i => $index) {
 			$index = (array) $index;
-			$vals = array ();
-			foreach ($index as $name)
-			{
-				$vals [] = urlencode ($values [$name]);
+			$currentValues = array();
+			foreach ($index as $name) {
+				$currentValues[] = isset($values[$name])
+                    ? urlencode($values[$name]) : null;
 			}
-			$vals [] = urlencode ($values [$key_field]);
-			$keys [] =
-				$table . $this->tableIndexDelim .
+			$currentValues[] = urlencode($values[$keyField]);
+			$keys[] = $table . $this->tableIndexDelim .
 				$i . $this->indexKeyDelim .
-				implode ($this->valuesDelim, $vals);
+				implode($this->valuesDelim, $currentValues);
 		}
-
 		return $keys;
 	}
 
 	/**
-	 * Извлекает имя таблицы из запроса.
+	 * Извлекает имя таблицы из запроса
+     * 
 	 * @param Query_Abstract $query
 	 * @return string
-	 * @throws Zend_Exception
+	 * @throws Exception
 	 */
-	public function extractTable (Query_Abstract $query)
+	public function extractTable(Query_Abstract $query)
 	{
-		$tables = $query->part (Query::FROM);
-
+		$tables = $query->part(Query::FROM);
 		// Отдельно хранятся таблицы для INSERT и UPDATE
-		$type = $query->type ();
-		if ($type == Query::INSERT || $type == Query::UPDATE)
-		{
-			return $query->part ($type);
+		$type = $query->type();
+		if (in_array($type, array(Query::INSERT, Query::UPDATE))) {
+			return $query->part($type);
 		}
-
 		// Иначе SELECT или DELETE
-		if (count ($tables) != 1)
-		{
-			throw new Exception ('Invalid query.');
+		if (count($tables) != 1) {
+			throw new Exception('Invalid query.');
 		}
-
-		$table = reset ($tables);
-		return $table [Query::TABLE];
+		$table = reset($tables);
+		return $table[Query::TABLE];
 	}
 
 	/**
-	 * @desc Извлекает первичный ключ записи из ключа кэша.
-	 * @param string $key
+	 * Извлекает первичный ключ записи из ключа кэша.
+	 * 
+     * @param string $key
 	 * @return string
 	 */
-	public function extractId ($key)
+	public function extractId($key)
 	{
-		$id = substr (
-			strrchr (
-				$key,
-				$this->valuesDelim
-			),
-			1
-		);
-
-		if (!$id)
-		{
-			$id = substr (
-				strrchr (
-					$key,
-					$this->indexKeyDelim
-				),
-				1
-			);
+		$id = substr(strrchr($key, $this->valuesDelim), 1);
+		if (!$id) {
+			$id = substr(strrchr($key, $this->indexKeyDelim), 1);
 		}
-
 		return $id;
 	}
 
 	/**
-	 *
+	 * Сформировать паттерн для выборки по ключу
+     * 
 	 * @param string $table
-	 * @param integer $index_num
-	 * @param string $index_use
+	 * @param integer $indexPosition
+	 * @param string $indexesUsed
 	 * @param array $values
 	 * @return string
 	 */
-	protected function _pattern ($table, $index_num, $index_use, array $values)
+	public function pattern($table, $indexPosition, $indexesUsed, 
+        array $values)
 	{
-		$pattern =
-			$table . $this->tableIndexDelim .
-			$index_num . $this->indexKeyDelim;
-
-		for ($i = 0; $i < strlen ($index_use); $i++)
-		{
-			if (array_key_exists ($i, $values))
-			{
-				$pattern .= $values [$i];
-			}
-			else
-			{
+		$pattern = $table . $this->tableIndexDelim . $indexPosition . 
+            $this->indexKeyDelim;
+		for ($i = 0, $length = strlen($indexesUsed); $i < $length; $i++) {
+			if (array_key_exists($i, $values)) {
+				$pattern .= $values[$i];
+			} else {
 				$pattern .= '*';
 			}
 			$pattern .= $this->valuesDelim;
 		}
-
 		return rtrim($pattern, ':') . '*';
 	}
-
-	/**
-	 * @desc Возвращает массив масок для выбора ключей.
-	 * @param Query_Abstract $query
-	 * @return array
-	 * 		Маски ключий для выбора.
-	 */
-	public function _renderSelect (Query_Abstract $query)
-	{
-		return $this->_compileKeyMask (
-			$this->extractTable ($query),
-			$query->part (Query::WHERE)
-		);
-	}
-
 }

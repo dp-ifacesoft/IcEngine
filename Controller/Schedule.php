@@ -9,14 +9,13 @@ class Controller_Schedule extends Controller_Abstract
 {
     /**
      * Выполнить задания
+     * 
+     * @Template(null)
+     * @Validator("User_Cli")
+     * @Context("helperSchedule")
      */
     public function index($context)
     {
-        $this->task->setTemplate(null);
-        $user = $context->user->getCurrent();
-        if ($user->key() >= 0) {
-            return;
-        }
         $schedules = $context->collectionManager->create('Schedule')
             ->addOptions(array(
                 'name'  => '::Order_Desc',
@@ -24,9 +23,6 @@ class Controller_Schedule extends Controller_Abstract
             ));
         $currentTs = time();
         $helperDate = $this->getService('helperDate');
-        $log = '/home/www/newvipgeo.ru/sc.txt';
-        $currentLog = file_get_contents($log);
-        file_put_contents($log, $currentLog . PHP_EOL . $currentTs);
         foreach ($schedules as $schedule) {
             $scheduleTs = $schedule['lastTs'] + $schedule['deltaSec'];
             if ($scheduleTs > $currentTs) {
@@ -37,7 +33,12 @@ class Controller_Schedule extends Controller_Abstract
                 'lastDate'  => $helperDate->toUnix()
             ));
             echo $schedule['controllerAction'] . PHP_EOL;
-            exec('./ice ' . $schedule['controllerAction']);
+            $params = $schedule['paramsJson'] 
+                ? $context->helperSchedule->get($schedule['paramsJson']) : null;
+            exec(
+                './ice ' . $schedule['controllerAction'] . 
+                ($params ? ' ' . $params : '')
+            );
         }
     }
 }

@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Модель изображения к сущности.
  * 
- * @desc Модель изображения к сущности.
- * @author Юрий
- * @package IcEngine
- *
+ * @author goorus
  */
 class Component_Image extends Model_Component
 {

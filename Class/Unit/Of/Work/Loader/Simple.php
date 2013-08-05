@@ -39,9 +39,11 @@ class Unit_Of_Work_Loader_Simple extends Unit_Of_Work_Loader_Abstract
 			$fieldsPrepared = array();
 			foreach ($fields as $field) {
 				if (isset($resultArray[$object->key()][$field])) {
-					$fieldsPrepared[$field] = $resultArray[$object->key()][$field];
+					$fieldsPrepared[$field] = 
+                        $resultArray[$object->key()][$field];
 				} else {
-					$fieldsPrepared[$field] = strrpos($field, '__id') ? 0 : null;
+					$fieldsPrepared[$field] = strrpos($field, '__id') 
+                        ? 0 : null;
 				}
 			}
 			$object->set($fieldsPrepared);

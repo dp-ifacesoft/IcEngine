@@ -3,7 +3,7 @@
 /**
  * Генератор кода
  *
- * @author ..., neon
+ * @author morph, neon
  * @Service("helperCodeGenerator")
  */
 class Helper_Code_Generator

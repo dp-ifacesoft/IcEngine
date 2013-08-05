@@ -25,8 +25,18 @@ class ControllerManagerDelegeeSignal extends ControllerManagerDelegeeAbstract
         $eventManager = $controllerManager->getService('eventManager');
         $signal = $eventManager->getSignal($key);
         $slot = $eventManager->getSlot('Delegee');
+        $signals = array();
+        foreach ($actionScheme['Signal'] as $signals) {
+            foreach ($signals as $signalName => $params) {
+                if (is_numeric($signalName)) {
+                    $signalName = $params;
+                    $params = array();
+                }
+                $signals[$signalName ] = $params;
+            }
+        }
         $slot->setParams(array(
-            'signal'    => $actionScheme['Signal'],
+            'signal'    => $signals,
             'context'   => $context
         ));
         $eventManager->register($signal, $slot);

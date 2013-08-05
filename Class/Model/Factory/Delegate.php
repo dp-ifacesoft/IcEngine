@@ -30,7 +30,7 @@ class Model_Factory_Delegate extends Model
 	public function __construct(array $fields = array(), $model = null)
 	{
         if (is_null(self::$factory)) {
-            self::$factory = new Model_Manager_Delegee_Factory;
+            self::$factory = new Model_Manager_Delegee_Factory();
         }
 		// Находим фабрику
 		$this->modelFactory = self::$factory->factory($this);
@@ -41,7 +41,7 @@ class Model_Factory_Delegate extends Model
 	 * (non-PHPdoc)
 	 * @see Model::modelName()
 	 */
-	public function modelName ()
+	public function modelName()
 	{
 		return get_class($this->modelFactory);
 	}

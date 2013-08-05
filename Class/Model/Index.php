@@ -1,85 +1,96 @@
 <?php
 
 /**
- * @desc Индекс модели
+ * Индекс модели
+ * 
  * @author morph, goorus
  */
 class Model_Index
 {
 	/**
-	 * @desc Поле индекса
-	 * @var string|array
+	 * Поле индекса
+	 * 
+     * @var string|array
 	 */
-	protected $_fields;
+	protected $fields;
 
 	/**
-	 * @desc Название индекса
-	 * @var string
+	 * Название индекса
+	 * 
+     * @var string
 	 */
-	protected $_name;
+	protected $name;
 
 	/**
-	 * @desc Тип индекса
-	 * @var string
+	 * Тип индекса
+	 * 
+     * @var string
 	 */
-	protected $_type;
+	protected $type;
 
 	/**
+     * Конструктор
+     * 
 	 * @param string $name Название индекса
 	 * @param string $type Тип индекса
 	 * @param string|array field Поле (поля) индекса
 	 */
-	public function __construct ($name)
+	public function __construct($name)
 	{
-		$this->_name = $name;
+		$this->name = $name;
 	}
 
 	/**
-	 * @desc Получить поля (поля) индекса
-	 * @return string|array
+	 * Получить поля (поля) индекса
+	 * 
+     * @return string|array
 	 */
-	public function getFields ()
+	public function getFields()
 	{
-		return $this->_fields;
+		return $this->fields;
 	}
 
 	/**
-	 * @desc Получить название индекса
-	 * @return string
+	 * Получить название индекса
+	 * 
+     * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return $this->_name;
+		return $this->name;
 	}
 
 	/**
-	 * @desc Получить тип индекса
-	 * @return string
+	 * Получить тип индекса
+	 * 
+     * @return string
 	 */
-	public function getType ()
+	public function getType()
 	{
-		return $this->_type;
+		return $this->type;
 	}
 
 	/**
-	 * @desc Задает поля индекса
-	 * @param array $fields
+	 * Задает поля индекса
+	 * 
+     * @param array $fields
 	 * @return Model_Index
 	 */
-	public function setFields ($fields)
+	public function setFields($fields)
 	{
-		$this->_fields = $fields;
+		$this->fields = $fields;
 		return $this;
 	}
 
 	/**
-	 * @desc Задает тип индекса
-	 * @param string $type
+	 * Задает тип индекса
+	 * 
+     * @param string $type
 	 * @return Model_Index
 	 */
-	public function setType ($type)
+	public function setType($type)
 	{
-		$this->_type = $type;
+		$this->type = $type;
 		return $this;
 	}
 }

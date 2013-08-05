@@ -61,14 +61,16 @@ class Controller_Abstract
      * взято из $text.
      * @param bool|string $tpl [optional] Шаблон.
      */
-	protected function sendError($text, $method = null, $tpl = false)
+	public function sendError($text, $method = null, $tpl = false)
 	{
+        $error = array(
+            'text'	=> $text,
+            'tpl'	=> $tpl
+        );
 		$this->output->send(array(
-			'error'	=> array(
-				'text'	=> $text,
-				'tpl'	=> $tpl
-			),
+			'error'	=> $error
 		));
+        $this->task->appendError($text);
 		if (!is_bool($tpl)) {
 			$this->task->setClassTpl($method, $tpl);
 		} elseif ($method) {
@@ -105,8 +107,7 @@ class Controller_Abstract
      */
     public function getAnnotations()
     {
-        return $this->getService('controllerManager')->annotationManager()
-            ->getAnnotation($this);
+        return $this->getService('helperAnnotation')->getAnnotation($this);
     }
 
     /**

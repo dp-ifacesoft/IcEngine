@@ -53,7 +53,7 @@ class Query_Result
 	 *
      * @return array|null
 	 */
-	public function asRow ()
+	public function asRow()
 	{
 		if (empty($this->result['result'])) {
 			return null;
@@ -159,14 +159,34 @@ class Query_Result
     }
 
     /**
+     * Получить количество рядов, полученных последним запросом
+     *
+     * @return integer
+     */
+    public function numRows()
+    {
+        return isset($this->result['numRows']) ? $this->result['numRows'] : 0;
+    }
+
+    /**
      * Получить схему результата
      *
 	 * @return mixed
 	 */
-	public function result ()
+	public function result()
 	{
 		return $this->result['result'];
 	}
+
+    /**
+     * Изменить результаты выборки
+     *
+     * @param array $result
+     */
+    public function setResult($result)
+    {
+        $this->result['result'] = $result;
+    }
 
 	/**
 	 * Количество затронутых запросом записей.
@@ -177,5 +197,5 @@ class Query_Result
 	public function touchedRows()
 	{
 		return $this->result['touchedRows'];
-    }
+	}
 }

@@ -87,6 +87,7 @@ class Unit_Of_Work
 	 */
 	public function flush()
 	{
+        //echo 'flush' . PHP_EOL;
 		$this->build();
 		foreach ($this->queries as $key=>$query) {
 			$this->_execute($key, $query);
@@ -109,12 +110,12 @@ class Unit_Of_Work
 		);
 		$query = $this->queries[$key];
         $ds = $modelScheme->dataSource($query['modelName']);
-		$result = $ds->execute($query['query']);
-        $mapper = $ds->getDataMapper();
-        if (method_exists($mapper, 'getCacher')) {
-            $cacher = $mapper->getCacher();
+  		$result = $ds->execute($query['query']);
+        $driver = $ds->getDataDriver();
+        if (method_exists($driver, 'getCacher')) {
+            $cacher = $driver->getCacher();
             $tag = $modelScheme->table($query['modelName']);
-            $mapper->tagDelete($tag);
+            $driver->tagDelete($tag);
             $cacher->tagDelete($tag);
         }
 		$this->rawCount--;
@@ -173,7 +174,7 @@ class Unit_Of_Work
 		$unitOfWorkManager = $locator->getService('unitOfWorkManager');
 		$uowQuery = $unitOfWorkManager->get($query);
 		$uowQuery->push($query, $object, $loaderName);
-		if ($this->autoFlush && $this->autoFlush == $this->rawCount) {
+		if ($this->autoFlush && $this->autoFlush <= $this->rawCount) {
 			$this->flush();
 		}
 		$this->rawCount++;

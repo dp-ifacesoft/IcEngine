@@ -15,7 +15,6 @@ class Model_Collection_Manager extends Manager_Abstract
 		'cache_provider'	=> 'mysqli_cache',
 		'delegee'			=> array(
 			'Model'				=> 'Simple',
-			'Model_Config'		=> 'Simple',
 			'Model_Defined'		=> 'Defined',
 			'Model_Factory'		=> 'Simple',
             'Model_Sync'        => 'Simple'
@@ -50,11 +49,14 @@ class Model_Collection_Manager extends Manager_Abstract
         // Делегируемый класс определяем по первому или нулевому
         // предку.
         $parents = class_parents($modelName);
-        $first = end($parents);
-        $second = prev($parents);
+        $parent = reset($parents);
         $config = $this->config();
-        $parent = $second && isset($config['delegee'][$second])
-            ? $second : $first;
+        foreach ($parents as $current) {
+            if (isset($config['delegee'][$current])) {
+                $parent = $current;
+                break;
+            }
+        }
         $delegee = 'Model_Collection_Manager_Delegee_' .
             $config['delegee'][$parent];
         $pack = call_user_func(array($delegee, 'load'), $collection, $query);
@@ -69,8 +71,9 @@ class Model_Collection_Manager extends Manager_Abstract
 	 */
 	public function create($modelName)
 	{
-		$className = $modelName . '_Collection';
-		return new $className;
+        $collection = new Model_Collection();
+        $collection->setModelName($modelName);
+		return $collection;
 	}
 
 	/**

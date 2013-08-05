@@ -8,6 +8,14 @@
  */
 class Router extends Manager_Abstract
 {
+    /**
+     * Хелпер роутера
+     * 
+     * @var Helper_Router
+     * @Inject("helperRouter")
+     */
+    protected $helper;
+    
 	/**
 	 * Текущий роут
 	 *
@@ -42,65 +50,24 @@ class Router extends Manager_Abstract
         $this->route = $route;
         $hashRoute = $route->__toArray();
 		if (!empty($hashRoute['params'])) {
-			foreach ($hashRoute['params'] as $paramName => $paramValue) {
-                if (is_string($paramValue) && strpos($paramValue, '::') 
-                    !== false) {
-                    list($className, $method) = explode('::', $paramValue);
-                    $serviceName = $this->getServiceLocator()->normalizeName(
-                        $className
-                    );
-                    $service = $this->getService($serviceName);
-                    $paramValue = $service->$method();
-                }
-				$request->param($paramName, $paramValue);
-			}
+			$this->helper->setRouteParams($request, $hashRoute['params']);
 		}
 		$firstParamPos = strpos($hashRoute['route'], '{');
 		if ($firstParamPos !== false && isset($hashRoute['patterns']) &&
 			isset($hashRoute['pattern'])) {
-			$baseMatches = array();
-			preg_match_all($hashRoute['pattern'], $url, $baseMatches);
-			if (!empty($baseMatches[0][0])) {
-				$keys = array_keys($hashRoute['patterns']);
-				foreach ($baseMatches as $i => $data) {
-					if (!$i) {
-						continue;
-					}
-                    $part = $hashRoute['patterns'][$keys[$i - 1]];
-					if (!empty($data[0])) {
-                        if (isset($part['value'])) {
-                            $data[0] = $part['value'];
-                        }
-						$request->param($keys[$i - 1], $data[0]);
-					} else {
-						if (isset($part['default'])) {
-							$request->param($keys[$i - 1], $part['default']);
-						}
-					}
-				}
-			}
+			$this->helper->setRouteData($url, $request, $hashRoute);
 		}
-		$this->setParamsFromRequest();
+		$this->helper->setParamsFromRequest($request);
 		return $this->route;
 	}
 
-	/**
-	 * Отдать в $_REQUEST то, что прилетело из get
-	 */
-	public function setParamsFromRequest()
-	{
-        $request = $this->getService('request');
-		$gets = $request->stringGet();
-		if ($gets) {
-			$gets = (array) explode('&', $gets);
-			foreach ($gets as $get) {
-				$tmp = explode('=', $get);
-				if (!isset($tmp[1])) {
-					$tmp[1] = 1;
-				}
-				$_REQUEST[$tmp[0]] = $_GET [$tmp[0]] = $tmp[1];
-				$request->param($tmp[0], $tmp[1]);
-			}
-		}
-	}
+    /**
+     * Изменить хелпер роутера
+     * 
+     * @param Helper_Router $helper
+     */
+    public function setHelper($helper)
+    {
+        $this->helper = $helper;
+    }
 }

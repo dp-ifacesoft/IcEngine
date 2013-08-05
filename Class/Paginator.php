@@ -4,91 +4,100 @@
  * Объект для хранения списка страниц.
  *
  * @author goorus, neon
- * @package IcEngine
  * @Service("paginator", disableConstruct=true)
  */
 class Paginator
 {
 	/**
 	 * Флаг означает, что ссылки нам нужны без всяких ?&page
-	 * @var bool
+	 *
+     * @var bool
 	 */
 	public $notGet = false;
 
 	/**
 	 * Общее количество элементов
-	 * @var integer
+	 *
+     * @var integer
 	 */
 	public $total;
 
 	/**
 	 * Ссылка на страницу.
 	 * Если на задана, будешь использован адрес из запроса.
-	 * @var string
+	 *
+     * @var string
 	 */
 	public $href;
 
 	/**
 	 * Текущая страница
-	 * @var integer
+	 *
+     * @var integer
 	 */
 	public $page;
 
     /**
      * Количество страниц
+     *
      * @var integer
      */
     public $pageCount;
 
 	/**
 	 * Количество элементов на странице
+     *
 	 * @var integer
 	 */
 	public $perPage = 30;
 
 	/**
 	 * Сформированные для вывода номера страниц
-	 * array (
-	 * 		'href'	=> ссылка на страница
+	 * array(
+	 *      'href'	=> ссылка на страница
 	 * 		'title'	=> номер страницы или многоточие
 	 * )
-	 * @var array
+	 *
+     * @var array
 	 */
 	public $pages;
 
 	/**
 	 * Предыдущая страница
-	 * @var array
+	 *
+     * @var array
 	 */
 	public $prev;
 
     /**
      * Предыдущая страница от выбранной
+     *
      * @var array
      */
     public $prevPage;
 
     /**
 	 * Следующая страница
-	 * @var array
+	 *
+     * @var array
 	 */
 	public $next;
 
     /**
      * Следующая страница от выбранной
+     *
      * @var array
      */
     public $nextPage;
 
-    /**
+	/**
+	 * Конструктор
      *
-     * @param integer $page Текущая страница
-     * @param int $perPage
-     * @param int $total
-     * @param boolean $notGet ЧПУ стиль
-     * @internal param int $page_limit Количество элементов на странице
-     * @internal param int $full_count Полное количество элементов
-     */
+	 * @param integer $page Текущая страница
+	 * @param integer $page_limit Количество элементов на странице
+	 * @param integer $full_count Полное количество элементов
+	 * @param boolean $notGet ЧПУ стиль
+	 */
 	public function __construct($page, $perPage = 30,
         $total = 0, $notGet = false)
 	{
@@ -109,44 +118,40 @@ class Paginator
 		$locator = IcEngine::serviceLocator();
 		$request = $locator->getService('request');
 		$this->pages = array();
-		$pages_count = $this->pagesCount();
-		//Debug::logVar($pages_count);
-		if ($pages_count <= 1) {
-			return ;
+		$pagesCount = $this->pagesCount();
+		if ($pagesCount <= 1) {
+			return;
 		}
-		$half_page = round($pages_count / 2);
+		$halfPage = round($pagesCount / 2);
 		$spaced = false;
-		$href = isset($this->href) ? $this->href : $request->uri(false);
 		// Удаление из запроса GET параметра page
 		$p = 'page';
 		$href = preg_replace(
-			"/((?:\?|&)$p(?:\=[^&]*)?$)+|((?<=[?&])$p(?:\=[^&]*)?&)+|((?<=[?&])$p(?:\=[^&]*)?(?=&|$))+|(\?$p(?:\=[^&]*)?(?=(&$p(?:\=[^&]*)?)+))+/",
+			"/((?:\?|&)$p(?:\=[^&]*)?$)+|((?<=[?&])$p" .
+                "(?:\=[^&]*)?&)+|((?<=[?&])$p" .
+                "(?:\=[^&]*)?(?=&|$))+|(\?$p(?:\=[^&]*)?".
+                "(?=(&$p(?:\=[^&]*)?)+))+/",
 			'',
-			$href
+			isset($this->href) ? $this->href : $request->uri(false)
 		);
 		/**
 		 * Для ссылок вида $page/, тоже учтём
 		 */
 		if (!$this->notGet) {
-			if (strpos ($href, '?') === false) {
+			if (strpos($href, '?') === false) {
 				$href .= '?page=';
 			} else {
 				$href .= '&page=';
 			}
-		} else {
-			if ($this->page > 1) {
-				$href = substr(
-					$href,
-					0,
-					(int) (strlen((string) $this->page) + 1) * -1
-				);
-			}
+		} elseif ($this->page > 1) {
+            $href = substr(
+                $href, 0, (int) (strlen((string) $this->page) + 1) * -1
+            );
 		}
-		for ($i = 1; $i <= $pages_count; $i++) {
-			if (
-				$i <= 3 ||							// первые 3 страницы
-				($pages_count - $i) < 3 ||			// последние 3 страницы
-				abs($half_page - $i) < 3 ||			// середина
+		for ($i = 1; $i <= $pagesCount; $i++) {
+			if ($i <= 3 ||							// первые 3 страницы
+				($pagesCount - $i) < 3 ||			// последние 3 страницы
+				abs($halfPage - $i) < 3 ||			// середина
 				abs($this->page - $i) < 3			// возле текущей
 			) {
                 $pageHref = $href;
@@ -197,6 +202,8 @@ class Paginator
 	}
 
 	/**
+     * Инициализировать пагинатор из _GET
+     *
 	 * @param integer $fullCount
 	 * @param string $prefix
 	 * @return Paginator
@@ -221,9 +228,14 @@ class Paginator
 	 * @return Paginator
 	 */
 	public function fromInput($input, $total = 0, $notGet = false) {
-		return new self(
+		$perPage = $input->receive('limit');
+        if ($input->receive('perPage')) {
+            $perPage = $input->receive('perPage');
+        }
+        $resultRerPage = $perPage ? $perPage : 10;
+        return new self(
 			max($input->receive('page'), 1),
-			max($input->receive('limit'), 10),
+			$resultRerPage,
 			$total,
 			$notGet
 		);
@@ -242,6 +254,8 @@ class Paginator
 	}
 
 	/**
+     * Получить количество страниц
+     *
 	 * @return integer
 	 */
 	public function pagesCount()
@@ -249,8 +263,8 @@ class Paginator
 		if ($this->perPage > 0) {
 			if ($this->total) {
 				return ceil($this->total / $this->perPage);
-			} elseif (isset($this->total)) {
-				return ceil($this->total / $this->perPage);
+			} elseif (isset($this->fullCount)) {
+				return ceil($this->fullCount / $this->perPage);
 			} else {
 				return 1;
 			}

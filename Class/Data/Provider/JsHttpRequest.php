@@ -1,16 +1,17 @@
 <?php
 
-class Data_Provider_JsHttpRequest extends Data_Provider_Abstract
+/**
+ * Провайдер для работы с JsHttpRequest
+ * 
+ * @author goorus, morph
+ */
+class Data_Provider_JsHttpRequest extends Data_Provider_Buffer
 {
-	
-	public function get ($key, $plain = false)
-	{
-		return isset ($GLOBALS ['_RESULT'][$key]) ? $GLOBALS ['_RESULT'][$key] : null;
-	}
-	
-	public function set ($key, $value, $expiration = 0, $tags = array ())
-	{
-		$GLOBALS ['_RESULT'][$key] = $value;
-	}
-	
+    /**
+     * @inheritdoc
+     */
+	public function __construct()
+    {
+        $this->buffer = &$GLOBALS['_RESULT'];
+    }
 }

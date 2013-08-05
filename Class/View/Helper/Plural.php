@@ -4,7 +4,7 @@
  * Помощник вида, для вывода слова с нужным окончанием, в зависимости от
  * переданного на вход числа
  *
- * @author neon
+ * @author goorus, morph, neon
  */
 class View_Helper_Plural extends View_Helper_Abstract
 {
@@ -15,7 +15,7 @@ class View_Helper_Plural extends View_Helper_Abstract
 	 * @param array $forms Формы, разделенные запятой
 	 * @return string Подходящая форма
 	 */
-	public function _pluralDefault($n, array $forms)
+	public function pluralDefault($n, array $forms)
 	{
 		$plural = ($n % 10 == 1 && $n % 100 != 11
             ? 0 :
@@ -35,9 +35,9 @@ class View_Helper_Plural extends View_Helper_Abstract
 	 * @param string $word Слово в произвольной форме
 	 * @return string Слово в подходящей форме
 	 */
-	public function _pluralMorphy($n, $word)
+	public function pluralMorphy($n, $word)
 	{
-		IcEngine::getLoader()->requireOnce('Morphy.php', 'includes');
+		IcEngine::getLoader()->requireOnce('Morphy.php', 'Vendor');
 		$morphy = Morphy::get();
 		$word = $morphy->getBaseForm($word);
 		$plural = ($n % 10 == 1 && $n % 100 != 11
@@ -80,8 +80,8 @@ class View_Helper_Plural extends View_Helper_Abstract
 			$forms = explode(',', $params['forms']);
 		}
 		if (count($forms) > 1) {
-			return $this->_pluralDefault($value, $forms);
+			return $this->pluralDefault($value, $forms);
 		}
-		return $this->_pluralMorphy($value, $forms[0]);
+		return $this->pluralMorphy($value, $forms[0]);
 	}
 }

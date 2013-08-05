@@ -32,7 +32,7 @@ class Temp_Content extends Model
      * @param string $key
      * @param string $value
      */
-    protected function setAttr($key, $value)
+    public function setAttr($key, $value)
     {
         $this->data[$key] = $value;
         $this->update(array(
@@ -130,28 +130,33 @@ class Temp_Content extends Model
                     $mkey
             );
         }
-
         return $this->created[$mname][$mkey];
     }
 
     /**
      * Генерация уникального кода
+     *
      * @return string
      */
     public static function genUtcode()
     {
-        // ucac7fe407f8e5e1c683005867edd74439452c4.39068717
         $u = uniqid('', true);
-        // Вырезаем точку
         return md5(time()) . substr($u, 9, 5) . substr($u, 15);
     }
 
+    /**
+     * Получить id нового Temp_Content
+     *
+     * @param Temp_Content $tc
+     * @return string
+     */
     public static function idForNew(Temp_Content $tc)
     {
         return $tc->utcode;
     }
 
     /**
+     * Переприсоединить компоненты
      *
      * @param Model $item
      * @param array $components

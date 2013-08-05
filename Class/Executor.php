@@ -128,12 +128,20 @@ class Executor extends Manager_Abstract
             if (is_object($keyFunction[0])) {
                 $keyFunction[0] = get_class($keyFunction[0]);
             }
+            if (isset($options['cacheKey'])) {
+                $args[] = call_user_func(array(
+                    $this->getService($options['cacheKey'][0]),
+                    $options['cacheKey'][1]
+                ));
+            }
             $key = $this->getCacheKey($keyFunction, $args);
             $cache = $this->getCacher()->get($key);
             $tagValid = $this->isTagValid($cache, $options);
             $expiresValid = $this->isNotExpires($cache, $options);
         }
-		$inputValid = $this->isInputValid($options);
+		$inputValid = $this->isInputValid(
+            $options, !empty($args[1]) ? $args[1] : array()
+        );
         $functionName = is_object($function[0]) 
             ? get_class($function[0]) : $function[0];
 		if ($cache && !$options->forceRecache && $inputValid) {
@@ -210,17 +218,17 @@ class Executor extends Manager_Abstract
      * Проверяет валидны ли данные входного транспорта
      * 
      * @param Objective $options
+     * @param array $args
      * @return boolean
      */
-    protected function isInputValid($options)
+    protected function isInputValid($options, $args)
     {
         $inputValid = true;
 		if (!$options->inputArgs) {
             return $inputValid;
         }
-        $input = $this->getService('dataTransportManager')->get('default_input');
         foreach ($options->inputArgs as $arg) {
-            if (!is_null($input->receive($arg))) {
+            if (isset($args[$arg])) {
                 $inputValid = false;
                 break;
             }

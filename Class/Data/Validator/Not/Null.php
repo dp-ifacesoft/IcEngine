@@ -1,21 +1,17 @@
 <?php
+
 /**
+ * Валидатор отличия от null.
  * 
- * @desc Валидатор отличия от null.
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Data_Validator_Not_Null extends Data_Validator_Abstract
 {
-	
 	/**
-	 * (non-PHPdoc)
-	 * @see Data_Validator_Abstract::validate()
+	 * @inheritdoc
 	 */
-	public function validate ($data)
+	public function validate($data, $value = true)
 	{
-		return $data != null;
+		return !is_null($data);
 	}
-	
 }

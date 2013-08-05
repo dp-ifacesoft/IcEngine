@@ -20,11 +20,12 @@ class Helper_GeoIP
 		return $ip[3] + 256 * ($ip[2] + 256 * ($ip[1] + 256 * $ip[0]));
 	}
 
-	/**
-	 * Получить город, которому соответствует IP адрес текущего пользователя
+    /**
+     * Получить город, которому соответствует IP адрес текущего пользователя
      *
-	 * @return City|null
-	 */
+     * @param null $ip
+     * @return City|null
+     */
 	public function getCity($ip = null)
 	{
         $locator = IcEngine::serviceLocator();
@@ -38,17 +39,8 @@ class Helper_GeoIP
                 'City', $sessionResource->cityId
             );
         }
-        $request = $locator->getService('request');
-		$ip = $this->ip2int($ip !== null ? $ip : $request->ip());
-		$dds = $locator->getService('dds');
-		$queryBuilder = $locator->getService('query');
-        $netCityIdQuerySelect = $queryBuilder->select('Net_City__id')
-            ->from('Net_City_Ip')
-            ->where('begin_ip <= ?', $ip)
-            ->where('end_ip >= ?', $ip);
-        $netCityId = $dds->execute($netCityIdQuerySelect)
-            ->getResult()->asValue();
-        if (!$netCityId) {
+        $netCity = $this->getNetCity($ip);
+        if (!$netCity) {
             $sessionResource->cityId = false;
             return;
         }
@@ -56,7 +48,7 @@ class Helper_GeoIP
         $city = $modelManager->byOptions(
             'City', array(
                 'name'  => 'Net_City',
-                'id'    => $netCityId
+                'id'    => $netCity['Net_City__id']
             )
         );
         if ($city) {
@@ -66,6 +58,29 @@ class Helper_GeoIP
             $sessionResource->cityId = false;
         }
 	}
+
+    /**
+     * Получить город из таблицы Net_City
+     *
+     * @param string $ip
+     * @return array
+     */
+    public function getNetCity($ip = null)
+    {
+        $locator = IcEngine::serviceLocator();
+        $request = $locator->getService('request');
+		$ip = $this->ip2int($ip !== null ? $ip : $request->ip());
+        $dds = $locator->getService('dds');
+		$queryBuilder = $locator->getService('query');
+        $netCityQuerySelect = $queryBuilder
+            ->select('*')
+            ->from('Net_City_Ip')
+            ->where('begin_ip <= ?', $ip)
+            ->where('end_ip >= ?', $ip);
+        $netCity = $dds->execute($netCityQuerySelect)
+            ->getResult()->asRow();
+        return $netCity;
+    }
 
     /**
      * Получить город из базы геолокации
@@ -78,7 +93,7 @@ class Helper_GeoIP
         $locator = IcEngine::serviceLocator();
         $queryBuilder = $locator->getService('query');
         $dds = $locator->getService('dds');
-        $netCityQuerySelect = $queryBuilder->select('id')
+        $netCityQuerySelect = $queryBuilder->select('Net_City.id')
             ->from('Net_City')
             ->where('name_ru', $title);
         $netCity = $dds->execute($netCityQuerySelect)

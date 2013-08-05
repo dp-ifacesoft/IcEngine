@@ -1,74 +1,94 @@
 <?php
 
+/**
+ * Опции запроса по умолчанию
+ * 
+ * @author goorus, morph
+ */
 class Query_Options extends Cache_Options
 {
-
-	private $_tags;
+    /**
+     * Текущие тэги запроса
+     * 
+     * @var array
+     */
+	private $tags;
 
 	/**
-	 *
+	 * Запрос пуст?
+     * 
 	 * @var boolean
 	 */
-	private $_notEmpty;
+	private $notEmpty;
 
 	/**
-	 *
+	 * Опции для некэширвования
+     * 
 	 * @var Query_Options
 	 */
-	private $_nocache;
+	private $nocache;
 
-	public function __construct ()
+    /**
+     * Конструктор
+     */
+	public function __construct()
 	{
-		$this->_tags = array ();
-		$this->_notEmpty = false;
+		$this->tags = array ();
+		$this->notEmpty = false;
 	}
 
 	/**
-	 *
+	 * Узнать пуст ли запрос
+     * 
 	 * @return boolean
 	 */
-	public function getNotEmpty ()
+	public function getNotEmpty()
 	{
-		return $this->_notEmpty;
+		return $this->notEmpty;
 	}
 
 	/**
+     * Поулчить тэги запроса
+     * 
 	 * @return array
 	 */
-	public function getTags ()
+	public function getTags()
 	{
-		return $this->_tags;
+		return $this->tags;
 	}
 
 	/**
-	 *
+	 * Изменить тэги запроса
+     * 
 	 * @param array|string $tags
+     * @return Query_Options
 	 */
-	public function setTags ($tags)
+	public function setTags($tags)
 	{
-		$this->_tags = (array) $tags;
+		$this->tags = (array)$tags;
 		return $this;
 	}
 
 	/**
-	 *
+	 * Изменить флаг того, что запрос не пуст
+     * 
 	 * @param boolean $empty
 	 */
-	public function setNotEmpty ($empty)
+	public function setNotEmpty($empty)
 	{
-		$this->_empty = (bool) $empty;
+		$this->notEmpty = !((bool) $empty);
 	}
 
 	/**
+     * Получить новые пустые опции для некэширования
+     * 
 	 * @return Query_Options
 	 */
-	public static function nocache ()
+	public function nocache()
 	{
-	    if (!$this->_nocache)
-	    {
-	        $this->_nocache = new Query_Options ();
+	    if (!$this->nocache) {
+	        $this->nocache = new Query_Options();
 	    }
-	    return $this->_nocache;
+	    return $this->nocache;
 	}
-
 }

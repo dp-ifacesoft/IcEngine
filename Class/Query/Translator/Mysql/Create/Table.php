@@ -1,130 +1,129 @@
 <?php
 
 /**
- * @desc Транслятор запросов типа create table для mysql
+ * Транслятор запросов типа create table для mysql
+ *
  * @author morph, goorus
  */
-class Query_Translator_Mysql_Create_Table extends Query_Translator_Mysql_Alter_Table
+class Query_Translator_Mysql_Create_Table extends
+    Query_Translator_Mysql_Alter_Table
 {
 	const SQL_CREATE_TABLE		= 'CREATE TABLE';
 	const SQL_IF_NOT_EXISTS		= 'IF NOT EXISTS';
 	const SQL_DEFAULT_CHARSET	= 'DEFAULT CHARSET';
-	const SQL_ENGINE			= 'ENGINE';
+	const SQL_ENGINE            = 'ENGINE';
 	const SQL_COMMENT			= 'COMMENT';
-
 	const DEFAULT_CHARSET		= 'utf8';
-	const DEFAULT_ENGINE		= 'MyISAM';
+	const DEFAULT_ENGINE        = 'InnoDB';
+
+    /**
+	 * Рендер части запроса create table
+	 *
+     * @param Query_Abstract $query
+	 * @return string
+	 */
+	public function doRenderCreateTable(Query_Abstract $query)
+	{
+        $modelScheme = $this->modelScheme();
+		$createTable = $query->part(Query::CREATE_TABLE);
+		$name = $createTable[Query::NAME];
+        $table = $modelScheme->table($name);
+        $helper = $this->helper();
+		$sql = self::SQL_CREATE_TABLE . ' ' . self::SQL_IF_NOT_EXISTS . ' ' .
+			$helper->escape ($table) . '(';
+		$fields = $this->renderFields($query) ;
+		return $sql . PHP_EOL .
+			($fields ? $fields . ',' . PHP_EOL : '') .
+			$this->renderIndexes($query) . PHP_EOL . ') ' .
+			$this->renderEngine($query) . ' ' .
+			$this->renderCharset($query) . ' ' .
+			$this->renderComment($query);
+	}
 
 	/**
-	 * @desc Рендерит часть запроса default charset
-	 * @param Query_Abstract $query
+	 * Рендерит часть запроса default charset
+	 *
+     * @param Query_Abstract $query
 	 */
-	public function _renderCharset (Query_Abstract $query)
+	protected function renderCharset(Query_Abstract $query)
 	{
-		$parts = $query->parts ();
-		$charset = !empty ($parts [Query_Create_Table::DEFAULT_CHARSET])
-			? $parts [Query_Create_Table::DEFAULT_CHARSET]
+		$createTable = $query->part(Query::CREATE_TABLE);
+		$charset = !empty($createTable[Query::DEFAULT_CHARSET])
+			? $createTable[Query::DEFAULT_CHARSET]
 			: self::DEFAULT_CHARSET;
 		return self::SQL_DEFAULT_CHARSET . '=' . $charset;
 	}
 
 	/**
-	 * @desc Рендер части запроса create table
-	 * @param Query_Abstract $query
+	 * Рендерит часть запроса comment
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderCreateTable (Query_Abstract $query)
+	protected function renderComment(Query_Abstract $query)
 	{
-        $serviceLocator = IcEngine::serviceLocator();
-        $modelScheme = $serviceLocator->getService('modelScheme');
-		$parts = $query->parts ();
-		$name = $parts [Query_Create_Table::CREATE_TABLE];
-		$sql = self::SQL_CREATE_TABLE . ' ' . self::SQL_IF_NOT_EXISTS . ' ' .
-			$this->_escape ($modelScheme->table ($name)) . '(';
-		$fields = self::_renderFields ($query) ;
-		return $sql . PHP_EOL .
-			($fields ? $fields . ',' . PHP_EOL : '') .
-			self::_renderIndexes ($query) . PHP_EOL . ') ' .
-			self::_renderEngine ($query) . ' ' .
-			self::_renderCharset ($query) . ' ' .
-			self::_renderComment ($query);
+		$createTable = $query->part(Query::CREATE_TABLE);
+        if (empty($createTable[Query::COMMENT])) {
+            return;
+        }
+        $comment = $createTable[Query::COMMENT];
+        $helper = $this->helper();
+		return self::SQL_COMMENT . '=' . $helper->quote($comment);
 	}
 
 	/**
-	 * @desc Рендерит часть запроса comment
-	 * @param Query_Abstract $query
+	 * Рендерит часть запроса engine
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderComment (Query_Abstract $query)
+	protected function renderEngine(Query_Abstract $query)
 	{
-		$parts = $query->parts ();
-		if (empty ($parts [Query_Create_Table::COMMENT]))
-		{
-			return;
-		}
-		return self::SQL_COMMENT . '=' .
-			$this->_quote ($parts [Query_Create_Table::COMMENT]);
-	}
-
-	/**
-	 * @desc Рендерит часть запроса engine
-	 * @param Query_Abstract $query
-	 * @return string
-	 */
-	public function _renderEngine (Query_Abstract $query)
-	{
-		$parts = $query->parts ();
-		$engine = !empty ($parts [Query_Create_Table::ENGINE])
-			? $parts [Query_Create_Table::ENGINE]
+		$createTable = $query->part(Query::CREATE_TABLE);
+		$engine = !empty($createTable[Query::ENGINE])
+			? $createTable[Query::ENGINE]
 			: self::DEFAULT_ENGINE;
 		return self::SQL_ENGINE. '=' . $engine;
 	}
 
 	/**
-	 * @desc Рендерит поля
-	 * @param Query_Abstract $query
+	 * Рендерит поля
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderFields (Query_Abstract $query)
+	protected function renderFields(Query_Abstract $query)
 	{
-		$parts = $query->parts ();
-		$fields = $parts [Query_Create_Table::FIELD];
-		if ($fields)
-		{
-			foreach ($fields as &$field)
-			{
-				$field = "\t" . $this->_renderField (
-					$field [Query_Create_Table::NAME],
-					$field [Query_Create_Table::ATTR]
-				) . ',';
-			}
-			$fields = implode (PHP_EOL, $fields);
-			$fields = substr ($fields, 0, -1);
-			return $fields;
-		}
+		$createTable = $query->part(Query::CREATE_TABLE);
+        if (empty($createTable[Query::FIELD])) {
+            return;
+        }
+		$fields = $createTable[Query::FIELD];
+        foreach ($fields as &$field) {
+            $field = "\t" . $this->renderField(
+                $field[Query::FIELD],
+                $field[Query::ATTR]
+            );
+        }
+        return implode(',' . PHP_EOL, $fields);
 	}
 
 	/**
-	 * @desc Рендерит игдексы
-	 * @param Query_Abstract $query
+	 * Рендерит игдексы
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderIndexes (Query_Abstract $query)
+	protected function renderIndexes(Query_Abstract $query)
 	{
-		$parts = $query->parts ();
-		$indexes = $parts [Query_Create_Table::INDEX];
-		if ($indexes)
-		{
-			foreach ($indexes as &$index)
-			{
-				$index = $this->_renderIndex (
-					$index [Query_Create_Table::NAME],
-					$index
-				) . ',';
-			}
-		}
-		$indexes = implode (PHP_EOL, $indexes);
-		$indexes = substr ($indexes, 0, -1);
-		return $indexes;
+		$createTable = $query->part(Query::CREATE_TABLE);
+        if (empty($createTable[Query::INDEX])) {
+            return;
+        }
+		$indexes = $createTable[Query::INDEX];
+        foreach ($indexes as &$index) {
+            $index = $this->renderIndex($index[Query::NAME], $index);
+        }
+		return implode(',' . PHP_EOL, $indexes);
 	}
 }

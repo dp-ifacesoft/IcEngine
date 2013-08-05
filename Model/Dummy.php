@@ -1,9 +1,9 @@
 <?php
+
 /**
+ * Заглушка для модели
  * 
- * @desc Заглушка для модели
- * @package IcEngine
- * 
+ * @author morph
  */
 class Dummy extends Model
 {

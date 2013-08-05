@@ -1,22 +1,24 @@
 <?php
 
 /**
- * @desc Запрос типа delete для mongodb
+ * Запрос типа delete для mongodb
+ * 
  * @author goorus, morph
  */
 class Query_Translator_Mongo_Delete extends Query_Translator_Mongo_Select
 {
 	/**
-	 * @desc Формирует запрос на удаление
-	 * @param Query $query
+	 * Формирует запрос на удаление
+	 * 
+     * @param Query_Abstract $query
 	 * @return array
 	 */
-	public function _renderDelete (Query $query)
+	public function doRenderDelete(Query_Abstract $query)
 	{
-		return array (
-			'collection'	=> self::_getFromCollection ($query),
-			'criteria'		=> self::_getCriteria ($query),
-			'options'		=> array ('justOne'	=> false)
+		return array(
+			self::COLLECTION	=> $this->getFromCollection($query),
+			self::CRITERIA      => $this->getCriteria($query),
+			self::OPTIONS       => array('justOne'	=> false)
 		);
 	}
 }

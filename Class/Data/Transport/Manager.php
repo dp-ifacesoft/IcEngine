@@ -13,20 +13,22 @@ class Data_Transport_Manager extends Manager_Abstract
 	 */
 	protected $config = array(
 		/**
-		 * @desc Транспорты
-		 * @var array
+		 * Транспорты
+		 * 
+         * @var array
 		 */
 		'transports'	=> array(
-			'cli_input'		=> array(
+			'cliInput'		=> array(
 				'providers'	=> array(
 					'Cli'
 				)
 			),
 			/**
-			 * @desc транспорт входных данные по умолчанию
-			 * @var array
+			 * Транспорт входных данные по умолчанию
+			 * 
+             * @var array
 			 */
-			'default_input'	=> array(
+			'defaultInput'	=> array(
 				/**
 				 * @desc Провайдеры, входящие в транспорт
 				 * @var array
@@ -37,10 +39,11 @@ class Data_Transport_Manager extends Manager_Abstract
 				)
 			),
 			/**
-			 * @desc Транспорт исходящих данных
-			 * @var array
+			 * Транспорт исходящих данных
+			 * 
+             * @var array
 			 */
-			'default_output'	=> array()
+			'defaultOutput'	=> array()
 		)
 	);
 
@@ -87,6 +90,14 @@ class Data_Transport_Manager extends Manager_Abstract
                 $transport->appendProvider($provider);
 			}
 		}
+        $dataFilterManager = $this->getService('dataFilterManager');
+        if ($transportConfig && $transportConfig->inputFilters) {
+            $inputFilters = array();
+            foreach ($transportConfig->inputFilters as $filterName) {
+                $inputFilters[] = $dataFilterManager->get($filterName);
+            }
+            $transport->setInputFilters($inputFilters);
+        }
         $this->transorts[$name] = $transport;
 		return $transport;
 	}

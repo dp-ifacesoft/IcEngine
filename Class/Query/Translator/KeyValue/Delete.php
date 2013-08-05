@@ -13,11 +13,9 @@ class Query_Translator_KeyValue_Delete extends Query_Translator_KeyValue_Select
 	 * @param Query_Abstract $query
 	 * @return array Массив ключей к удалению.
 	 */
-	public function _renderDelete(Query_Abstract $query)
+	public function doRenderDelete(Query_Abstract $query)
 	{
-		return $this->_compileKeyMask(
-			$this->extractTable($query),
-			$query->part(Query::WHERE)
-		);
+        $table = $this->extractTable($query);
+		return $this->compileKeyMask($table, $query->part(Query::WHERE));
 	}
 }

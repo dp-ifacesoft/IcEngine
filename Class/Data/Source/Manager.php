@@ -12,7 +12,7 @@ class Data_Source_Manager extends Manager_Abstract
 	/**
 	 * Загруженные источники.
 	 *
-     * @var array <Data_Source_Abstract>
+     * @var array <Data_Source>
 	 */
 	protected $sources = array();
 
@@ -21,26 +21,30 @@ class Data_Source_Manager extends Manager_Abstract
 	 */
 	protected $config = array(
 		/**
-		 * @desc Название источника, вместо которого будет браться название домена.
+		 * Название источника, вместо которого будет браться название домена.
 		 * Название домена берется из $SERVER ['HTTP_HOST'].
-		 * @var string
+		 *
+         * @var string
 		 */
-		'source_domain_alias'	=> 'domain',
+		'sourceDomainAlias'	=> 'domain',
+
 		/**
-		 * @desc Название источника, который будет использован вместо
+		 * Название источника, который будет использован вместо
 		 * имени домена, когда невозможно получить $SERVER ['HTTP_HOST'].
-		 * @var string
+		 *
+         * @var string
 		 */
-		'empty_domain_source'	=> 'default',
+		'emptyDomainSource'	=> 'default',
+
 		/**
-		 * @desc Массив источников
-		 * @var array
+		 * Массив источников
+		 *
+         * @var array
 		 */
 		'sources'	=> array(
 			'default'	=> array(
-				'source'	=> 'Abstract',
-				'mapper'	=> 'Null',
-				'mapper_options'	=> array(
+				'driver'	=> 'Null',
+				'options'	=> array(
 
 				)
 			)
@@ -51,14 +55,14 @@ class Data_Source_Manager extends Manager_Abstract
 	 * Получение данных провайдера.
 	 *
      * @param string $name
-	 * @return Data_Source_Abstract
+	 * @return Data_Source
 	 */
 	public function get($name)
 	{
 		$config = $this->config();
-		if ($config['source_domain_alias'] == $name) {
-			$name = isset ($_SERVER['HTTP_HOST'])
-                ? $_SERVER['HTTP_HOST'] : $config['empty_domain_source'];
+		if ($config['sourceDomainAlias'] == $name) {
+			$name = isset($_SERVER['HTTP_HOST'])
+                ? $_SERVER['HTTP_HOST'] : $config['emptyDomainSource'];
 		}
         if (isset($this->sources[$name])) {
             return $this->sources[$name];
@@ -78,11 +82,11 @@ class Data_Source_Manager extends Manager_Abstract
             return $source;
         }
         if (!$sourceConfig) {
-            $sourceConfig = array('source' => $name);
+            $sourceConfig = $config['sources'][$config['emptyDomainSource']];
         }
-        $sourceClass = 'Data_Source_' . $sourceConfig['source'];
-        $source = new $sourceClass;
+        $source = new Data_Source();
         $source->setConfig($sourceConfig);
+        $source->setName($name);
         $this->sources[$name] = $source;
         return $source;
 	}
@@ -91,47 +95,47 @@ class Data_Source_Manager extends Manager_Abstract
      * Получить имя источника данных по шаблону
      *
      * @param string $pattern
-     * @return Data_Source_Abstract
+     * @return Data_Source
      */
     protected function getByPattern($pattern)
     {
-        $config = $this->config;
+        $config = $this->config();
         $sources = $config['sources'];
-        foreach ($sources as $key => $value) {
-            if (fnmatch ($key, $pattern)) {
+        foreach (array_keys($sources->__toArray()) as $key) {
+            if (fnmatch($key, $pattern)) {
                 return $this->get($key);
             }
         }
     }
 
     /**
+     * Инициализация дата маппера
+     *
+     * @param Data_Source $dataSource
+     */
+    public function initDataDriver($source)
+    {
+        $sourceConfig = $source->getConfig();
+        if (empty($sourceConfig['driver'])) {
+            return null;
+        }
+        $driverManager = $this->getService('dataDriverManager');
+        $driverConfig = isset($sourceConfig['options'])
+            ? $sourceConfig['options'] : array();
+        $currentDriver = $driverManager->get(
+            $sourceConfig['driver'], $driverConfig
+        );
+        $source->setDataDriver($currentDriver);
+    }
+
+    /**
      * Изменить источник данных по имени
      *
      * @param string $name
-     * @param Data_Sourec_Abstract $dataSource
+     * @param Data_Source $dataSource
      */
     public function set($name, $dataSource)
     {
         $this->sources[$name] = $dataSource;
-    }
-
-    /**
-     * Инициализация дата маппера
-     *
-     * @param Data_Source_Abstract $dataSource
-     */
-    public function setDataMapper($source)
-    {
-        $sourceConfig = $source->getConfig();
-        if (empty($sourceConfig['mapper'])) {
-            return;
-        }
-        $mapperManager = $this->getService('dataMapperManager');
-        $mapperConfig = isset($sourceConfig['mapper_options'])
-            ? $sourceConfig['mapper_options'] : array();
-        $currentMapper = $mapperManager->get(
-            $sourceConfig['mapper'], $mapperConfig
-        );
-        $source->setDataMapper($currentMapper);
     }
 }

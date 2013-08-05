@@ -1,24 +1,21 @@
 <?php
+
 /**
- *
- * @desc Для выбора Id линка.
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * Для выбора Id линка
+ * 
+ * @author goorus, morph
  */
 class Link_Option_Id extends Model_Option
 {
-
 	/**
-	 * (non-PHPdoc)
-	 * @see Model_Collection_Option_Abstract::before()
+	 * @inheritdoc
 	 */
-	public function before ()
+	public function before()
 	{
 		$this->query
-			->where ('toTable=?', 		$this->params ['toTable'])
-			->where ('toTableId=?', 	$this->params ['toTableId'])
-			->where ('fromTable=?', 	$this->params ['fromTable'])
-			->where ('fromTableId=?',	$this->params ['fromTableId']);
+			->where('toTable=?', $this->params['toTable'])
+			->where('toTableId=?', $this->params['toTableId'])
+			->where('fromTable=?', $this->params['fromTable'])
+			->where('fromTableId=?', $this->params['fromTableId']);
 	}
 }

@@ -17,7 +17,7 @@ class Helper_View_Resource_Js
 	public static function pack($content, $filename)
 	{
         $loader = IcEngine::getLoader();
-		$loader->requireOnce('class.JavaScriptPacker.php', 'includes');
+		$loader->requireOnce('class.JavaScriptPacker.php', 'Vendor');
 		$packer = new JavaScriptPacker($content, 0);
 		$result = $packer->pack();
 		return $result;

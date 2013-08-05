@@ -13,10 +13,9 @@ class Query_Translator_Mongo_Insert extends Query_Translator_Mongo_Select
 	 * @param Query $query Запрос.
 	 * @return string Сформированный SQL запрос.
 	 */
-	public function _renderInsert(Query_Abstract $query)
+	public function doRenderInsert(Query_Abstract $query)
 	{
-		$locator = IcEngine::serviceLocator();
-		$modelScheme = $locator->getService('modelScheme');
+		$modelScheme = $this->modelScheme();
 		$table = $query->part(Query::INSERT);
 		$values = $query->part(Query::VALUES);
 		$valuesEscaped = array();
@@ -24,8 +23,8 @@ class Query_Translator_Mongo_Insert extends Query_Translator_Mongo_Select
 			$valuesEscaped[$valueName] = (string) $value;
 		}
 		return array(
-			'collection'	=> strtolower($modelScheme->table($table)),
-			'a'				=> $valuesEscaped
+			self::COLLECTION	=> strtolower($modelScheme->table($table)),
+			'a'                 => $valuesEscaped
 		);
 	}
 }

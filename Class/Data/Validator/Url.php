@@ -1,15 +1,17 @@
 <?php
 
+/**
+ * Проверка на виладность урла
+ * 
+ * @author goorus, morph
+ */
 class Data_Validator_Url extends Data_Validator_Abstract
 {
-	
-	public function validate ($data)
+	/**
+     * @inheritdoc
+     */
+	public function validate($data)
 	{
-		if (filter_var ($data, FILTER_VALIDATE_URL))
-		{
-			return true;
-		}
-		return false;
+		return (bool) filter_var($data, FILTER_VALIDATE_URL);
 	}
-	
 }

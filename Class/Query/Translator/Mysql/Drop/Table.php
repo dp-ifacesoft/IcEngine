@@ -1,23 +1,28 @@
 <?php
 
 /**
- * @desc Транслятор запроса типа drop table для mysql
+ * Транслятор запроса типа drop table для mysql
+ * 
  * @author goorus, morph
  */
-class Query_Translator_Mysql_Drop_Table extends Query_Translator_Mysql_Alter_Table
+class Query_Translator_Mysql_Drop_Table extends 
+    Query_Translator_Mysql_Alter_Table
 {
 	const SQL_DROP_TABLE = 'DROP TABLE';
 
 	/**
-	 * @desc Рендерит часть запроса drop table
-	 * @param Query_Abstract $query
+	 * Рендерит часть запроса drop table
+	 * 
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderDropTable (Query_Abstract $query)
+	public function doRenderDropTable(Query_Abstract $query)
 	{
-		$parts = $query->parts ();
+		$dropTable = $query->part(Query::DROP_TABLE);
+        $helper = $this->helper();
+        $table = $dropTable[Query::NAME];
+        $modelScheme = $this->modelScheme();
 		return self::SQL_DROP_TABLE . ' ' .
-			$this->_escape ($parts [Query_Drop_Table::DROP_TABLE]
-				[Query_Drop_Table::NAME]);
+			$helper->escape(strtolower($modelScheme->table($table)));
 	}
 }

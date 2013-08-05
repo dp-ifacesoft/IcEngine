@@ -9,13 +9,13 @@ class Controller_Annotation_Override extends Controller_Abstract
 {
     /**
      * Обновить аннотации
+     * 
+     * @Template(null)
+     * @Context("helperCodeGenerator")
+     * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context)
     {
-        $this->task->setTemplate(null);
-        if (!$data) {
-            return;
-        }
         $overrides = array();
         $paths = array_flip(
             $context->configManager->get('Module_Manager')
@@ -37,7 +37,7 @@ class Controller_Annotation_Override extends Controller_Abstract
             $overrides[$filename] = implode('/', $pathParts) . '/' .
                 implode('/', $fileParts);
         }
-        $output = Helper_Code_Generator::fromTemplate(
+        $output = $context->helperCodeGenerator->fromTemplate(
             'override',
             array (
                 'overrides'  => $overrides

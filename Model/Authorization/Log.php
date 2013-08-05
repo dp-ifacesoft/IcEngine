@@ -14,10 +14,32 @@
  * @category Models
  * @copyright i-complex.ru
  * @Service("authorizationLog")
+ * @Orm\Entity
  */
 class Authorization_Log extends Model
 {
-
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null, Auto_Increment)
+     * @Orm\Index\Primary
+     */
+    public $id;
+    
+    /**
+     * @Orm\Field\Varchar(Size=32, Not_Null)
+     */
+    public $IP;
+    
+    /**
+     * @Orm\Field\Int(Size=11, Not_Null)
+     * @Orm\Index\Key
+     */
+    public $User__id;
+    
+    /**
+     * @Orm\Field\Datetime(Not_Null)
+     */
+    public $createdAt;
+    
     /**
      * Логировать авторизацию
      */

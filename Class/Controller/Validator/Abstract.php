@@ -62,6 +62,18 @@ abstract class Controller_Validator_Abstract
     }
     
     /**
+     * Бросить исключение "Redirect"
+     * 
+     * @param string $url
+     */
+    public function redirect($url)
+    {
+        return $this->throwException(
+            'Send_Error', array('url' => $url)
+        );
+    }
+    
+    /**
      * Бросить исключение "Send_Error"
      * 
      * @param string $message
@@ -82,11 +94,13 @@ abstract class Controller_Validator_Abstract
     {
         $this->context = $context;
     }
-    
+
     /**
      * Породить исключение валидатора контроллеров по имени
-     * 
+     *
      * @param string $name
+     * @param $params
+     * @return bool
      */
     protected function throwException($name, $params)
     {

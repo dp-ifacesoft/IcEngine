@@ -135,13 +135,9 @@ class Query_Part
 			}
 			$query->setPart(Query::ORDER, $order);
 		}
-		$limit = $this->query->getPart(Query::LIMIT_COUNT);
+		$limit = $this->query->getPart(Query::LIMIT);
 		if ($limit) {
-			$query->setPart(Query::LIMIT_COUNT, $limit);
-		}
-		$offset = $this->query->getPart(Query::LIMIT_OFFSET);
-		if ($offset) {
-			$query->setPart(Query::LIMIT_OFFSET, $offset);
+			$query->setPart(Query::LIMIT, $limit);
 		}
     }
 

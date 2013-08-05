@@ -38,48 +38,62 @@ class Model_Scheme extends Manager_Abstract
 	 */
 	public $models = array(
 		/**
-		 * Класс модели
-		 * Обязательно в нижнем регистре.
+		 * Класс модели. Обязательно в нижнем регистре
+         * 
 		 * @var array
 		 */
 		'abstract'	=> array(
 			/**
-			 * Ключевое поле.
+			 * Ключевое поле
+             * 
 			 * @var string
 			 */
 			'key'		=> 'id',
 
             /**
              * Генератор ключей по умолчанию
+             * 
              * @var string
              */
             'keyGen'    => null,
 
 			/**
-			 * Префикс таблицы.
+			 * Префикс таблицы
+             * 
 			 * @var string
 			 */
 			'prefix'	=> '',
 
 			/**
-			 * Источник данных о модели.
+			 * Источник данных о модели
+             * 
 			 * @var string
 			 */
 			'source'	=> 'Abstract'
 		),
 		/**
 		 * Название таблицы, которое не должно изменяться
-		 * при построении запроса.
+		 * при построении запроса
+         * 
 		 * @var string
 		 */
 		'table'	=> '',
+        
 		/**
-		 * Альтернативное название модели.
+		 * Альтернативное название модели
+         * 
 		 * @var string
 		 */
 		'alt_name'	=> 'abstract'
 	);
 
+    /**
+     * Полученные схемы моделей
+     *  
+     * @var array
+     */
+    protected $schemes = array();
+    
     /**
 	 * Источник данных для модели
      *
@@ -215,11 +229,17 @@ class Model_Scheme extends Manager_Abstract
      */
     public function scheme($modelName)
     {
+        if (isset($this->schemes[$modelName])) {
+            return $this->schemes[$modelName];
+        }
         $configManager = $this->getService('configManager');
         $schemeConfig = $configManager->get('Model_Mapper_' . $modelName);
         if (!$schemeConfig->count()) {
-            throw new ErrorException("scheme not found for model " . $modelName);
+            throw new ErrorException(
+                'Scheme not found for model ' . $modelName
+            );
         }
+        $this->schemes[$modelName] = $schemeConfig;
         return $schemeConfig;
     }
 
@@ -288,6 +308,17 @@ class Model_Scheme extends Manager_Abstract
         $this->models[strtolower($modelName)]['prefix'] = $prefix;
     }
 
+    /**
+     * Изменить схему модели
+     * 
+     * @param string $modelName
+     * @param mixed $scheme
+     */
+    public function setScheme($modelName, $scheme) 
+    {
+        $this->schemes[$modelName] = $scheme;
+    }
+    
     /**
      * Изменить название таблицы модели
      *

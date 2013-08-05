@@ -3,592 +3,624 @@
 /**
  * Транслятор в SQL запрос
  *
- * @author Юрий Шведов, Илья Колесников, neon
- * @package IcEngine
+ * @author goorus, morph, neon
  */
 class Query_Translator_Mysql_Select extends Query_Translator_Abstract
 {
 	// Для построения SQL запроса
-	const SQL_AND			= 'AND';
-	const SQL_ASC			= 'ASC';
-	const SQL_COMMA			= ',';
-	const SQL_DELETE		= 'DELETE';
-	const SQL_DESC			= 'DESC';
-	const SQL_DISTINCT		= 'DISTINCT';
-	const SQL_EXPLAIN		= 'EXPLAIN';
-	const SQL_DOT			= '.';
-	const SQL_EQUAL			= '=';
-	const SQL_ESCAPE		= '`';
-	const SQL_FROM			= 'FROM';
-	const SQL_GROUP_BY		= 'GROUP BY';
-	const SQL_HAVING		= 'HAVING';
-	const SQL_IN			= 'IN';
-	const SQL_INSERT		= 'INSERT';
-	const SQL_INNER_JOIN	= 'INNER JOIN';
-	const SQL_LEFT_JOIN		= 'LEFT JOIN';
-	const SQL_RIGHT_JOIN	= 'RIGHT JOIN';
-	const SQL_LIMIT			= 'LIMIT';
-	const SQL_LIKE			= 'LIKE';
-	const SQL_ON			= 'ON';
-	const SQL_ORDER_BY		= 'ORDER BY';
-	const SQL_QUOTE			= '"';
-	const SQL_REPLACE		= 'REPLACE';
-	const SQL_SELECT		= 'SELECT';
-	const SQL_SET			= 'SET';
-	const SQL_SHOW			= 'SHOW';
-	const SQL_RLIKE			= 'RLIKE';
-	const SQL_UPDATE		= 'UPDATE';
-	const SQL_VALUES		= 'VALUES';
-	const SQL_WHERE			= 'WHERE';
-	const SQL_WILDCARD		= '*';
-	const SQL_CALC_FOUND_ROWS = 'SQL_CALC_FOUND_ROWS';
+	const SQL_AND               = 'AND';
+	const SQL_ASC               = 'ASC';
+	const SQL_COMMA             = ',';
+	const SQL_DELETE            = 'DELETE';
+	const SQL_DESC              = 'DESC';
+	const SQL_DISTINCT          = 'DISTINCT';
+	const SQL_EXPLAIN           = 'EXPLAIN';
+	const SQL_DOT               = '.';
+	const SQL_EQUAL             = '=';
+	const SQL_ESCAPE            = '`';
+	const SQL_FROM              = 'FROM';
+	const SQL_GROUP_BY          = 'GROUP BY';
+	const SQL_HAVING            = 'HAVING';
+	const SQL_IN                = 'IN';
+	const SQL_INSERT            = 'INSERT';
+	const SQL_INNER_JOIN        = 'INNER JOIN';
+	const SQL_LEFT_JOIN         = 'LEFT JOIN';
+	const SQL_RIGHT_JOIN        = 'RIGHT JOIN';
+	const SQL_LIMIT             = 'LIMIT';
+	const SQL_LIKE              = 'LIKE';
+	const SQL_ON                = 'ON';
+	const SQL_ORDER_BY          = 'ORDER BY';
+	const SQL_QUOTE             = '"';
+	const SQL_REPLACE           = 'REPLACE';
+	const SQL_SELECT            = 'SELECT';
+	const SQL_SET               = 'SET';
+	const SQL_SHOW              = 'SHOW';
+	const SQL_RLIKE             = 'RLIKE';
+	const SQL_UPDATE            = 'UPDATE';
+	const SQL_VALUES            = 'VALUES';
+	const SQL_WHERE             = 'WHERE';
+	const SQL_WILDCARD          = '*';
+	const SQL_CALC_FOUND_ROWS   = 'SQL_CALC_FOUND_ROWS';
+	const WHERE_VALUE_CHAR      = '?';
+    const SQL_NULL              = 'NULL';
+    const SQL_AS                = 'AS';
 
-	const WHERE_VALUE_CHAR	= '?';
+    /**
+     * Хелпер транслятора
+     *
+     * @var Helper_Query_Translator_Mysql
+     */
+    protected static $helper;
 
-	/**
-	 * @see Helper_Mysql::escape()
+    /**
+	 * Рендеринг SELECT запроса.
+	 *
+     * @param Query_Abstract $query Запрос
+	 * @return string Сформированный SQL запрос
 	 */
-	public function _escape($value)
+	public function doRenderSelect(Query_Abstract $query)
 	{
-        $locator = IcEngine::serviceLocator();
-        $helperMysql = $locator->getService('helperMysql');
-		if (strpos($value, '(') === false) {
-			return $helperMysql->escape($value);
-		} else {
-			return $value;
-		}
+		$sql = $this->renderSelect($query);
+		return $sql . ' ' .
+			$this->renderFrom($query) . ' ' .
+			$this->renderWhere($query) . ' ' .
+			$this->renderGroup($query) . ' ' .
+			$this->renderHaving($query) . ' ' .
+			$this->renderOrder($query) . ' ' .
+			$this->renderLimitoffset($query);
 	}
 
-	/**
-	 * @see Helper_Mysql::quote()
-	 */
-	public function _quote($value)
-	{
-        $locator = IcEngine::serviceLocator();
-        $helperMysql = $locator->getService('helperMysql');
-		return $helperMysql->quote($value);
-	}
+    /**
+     * Получить имя таблицы для части from запроса
+     *
+     * @param Query_Select $from
+     * @return string
+     */
+    protected function fromTable($from)
+    {
+        $modelScheme = $this->modelScheme();
+        if ($from[Query::TABLE] instanceof Query_Select) {
+            $table = '('. $this->renderSelect($from[Query_Select::TABLE]). ')';
+        } else {
+            $unescapedTable =
+                strpos($from[Query::TABLE], self::SQL_ESCAPE) !== false
+                    ? $from[Query::TABLE]
+                    : $modelScheme->table($from[Query::TABLE]);
+            $table = $this->helper()->escape($unescapedTable);
+        }
+        return $table;
+    }
 
-	/**
+    /**
+     * Получить (инициализировать) хелпер траслятора
+     *
+     * @return Helper_Query_Translator_Mysql
+     */
+    public function helper()
+    {
+        if (is_null(self::$helper)) {
+            self::$helper = IcEngine::serviceLocator()->getService(
+                'helperQueryTranslatorMysql'
+            );
+        }
+        return self::$helper;
+    }
+
+    /**
+     * Нормализовать часть запроса from
+     *
+     * @param array $from
+     * @return array
+     */
+    protected function normalizeFrom($from)
+    {
+        if (count($from) == 1) {
+            return $from;
+        }
+        foreach ($from as $alias => $table) {
+            if ($table[Query::JOIN] != Query::FROM) {
+                continue;
+            }
+            unset($from[$alias]);
+            $from = array_merge(array($alias => $table), $from);
+            break;
+        }
+        return $from;
+    }
+
+    /**
 	 * Рендерит часть SQL CALC FOUND ROWS
      *
 	 * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _partCalcFoundRows(Query_Abstract $query)
+	protected function partCalcFoundRows(Query_Abstract $query)
 	{
-		if (!$query->part(Query::CALC_FOUND_ROWS)) {
-			return '';
-		}
-		return self::SQL_CALC_FOUND_ROWS;
+		return $query->part(Query::CALC_FOUND_ROWS)
+            ? self::SQL_CALC_FOUND_ROWS : '';
 	}
 
-	protected function _partExplain(Query_Abstract $query)
-	{
-		return $query->part(Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
-	}
-
-	/**
+    /**
 	 * Рендерит часть distinct
      *
 	 * @param Query_Abstract $query
 	 * @return string
 	 */
-	protected function _partDistinct(Query_Abstract $query)
+	protected function partDistinct(Query_Abstract $query)
 	{
 		return $query->part(Query::DISTINCT) ? self::SQL_DISTINCT : '';
 	}
 
-	/**
-	 * Рендерит часть запроса from
+    /**
+     * Рендеринг части запроса explain
      *
-	 * @param Query_Abstract $query
-	 * @param type $use_alias
+     * @param Query_Abstract $query
+     * @return string
+     */
+	protected function partExplain(Query_Abstract $query)
+	{
+		return $query->part(Query::EXPLAIN) ? self::SQL_EXPLAIN : '';
+	}
+
+    /**
+     * Отрендерить условие с "?"
+     *
+     * @param string $condition
+     * @param mixed $value
+     * @return string
+     */
+    protected function quoteConditionMasked($condition, $value)
+    {
+        $charPos = 0;
+        $values = (array) $value;
+        $i = 0;
+        $helper = $this->helper();
+        while ($charPos !== false) {
+            $charPos = strpos($condition, self::WHERE_VALUE_CHAR, $charPos);
+            if ($charPos === false) {
+                break;
+            }
+            if (!array_key_exists($i, $values)) {
+                break;
+            }
+            $value = is_array($values[$i])
+                ? $this->renderInArray($values[$i])
+                : $helper->quote($values[$i]);
+            $left = substr($condition, 0, $charPos);
+            $right = substr($condition, $charPos + 1);
+            $condition = $left . $value . $right;
+            $charPos += strlen($value);
+            $i++;
+        }
+        return $condition;
+    }
+
+    /**
+     * Рендеринг отложенных условий
+     *
+     * @param string $condition
+     * @param array $value
+     * @return string
+     */
+    protected function qouteConditionPrepared($condition, $value)
+    {
+        if (!is_array($value)) {
+            return $this->quoteConditionSimple($condition, $value);
+        }
+        $helper = $this->helper();
+        foreach ($value as $key => $keyValue) {
+            if (is_numeric($key)) {
+                continue;
+            }
+            $key = ':' . $key;
+            $keyValue = is_array($keyValue)
+                ? $this->renderInArray($keyValue)
+                : $helper->quote($keyValue);
+            $condition = str_replace($key, $keyValue, $condition);
+        }
+        return $condition;
+    }
+
+    /**
+     * Отрендерить условия без "?"
+     *
+     * @param string $condition
+     * @param mixed $value
+     * @return string
+     */
+    protected function quoteConditionSimple($condition, $value)
+    {
+        $helper = $this->helper();
+        if (is_array($value)) {
+            $value = self::SQL_IN . ' (' . $this->renderInArray($value) . ')';
+        } else {
+            $value = '=' . $helper->quote($value);
+        }
+        if ($helper->isExpression($condition) ||
+            $helper->isEscaped($condition)) {
+            return $condition . $value;
+        } elseif (strpos($condition, self::SQL_DOT) !== false) {
+            return $helper->escapePartial($condition) . $value;
+        } else {
+            return $helper->escape($condition) . $value;
+        }
+    }
+
+    /**
+	 * Экранирование условий запроса
+	 *
+     * @param string $condition
+	 * @param mixed $value[optional]
 	 * @return string
 	 */
-	public function _renderFrom(Query_Abstract $query, $use_alias = true)
+	protected function quoteCondition($condition)
+	{
+		if (func_num_args() == 1) {
+			return $condition;
+		}
+		$value = func_get_arg(1);
+        if (strpos($condition, ':') !== false) {
+            return $this->quoteConditionPrepared($condition, $value);
+        } elseif (strpos($condition, self::WHERE_VALUE_CHAR) !== false) {
+            return $this->quoteConditionMasked($condition, $value);
+        } else {
+            return $this->quoteConditionSimple($condition, $value);
+        }
+	}
+
+    /**
+     * Отрендерить часть from с join
+     *
+     * @param string $alias
+     * @param string $table
+     * @param array $from
+     * @return string
+     */
+    protected function renderFromJoin($alias, $table, $from)
+    {
+        if (is_array($from[Query::WHERE])) {
+            $helper = $this->helper();
+            $where =
+                $helper->escape($from[Query::WHERE][0]) .
+                self::SQL_DOT .
+                $helper->escape($from[Query::WHERE][1]) .
+                '=' .
+                $helper->escape($from[Query::WHERE][2]) .
+                self::SQL_DOT .
+                $helper->escape($from[Query::WHERE][3]);
+        } else {
+            $where = $from[Query::WHERE];
+        }
+        return ' ' .
+            $from[Query::JOIN] . ' ' .
+            $table . ' ' . self::SQL_AS . ' ' . $alias . ' ' .
+            self::SQL_ON .
+            '(' . $from[Query::WHERE] . ')';
+    }
+
+    /**
+     * Отрендерить обыкновенный from
+     *
+     * @param string $alias
+     * @param string $table
+     * @param boolean $useAlias
+     * @param integer $i
+     * @return string
+     */
+    protected function renderFromSimple($alias, $table, $useAlias, $i)
+    {
+        $a = ($table == $alias || !$useAlias);
+        return
+            ($i ? self::SQL_COMMA : ' ') .
+            ($a ? $table : ($table . ' ' . self::SQL_AS . ' ' . $alias));
+    }
+
+    /**
+     * Рендерит часть запроса from
+     *
+     * @param Query_Abstract $query
+     * @param bool|\type $useAlias
+     * @return string
+     */
+	protected function renderFrom(Query_Abstract $query, $useAlias = true)
 	{
 		$sql = self::SQL_FROM;
 		$i = 0;
-		$from = $query->part(Query::FROM);
+        $from = $query->part(Query::FROM);
 		if (!$from) {
 			return;
 		}
-		if (count($from) > 1) {
-			foreach ($from as $a=>$v) {
-				if ($v[Query::JOIN] == Query::FROM) {
-					unset($from[$a]);
-					$from = array_merge(array($a=>$v), $from);
-					break;
-				}
-			}
-		}
-		$froms = $from;
-        $modelScheme = IcEngine::serviceLocator()->getService('modelScheme');
+        $helper = $this->helper();
+		$froms = $this->normalizeFrom($from);
 		foreach ($froms as $alias => $from) {
-			if ($from[Query::TABLE] instanceof Query_Select) {
-				$table = '(' .
-					$this->_renderSelect($from[Query_Select::TABLE]) .
-					')';
-			} else {
-				$table =
-					strpos($from[Query::TABLE], self::SQL_ESCAPE) !== false
-					? $from[Query::TABLE]
-					: $modelScheme->table($from[Query::TABLE]);
-				$table = $this->_escape($table);
-			}
-			$alias = $this->_escape($alias);
+            $table = $this->fromTable($from);
+			$alias = $helper->escape($alias);
 			if ($from[Query::JOIN] == Query::FROM) {
-				$a = ($table == $alias || !$use_alias);
-				$sql .=
-					($i ? self::SQL_COMMA : ' ') .
-					($a ? $table : ($table . ' AS ' . $alias));
+                $part = $this->renderFromSimple($alias, $table, $useAlias, $i);
 			} else {
-				if (is_array($from[Query::WHERE])) {
-					$where =
-						$this->_escape($from[Query::WHERE][0]) .
-						self::SQL_DOT .
-						$this->_escape($from[Query::WHERE][1]) .
-						'=' .
-						$this->_escape($from[Query::WHERE][2]) .
-						self::SQL_DOT .
-						$this->_escape($from[Query::WHERE][3]);
-				} else {
-					$where = $from[Query::WHERE];
-				}
-				$sql .= ' ' .
-					$from[Query::JOIN] . ' ' .
-					$table . ' AS ' . $alias . ' ' .
-					self::SQL_ON .
-					'(' . $from[Query::WHERE] . ')';
-			}
+                $part = $this->renderFromJoin($alias, $table, $from);
+            }
+            $sql .= $part;
 			$i++;
 		}
 		return $sql .
-			self::_renderUseIndex($query) .
-			self::_renderForceIndex($query);
+			$this->renderUseIndex($query) .
+			$this->renderForceIndex($query);
 	}
 
 	/**
-	 * @desc Рендерит часть запроса FORCE INDEX
-	 * @param Query_Abstract $query
+	 * Рендерит часть запроса FORCE INDEX
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderForceIndex (Query_Abstract $query)
+	protected function renderForceIndex(Query_Abstract $query)
 	{
-		return self::_renderUseIndex ($query);
+		return $this->renderUseIndex($query);
 	}
 
 	/**
-	 * @desc Рендерит часть запроса group
-	 * @param Query_Abstract $query
+	 * Рендерит часть запроса group
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderGroup (Query_Abstract $query)
+	protected function renderGroup(Query_Abstract $query)
 	{
-		$groups = $query->part (Query::GROUP);
-
-		if (empty ($groups))
-		{
-			return '';
+		$groups = $query->part(Query::GROUP);
+        if (!$groups) {
+            return;
+        }
+		$columns = array();
+        $helper = $this->helper();
+		foreach ($groups as $column) {
+            $columns[] = $helper->escapePartial(reset($column));
 		}
-
-		$columns = array ();
-		foreach ($groups as $column)
-		{
-			if (
-				strpos ($column, '(') !== false ||
-				strpos ($column, '`') !== false
-			)
-			{
-				$columns [] = $column;
-			}
-			elseif (strpos ($column, self::SQL_DOT) !== false)
-			{
-				$column = explode (self::SQL_DOT, $column);
-				$column = array_map (array($this, '_escape'), $column);
-				$columns [] = implode (self::SQL_DOT, $column);
-			}
-			else
-			{
-				$columns [] = $this->_escape ($column);
-			}
-		}
-		return
-			self::SQL_GROUP_BY . ' ' .
-			implode (self::SQL_COMMA, $columns);
+		return self::SQL_GROUP_BY . ' ' .
+			implode(self::SQL_COMMA, $columns);
 	}
 
-	public function _renderHaving (Query_Abstract $query)
+    /**
+     * Рендеринг части запроса "having"
+     *
+     * @param Query_Abstract $query
+     * @return string
+     */
+	protected function renderHaving(Query_Abstract $query)
 	{
-		$having = $query->part (Query::HAVING);
-
-		if (empty ($having))
-		{
-			return '';
-		}
-		return
-		self::SQL_HAVING . ' ' . $having;
+		$having = $query->part(Query::HAVING);
+        if (!$having) {
+            return;
+        }
+		return self::SQL_HAVING . ' ' . 
+            (is_array($having) ? reset($having) : $having);
 	}
 
 	/**
-	 * @desc Рендерит mysql терм если он массив
-	 * @param array $value
+	 * Рендерит mysql терм если он массив
+	 *
+     * @param array $value
 	 * @return string
 	 */
-	public function _renderInArray (array $value)
+	protected function renderInArray(array $value)
 	{
-		if (empty ($value))
-		{
-			return 'NULL';
+		if (!$value) {
+			return self::SQL_NULL;
 		}
-
-		$result = implode (',', array_map (array ($this, '_quote'), $value));
-
-		return $result;
+        $callable = array($this->helper(), 'quote');
+        $valueMapped = array_map($callable, (array) $value);
+		return implode(self::SQL_COMMA, $valueMapped);
 	}
 
 	/**
-	 * @desc Рендер части запроса limit
-	 * @param Query_Abstract $query
+	 * Рендер части запроса limit
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderLimitoffset (Query_Abstract $query)
+	protected function renderLimitoffset (Query_Abstract $query)
 	{
-		$sql = '';
-		$limit_count = $query->part (Query::LIMIT_COUNT);
-
-		if (!empty ($limit_count))
-		{
-			$sql .=
-				' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET) .
-				self::SQL_COMMA . (int) $query->part (Query::LIMIT_COUNT);
-		}
-		elseif ($query->part (Query::LIMIT_OFFSET))
-		{
-			$sql .= ' LIMIT ' . (int) $query->part (Query::LIMIT_OFFSET);
-		}
-
-		return $sql;
+        $limit = $query->part(Query::LIMIT);
+        if (!$limit) {
+            return;
+        }
+        if (empty($limit[Query::LIMIT_COUNT])) {
+            return;
+        }
+        $count = $limit[Query::LIMIT_COUNT];
+        $offset = !empty($limit[Query::LIMIT_OFFSET])
+            ? $limit[Query::LIMIT_OFFSET] : 0;
+        return self::SQL_LIMIT . ' ' . $offset . self::SQL_COMMA . $count;
 	}
 
 	/**
-	 * @desc Рендер части запроса order
-	 * @param Query_Abstract $query
+	 * Рендер части запроса order
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderOrder (Query_Abstract $query)
+	protected function renderOrder(Query_Abstract $query)
 	{
-		$orders = $query->part (Query::ORDER);
-		if (!$orders)
-		{
-			return '';
+		$orders = $query->part(Query::ORDER);
+        if (!$orders) {
+            return;
+        }
+		$columns = array();
+        $helper = $this->helper();
+		foreach ($orders as $order) {
+			$column = $helper->escapePartial($order[0]);
+			if ($order[1] == self::SQL_DESC) {
+				$column = $column . ' ' . self::SQL_DESC;
+			}
+            $columns[] = $column;
 		}
-
-		$columns = array ();
-		foreach ($orders as $order)
-		{
-			$field = $order[0];
-			if (strpos($field, '(') === false) {
-				$field = explode (self::SQL_DOT, $order [0]);
-				$field = array_map (array($this, '_escape'), $field);
-				$field = implode (self::SQL_DOT, $field);
-			}
-			if ($order [1] == self::SQL_DESC)
-			{
-				$columns [] = $field . ' ' . self::SQL_DESC;
-			}
-			else
-			{
-				$columns [] = $field;
-			}
-		}
-		return 'ORDER BY ' . implode (self::SQL_COMMA, $columns);
+		return self::SQL_ORDER_BY . ' ' . implode(self::SQL_COMMA, $columns);
 	}
 
-	/**
-	 * @desc Рендеринг SELECT запроса.
-	 * @param Query_Abstract $query Запрос
-	 * @return string Сформированный SQL запрос
-	 */
-	public function _renderSelect (Query_Abstract $query)
-	{
-		$sql = '';
+    /**
+     * Отрендерить часть выборки в массиве
+     *
+     * @param array $parts
+     * @return string
+     */
+    protected function renderSelectArray($parts)
+    {
+        $source = null;
+        $helper = $this->helper();
+        if (count($parts) > 1) {
+            if (!empty($parts[0])) {
+                $source = $helper->escape($parts[0]) . self::SQL_DOT;
+            }
+            if (!$helper->isEscaped($parts[1]) &&
+                !$helper->isExpression($parts[1])) {
+                $source .= $helper->escapePartial($parts[1]);
+            } else {
+                $source .= $parts[1];
+            }
+        } elseif (strpos($parts[0], self::SQL_WILDCARD) !== false) {
+            $source = $parts[0];
+        } else {
+            $source = $helper->escapePartial($parts[0]);
+        }
+        return $source;
+    }
 
-		$parts = $query->parts ();
+    /**
+     * Рендерить часть запроса select
+     *
+     * @param Query_Abstract $query
+     * @return string
+     */
+    protected function renderSelect(Query_Abstract $query)
+    {
+		$select = $query->part(Query::SELECT);
+        if (!$select) {
+            return;
+        }
+        $sql = $this->partExplain($query) . ' ' . self::SQL_SELECT . ' ' .
+            $this->partCalcFoundRows($query) . ' ' .
+            $this->partDistinct($query);
+        $columns = array();
+        $helper = $this->helper();
+        foreach ($select as $alias => $parts) {
+            if (is_array($parts)) {
+                $source = $this->renderSelectArray($parts);
+            } elseif (strpos($parts, self::SQL_COMMA) !== false) {
+                $subParts = explode(self::SQL_COMMA, $parts);
+                $subPartsTrimed = array_map('trim', $subParts);
+                $callable = array($helper, 'escapePartial');
+                $sourceUnjoined = array_map($callable, $subPartsTrimed);
+                $source = implode(self::SQL_COMMA, $sourceUnjoined);
+                $alias = $source;
+            } elseif (strpos($parts, self::SQL_WILDCARD) === false &&
+                !$helper->isExpression($parts))  {
+                $source = $helper->escapePartial($parts);
+            } elseif (strpos($parts, self::SQL_WILDCARD) !== false) {
+                $subParts = explode(self::SQL_DOT, $parts);
+                $partsMapped = array_map(array($helper, 'escape'), $subParts);
+                $source = implode(self::SQL_DOT, $partsMapped);
+            } else {
+                $source = $parts;
+            }
+            if (is_numeric($alias) || $helper->isExpression($alias) ||
+                strpos($alias, self::SQL_WILDCARD) !== false) {
+                $columns[] = $source;
+            } else {
+                if (strpos($alias, self::SQL_DOT) !== false &&
+                    strpos($alias, self::SQL_COMMA) === false) {
+                    list(,$alias) = explode('.', $alias);
+                }
+                $alias = $helper->escape($alias);
+                if ($alias == $source || 
+                    strpos(strtolower($source), ' as ') !== false) {
+                    $columns[] = $source;
+                } else {
+                    $columns[] = $source . ' ' . self::SQL_AS . ' ' . $alias;
+                }
 
-		if ($parts [Query::SELECT])
-		{
-			$sql =
-				self::_partExplain ($query) . ' ' .
-				'SELECT ' .
-				self::_partCalcFoundRows ($query) . ' ' .
-				self::_partDistinct ($query) . ' ';
-
-			$columns = array ();
-			foreach ($parts [Query::SELECT] as $alias => $sparts)
-			{
-				if (is_array ($sparts))
-				{
-					if (count ($sparts) > 1)
-					{
-						if (empty ($sparts [0]))
-						{
-							$source = '';
-						}
-						else
-						{
-							$source =
-								$this->_escape ($sparts [0]) .
-								self::SQL_DOT;
-						}
-
-						if (
-							strpos ($sparts [1], self::SQL_WILDCARD) !== false ||
-							strpos ($sparts [1], '(') === false ||
-							strpos ($sparts [1], ' ') === false ||
-							strpos ($sparts [1], '.') === false ||
-							strpos ($sparts [1], '`') === false
-						)
-						{
-							$source .= $sparts [1];
-						}
-						else
-						{
-							$source .= $this->_escape ($sparts [1]);
-						}
-					}
-					elseif (strpos ($sparts [0], self::SQL_WILDCARD) !== false)
-					{
-						$source = $sparts [0];
-					}
-					else
-					{
-						$source = $this->_escape ($sparts [0]);
-					}
-				}
-				elseif (
-					strpos ($sparts, self::SQL_WILDCARD) === false &&
-					strpos ($sparts, '(') === false &&
-					strpos ($sparts, ' ') === false &&
-					strpos ($sparts, '`') === false &&
-					strpos ($sparts, '.') === false
-				)
-				{
-					$source = $this->_escape ($sparts);
-				}
-				elseif (strpos ($sparts, self::SQL_WILDCARD) !== false)
-				{
-					$source = explode ('.', $sparts);
-					$source [0] = $this->_escape ($source [0]);
-					$source = implode ('.', $source);
-				}
-				else
-				{
-					$source = $sparts;
-				}
-
-				if (is_numeric ($alias))
-				{
-					$columns [] = $source;
-				}
-				elseif (
-					strpos ($alias, self::SQL_WILDCARD) !== false ||
-					strpos ($alias, '(') !== false ||
-					strpos ($alias, ' ') !== false ||
-					strpos ($alias, '.') !== false
-				)
-				{
-					$columns [] = $source;
-				}
-				else
-				{
-					$columns [] = $source . ' AS ' . $this->_escape ($alias);
-				}
-			}
-		}
-
-		return (!empty ($columns) ? $sql . implode (self::SQL_COMMA, $columns) : '') . ' ' .
-			self::_renderFrom ($query) . ' ' .
-			self::_renderUseIndex ($query) . ' ' .
-			self::_renderWhere ($query) . ' ' .
-			self::_renderGroup ($query) . ' ' .
-			self::_renderHaving ($query) . ' ' .
-			self::_renderOrder ($query) . ' ' .
-			self::_renderLimitoffset ($query);
-	}
+            }
+        }
+        return $columns ? $sql . implode(self::SQL_COMMA, $columns) : '';
+    }
 
 	/**
-	 * @desc Рендерит часть запроса USE INDEX
-	 * @param Query_Abstract $query
+	 * Рендерит часть запроса USE INDEX
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderUseIndex (Query_Abstract $query)
+	protected function renderUseIndex(Query_Abstract $query)
 	{
-		$indexes = $query->part (Query::INDEX);
-		if (!$indexes)
-		{
-			return '';
+		$indexes = $query->part(Query::INDEX);
+		if (!$indexes) {
+			return;
 		}
-
-		return $indexes [1].'(' . implode (',', (array) $indexes [0]) . ')';
+		return $indexes[1] . '(' . implode(',', (array) $indexes[0]) . ')';
 	}
 
+    /**
+     * Отрендерить условие без значения
+     *
+     * @param array $where
+     * @return string
+     */
+    protected function renderWhereWithoutValue($where)
+    {
+        if ($where[Query::WHERE] instanceof Query_Select) {
+            $subWhere = $where[Query::WHERE]->getPart(Query::WHERE);
+            $subWhere[0]['empty'] = true;
+            $where[Query::WHERE]->setPart(Query::WHERE, $subWhere);
+            return '(' . $this->doRenderSelect($where[Query::WHERE]) . ')';
+        } else {
+            return $this->quoteCondition($where[Query::WHERE]);
+        }
+    }
+
+    /**
+     * Отрендерить часть условия со значением
+     *
+     * @param array $where
+     * @return string
+     */
+    protected function renderWhereWithValue($where)
+    {
+        if ($where[Query::VALUE] instanceof Query_Select) {
+            $where[Query::VALUE] = '(' .
+                $this->doRenderSelect($where[Query::VALUE]) . ')';
+        }
+        $value = $where[Query::WHERE];
+        return $this->quoteCondition($value, $where[Query::VALUE]);
+    }
+
 	/**
-	 * @desc Рендер части запроса Where
-	 * @param Query_Abstract $query
+	 * Рендер части запроса Where
+	 *
+     * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderWhere (Query_Abstract $query)
+	protected function renderWhere(Query_Abstract $query)
 	{
-		$wheres = $query->part (Query::WHERE);
-
-		if (!$wheres)
-		{
-			return '';
+		$wheres = $query->part(Query::WHERE);
+		if (!$wheres) {
+			return;
 		}
-
-		$sql = 'WHERE ';
-
-
-		foreach ($wheres as $i => $where)
-		{
-			if (isset ($where ['empty']))
-			{
+		$sql = self::SQL_WHERE . ' ';
+		foreach ($wheres as $i => $where) {
+			if (!empty($where['empty'])) {
 				$sql = '';
+                break;
 			}
 		}
-
-		foreach ($wheres as $i => $where)
-		{
-			if ($i > 0)
-			{
-				$sql .= ' ' . $where [0] . ' ';
-
+		foreach ($wheres as $i => $where) {
+			if ($i > 0) {
+				$sql .= ' ' . $where[0] . ' ';
 			}
-
-			if (array_key_exists (Query::VALUE, $where))
-			{
-				if ($where [Query::VALUE] instanceof Query_Select)
-				{
-					$where [Query::VALUE] = '(' . $this->_renderSelect (
-						$where [Query::VALUE]
-					) . ')';
-				}
-
-				$sql .= $this->_quoteCondition (
-					$where [Query::WHERE],
-					$where [Query::VALUE]
-				);
-			}
-			else
-			{
-				if ($where [Query::WHERE] instanceof Query_Select)
-				{
-					$w = $where [Query::WHERE]->getPart (Query::WHERE);
-					$w [0]['empty'] = true;
-					$where [Query::WHERE]->setPart (Query::WHERE, $w);
-					$sql .= '(' .
-						$this->_renderSelect ($where [Query::WHERE]) . ')';
-				}
-				else
-				{
-					 $sql .= $this->_quoteCondition (
-						$where [Query::WHERE]
-					);
-				}
+			if (array_key_exists(Query::VALUE, $where)) {
+				$sql .= $this->renderWhereWithValue($where);
+			} else {
+				$sql .= $this->renderWhereWithoutValue($where);
 			}
 		}
-
 		return $sql;
-	}
-
-	/**
-	 * @desc Экранирование условий запроса
-	 * @param string $condition
-	 * @param mixed $value [optional]
-	 * @return string
-	 */
-	protected function _quoteCondition ($condition)
-	{
-		if (func_num_args () == 1)
-		{
-			return $condition;
-		}
-
-		$value = func_get_arg (1);
-
-		if (strpos ($condition, self::WHERE_VALUE_CHAR) === false)
-		{
-			if (is_array ($value))
-			{
-				$value = ' IN (' . $this->_renderInArray ($value) . ')';
-			}
-			else
-			{
-				$value = '=' . $this->_quote ($value);
-			}
-
-			if (
-				strpos ($condition, '(') === false &&
-				strpos ($condition, ' ') === false &&
-				strpos ($condition, '.') === false &&
-				strpos ($condition, '`') === false
-			)
-			{
-				return $this->_escape ($condition) . $value;
-			}
-
-			return $condition . $value;
-		}
-		else
-		{
-			$char_pos = 0;
-			$i = 0;
-
-			if (is_array ($value))
-			{
-				foreach ($value as $key => $val)
-				{
-					if (!is_numeric ($key))
-					{
-						$condition = str_replace (
-							':' . $key,
-							is_array ($val)
-								? $this->_renderInArray ($val)
-								: $this->_quote ($val),
-							$condition
-						);
-					}
-				}
-			}
-
-			$value = (array) $value;
-			$i = 0;
-
-			while ($char_pos !== false)
-			{
-				$char_pos = strpos ($condition, self::WHERE_VALUE_CHAR, $char_pos);
-				if ($char_pos === false)
-				{
-					break;
-				}
-				if (!array_key_exists ($i, $value))
-				{
-					break;
-				}
-				$val = $value [$i];
-				$val = is_array ($val)
-					? $this->_renderInArray ($val)
-					: $this->_quote ($val);
-				$left = substr ($condition, 0, $char_pos);
-				$right = substr ($condition, $char_pos + 1);
-				$condition = $left . $val . $right;
-				$char_pos += strlen ($val);
-				$i++;
-			}
-
-			return $condition;
-		}
 	}
 }

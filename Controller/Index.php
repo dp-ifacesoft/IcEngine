@@ -1,10 +1,10 @@
 <?php
 /**
+ * Контроллер для главной страницы
  * 
- * @desc Контроллер для главной страницы
- * @package IcEngine
- * 
+ * @author morph
  */
 class Controller_Index extends Controller_Abstract
 {
+    
 }

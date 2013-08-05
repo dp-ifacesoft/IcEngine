@@ -2,9 +2,27 @@
 
 /**
  * Помощник коллекции моделей
+ *
+ * @author morph
+ * @Service("helperModelCollection")
  */
-class Helper_Model_Collection
+class Helper_Model_Collection extends Helper_Abstract
 {
+    /**
+	 * Переназначение коллекции на модель
+	 *
+	 * @param Model $model
+	 * @param Model_Collection $collection
+	 * @return void
+	 */
+	public function rejoin($model, $collection)
+	{
+		$collection->update(array(
+			'table'	=> $model->modelName(),
+			'rowId'	=> $model->key()
+		));
+	}
+
     /**
      * Восстановить данные коллекции
      *
@@ -40,4 +58,22 @@ class Helper_Model_Collection
             }
         }
     }
+
+	/**
+	 * Упорядочивание списка для вывода дерева по полю parentId
+	 *
+	 * @param Model_Collection $collection
+	 * @param boolean $include_unparented Оставить элементы без предка.
+	 * Если false, элементы будут исключены из списка.
+	 *
+	 * @return Model_Collection
+	 */
+	public function sortByParent($collection, $includeUnparented = false)
+	{
+        $items = $this->getService('helperArray')->sortByParent(
+            $collection->items(), $includeUnparented, $collection->keyField()
+        );
+		$collection->setItems($items);
+		return $collection;
+	}
 }

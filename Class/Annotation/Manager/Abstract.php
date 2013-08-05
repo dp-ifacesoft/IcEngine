@@ -33,7 +33,7 @@ abstract class Annotation_Manager_Abstract
 		$className = is_string($class) ? $class : get_class($class);
 		$annotationSet = $this->repository->get($className);
 		if (!$annotationSet) {
-			$annotationSet = $this->source->get($class);
+			$annotationSet = $this->source->get($className);
 			$this->repository->set($className, $annotationSet);
 		}
 		return $annotationSet;

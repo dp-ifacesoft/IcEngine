@@ -60,10 +60,7 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
 				}
 				$r = $this->parsePart($value);
                 if ($r) {
-					if (!isset($result[$param])) {
-						$result[$param] = array();
-					}
-					$result[$param] = array_merge($result[$param], array($r));
+                    $result[$param][] = $r;
 				}
 			} elseif ($param) {
 				$e = strrpos($param, ')');
@@ -110,119 +107,171 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                 $parts[$i] = $currentString;
                 $currentString = null;
             }
-        }
-        $verbose = false;
+        } 
         $result = new Objective(array());
+        $indexes = array(0);
         foreach ($parts as $part) {
-            if (strpos($part, '=') === false) {
-                $part = trim($part, '\'" ');
-                $result[$part] = array();
-                $subParts = explode(',', $part);
-                if (count($subParts) > 1) {
-                    foreach ($subParts as $subPart) {
-                        $result[$part][] = trim($subPart, '\'" ');
-                    }
-                } else {
-                    $result[$part] = $part;
-                }
-                continue;
-            }
             $stack = array();
             array_push($stack, $result);
             $source = $result;
             $currentName = '';
             $currentValue = '';
+            $lastValue = '';
+            $bufferValue = '';
+            $endOnString = false;
             $valueChanged = false;
             $collectionValue = false;
-            $hasEqual = false;
+            $openOnSingle = false;
+            $hasClosed = false;
+            $openOnDouble = false;
+            $levelCount = 0;
+            $lastClosedAtLevel = 0;
             for ($i = 0, $length = strlen($part); $i < $length; $i++) {
                 $ch = $part[$i];
+                if ($collectionValue) {
+                    if (($ch == '"' || $ch == '\'') && 
+                        !$openOnSingle && !$openOnDouble) {
+                        if ($ch == '"') {
+                            $openOnDouble = true;
+                        } elseif ($ch == '\'') {
+                            $openOnSingle = true;
+                        }
+                        continue;
+                    } elseif (($ch == '"' && $openOnDouble) || 
+                        ($ch == '\'' && $openOnSingle)) {
+                        $collectionValue = false;
+                        $openOnSingle = false;
+                        $openOnDouble = false;
+                        $endOnString = true;
+                        $lastValue = $currentValue;
+                        continue;
+                    } elseif ($openOnSingle || $openOnDouble || 
+                        ($ch != '{' && $ch != '}' && $ch != ',')) {
+                        $currentValue .= $ch;
+                        $valueChanged = true;
+                        continue;
+                    } elseif (!$openOnSingle && !$openOnDouble && 
+                        ($ch == '{' || $ch == '}' || $ch == ',')) {
+                        $collectionValue = false;
+                        --$i;
+                        continue;
+                    } 
+                }
                 switch($ch) {
-                    case '\'': case '"': 
+                    case '\'': case '"':
+                        $collectionValue = true;
+                        if ($ch == '\'') {
+                            $openOnSingle = true;
+                        } elseif ($ch == '"') {
+                            $openOnDouble = true;
+                        }
                         break;
-                    case ' ': 
-                        if ($collectionValue) {
-                            $currentValue .= $ch;
-                        } 
-                        break;
-                    case "\t":
+                    case ' ': case "\t": case "\n": case "\r":
                         break;
                     case ',': 
-                        if ($currentName) {
-                            if (!$collectionValue) {
-                                $currentValue = $valueChanged 
-                                ? $currentValue : $currentName;
-                            }
-                            $source[$currentName] = $currentValue;
+                        if (!$collectionValue) {
+                            $currentValue = $valueChanged 
+                            ? $currentValue : $currentName;
                         }
+                        if (!$currentValue) {
+                            $currentValue = $bufferValue;
+                        }
+                        if ($hasClosed && $levelCount == $lastClosedAtLevel) {
+                            end($stack);
+                            $source = current($stack);
+                        }
+                        if ($currentName) {
+                            $source[$currentName] = $currentValue;
+                        } elseif ($currentValue !== '') {
+                            $index = array_pop($indexes);
+                            $source[$index] = $currentValue;
+                            array_push($indexes, $index + 1);
+                        }
+                        $endOnString = false;
+                        $lastValue = $currentValue;
                         $currentName = '';
+                        $bufferValue = '';
                         $currentValue = '';
                         $valueChanged = false;
                         $collectionValue = false;
+                        $hasClosed = false;
                         break;
                     case '=': 
-                        $hasEqual = true;
+                        if ($endOnString) {
+                            $currentName = $lastValue;
+                            $lastValue = '';
+                            $currentValue = '';
+                            $endOnString = false;
+                        } else {
+                            $currentName = $bufferValue;
+                            $bufferValue = '';
+                        }
                         $collectionValue = true;
                         break;
-                    case '{': 
-                        if (!$hasEqual) {
-                            break;
-                        }
-                        $collectionValue = false; 
-                        end($stack);
-                        $last = current($stack);
+                    case '{':
                         if ($currentName) {
+                            $collectionValue = false; 
+                            end($stack);
+                            $last = current($stack);
                             if (!isset($last[$currentName])) {
-                                $last[$currentName] = array();
+                                $last[$currentName] = new Objective();
                             }
                             $source = $last[$currentName];
                             array_push($stack, $source);
+                            $currentName = '';
+                        } else {
+                            end($stack);
+                            $last = current($stack);
+                            $index = array_pop($indexes);
+                            if (!isset($last[$index])) {
+                                $last[$index] = new Objective();
+                            } 
+                            $source = $last[$index];
+                            array_push($stack, $source);
+                            array_push($indexes, $index + 1);
+                            array_push($indexes, 0);
                         }
-                        $currentName = '';
                         $currentValue = '';
+                        $levelCount++;
                         break;
                     case '}': 
                         if (!$collectionValue) {
                             $currentValue = $valueChanged 
                                 ? $currentValue : $currentName;
                         }
+                        if (!$currentValue) {
+                            $currentValue = $bufferValue;
+                        }
                         $source = array_pop($stack);
                         if ($currentName) {
                             $source[$currentName] = $currentValue;
                             $currentName = '';
-                            $currentValue = '';
-                            $valueChanged = false;
-                            $collectionValue = false; 
+                        } elseif ($currentValue !== '') {
+                            $index = array_pop($indexes);
+                            array_push($indexes, 0);
+                            $source[$index] = $currentValue;
                         }
+                        $valueChanged = false;
+                        $collectionValue = false; 
+                        $hasClosed = true;
+                        $lastValue = '';
+                        $currentValue = '';
+                        $bufferValue = '';
+                        $levelCount--;
+                        $lastClosedAtLevel = $levelCount;
                         break;
-                    default: 
-                        if (!$collectionValue) {
-                            $currentName .= $ch; 
-                        } else {
-                            $currentValue .= $ch;
-                            $valueChanged = true;
-                        }
-                        break;
+                    default:
+                        $bufferValue .= $ch;
                 }
             }
             if ($currentName) {
                 $source[$currentName] = $currentValue;
-                $collectionValue = false;
+            } elseif ($lastValue !== '' || $bufferValue !== '') {
+                $index = array_pop($indexes);
+                $source[$index] = $lastValue ?: $bufferValue;
+                array_push($indexes, $index + 1);
             }
-        }
-        if ($verbose) {
-            print_r($result);
         }
         return $result->__toArray();
 	}
-    
-    /**
-     * Изменить рефлексию класса
-     * 
-     * @param ReflectionClass $reflection
-     */
-    public function setReflection($reflection)
-    {
-        $this->reflection = $reflection;
-    }
 }

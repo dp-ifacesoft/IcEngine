@@ -3,50 +3,55 @@
 /**
  * Абстрактный класс провайдера данных.
  *
- * @author Goorus, neon
- * @package IcEngine
+ * @author goorus, morph, neon
  */
 class Data_Provider_Abstract
 {
 	/**
 	 * Локи установленные текущим экземпляром скрипта.
-	 * Хранятся для снятия в конце работы.
+	 * Хранятся для снятия в конце работы
+     * 
 	 * @var array
 	 */
-	public $locks			= array();
+	public $locks = array();
 
 	/**
 	 * Трейсер
+     * 
 	 * @var Tracer_Abstract
 	 */
 	public $tracer;
 
 	/**
-	 * Префикс ключей.
+	 * Префикс ключей
+     * 
 	 * @var string
 	 */
-	public $prefix			= '';
+	public $prefix = '';
 
 	/**
 	 * Префикс удаленных записей.
 	 * При удалении записи, ее можно пометить как удаленную,
-	 * а позже проверить состояние.
+	 * а позже проверить состояние
+     * 
 	 * @var string
 	 */
-	public $prefixDeleted	= '_dld_';
+	public $prefixDeleted = '_dld_';
 
 	/**
 	 * Префикс для локов.
-	 * При локе ключа, создается новый ключ с указанным префиксом.
+	 * При локе ключа, создается новый ключ с указанным префиксом
+     * 
 	 * @var string
 	 */
-	public $prefixLock		= '_lck\\';
+	public $prefixLock = '_lck\\';
 
 	/**
-	 * @desc Префикс для тегов.
+	 * @desc Префикс для тегов
+     * 
 	 * @var string
 	 */
-	public $prefixTag		= '_tag\\';
+	public $prefixTag = '_tag\\';
 
 	/**
 	 * Создает и возвращает провайдер данных.
@@ -58,8 +63,8 @@ class Data_Provider_Abstract
 		if (!$config) {
 			return;
 		}
-		foreach ($config as $opt_name => $opt_value) {
-			$this->setOption($opt_name, $opt_value);
+		foreach ($config as $name => $value) {
+			$this->setOption($name, $value);
 		}
 	}
 
@@ -71,30 +76,9 @@ class Data_Provider_Abstract
 	 */
 	protected function _setOption($key, $value)
 	{
-		if ($key == 'tracer') {
-			$class = 'Tracer_' . $value;
-			$this->tracer = new $class();
-		} elseif ($key == 'prefix') {
+		if ($key == 'prefix') {
 			$this->prefix = $value;
 		}
-	}
-
-	public function _valDump($value)
-	{
-		if (is_bool($value) || is_numeric($value)) {
-			return var_export($value, true);
-		}
-		if (is_array($value)) {
-			return 'Array (' . count($value) . ')';
-		}
-		if (is_object($value)) {
-			return get_class($value);
-		}
-		if (is_null($value)) {
-			return 'null';
-		}
-		return gettype($value) . '(' . strlen($value) . ') "' .
-			substr($value, 0, 30) . '"';
 	}
 
 	/**
@@ -151,17 +135,17 @@ class Data_Provider_Abstract
 		if (!is_array($tags) || empty($tags)) {
 			return true;
 		}
-		$tags_keys = array_keys($tags);
-		$tags_vals = array_values($tags);
-		foreach ($tags_keys as &$key) {
+		$tagsKeys = array_keys($tags);
+		$tagsValues = array_values($tags);
+		foreach ($tagsKeys as &$key) {
 			$key = $this->prefixTag . $key;
 		}
-		$current_values = $this->getMulti($tags_keys, true);
-		if (count($tags_keys) != count($current_values)) {
+		$currentValues = $this->getMulti($tagsKeys, true);
+		if (count($tagsKeys) != count($currentValues)) {
 		    return false;
 		}
-		for ($i = 0, $count = count($tags_vals); $i < $count; $i++) {
-			if ($tags_vals[$i] != $current_values[$i]) {
+		for ($i = 0, $count = count($tagsValues); $i < $count; $i++) {
+			if ($tagsValues[$i] != $currentValues[$i]) {
 				return false;
 			}
 		}
@@ -189,11 +173,11 @@ class Data_Provider_Abstract
      *
      * @param string|array $keys Ключ или массив ключей
      * @param integer $time Время блокировки ключа, после удаления (в секундах).
-     * @param boolean $set_deleted Пометить ключ как удаленный.
+     * @param boolean $setDeleted Пометить ключ как удаленный.
      * Если true, будет создан новый ключ, существование ключа будет
      * возможно проверить методом isDeleted
  	 */
-	public function delete($keys, $time = 0, $set_deleted = false)
+	public function delete($keys, $time = 0, $setDeleted = false)
 	{
 		$keys = (array) $keys;
 		if ($this->tracer) {
@@ -207,20 +191,16 @@ class Data_Provider_Abstract
      * @param string $pattern Маска ключа.
      * @param integer $time Время блокировки ключа, после
      * удаления (в секундах).
-     * @param boolean $set_deleted Пометить ключ как удаленный.
+     * @param boolean $setDeleted Пометить ключ как удаленный.
      * Если true, будет создан новый ключ, существование ключа будет
      * возможно проверить методом isDeleted.
      * @return integer|null Количественно найденных ключей. Может отличаться
      * от реально удаленного количства ключей ничего не возвращать.
  	 */
-	public function deleteByPattern($pattern, $time = 0, $set_deleted = false)
+	public function deleteByPattern($pattern, $time = 0, $setDeleted = false)
 	{
 		$keys = $this->keys($pattern);
-		$this->delete(
-			$keys,
-			$time,
-			$set_deleted
-		);
+		$this->delete($keys, $time, $setDeleted);
 		return count($keys);
 	}
 
@@ -229,7 +209,8 @@ class Data_Provider_Abstract
      * Внимание! В большинстве случаев это приводит к полной очистке кэша,
      * а не только данных этого провайдера. Так если используется один
      * мемкеш (или редис), будут затерты данные всех провайдеров. Для
-     * очистки одного провайдера, следует использовать deleteByPattern ('*').
+     * очистки одного провайдера, следует использовать deleteByPattern ('*')
+     * 
      * @param integer $delay
 	 */
 	public function flush($delay = 0)
@@ -263,11 +244,12 @@ class Data_Provider_Abstract
 	 */
 	public function getAll()
 	{
-		return $this->getMulti($this->keys ('*'));
+		return $this->getMulti($this->keys('*'));
 	}
 
 	/**
      * Получение значений нескольких ключей
+     * 
      * @param array $keys
      * 		Список ключей
      * @param boolean $numeric_index
@@ -276,97 +258,88 @@ class Data_Provider_Abstract
      * @return array
      * 		Массив значений ключей, аналогичный вызову метода get для каждого ключа.
  	 */
-	public function getMulti (array $keys, $numeric_index = false)
+	public function getMulti (array $keys, $numericIndex = false)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('getMulti', implode (',', $keys));
+		if ($this->tracer) {
+			$this->tracer->add('getMulti', implode(',', $keys));
 		}
-
 		$result = array();
-
-		if ($numeric_index)
-		{
-			foreach ($keys as $i => $key)
-			{
-				$result [$i] = $this->get ($key);
+		if ($numericIndex) {
+			foreach ($keys as $i => $key) {
+				$result[$i] = $this->get($key);
+			}
+		} else {
+			foreach ($keys as $key) {
+				$result[$key] = $this->get($key);
 			}
 		}
-		else
-		{
-			foreach ($keys as $key)
-			{
-				$result [$key] = $this->get ($key);
-			}
-		}
-
 		return $result;
 	}
 
 	/**
      * Статистика по провайдеру
+     * 
      * @return array
      * 		Содержание статистики зависит от конкретной реализации провайдера
  	 */
-	public function getStats ()
+	public function getStats()
 	{
 
 	}
 
 	/**
-	 * Установка и получение значений тегов.
+	 * Установка и получение значений тегов
+     * 
 	 * @param array $tags
 	 * 		Названия тегов
 	 * @return array
 	 * 		Массив пар тегов (тег => время_создания).
 	 */
-	public function getTags ($tags = array ())
+	public function getTags($tags = array())
 	{
-		$result = array ();
-		if (is_array ($tags) && !empty ($tags))
-		{
-			foreach ($tags as $tag)
-			{
-				if (!$tag)
-				{
-					continue;
-				}
-				$key_tag = $this->prefixTag . $tag;
-				$v = $this->get ($key_tag);
-				if (!$v)
-				{
-					$v = microtime (true);
-					$this->set ($key_tag, $v);
-				}
-				$result [$tag] = $v;
-			}
-		}
+		$result = array();
+        if (!$tags || !is_array($tags)) {
+            return array();
+        }
+        foreach ($tags as $tag) {
+            if (!$tag) {
+                continue;
+            }
+            $tagKey = $this->prefixTag . $tag;
+            $tagValue = $this->get($tagKey);
+            if (!$tagValue) {
+                $tagValue = microtime(true);
+                $this->set($tagKey, $tagValue);
+            }
+            $result[$tag] = $tagValue;
+        }
 		return $result;
 	}
 
 	/**
-     * @desc Увеличение значения ключа на указанную величину
+     * Увеличение значения ключа на указанную величину
+     * 
      * @param string $key Ключ
      * @param integer $value Величина
 	 * @return  Новое значение
 	 */
-	public function increment ($key, $value = 1)
+	public function increment($key, $value = 1)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('increment', $key);
+		if ($this->tracer) {
+			$this->tracer->add('increment', $key);
 		}
 	}
 
 	/**
-	 * @desc Проверяет, помечен ли ключ как удаленный.
-	 * @param string $key Ключ
+	 * Проверяет, помечен ли ключ как удаленный.
+	 * 
+     * @param string $key Ключ
 	 * @return integer|false Метка времени удаления.
 	 * Если ключ не помечен удаленным, то false.
 	 */
-	public function isDeleted ($key)
+	public function isDeleted($key)
 	{
-		return $this->get ($this->prefixDeleted . $key);
+		return $this->get($this->prefixDeleted . $key);
 	}
 
 	/**
@@ -388,49 +361,47 @@ class Data_Provider_Abstract
 	 * @return string|false
 	 * 		Ключ блокировки или false в случае неудачи
 	 */
-	public function lock ($key, $expiration = 30, $repeats = 5, $interval = 500)
+	public function lock($key, $expiration = 30, $repeats = 5, $interval = 500)
 	{
-		$lock_key = $this->prefixLock . $key;
-
+		$lockKey = $this->prefixLock . $key;
 		do {
-			$r = $this->add ($lock_key, time (), $expiration);
-			if ($r)
-			{
-				return $lock_key;
+			$result = $this->add($lockKey, time(), $expiration);
+			if ($result) {
+				return $lockKey;
 			}
 			usleep ($interval * 1000);
 		} while (--$repeats > 0);
-
-		if ($lock_key)
-		{
-			$this->locks [$lock_key] = time () + $expiration;
+		if ($lockKey) {
+			$this->locks[$lockKey] = time() + $expiration;
 		}
-
-		return $lock_key;
+		return $lockKey;
 	}
 
 	/**
-	 * @desc Декодирование ключа.
-	 * @param string $key
+	 * Декодирование ключа
+	 * 
+     * @param string $key
 	 * @return string
 	 */
-	public function keyDecode ($key)
+	public function keyDecode($key)
 	{
-		return substr ($key, strlen ($this->prefix));
+		return substr($key, strlen($this->prefix));
 	}
 
 	/**
-	 * @desc Кодирование ключа для корректного сохранения в редисе.
-	 * @param string $key
+	 * Кодирование ключа для корректного сохранения в редисе
+	 * 
+     * @param string $key
 	 * @return string
 	 */
-	public function keyEncode ($key)
+	public function keyEncode($key)
 	{
 		return $this->prefix . $key;
 	}
 
 	/**
-     * @desc Получение массива ключей, соответствующих маске
+     * Получение массива ключей, соответствующих маске
+     * 
      * @param string $pattern
      * 		Маска.
      * 		Примеры:
@@ -440,62 +411,66 @@ class Data_Provider_Abstract
      * @param string $server=null Сервер
      * @return array Массив ключей, подходящих под маску
 	 */
-	public function keys ($pattern, $server = NULL)
+	public function keys($pattern, $server = null)
 	{
-		if ($this->tracer)
-		{
+		if ($this->tracer) {
 			$this->tracer->add ('keys', $pattern);
 		}
-		return array ();
+		return array();
 	}
 
+    /**
+     * Выполнение операции mset (multi set)
+     * 
+     * @param array $values
+     * @param array $values
+     */
 	public function mset (array $values)
 	{
-		foreach ($values as $k => $v)
-		{
-			$this->set ($k, $v);
+		foreach ($values as $kkey => $value) {
+			$this->set($key, $value);
 		}
 	}
 
 	/**
-     * @desc Добавляет в начало
+     * Добавляет в начало
+     * 
      * @param string $key Ключ
      * @param string $value Строка, которая будет добавлена к текущему
 	 * значению ключа.
 	 */
-	public function prepend ($key, $value)
+	public function prepend($key, $value)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('prepend', $key);
+		if ($this->tracer) {
+			$this->tracer->add('prepend', $key);
 		}
-
-		$v = $this->get ($key);
-		$this->set ($key, $v . $value);
+		$currentValue = $this->get($key);
+		$this->set($key, $value . $currentValue);
 	}
 
 	/**
-	 * @desc Публикация сообщения в канал
-	 * @param string $channel
+	 * Публикация сообщения в канал
+	 * 
+     * @param string $channel
 	 * @param string $message
 	 */
-	public function publish ($channel, $message)
+	public function publish($channel, $message)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('pusblich', $channel . '/' . $message);
+		if ($this->tracer) {
+			$this->tracer->add('pusblich', $channel . '/' . $message);
 		}
 	}
 
 	/**
-     * @desc Устанавливает значение ключа.
+     * Устанавливает значение ключа.
      * Дополнительных проверок не выполняется.
+     * 
      * @param string $key Ключ.
      * @param string $value Значение.
      * @param integer $expiration Время жизни ключа.
      * @param array $tags Теги.
 	 */
-	public function set($key, $value, $expiration = 0, $tags = array ())
+	public function set($key, $value, $expiration = 0, $tags = array())
 	{
 		if ($this->tracer) {
 			$this->tracer->add ('set', $key);
@@ -503,81 +478,79 @@ class Data_Provider_Abstract
 	}
 
 	/**
-	 * @desc Установка параметров.
-	 * @param string|array $key Параметр.
+	 * Установка параметров
+	 * 
+     * @param string|array $key Параметр.
 	 * @param string $value [optional] Значение.
 	 */
-	public function setOption ($key)
+	public function setOption($key)
 	{
-		if (func_num_args () > 1)
-		{
-			$this->_setOption ($key, func_get_arg (1));
-			return ;
+		if (func_num_args() > 1) {
+			$this->_setOption($key, func_get_arg(1));
+			return;
 		}
-		foreach ($key as $k => $v)
-		{
-			$this->_setOption ($k, $v);
+		foreach ($key as $k => $v) {
+			$this->_setOption($k, $v);
 		}
 	}
 
 	/**
-	 * @desc Подписка на канал
-	 * @param string $channel
+	 * Подписка на канал
+	 * 
+     * @param string $channel
 	 */
-	public function subscribe ($channel)
+	public function subscribe($channel)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('subscribe', $channel);
+		if ($this->tracer) {
+			$this->tracer->add('subscribe', $channel);
 		}
 	}
 
 	/**
-	 * Удаление тега.
+	 * Удаление тега
+     * 
 	 * Все связанные ключи будут считаться недействительными.
 	 * @param string $tag
 	 * 		Тег
 	 */
-	public function tagDelete ($tag)
+	public function tagDelete($tag)
 	{
-		$this->delete ($this->prefixTag . $tag);
+		$this->delete($this->prefixTag . $tag);
 	}
 
 	/**
 	 * Снятие блокировки с ключа
+     * 
 	 * @param string $key
 	 * 		Заблокированный ключ
 	 */
-	public function unlock ($key)
+	public function unlock($key)
 	{
-		$lock_key = $this->prefixLock . $key;
-		$this->delete ($lock_key);
+		$lockKey = $this->prefixLock . $key;
+		$this->delete($lockKey);
 	}
 
 	/**
 	 * Удаление оставшихся локов скрипта.
 	 */
-	public function unlockAll ()
+	public function unlockAll()
 	{
-		foreach ($this->locks as $lock => $exp)
-		{
-			if ($exp < time ())
-			{
-				$this->delete ($lock);
+		foreach ($this->locks as $lock => $expiration) {
+			if ($expiration < time()) {
+				$this->delete($lock);
 			}
 		}
 	}
 
 	/**
-	 * @desc Отписаться канала
-	 * @param string $channel
+	 * Отписаться канала
+	 * 
+     * @param string $channel
 	 */
-	public function unsubscribe ($channel)
+	public function unsubscribe($channel)
 	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('unsubscribe', $channel);
+		if ($this->tracer) {
+			$this->tracer->add('unsubscribe', $channel);
 		}
 	}
-
 }

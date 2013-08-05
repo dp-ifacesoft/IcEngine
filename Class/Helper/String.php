@@ -89,14 +89,12 @@ class Helper_String
      */
     public function replaceSpecialChars($string, $value = ' ')
     {
-        $value = str_replace(
-            array(
-                "\r", "\n", "\t", ',', '(', ')',
-                '[', ']', '{', '}', '-', '_',
-                '!', '@', '#', '$', '%', '^', ':',
-                '&', '*', ',', '.', '+', '=',
-                '/', ' \\', '\'', '"', '~', ' '
-            ),
+        $value = str_replace(array(
+            "\r", "\n", "\t", ',', '(', ')',
+            '[', ']', '{', '}', '-', '_',
+            '!', '@', '#', '$', '%', '^', ':',
+            '&', '*', ',', '.', '+', '=',
+            '/', ' \\', '|', '\'', '"', '~', ' '),
             $value, $string
         );
         return $value;
@@ -116,17 +114,29 @@ class Helper_String
             $matches = array();
             $template = $row[$field];
             preg_match_all(
-                '#{\$([^\.]+)\.([^}]+)}#', $template, $matches
+                '#{\$([^\.}]+)(?:\.([^}]+))?}#', $template, $matches
             );
             if (!empty($matches[1][0])) {
                 $template = $row[$field];
                 foreach ($matches[1] as $i => $table) {
-                    $key = $matches[2][$i];
-                    $template = str_replace(
-                        '{$' . $table . '.' . $key . '}',
-                        $params[$table]->sfield($key),
-                        $template
-                    );
+                    $key = isset($matches[2][$i]) ? $matches[2][$i] : null;
+                    if (!$key) {
+                        if (!isset($params[$table])) {
+                            continue;
+                        }
+                        $template = str_replace(
+                            '{$' . $table . '}', $params[$table], $template
+                        );
+                    } else {
+                        if (!isset($params[$table], $params[$table][$key])) {
+                            continue;
+                        }
+                        $template = str_replace(
+                            '{$' . $table . '.' . $key . '}',
+                            $params[$table][$key],
+                            $template
+                        );
+                    }
                 }
             }
             $row[$field] = $template;

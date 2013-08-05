@@ -193,4 +193,25 @@ class Controller_Front_Task extends Controller_Task
     {
         $this->strategyManager = $strategyManager;
     }
+    
+    /**
+     * Getter for "errorVector"
+     *
+     * @return array
+     */
+    public function getErrorVector()
+    {
+        return $this->errorVector;
+    }
+        
+    /**
+     * Setter for "errorVector"
+     *
+     * @param array errorVector
+     */
+    public function setErrorVector($errorVector)
+    {
+        $this->errorVector = $errorVector;
+    }
+    
 }

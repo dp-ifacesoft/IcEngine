@@ -7,17 +7,25 @@
  */
 abstract class Annotation_Source_Abstract
 {
+    /**
+     * Имя класса текущей аннотации
+     * 
+     * @var string
+     */
+    protected $className;
+    
 	/**
 	 * Получить набор аннотаций класса
 	 *
-	 * @param \StdClass $class
-	 * @return \Ruon\Annotation\AnnotationSet
+	 * @param string $class
+	 * @return Annotation_Set
 	 */
-	final public function get($class)
+	final public function get($className)
 	{
-		$classAnnotation = $this->getClass($class);
-		$methodAnnotations = $this->getMethods($class);
-		$propertyAnnotations = $this->getProperties($class);
+        $this->className = $className;
+		$classAnnotation = $this->getClass($className);
+		$methodAnnotations = $this->getMethods($className);
+		$propertyAnnotations = $this->getProperties($className);
 		$annotationSet = new Annotation_Set(
 			$classAnnotation, $methodAnnotations, $propertyAnnotations
 		);
@@ -27,24 +35,24 @@ abstract class Annotation_Source_Abstract
 	/**
 	 * Распарсить аннотацию класса
 	 *
-	 * @param \StdClass $class
+	 * @param string $class
 	 * @return array
 	 */
-	abstract protected function getClass($class);
+	abstract protected function getClass($className);
 
 	/**
 	 * Распарсить аннотации методов класса
 	 *
-	 * @param \StdClass $class
+	 * @param string $class
 	 * @return array
 	 */
-	abstract protected function getMethods($class);
+	abstract protected function getMethods($className);
 
 	/**
 	 * Распарсить аннотации полей класса
 	 *
-	 * @param \StdClass $class
+	 * @param string $class
 	 * @return array
 	 */
-	abstract protected function getProperties($class);
+	abstract protected function getProperties($className);
 }

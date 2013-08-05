@@ -35,6 +35,14 @@ class Controller_Task
 	 */
 	protected $controllerAction;
 
+    /**
+     * Вектор ошибок
+     * 
+     * @var array
+     * @Generator
+     */
+    protected $errorVector = array();
+    
 	/**
 	 * Игнорировать текущее задание
 	 *
@@ -91,9 +99,13 @@ class Controller_Task
         $this->ignore = false;
         $serviceLocator = IcEngine::serviceLocator();
         $route = $serviceLocator->getService('router')->getRoute();
-        if ($route && $route->params && 
-            isset($route->params['View_Render__id'])) {
-            $this->viewRender = $route->viewRender();
+        if ($route && !empty($route->params['viewRender'])) {
+            $viewRenderManager = $serviceLocator->getService(
+                'viewRenderManager'
+            );
+            $this->viewRender = $viewRenderManager->byName(
+                $route->params['viewRender']
+            );
         } else {
             $viewRenderManager = $serviceLocator->getService(
                 'viewRenderManager'
@@ -107,6 +119,16 @@ class Controller_Task
         $this->template = $this->getTemplateName($action);
 	}
 
+    /**
+     * Добавить ошибку
+     * 
+     * @param mixed $error
+     */
+    public function appendError($error)
+    {
+        $this->errorVector[] = $error;
+    }
+    
 	/**
 	 * Получить экшин
      *
@@ -324,4 +346,25 @@ class Controller_Task
 	{
 		$this->viewRender = $viewRender;
     }
+    
+    /**
+     * Getter for "errorVector"
+     *
+     * @return array
+     */
+    public function getErrorVector()
+    {
+        return $this->errorVector;
+    }
+        
+    /**
+     * Setter for "errorVector"
+     *
+     * @param array errorVector
+     */
+    public function setErrorVector($errorVector)
+    {
+        $this->errorVector = $errorVector;
+    }
+    
 }

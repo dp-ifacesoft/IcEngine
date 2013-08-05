@@ -2,7 +2,7 @@
 
 /**
  * Менеджер ресурсов
- * 
+ *
  * @author goorus, morph
  * @Service("resourceManager")
  */
@@ -10,14 +10,14 @@ class Resource_Manager extends Manager_Abstract
 {
 	/**
 	 * Транспорты для ресурсов по типам.
-	 * 
+	 *
      * @var array
 	 */
 	protected $transports = array();
 
 	/**
 	 * Загруженные ресурсы
-	 * 
+	 *
      * @var array
 	 */
 	protected $resources = array();
@@ -25,7 +25,7 @@ class Resource_Manager extends Manager_Abstract
 	/**
 	 * Обновленные в процессе ресурсы.
 	 * Необходимо для предотвращения постоянной записи неизменяемых ресурсов.
-	 * 
+	 *
      * @var array <boolean>
 	 */
 	protected $updatedResources = array();
@@ -48,7 +48,7 @@ class Resource_Manager extends Manager_Abstract
 
 	/**
 	 * Возвращает транспорт согласно конфигу.
-	 * 
+	 *
      * @param Objective $conf
 	 * @return Data_Transport
 	 */
@@ -84,7 +84,7 @@ class Resource_Manager extends Manager_Abstract
 
 	/**
 	 * Возвращает Ресурс указанного типа по идентификатору.
-	 * 
+	 *
      * @param string $type Тип ресурса.
 	 * @param string $name|array Идентификатор ресурса или ресурсов.
 	 * @return mixed
@@ -100,10 +100,10 @@ class Resource_Manager extends Manager_Abstract
 		}
 		return $this->resources[$type][$name];
 	}
-    
+
     /**
      * Получить ресурсы по типу
-     * 
+     *
      * @param string $type
      * @return integer
      */
@@ -112,10 +112,10 @@ class Resource_Manager extends Manager_Abstract
         return isset($this->resources[$type])
             ? $this->resources[$type] : array();
     }
-    
+
 	/**
 	 * Получить обновленные ресурсы
-	 * 
+	 *
      * @param string $type
 	 */
 	public function getUpdated($type)
@@ -141,7 +141,7 @@ class Resource_Manager extends Manager_Abstract
 
 	/**
 	 * Сохраняет ресурс
-	 * 
+	 *
      * @param string $type
 	 * @param string $name
 	 * @param mixed $resource
@@ -168,7 +168,7 @@ class Resource_Manager extends Manager_Abstract
 
     /**
      * Изменить ресурс по типу
-     * 
+     *
      * @param string $type
      * @param array $resources
      */
@@ -176,10 +176,10 @@ class Resource_Manager extends Manager_Abstract
     {
         $this->resources[$type] = $resources;
     }
-    
+
 	/**
 	 * Обновить ресурс
-	 * 
+	 *
      * @param string $type
 	 * @param string $name
 	 * @param mixed $updated
@@ -194,7 +194,7 @@ class Resource_Manager extends Manager_Abstract
 
 	/**
 	 * Возвращает транспорт для ресурсов указанного типа.
-	 * 
+	 *
      * @param string $type Тип ресурса.
 	 * @return Data_Transport Транспорт данных.
 	 */

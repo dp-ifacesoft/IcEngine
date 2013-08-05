@@ -4,28 +4,18 @@
  * Фабрика запросов
  *
  * @author morph, goorus
- *
- * @method Query_Select select() select(array|string $colums) Добавить в запрос SELECT часть
- * @method Query_Insert insert() insert(string $table) Запрос преобразуется в запрос на вставку
- * @method Query_Update update() update(string $table) Преобразует запрос к запросу на обновление
- * @method Query_Delete delete() delete(void) Это запрос на удаление
- * @method Query_Replace replace() replace(string $table) Запрос преобразуется в запрос на replace
- * @method Query_Show show() show(array|string $columns) Часть запроса show
- * @method Query_Alter_Table alterTable() alterTable(string $table) Часть запроса ALTER
- * @method Query_Create_Table createTable() createTable(string $table) Часть запроса CREATE TABLE
- * @method Query_Drop_Table dropTable() dropTable(string $table) Часть запроса DROP TABLE
- * @method Query_Truncate_Table truncateTable() truncateTable(string $table) Часть запроса TRUNCATE TABLE
  * @Service("query", source={method="instance"})
+ * @Service("queryBuilder", source={method="instance"})
  */
 class Query
 {
 	const ASC				= 'ASC';
-	const DELETE			= 'DELETE';
+	const DELETE            = 'DELETE';
 	const INSERT			= 'INSERT';
-	const VALUES			= 'VALUES';
+	const VALUES            = 'VALUES';
 	const REPLACE			= 'REPLACE';
 	const SHOW				= 'SHOW';
-	const UPDATE			= 'UPDATE';
+	const UPDATE            = 'UPDATE';
 	const SET				= 'SET';
 	const DESC				= 'DESC';
 	const DISTINCT			= 'DISTINCT';
@@ -33,7 +23,6 @@ class Query
 	const FROM 				= 'FROM';
 	const GROUP				= 'GROUP';
 	const HAVING			= 'HAVING';
-	const INDEX				= 'INDEX';
 	const INDEXES			= 'INDEXES';
 	const INNER_JOIN		= 'INNER JOIN';
 	const JOIN				= 'JOIN';
@@ -43,16 +32,33 @@ class Query
 	const SELECT			= 'SELECT';
 	const TABLE				= 'TABLE';
 	const TYPE				= 'TYPE';
+    const LIMIT             = 'LIMIT';
 	const LIMIT_COUNT		= 'LIMITCOUNT';
 	const LIMIT_OFFSET		= 'LIMITOFFSET';
 	const VALUE				= 'VALUE';
 	const WHERE				= 'WHERE';
 	const SQL_AND			= 'AND';
-	const SQL_OR			= 'OR';
+	const SQL_OR            = 'OR';
 	const USE_INDEX			= 'USE INDEX';
 	const FORCE_INDEX		= 'FORCE INDEX';
 	const CALC_FOUND_ROWS   = 'CALC_FOUND_ROWS';
-	const TRUNCATE_TABLE	= 'TRUNCATE TABLE';
+	const TRUNCATE_TABLE    = 'TRUNCATE TABLE';
+    const MERGE             = 'MERGE';
+    const PUSH              = 'PUSH';
+    const CREATE_TABLE		= 'CREATE TABLE';
+	const IF_NOT_EXISTS		= 'IF NOT EXISTS';
+	const ENGINE            = 'ENGINE';
+	const DEFAULT_CHARSET	= 'DEFAULT CHARSET';
+	const FIELD				= '__FIELD__';
+	const COMMENT			= 'COMMENT';
+    const ADD               = 'ADD';
+	const ATTR              = '__ATTR__';
+	const CHANGE            	= 'CHANGE';
+	const DROP              = 'DROP';
+	const INDEX             = '__INDEX__';
+	const NAME              = '__NAME__';
+	const ALTER_TABLE       = 'ALTER TABLE';
+    const DROP_TABLE        = 'DROP TABLE';
 
 	/**
 	 * Уже созданные запросы
@@ -66,7 +72,9 @@ class Query
 	 */
 	public function __call($method, $params)
 	{
-		$name = $this->normalizeName($method);
+        $serviceLocator = IcEngine::serviceLocator();
+        $name = $serviceLocator->getService('helperService')
+            ->normalizeName($method);
 		$query = $this->factory($name);
 		return call_user_func_array(array($query, $method), $params);
 	}
@@ -97,21 +105,5 @@ class Query
 		}
 		$query = new $className;
 		return $query->reset();
-	}
-
-	/**
-	 * Привести имя метод из вида methodName к виду Method_Name
-	 *
-     * @param string $name
-	 */
-	public function normalizeName($name)
-	{
-		$matches = array();
-		$reg_exp = '#([A-Z]*[a-z]+)#';
-		preg_match_all($reg_exp, $name, $matches);
-		if (empty($matches[1][0])) {
-			return $name;
-		}
-		return implode('_', array_map('ucfirst', $matches[1]));
 	}
 }

@@ -8,7 +8,7 @@ var Loader = {
      * Группы путей
      */
     groups: {
-        'engine':   '/IcEngine/js/',
+        'engine':   '/IcEngine/Static/js/',
         'ice':      '/Ice/Static/js/noPack/'
     },
 
@@ -35,6 +35,9 @@ var Loader = {
         }
         var i;
         for (i in names) {
+            if (window[names[i]] !== undefined) {
+                continue;
+            }
             Loader.require(Loader.filename(names[i]), group);
         }
     },

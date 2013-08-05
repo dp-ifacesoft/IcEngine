@@ -1,159 +1,165 @@
 <?php
 
 /**
- * @desc Абстрактный класс миграции
- * @author Илья Колесников
+ * Абстрактный класс миграции
+ *
+ * @author morph
  */
-class Migration_Abstract extends Model
+class Migration_Abstract
 {
 	/**
-	 * @desc Миграция поднята
-	 * @var interger
+	 * Миграция поднята
+	 *
+     * @var interger
 	 */
 	const ST_UP = 1;
 
 	/**
-	 * @desc Миграция откачена
-	 * @var interger
+	 * Миграция откачена
+	 *
+     * @var interger
 	 */
 	const ST_DOWN = 0;
 
+    /**
+     * Имя модели
+     * 
+     * @var string
+     */
+    public $model;
+    
 	/**
-	 * @desc Параметры, переданные в миграцию контроллером,
+	 * Параметры, переданные в миграцию контроллером,
 	 * который ее запустил
-	 * @var array
+	 *
+     * @var array
 	 */
-	protected $_params;
+	protected $params;
+
+    /**
+     * Сервис локатор
+     */
+    protected $serviceLocator = null;
 
 	/**
-	 * @desc Откат миграции
+	 * Откат миграции
 	 */
-	public function down ()
+	public function down()
 	{
-
+        return true;
 	}
 
 	/**
-	 * @desc Вернуть данные о последнем выполнение данной миграции
-	 * @return array
+	 * Вернуть данные о последнем выполнение данной миграции
+	 *
+     * @return array
 	 */
-	public function getLast ()
+	public function getLast()
 	{
-		Loader::load ('Helper_Migration');
-		$last_data = Helper_Migration::getLastLog ();
-		if (!$last_data)
-		{
-			return;
-		}
-		$name = $this->getName ();
-		foreach ($last_data as $data)
-		{
-			if ($data ['name'] == $name)
-			{
-				return $data;
-			}
-		}
-		return null;
+		$lastData = $this->getService('helperMigrationQueue')->lastFor($this);
+		return $lastData;
 	}
 
 	/**
-	 * @desc Получить имя миграции
-	 * @return string
+	 * Получить имя миграции
+	 *
+     * @return string
 	 */
-	public function getName ()
+	public function getName()
 	{
-		return substr (get_class ($this), 10);
+		return substr(get_class($this), strlen('Migration_'));
 	}
 
 	/**
-	 * @desc Вернуть параметры миграции
-	 * @return array
+	 * Вернуть параметры миграции
+	 *
+     * @return array
 	 */
-	public function getParams ()
+	public function getParams()
 	{
-		return $this->_params;
+		return $this->params;
 	}
 
 	/**
-	 * @desc Узнать состояние (поднята/откачена) миграции
-	 * @return integer
+	 * Узнать состояние (поднята/откачена) миграции
+	 *
+     * @return integer
 	 */
-	public function getState ()
+	public function getState()
 	{
-		Loader::load ('Helper_Migration');
-		$queue = Helper_Migration::getQueue ();
-		$last_data = Helper_Migration::getLastData ();
-		if (!$last_data)
-		{
+        $helperMigrationQueue = $this->getService('helperMigrationQueue');
+		$queue = $helperMigrationQueue->getQueue();
+		$lastData = $helperMigrationQueue->lastFor($this);
+		if (!$lastData) {
 			return self::ST_DOWN;
 		}
-		$last_name = $last_data ['name'];
-		$name = $this->getName ();
-		foreach ($queue as $migration_name => $params)
-		{
-			if (!is_array ($params))
-			{
-				$migration_name = $parms;
-			}
-			if ($last_name == $migration_name)
-			{
-				return self::ST_DOWN;
-			}
-			if ($name == $migration_name)
-			{
-				return self::ST_UP;
-			}
-		}
-		return self::ST_DOWN;
+		$name = $this->getName();
+        $helperArray = $this->getService('helperArray');
+        $needleMigration = $helperArray->filter($queue, array(
+            'name'  => $name
+        ));
+        if (!$needleMigration) {
+            return self::ST_DOWN;
+        }
+        return $needleMigration[0]['isFinished'] ? self::ST_UP : self::ST_DOWN;
 	}
 
+    /**
+     * Получить сервис
+     *
+     * @param string $serviceName
+     */
+    public function getService($serviceName)
+    {
+        if (!$this->serviceLocator) {
+            $this->serviceLocator = IcEngine::serviceLocator();
+        }
+        return $this->serviceLocator->getService($serviceName);
+    }
+
 	/**
-	 * @desc Залогировать выполнение миграции
-	 * @param string $action
+	 * Залогировать выполнение миграции
+	 *
+     * @param string $action
 	 */
-	public function log ($action)
+	public function log($action)
 	{
-        print $action;
-        print "\n";
-        
-		Loader::load ('Helper_Migration');
-		Helper_Migration::log (
-			$this->getName (),
-			$action
-		);
+        $this->getService('helperMigrationLog')->log($this->getName(), $action);
 	}
 
 	/**
-	 * @desc Востановить данные, которые были до миграции
-	 * @desc array $data
+	 * Востановить данные, которые были до миграции
+	 *
+     * @desc array $data
 	 */
-	public function restore ($data)
-	{
-
-	}
-
-	/**
-	 * @desc Изменить параметры миграции
-	 * @param array $params
-	 */
-	public function setParams ($params)
-	{
-		$this->_params = $params;
-	}
-
-	/**
-	 * @desc Сохранить данные, которые были до миграции
-	 */
-	public function store ()
+	public function restore($data)
 	{
 
 	}
 
 	/**
-	 * @desc Поднятие миграции
+	 * Изменить параметры миграции
+	 *
+     * @param array $params
 	 */
-	public function up ()
+	public function setParams($params)
+	{
+		$this->params = $params;
+	}
+
+	/**
+	 * Сохранить данные, которые были до миграции
+	 */
+	public function store()
 	{
 
+	}
+
+	/**
+	 * Поднятие миграции
+	 */
+	public function up()
+	{
+        return true;
 	}
 }

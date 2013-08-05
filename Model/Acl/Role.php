@@ -17,7 +17,7 @@ class Acl_Role extends Model
 	const GUEST_ROLE_NAME	= 'guest';
 
 	/**
-	 * @desc Предоставление роли права на ресурс или ресурсы.
+	 * Предоставление роли права на ресурс или ресурсы.
 	 * @param Acl_Resource $resource
 	 * @return Acl_Role
 	 */
@@ -31,13 +31,15 @@ class Acl_Role extends Model
 	}
 
 	/**
-	 * @desc Добавление роли пользователю.
+	 * Добавление роли пользователю
+     *
 	 * @param User $user
 	 * @return Acl_Role
 	 */
 	public function attachUser(User $user)
 	{
-	    Helper_Link::link($this, $user);
+        $helperLink = $this->getService('helperLink');
+	    $helperLink->link($this, $user);
 		return $this;
 	}
 
@@ -57,32 +59,6 @@ class Acl_Role extends Model
 	}
 
 	/**
-	 *
-	 * @param integer $type_id
-	 * @param string $name
-	 * @return Acl_Role|null
-	 */
-	public static function byTypeNName($type_id, $name)
-	{
-		return Model_Manager::byQuery (
-		    'Acl_Role',
-		    Query::instance ()
-			    ->where ('Acl_Role_Type__id', $type_id)
-			    ->where ('name', $name)
-		);
-	}
-
-	/**
-	 * @desc Делает ресурс недоступным для роли
-	 * @param Acl_Resource $resource
-	 * @return Acl_Role
-	 */
-	public function deattachResource (Acl_Resource $resource)
-	{
-		return $this->unjoin ($resource);
-	}
-
-	/**
 	 * @desc Забирает роль у пользователя
 	 * @param User $user
 	 * @return Acl_Role
@@ -90,22 +66,6 @@ class Acl_Role extends Model
 	public function deattachUser (User $user)
 	{
 		return $this->unjoin ($user);
-	}
-
-	/**
-	 * @desc Дает роли доступ к ресурсу.
-	 * @param array $_ Ресурс
-	 */
-	public function grant ($_)
-	{
-		if (!is_array ($_))
-		{
-		    $_ = func_get_args ();
-		}
-
-		$resource = Acl_Resource::byNameAuto ($_);
-
-		$this->attachResource ($resource);
 	}
 
 	/**

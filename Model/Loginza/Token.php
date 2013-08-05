@@ -1,10 +1,9 @@
 <?php
+
 /**
+ * Ключ авторизации в логинзе и результат авторизации
  * 
- * @desc Ключ авторизации в логинзе и результат авторизации
- * @author Юрий Шведов
- * @package IcEngine
- *
+ * @author goorus, morph
  */
 class Loginza_Token extends Model
 {

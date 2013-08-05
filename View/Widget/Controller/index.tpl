@@ -1,1 +1,0 @@
-{$widget_content_unique_var}

@@ -9,19 +9,23 @@ class Controller_Annotation_Route extends Controller_Abstract
 {
     /**
      * Распарсить аннотацию
+     * 
+     * @Context("helperCodeGenerator")
+     * @Template(null)
+     * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context) 
     {
         $routesWithoutGroups = array();
         $routesWithGroups = array();
-        foreach ($data as $id => $data) {
+        foreach ($data as $id => $currentData) {
             list($tmpName, $methodName) = explode('/', $id);
             $controllerName = substr($tmpName, strlen('Controller_'));
-            if (!$data) {
+            if (!$currentData) {
                 continue;
             }
             $hasAnnotation = false;
-            foreach (array_keys($data) as $annotationName) {
+            foreach (array_keys($currentData) as $annotationName) {
                 if (strpos($annotationName, 'Route') === 0) {
                     $hasAnnotation = true;
                     break;
@@ -30,19 +34,19 @@ class Controller_Annotation_Route extends Controller_Abstract
             if (!$hasAnnotation) {
                 continue;
             }
-            if (empty($data['Route']['data'])) {
+            if (empty($currentData['Route']['data'])) {
                 continue;
             }
-            foreach ($data['Route']['data'] as $i => $routeData) {
+            foreach ($currentData['Route']['data'] as $i => $routeData) {
                 $route = reset($routeData);
-                $routeGroup = !empty($data['RouteGroup'])
-                    ? resert($data['RouteGroup']['data']) : null;
+                $routeGroup = !empty($currentData['RouteGroup'])
+                    ? resert($currentData['RouteGroup']['data']) : null;
                 if (!$routeGroup && isset($routeData['group'])) {
                     $routeGroup = $routeData['group'];
                 }
                 $components = array();
-                if (!empty($data['RouteComponent'])) {
-                    foreach ($data['RouteComponent']['data'] as 
+                if (!empty($currentData['RouteComponent'])) {
+                    foreach ($currentData['RouteComponent']['data'] as
                         $routeComponent) {
                         $componentName = reset($routeComponent);
                         unset($routeComponent[$componentName]);
@@ -51,14 +55,14 @@ class Controller_Annotation_Route extends Controller_Abstract
                 } elseif (!empty($routeData['components'])) {
                     $components = $routeData['components'];
                 }
-                $weight = !empty($data['RouteWeight'])
-                    ? reset($data['RouteWeight']['data'][$i]) : 0;
+                $weight = !empty($currentData['RouteWeight'])
+                    ? reset($currentData['RouteWeight']['data'][$i]) : 0;
                 if (!$weight && !empty($routeData['weight'])) {
                     $weight = $routeData['weight'];
                 }
                 $params = array();
-                if (!empty($data['RouteParam'])) {
-                    foreach ($data['RouteParam']['data'] as $routeParam) {
+                if (!empty($currentData['RouteParam'])) {
+                    foreach ($currentData['RouteParam']['data'] as $routeParam) {
                         $paramName = reset($routeParam);
                         $paramValue = isset($routeParam['value'])
                             ? $routeParam['value'] : null;
@@ -68,21 +72,28 @@ class Controller_Annotation_Route extends Controller_Abstract
                     $params = $routeData['params'];
                 }
                 $actions = array($controllerName . '/' . $methodName);
-                if (!empty($data['RouteAction'])) {
-                    foreach ($data['RouteAction']['data'] as $routeAction) {
+                if (!empty($currentData['RouteAction'])) {
+                    foreach ($currentData['RouteAction']['data'] as 
+                        $routeAction) {
                         $actions[] = reset($routeAction);
                     }
                 } elseif (!empty($routeData['actions'])) {
                     $actions = array_values($routeData['actions']);
                 }
-                $routeName = !empty($data['RouteName'])
-                    ? reset($data['RouteName']['data'][$i]) : null;
+                $routeName = !empty($currentData['RouteName'])
+                    ? reset($currentData['RouteName']['data'][$i]) : null;
                 if (!$routeName && !empty($routeData['name'])) {
                     $routeName = $routeData['name'];
+                }
+                $routeHost = !empty($currentData['RouteHost'])
+                    ? reset($currentData['RouteHost']['data'][$i]) : null;
+                if (!$routeHost && !empty($routeData['host'])) {
+                    $routeHost = $routeData['host'];
                 }
                 $theRoute = array(
                     'route'     => $route,
                     'weight'    => $weight, 
+                    'host'      => $routeHost,
                     'actions'   => $actions,
                     'params'    => array()
                 );
@@ -90,8 +101,9 @@ class Controller_Annotation_Route extends Controller_Abstract
                 if ($params) {
                     $theRoute['params'] = $params;
                 }
-                if ($data['Route']['module']) {
-                    $theRoute['params']['module'] = $data['Route']['module'];
+                if ($currentData['Route']['module']) {
+                    $theRoute['params']['module'] = 
+                        $currentData['Route']['module'];
                 }
                 if ($components) {
                     $theRoute['patterns'] = $components;
@@ -111,8 +123,8 @@ class Controller_Annotation_Route extends Controller_Abstract
             }
         }
         $config = $context->configManager->get('Route')->__toArray();
-        $emptyRoute = isset($config['empty_route']) 
-            ? $config['empty_route'] : array();
+        $emptyRoute = isset($config['emptyRoute']) 
+            ? $config['emptyRoute'] : array();
         if (!empty($config['routes'])) {
             foreach ($config['routes'] as $routeName => $route) {
                 if (empty($route['route'])) {
@@ -131,7 +143,7 @@ class Controller_Annotation_Route extends Controller_Abstract
                 }
                 if (is_numeric($routeName)) {
                     $source[] = $route;
-                } else {
+                } elseif (!isset($source[$routeName])) {
                     $source[$routeName] = $route;
                 }
             }
@@ -159,11 +171,11 @@ class Controller_Annotation_Route extends Controller_Abstract
                 }
             }
         }
-        $output = Helper_Code_Generator::fromTemplate(
+        $output = $context->helperCodeGenerator->fromTemplate(
             'route',
             array (
                 'routes'        => $routes,
-                'empty_route'   => $emptyRoute
+                'emptyRoute'    => $emptyRoute
             )
         );
         $result = array();

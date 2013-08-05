@@ -1,16 +1,15 @@
 <?php
 
 /**
- * Description of Converter
+ * Конвертер массивов в строку
  *
  * @author markov, neon
  * @Service("helperConverter")
  */
 class Helper_Converter
 {
-
 	/**
-	 * создает текстовое представление массива по синтаксису php
+	 * Создает текстовое представление массива по синтаксису php
 	 */
 	public function arrayToString($data, $offset = 0)
 	{
@@ -33,5 +32,4 @@ class Helper_Converter
 		unset($smarty);
 		return $content;
 	}
-
 }

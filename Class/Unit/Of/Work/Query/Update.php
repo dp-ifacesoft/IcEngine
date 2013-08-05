@@ -16,15 +16,22 @@ class Unit_Of_Work_Query_Update extends Unit_Of_Work_Query_Abstract
 				$clearFields = array_keys($v['values']);
 			}
 			$dataPrepared[] = array_merge($v['wheres'], $v['values']);
-
 		}
 		$locator = IcEngine::serviceLocator();
 		$queryBuilder = $locator->getService('query');
 		$query = $queryBuilder->insert($modelName);
+        $query->setMultiple(true);
+        $query->setFlag('onDuplicateKey', array_values($clearFields));
 		foreach ($dataPrepared as $values) {
-			$query->values($values, true);
-		}
-		$query->setFlag('onDuplicateKey', array_values($clearFields));
+			$query->values($values);
+		}/*
+        $eventManager = $locator->getService('eventManager');
+        $signal = $eventManager->getSignal('Data_Source_Update_Multiply');
+        $signal->setData(array(
+            'modelName' => $modelName,
+            'data'      => $dataPrepared
+        ));
+        $signal->notify();*/
 		return array(
 			'modelName'	=> $modelName,
 			'query'		=>	$query

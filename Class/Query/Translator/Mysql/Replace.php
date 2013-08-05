@@ -1,35 +1,35 @@
 <?php
 
 /**
- * @desc Транслятор запроса типа replace драйвера mysql
+ * Транслятор запроса типа replace драйвера mysql
+ * 
  * @author morph, goorus
  */
 class Query_Translator_Mysql_Replace extends Query_Translator_Mysql_Select
 {
 	/**
-	 * @desc Рендеринг REPLACE запроса.
-	 * @param Query_Abstract $query Запрос
+	 * Рендеринг REPLACE запроса.
+	 * 
+     * @param Query_Abstract $query Запрос
 	 * @return string Сформированный SQL запрос
 	 */
-	public function _renderReplace (Query_Abstract $query)
+	public function doRenderReplace(Query_Abstract $query)
 	{
-        $serviceLocator = IcEngine::serviceLocator();
-        $modelScheme = $serviceLocator->getService('modelScheme');
-		$table = $query->part (Query_Replace::REPLACE);
-		$sql = 'REPLACE ' . strtolower ($modelScheme->table ($table)) . ' (';
-
-		$fields = array_keys ($query->part (Query_Replace::VALUES));
-		$values = array_values ($query->part (Query_Replace::VALUES));
-
-		for ($i = 0, $icount = count ($fields); $i < $icount; $i++)
-		{
-			$fields [$i] = self::_escape ($fields [$i]);
-			$values [$i] = self::_quote ($values [$i]);
+        $modelScheme = $this->modelScheme();
+		$table = $query->part(Query::REPLACE);
+		$sql = self::SQL_REPLACE . ' ' . 
+            strtolower($modelScheme->table($table)) . ' (';
+		$fields = array_keys($query->part(Query::VALUES));
+		$values = array_values($query->part(Query::VALUES));
+        $helper = $this->helper();
+		for ($i = 0, $count = count($fields); $i < $count; $i++) {
+			$fields[$i] = $helper->escape($fields[$i]);
+			$values[$i] = $helper->quote($values[$i]);
 		}
-
-		$fields = implode (', ', $fields);
-		$values = implode (', ', $values);
-
-		return $sql . $fields . ') VALUES (' . $values . ')';
+		$resultFields = implode(self::SQL_COMMA, $fields);
+		$resultValues = implode(self::SQL_COMMA, $values);
+		return $sql . 
+            $resultFields . ') ' . self::SQL_VALUES . ' (' . 
+            $resultValues . ')';
 	}
 }

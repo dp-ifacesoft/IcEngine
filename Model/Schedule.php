@@ -20,6 +20,11 @@ class Schedule extends Model
     public $controllerAction;
     
     /**
+     * @Orm\Field\Varchar(Size=255, Not_Null)
+     */
+    public $paramsJson;
+    
+    /**
      * @Orm\Field\Int(Size=11, Not_Null)
      */
     public $deltaSec;

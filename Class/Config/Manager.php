@@ -8,21 +8,26 @@
  */
 class Config_Manager
 {
+    /**
+     * Сохраненные конфиги
+     *
+     * @var array
+     */
+    protected $configs = array();
+
 	/**
 	 * Путь до конфигов от корня сайта
 	 *
-     * @var string
+     *  @var string
 	 */
 	protected $pathToConfig = array('Ice/Config/');
-
-	/**
-	 * Флаг означающий, что идет процесс загрузки конфига,
-	 * необходим для предотвращения бесконечной рекурсии при
-	 * загрузке конфигов для менеджера ресурсов.
-	 *
-     * @var boolean
-	 */
-	protected $inLoading = false;
+    
+    /**
+     * Провайдер
+     * 
+     * @var Data_Provider_Abstract
+     */
+    protected $provider;
 
 	/**
 	 * Добавляет путь для загрузки конфигураций
@@ -34,30 +39,25 @@ class Config_Manager
 		$this->pathToConfig[] = $path;
 	}
 
-	/**
-	 * Получить конфиг по пути, результат не кешируется
-	 */
-	public function byPath($path)
-	{
-		$first = $path;
-		$path = str_replace('_', '/', $path);
-		$filename =
-            IcEngine::root() . (strstr($first, '__') ?
-                str_replace(
-                    '_',
-                    '/',
-                    str_replace('__', '/Config/', $first)
-                ) : $this->pathToConfig[0] . $path) .
-            '.php';
-		if (is_file($filename)) {
-			$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
-			$class = 'Config_' . $ext;
-
-			$result = new $class ($filename);
-			return $result;
-		}
-		return array();
-	}
+    /**
+     * Получить конфиг по рефлексии
+     *
+     * @param string $type
+     * @return array
+     */
+    public function byReflection($type)
+    {
+        $config = array();
+        $reflection = new \ReflectionClass($type);
+        if ($reflection->hasProperty('config')) {
+            $property = $reflection->getProperty('config');
+            $property->setAccessible(true);
+            $config = $property->getValue(
+                $reflection->newInstanceWithoutConstructor()
+            );
+        }
+        return $config;
+    }
 
 	/**
 	 * Пустой конфиг.
@@ -90,32 +90,32 @@ class Config_Manager
 	 */
 	public function get($type, $config = '')
 	{
-		$resourceKey = $type .
-            (is_string($config) && $config ? '/' . $config : '');
-        if ($this->inLoading) {
-			return $this->load($type, $config);
-		}
-		$this->inLoading = true;
-        $serviceLocator = IcEngine::serviceLocator();
-        $resourceManager = $serviceLocator->getService('resourceManager');
-		$storedConfig = $resourceManager->get('Config', $resourceKey);
-		$this->inLoading = false;
-		if (!$storedConfig) {
-            if (!$config && class_exists($type, false)) {
-                $reflection = new \ReflectionClass($type);
-                if ($reflection->hasProperty('config')) {
-                    $property = $reflection->getProperty('config');
-                    $property->setAccessible(true);
-                    $config = $property->getValue(
-                        $reflection->newInstanceWithoutConstructor()
-                    );
-                }
-            }
-			$storedConfig = $this->load($type, $config);
-			$resourceManager->set('Config', $resourceKey, $storedConfig);
-		}
+		$resourceKey = $this->getKey($type, $config);
+        if (isset($this->configs[$resourceKey])) {
+            return $this->configs[$resourceKey];
+        }
+        if (!$config && class_exists($type, false)) {
+            $config = $this->byReflection($type);
+        }
+        $storedConfig = $this->load($type, $config);
+        if ($storedConfig->asArray()) {
+            $this->configs[$resourceKey] = $storedConfig;
+        }
 		return $storedConfig;
 	}
+
+    /**
+     * Получить ключ для сохранения конфига
+     *
+     * @param string $type
+     * @param string $config
+     * @return string
+     */
+    public function getKey($type, $config)
+    {
+        return 'config:' . $type .
+            (is_string($config) && $config ? '/' . $config : '');
+    }
 
 	/**
 	 * Загрузка реального конфига, игнорируя менеджер ресурсов.
@@ -133,39 +133,69 @@ class Config_Manager
 	 *
      * @param string $type Тип конфига.
 	 * @param string|array $config Название конфига или конфиг по умолчанию.
-	 * @return Config_Array|Objective Заруженный конфиг.
-	 */
+	 * @return Config_Array|Objective Заруженный конфиг.	 */
 	protected function load($type, $config = '')
 	{
 		$paths = (array) $this->pathToConfig;
-		$result = null;
-		foreach ($paths as $path)
-		{
-			$filename = IcEngine::root() . $path.
-				str_replace('_', '/', $type) .
-				(is_string($config) && $config ? '/' . $config : '') .
-				'.php';
-			if (is_file($filename)) {
-				$ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
-				$className = 'Config_' . $ext;
-				$result = new $className($filename);
-                break;
-			}
-		}
-        if (is_null($result)) {
+        $resourceKey = $this->getKey($type, $config);
+        $filename = $this->provider 
+            ? $this->provider->get($resourceKey) : null;
+        $fileExists = false;
+        if (!$filename) {
+            foreach ($paths as $path) {
+                $filename = IcEngine::root() . $path.
+                    str_replace('_', '/', $type) .
+                    (is_string($config) && $config ? '/' . $config : '') .
+                    '.php';
+                if (is_file($filename)) {
+                    $fileExists = true;
+                    break;
+                }
+            }
+        }
+        if ($fileExists && $this->provider) {
+            $this->provider->set($resourceKey, $filename);
+        }
+        $ext = ucfirst(strtolower(substr(strrchr($filename, '.'), 1)));
+        $className = 'Config_' . $ext;
+        if ($filename) {
+            $result = new $className($filename);
+        } else {
             $result = $this->emptyConfig();
         }
-
-        return is_array($config) ?
-            $result->merge($config) : $result;
+        return is_array($config) ? $result->merge($config) : $result;
 	}
 
+    /**
+     * Сбросить конфиг
+     * 
+     * @param strng $type
+     * @param mixed $config
+     */
+    public function reset($type, $config = '')
+    {
+		$resourceKey = $this->getKey($type, $config);
+        $this->configs[$resourceKey] = null;
+        $this->provider->set($resourceKey, null);
+    }
+    
 	/**
-	 * @desc Меняет путь до конфига
-	 * @param mixed $path
+	 * Меняет путь до конфига
+	 *
+     * @param mixed $path
 	 */
-	public static function setPathToConfig ($path)
+	public function setPathToConfig ($path)
 	{
-		self::$_pathToConfig = $path;
+		$this->pathToConfig = $path;
 	}
+    
+    /**
+     * Изменить провайдер
+     * 
+     * @param Data_Provider_Abstract $provider
+     */
+    public function setProvider($provider)
+    {
+        $this->provider = $provider;
+    }
 }

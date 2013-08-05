@@ -3,296 +3,99 @@
 /**
  * Контроллер для запуска миграций
  *
- * @author Илья Колесников, neon
+ * @author morph, neon
  */
 class Controller_Migration extends Controller_Abstract
 {
 	/**
 	 * Применить конкретную миграцию
 	 *
-	 * @param string $name
-	 * @param string $action
+	 * @Template(null)
+     * @Validator("User_Cli")
+     * @Context("migrationManager")
 	 */
-	public function apply($name, $action)
+	public function apply($name, $action, $context)
 	{
-		$helperMigration = $this->getService('helperMigration');
-		$modelScheme = $this->getService('modelScheme');
-		$controllerManager = $this->getService('controllerManager');
-		$args = $this->input->receiveAll();
-		if (!isset($args['name'])) {
-			return;
-		}
-		unset($args['name']);
-		if (!isset($args['action'])) {
-			return;
-		}
-		unset($args['action']);
-		$base = 'default';
-		if (isset($args['base'])) {
-			$base = $args['base'];
-			unset($args['base']);
-		}
-		$migration = $helperMigration->byName($name);
-		if (!$migration) {
-			return;
-		}
-		$queue = $helperMigration->getQueue($base);
-		$params = array();
-		if (isset($queue[$name])) {
-			$params = $queue [$name];
-		}
-		$params = array_merge($params, (array) $args);
-		$migration->setParams($params);
-		if ($migration->$action()) {
-			if (!empty($migration->model)) {
-				$table = $modelScheme->table($migration->model);
-				$controllerManager->call(
-					'Model', 'fromTable',
-					array(
-						'name'		=> $table,
-						'rewrite'	=> 1
-					)
-				);
-			}
+        $migration = $context->migrationManager->get($name);
+        if (!$migration) {
+            return;
+        }
+        $migration->setParams($this->input->receiveAll());
+		$result = call_user_func(array($migration, $action));
+		if ($result) {
 			echo 'Migration done' . PHP_EOL;
 		}
+        $migration->log($action);
         $dataSourceManager = $this->getService('dataSourceManager');
         $defaultDataSource = $dataSourceManager->get('default');
-        $dataSourceManager->setDataMapper($defaultDataSource);
-        $mapper = $defaultDataSource->getDataMapper();
-        $mapper->clearCache();
+        $driver = $defaultDataSource->getDataDriver();
+        $driver->clearCache();
         echo 'Mapper clear' . PHP_EOL;
-		$helperMigration->log($name, $action);
-		$helperMigration->setLastData($name, $action, $base);
-		$helperMigration->logFlush();
 	}
-
-    /**
-     * Выполнить все миграции базиса через apply
-     */
-    public function applyUpAuto($base, $fromName = null)
-    {
-        $helperMigration = $this->getService('helperMigration');
-        $queue = $helperMigration->getQueue($base);
-        $controllerManager = $this->getService('controllerManager');
-        $f = fopen(IcEngine::root() . 'log/migration.txt', 'w+');
-        $from = false;
-        if ($fromName) {
-            $from = true;
-        }
-        foreach ($queue as $migrationName) {
-            if ($migrationName == $fromName) {
-                $from = false;
-            }
-            if ($from) {
-                echo 'Skip ' . $migrationName . PHP_EOL;
-                continue;
-            }
-            echo $migrationName . PHP_EOL;
-            $start = time();
-            fwrite($f, $migrationName . ' : ');
-            $controllerManager->call('Migration', 'apply', array(
-                'action'    => 'up',
-                'base'      => $base,
-                'name'      => $migrationName
-            ));
-            $end = time();
-            $delta = $end - $start;
-            fwrite($f, $delta . ' сек.' . PHP_EOL);
-        }
-        fclose($f);
-    }
 
 	/**
 	 * Создать миграцию
 	 *
-	 * @param string $name
+	 * @Template(null)
+     * @Validator("User_Cli")
+     * @Context("helperMigration")
 	 */
-	public function create($name, $desc, $author, $base)
+	public function create($name, $category, $context)
 	{
-		$controllerManager = $this->getService('controllerManager');
-		$helperCodeGenerator = $this->getService('helperCodeGenerator');
-		$helperDate = $this->getService('helperDate');
-		$filename = IcEngine::root() . 'Ice/Model/Migration/' . $name . '.php';
-		if (is_file($filename)) {
-			return;
-		}
-		$task = $controllerManager->call(
-			'Migration', 'seq',
-			array()
-		);
-		$seq = 'undefined';
-		if ($task) {
-			$buffer = $task->getTransaction()->buffer();
-			if (isset($buffer['seq'])) {
-				$seq = $buffer['seq'];
-			}
-		}
-		$output = $helperCodeGenerator->fromTemplate(
-			'migration',
-			array(
-				'desc'		=> $desc,
-				'date'		=> $helperDate->toUnix(),
-				'author'	=> $author,
-				'base'		=> $base,
-				'seq'		=> $seq,
-				'name'		=> $name
-			)
-		);
-		echo 'File: ' . $filename . PHP_EOL;
-		file_put_contents($filename, $output);
+        $context->helperMigration->create($name, $category);
 	}
 
 	/**
-	 * @desc Узнать текущую миграцию
+	 * Узнать текущую миграцию
+     *
+     * @Template(null)
+     * @Validator("User_Cli")
+     * @Content("helperMigrationQueue")
 	 */
-	public function current($base)
+	public function current($category, $context)
 	{
-		$userService = $this->getService('user');
-        $helperMigration = $this->getService('helperMigration');
-        if ($userService->id() >= 0)
-		{
-			echo 'Access denied' . PHP_EOL;
-			return;
-		}
-
-		$last_data = $helperMigration->getLastData();
-		print_r ($last_data);
+        print_r($context->MigrationQueue->current($category));
 	}
 
 	/**
-	 * @desc Откатить миграцию
-	 * @param string $to
-	 * @param string $base
+	 * Откатить миграцию
+	 *
+     * @Template(null)
+     * @Validator("User_Cli")
+     * @Context("helperMigrationQueue", "helperMigrationProcess")
 	 */
-	public function down($to, $base = 'default')
+	public function down($to, $category, $context)
 	{
-		$userService = $this->getService('user');
-        $helperMigration = $this->getService('helperMigration');
-        if ($userService->id() >= 0)
-		{
-			echo 'Access denied' . PHP_EOL;
-			return;
-		}
-
-		$args = $this->input->receiveAll();
-		if (!isset ($args ['to']))
-		{
-			return;
-		}
-		unset ($args ['to']);
-		if (isset ($args ['base']))
-		{
-			$base = $args ['base'];
-			unset ($args ['base']);
-		}
-		$helperMigration->migration($to, 0, $args, $base);
+        if (!$context->helperMigrationProcess->validDown($to, $category)) {
+            return;
+        }
+        $context->helperMigrationProcess->down($to, $category);
 	}
 
 	/**
-	 * @desc Поднимает до последней по списку миграции
-	 * @param string $base
-	 * @param string $action
+	 * Получить очередь миграций по категории
+     *
+     * @Template(null)
+     * @Validator("User_Cli")
+     * @Content("helperMigrationQueue")
 	 */
-	public function last($base, $action = 'up')
+	public function queue($category, $context)
 	{
-        $helperMigration = $this->getService('helperMigration');
-        $controllerManager = $this->getService('controllerManager');
-		$queue = $helperMigration->getQueue($base);
-		$last = end ($queue);
-		if (is_array($last))
-		{
-			$last = key($last);
-		}
-		$controllerManager->call(
-			'Migration', $action,
-			array (
-				'name'  => $last
-			)
-		);
+        print_r($context->helperMigrationQueue->getQueue($category));
 	}
 
 	/**
-	 * @desc Получить список миграций
-	 * @param string $base - база
+	 * Поднять миграцию
+	 *
+     * @Template(null)
+     * @Validator("User_Cli")
+     * @Context("helperMigrationProcess")
 	 */
-	public function queue ($base = 'default')
+	public function up($to, $category, $context)
 	{
-        $helperMigration = $this->getService('helperMigration');
-		print_r($helperMigration->getQueue($base));
-	}
-
-	/**
-	 * @desc Востановить данные миграции
-	 * @param string $name
-	 */
-	public function restore ($name)
-	{
-        $helperMigration = $this->getService('helperMigration');
-		$helperMigration->restore($name);
-	}
-
-	/**
-	 * Получить уникальный номер миграции
-	 */
-	public function seq() {
-		$this->task->setTemplate(null);
-		$helperSiteLocation = $this->getService('siteLocation');
-		$url = $helperSiteLocation->get('seq_url');
-		if (!$url) {
-			return;
-		}
-		$seq = file_get_contents($url);
-		echo 'Migration #' . $seq . PHP_EOL;
-		$this->output->send(array(
-			'seq'	=> $seq
-		));
-	}
-
-	/**
-	 * @desc сформировать уникальный номер миграции
-	 */
-	public function seqGet()
-	{
-		$this->task->setTemplate (null);
-		$filename = IcEngine::root() . 'Ice/Var/Helper/Migration/seq';
-		$current = 0;
-		if (file_exists($filename))
-		{
-			$current = (int) file_get_contents($filename);
-		}
-		$current++;
-		file_put_contents($filename, $current);
-		$current = str_pad($current, 8 - strlen($current), '0', STR_PAD_LEFT);
-		echo $current;
-	}
-
-	/**
-	 * @desc Поднять миграцию
-	 * @param string $to
-	 * @param string $base
-	 */
-	public function up($to, $base = 'default')
-	{
-        $userService = $this->getService('user');
-		if ($userService->id() >= 0)
-		{
-			echo 'Access denied' . PHP_EOL;
-			return;
-		}
-
-		$args = $this->input->receiveAll();
-		if (!isset ($args ['to']))
-		{
-			return;
-		}
-		unset ($args ['to']);
-		if (isset ($args ['base']))
-		{
-			$base = $args ['base'];
-			unset ($args ['base']);
-		}
-        $helperMigration = $this->getService('helperMigration');
-		$helperMigration->migration($to, 1, $args, $base);
+        if (!$context->helperMigrationProcess->validUp($to, $category)) {
+            return;
+        }
+        $context->helperMigrationProcess->up($to, $category);
 	}
 }

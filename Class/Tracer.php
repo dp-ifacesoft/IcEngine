@@ -1,10 +1,9 @@
 <?php
+
 /**
- *
- * @desc Трейсер
- * @author Юрий Шведов, Илья Колесников
- * @package IcEngine
- *
+ * Трейсер
+ * 
+ * @author morph, goorus
  */
 class Tracer
 {

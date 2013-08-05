@@ -10,10 +10,12 @@ class Helper_Plural
 {
     /**
      * Вывод в нужной форме
+     * 
      * @param int $number
      * @param string $forms "день,дня,дней"
      */
-    public function plural($number, $forms) {
+    public function plural($number, $forms) 
+    {
         $locator = IcEngine::serviceLocator();
         $viewHelperManager = $locator->getService('viewHelperManager');
         return $viewHelperManager->get(

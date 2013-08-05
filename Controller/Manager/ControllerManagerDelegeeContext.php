@@ -8,7 +8,7 @@ namespace IcEngine\Controller\Manager;
  * @author morph
  */
 class ControllerManagerDelegeeContext extends ControllerManagerDelegeeAbstract
-{
+{   
     /**
      * @inheritdoc 
      * @see IcEngine\Controller\Manager\ControllerManagerDelegeeAbstract::call

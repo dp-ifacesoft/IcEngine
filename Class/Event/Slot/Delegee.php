@@ -27,8 +27,10 @@ class Event_Slot_Delegee extends Event_Slot
                 $slot->action();
             }
         } elseif (isset($params['signal'])) {
-            foreach ($params['signal'] as $signal) {
-                $eventManager->getSignal(reset($signal));
+            foreach ($params['signal'] as $signal => $params) {
+                $signal = $eventManager->getSignal($signal);
+                $signal->setData($params);
+                $signal->notify();
             }
         }
     }

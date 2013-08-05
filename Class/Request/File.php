@@ -1,129 +1,140 @@
 <?php
 
+/**
+ * Файлы в Post-запросе
+ * 
+ * @author goorus
+ */
 class Request_File
 {
 
 	/**
 	 * Элемент массива $_FILES
+     * 
 	 * @var array
 	 */
 	public $file;
 
 	/**
 	 * Имя исходного файла
+     * 
 	 * @var string
 	 */
 	public $name;
 
 	/**
 	 * Расширение исходного файла
+     * 
 	 * @var extension
 	 */
 	public $extension;
 
 	/**
-	 *
+	 * Тип
+     * 
 	 * @var string
 	 */
 	public $type;
 
 	/**
 	 * Размер
+     * 
 	 * @var integer
 	 */
 	public $size;
 
 	/**
 	 * Имя временного файла
+     * 
 	 * @var string
 	 */
 	public $tmp_name;
 
 	/**
 	 * Ошибки загрузки
+     * 
 	 * @var integer
 	 */
 	public $error;
 
 	/**
 	 * Путь к конечному файлу на сервере
+     * 
 	 * @var string
 	 */
 	public $destination = false;
 
 	/**
-	 *
+	 * Конструктор
+     * 
 	 * @param array $file элемент из $_FILES
 	 */
-	public function __construct (array $file)
+	public function __construct(array $file)
 	{
-		$this->file		= $file;
-		$this->name		= $file ['name'];
-		$this->type		= $file ['type'];
-		$this->size		= $file ['size'];
-		$this->tmp_name	= $file ['tmp_name'];
-		$this->error	= $file ['error'];
-
-		$this->extension = strtolower (substr (strrchr ($this->name, '.'), 1));
+		$this->file = $file;
+		$this->name	= $file['name'];
+		$this->type = $file['type'];
+		$this->size = $file['size'];
+		$this->tmp_name	= $file['tmp_name'];
+		$this->error = $file['error'];
+		$this->extension = strtolower(substr(strrchr($this->name, '.'), 1));
 	}
 
 	/**
+     * Были ли ошибки при загрузке
+     * 
 	 * @return boolean
 	 */
-	public function hasError ()
+	public function hasError()
 	{
-		return $this->isUploaded () && $this->error != UPLOAD_ERR_OK;
+		return $this->isUploaded() && $this->error != UPLOAD_ERR_OK;
 	}
 
 	/**
+     * Загружен ли файл
+     * 
 	 * @return boolean
 	 */
-	function isUploaded ()
+	function isUploaded()
 	{
 		return $this->error != UPLOAD_ERR_NO_FILE;
 	}
 
 	/**
 	 * Сохранить файл в $destination
+     * 
 	 * @param string $destination Путь к файлу
 	 * @return boolean
 	 */
-	function save ($destination)
+	function save($destination)
 	{
 		$this->destination = $destination;
 		return copy($this->tmp_name, $destination);
 	}
 
 	/**
-	 *
+	 * Сохранить файл с уникальным именем
+     * 
 	 * @param string $path
-	 * @param boolean|string $extension true - сохранить расширение, false - без расширения, str - переданное расширение
+	 * @param boolean|string $extension true - сохранить расширение, 
+     * false - без расширения, str - переданное расширение
 	 * @return string|false Имя файла, false - в случае неудачи
 	 */
-	function saveUniq ($path = 'uploads/', $extension = true)
+	function saveUniq($path = 'uploads/', $extension = true)
 	{
-		$fn = uniqid ();
-		if ($extension === true)
-		{
+		$fn = uniqid();
+		if ($extension === true) {
 			// добавляем расширение исходного файла
 			$fn .= '.' . $this->extension;
-		}
-		elseif ($extension !== false)
-		{
+		} elseif ($extension !== false) {
 			// добавляем переданное расширение
 			$fn .= '.' . $extension;
 		}
-
 		$this->name = $fn;
-
-		if ($this->save ($path . $fn))
-		{
+		if ($this->save ($path . $fn)) {
 			return $fn;
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
-
 }

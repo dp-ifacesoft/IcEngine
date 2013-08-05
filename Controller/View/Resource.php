@@ -4,33 +4,27 @@
  * Контроллер для компновки ресурсов представления.
  * Предназначен для сбора js, css файлов в один.
  *
- * @author goorus, morph
+ * @author goorus, morph 
  */
 class Controller_View_Resource extends Controller_Abstract
 {
 	/**
      * Процесс упаковки ресурсов
      *
-     * @Context("configManager")
-     * @Context("viewResourceManager")
-     * @Context("collectionManager")
+     * @Context("configManager", "viewResourceManager", "collectionManager")
      */
 	public function index($type, $params, $name, $context)
 	{
         $vars = array ();
 		if ($params) {
 			foreach ($params as $key => $value) {
-                if ($key != 'reses') {
-				    $vars['{$' . $key . '}'] = $value;
-                }
+				$vars['{$' . $key . '}'] = $value;
 			}
 		}
 		$moduleCollection = $context->collectionManager->create('Module');
         $configClassName = 'Controller_View_Resource';
         $moduleManager = $this->getService('moduleManager');
-
-        $reses = array();
-        foreach ($moduleCollection->items() as $module) {
+		foreach ($moduleCollection->items() as $module) {
             if (!$module->isMain && !$module->hasResource) {
                 continue;
 			}
@@ -38,27 +32,23 @@ class Controller_View_Resource extends Controller_Abstract
             if ($module->isMain) {
                 $config = $context->configManager->get($configClassName);
             } else {
-                $config = $moduleManager->getConfig($module->name, $configClassName);
+                $config = $moduleManager->getConfig(
+                    $module->name, $configClassName
+                );
             }
 			if (!$config || !$config->targets) {
 				continue;
 			}
             $vars['{$moduleName}'] = $module->name;
 			$vars['{$modulePath}'] = ltrim($module->path(), '/');
-			foreach ($config->targets as $targetName => $target) {
-                if (isset($params['reses']) && is_array($params['reses']) && !in_array($targetName, $params['reses'])) {
-                    continue;
-                }
-
+			foreach ($config->targets as $targetName => $target) { 
                 if ($type && $type != $target->type) {
                     continue;
                 }
                 if ($name && $name != $targetName) {
                     continue;
                 }
-
 				$resources = array();
-                $existsResources = array();
 				foreach ($target->sources as $source) {
 					if (is_string($source)) {
 						$sourceDir = IcEngine::root();
@@ -80,6 +70,7 @@ class Controller_View_Resource extends Controller_Abstract
 						);
 					}
 				}
+				$existsResources = array();
                 $resultResources = array();
                 foreach ($resources as $resource) {
                     if (in_array($resource->filePath, $existsResources)) {
@@ -97,18 +88,18 @@ class Controller_View_Resource extends Controller_Abstract
 				}
 				$destinationFile = strtr($target->file, $vars);
 				$packer->pushConfig($packerConfig);
-//				var_dump($packer);
-                $packer->pack(
+                echo $module->name . ' ' . $targetName . ' ' . count($resultResources) .
+                    PHP_EOL;
+				$packer->pack(
                     $resultResources, $destinationFile, $packerConfig, true
                 );
 				$packer->popConfig();
-                $reses [$name] = array (
+                $reses[$targetName] = array (
                     'type'	=> $target->type,
                     'url'	=> strtr ($target->url, $vars),
                     'ts'	=> $packer->cacheTimestamp ()
                 );
             }
-
             $this->output->send ('reses', $reses);
         }
 	}

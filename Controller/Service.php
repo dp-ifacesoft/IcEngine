@@ -9,6 +9,8 @@ class Controller_Service extends Controller_Abstract
 {
     /**
      * Запуск
+     * 
+     * @Validator("User_Cli")
      */
     public function run($name, $method)
     {

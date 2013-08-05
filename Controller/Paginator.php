@@ -3,8 +3,7 @@
 /**
  * Контроллер пагинатор.
  *
- * @author Юрий Шведов, neon
- * @package IcEngine
+ * @author goorus, neon
  */
 class Controller_Paginator extends Controller_Abstract
 {
@@ -12,9 +11,10 @@ class Controller_Paginator extends Controller_Abstract
      * (non-PHPdoc)
      * @see Controller_Abstract::index()
      */
-    public function index($instance, $template, $tpl)
+    public function index($instance, $data, $template, $tpl)
     {
         /* @var $paginator Paginator */
+        $instance = $instance ?: $data;
         $instance->buildPages();
         $this->output->send('paginator', $instance);
         if ($template) {

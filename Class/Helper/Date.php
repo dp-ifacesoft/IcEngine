@@ -1,43 +1,47 @@
 <?php
+
 /**
- *
- * @desc Хелпер для работы с датами.
- * @author Юрий
- * @package IcEngine
+ * Хелпер для работы с датами.
+ * 
+ * @author goorus, morph
  * @Service("helperDate")
  */
 class Helper_Date
 {
-
 	/**
-	 * @desc Нулевая дата
-	 * @var string
+	 * Нулевая дата
+	 * 
+     * @var string
 	 */
 	const NULL_DATE = '0000-00-00';
 
 	/**
-	 * @desc Unix формат представления даты.
-	 * @var string
+	 * Unix формат представления даты.
+	 * 
+     * @var string
 	 */
     const UNIX_DATE_FORMAT = 'Y-m-d';
 
     /**
-     * @desc Unix формат представления даты и времени.
+     * Unix формат представления даты и времени.
+     * 
      * @var string
      */
     const UNIX_FORMAT = 'Y-m-d H:i:s';
 
     /**
-     * @desc Unix формат времени
+     * Unix формат времени
+     * 
      * @var string
      */
     const UNIX_TIME_FORMAT = 'H:i:s';
 
     /**
-     * @desc Названия дней недели
+     * Названия дней недели
+     * 
      * @var array
      */
-    public $daysRu = array (
+    public static $daysRu = array (
         1 => array (
             0 => 'воскресенье',
             1 => 'понедельник',
@@ -61,10 +65,11 @@ class Helper_Date
     );
 
     /**
-     * @desc Русские названия месяцев.
+     * Русские названия месяцев.
+     * 
      * @var array
      */
-    public $monthesRu = array (
+    public static $monthesRu = array (
 		1 => array (
 			1 => 'январь',
 			2 => 'февраль',
@@ -96,45 +101,46 @@ class Helper_Date
 	);
 
 	/**
-	 * @desc Сравнение двух дат в формате UNIX.
-	 * @param string $now
+	 * Сравнение двух дат в формате UNIX.
+	 * 
+     * @param string $now
 	 * @param string $then
 	 * @return integer
 	 * 		-1 если $now < $then
 	 * 		 0 если $now == $then
 	 * 		+1 если $now > $then
 	 */
-	public static function cmpUnix ($now, $then)
+	public function cmpUnix($now, $then)
 	{
-		return strcmp ($now, $then); // :D
+		return strcmp($now, $then); // :D
 	}
 
     /**
-     * @desc Получение даты по номеру недели в году
-     * @param $week
+     * Получение даты по номеру недели в году
+     * 
+     * @param integer $week_number Номер недели в году в формате ISO-8601.
      * @param integer $year Четырехзначный номер года.
      * Если параметр не указан, будет взят номер текущего года.
-     * @internal param int $week_number Номер недели в году в формате ISO-8601.
      * @return integer|false unix timestamp
      */
-    public static function dateByWeek ($week, $year = null)
+    public function dateByWeek ($week, $year = null)
     {
-        $year = $year ? $year : date ('Y');
-        $week = sprintf ('%02d', $week);
-        return strtotime ($year . 'W' . $week . '1 00:00:00');
+        $year = $year ? $year : date('Y');
+        $week = sprintf('%02d', $week);
+        return strtotime($year . 'W' . $week . '1 00:00:00');
     }
 
     /**
-     * @desc Количество дней в месяце.
+     * Количество дней в месяце.
+     * 
      * @param integer $month Месяц (от 1 до 12)
      * @param integer $year [optional] Год (от 1901 до 2099)
      * @return integer Номер последнего дня в месяце (от 28 до 31)
      */
-    public static function daysInMonth ($month, $year = null)
+    public static function daysInMonth($month, $year = null)
     {
-    	if (!$year)
-    	{
-    		$year = date ('Y');
+    	if (!$year) {
+    		$year = date('Y');
     	}
     	return 31 - (($month - 1) % 7 % 2) - (($month == 2) << !!($year % 4));
     }
@@ -143,289 +149,109 @@ class Helper_Date
      * format = 1 : 15 мая 2012 года 10:40
      *
      * @param type $string
-     * @param bool|\type $showYear
-     * @param int|\type $format
-     * @param bool $showTime
+     * @param type $showYear
+     * @param type $format
      * @return type
      */
-	public static function datetime ($string, $showYear = false, $format = 0,
+	public function datetime($string, $showYear = false, $format = 0,
 		$showTime = false)
 	{
 		$year = strtok($string, "-");
-		$month = strtok("-");
+        $month = self::$monthesRu[2][(int) strtok("-")];
 		$day = strtok("-");
-		switch ($month)
-		{
-			case "1": $month = "января";
-				break;
-			case "2": $month = "февраля";
-				break;
-			case "3": $month = "марта";
-				break;
-			case "4": $month = "апреля";
-				break;
-			case "5": $month = "мая";
-				break;
-			case "6": $month = "июня";
-				break;
-			case "7": $month = "июля";
-				break;
-			case "8": $month = "августа";
-				break;
-			case "9": $month = "сентября";
-				break;
-			case "10": $month = "октября";
-				break;
-			case "11": $month = "ноября";
-				break;
-			case "12": $month = "декабря";
-				break;
-		}
-		$_date = explode(' ', $string);
+		$tmpDate = explode(' ', $string);
         $hour = 0;
         $minute = 0;
-        if (isset($_date[1])) {
-            $hour = strtok($_date[1], ':');
+        if (isset($tmpDate[1])) {
+            $hour = strtok($tmpDate[1], ':');
             $minute = strtok(':');
         }
-        if(!$format){
+        if (!$format) {
             return intval($day) . "&nbsp;" . $month .
-				(($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;г.") : "") .
-			($showTime ? "&nbsp;" . $hour . ':' . $minute : '');
-        }elseif ($format == 1) {
-            $return = intval($day) . "&nbsp;" . $month . (($year != date("Y") || $showYear) ? ("&nbsp;" . $year . "&nbsp;года") : "");
+				(($year != date("Y") || $showYear) 
+                    ? ("&nbsp;" . $year . "&nbsp;г.") : "") .
+                    ($showTime ? "&nbsp;" . $hour . ':' . $minute : '');
+        } elseif ($format == 1) {
+            $return = intval($day) . "&nbsp;" . $month . 
+                (($year != date("Y") || $showYear) 
+                ? ("&nbsp;" . $year . "&nbsp;года") : "");
             $return .= ' ' . $hour . ':' . $minute;
             return $return;
         }
 	}
 
 	/**
-	 * @desc Возвращает номер дня от начала эры.
-	 * @param integer $date Дата.
+	 * Возвращает номер дня от начала эры.
+	 * 
+     * @param integer $date Дата.
 	 * @return integer Номер дня.
 	 */
-	public static function eraDayNum ($date = null)
+	public function eraDayNum($date = null)
 	{
-		if ($date === null)
-		{
-			$date = time ();
+		if ($date === null) {
+			$date = time();
 		}
-
-		$d = date ('d', $date);
-		$m = date ('m', $date);
-		$y = date ('Y', $date);
-
-		if ($m > 2)
-		{
+		$d = date('d', $date);
+		$m = date('m', $date);
+		$y = date('Y', $date);
+		if ($m > 2) {
 			$m++;
-		}
-		else
-		{
+		} else {
 		    $m += 13;
 		    $y--;
 		}
 		return (int) (365.25 * $y + 30.6 * $m + $d);
 	}
 
-    /**
-     * @desc Возвращает номер часа от начала эры
-     * @param bool|int $date Дата.
-     * @return intger Номер недели.
-     */
-	public static function eraHourNum($date = false)
+	/**
+	 * Возвращает номер часа от начала эры
+	 * 
+     * @param integer $date Дата.
+	 * @return intger Номер недели.
+	 */
+	public function eraHourNum($date = false)
 	{
 		if ($date === null) {
 			$date = time();
 		}
-		return self::eraDayNum($date) * 24 + (int) date('H', $date);
+		return $this->eraDayNum($date) * 24 + (int) date('H', $date);
 	}
 
-    /**
-     * @desc Возвращает номер минуты от начала эры
-     * @param $delta
-     * @param bool|int $date Дата.
-     * @return intger Номер недели.
-     */
-	public static function eraMinNum($delta, $date = false)
+	/**
+	 * Возвращает номер минуты от начала эры
+	 * 
+     * @param integer $date Дата.
+	 * @return intger Номер недели.
+	 */
+	public function eraMinNum($delta, $date = false)
 	{
 		if ($date === null) {
 			$date = time();
 		}
-		return ((self::eraDayNum ($date) * 24 + (int) date('H', $date)) * 60 +
+		return (($this->eraDayNum($date) * 24 + (int) date('H', $date)) * 60 +
 			(int) date('i', $date)) * ((int) (60 / $delta));
 	}
 
-    /**
-     * @desc Возвращает номер недели от начала эры
-     * @param bool|int $date Дата.
-     * @return intger Номер недели.
-     */
-	public static function eraWeekNum ($date = false)
-	{
-		return (int) (self::eraDayNum ($date) / 7);
-	}
-
 	/**
-	 * @desc Получение времени с точностью до микросекунд
-	 * @return float
+	 * Возвращает номер недели от начала эры
+	 * 
+     * @param integer $date Дата.
+	 * @return intger Номер недели.
 	 */
-	public static function getmicrotime ()
+	public function eraWeekNum($date = false)
 	{
-		$usec = $sec = '';
-		list ($usec, $sec) = explode (" ", microtime ());
-		$usec = substr ($usec, 0, 6);
-		return (float) ((float) $usec + $sec);
+		return (int) ($this->eraDayNum($date) / 7);
 	}
 
     /**
-     * @desc перевод временной метки в человекопонятный вид с учетом разницы с
-     * текущей временной меткой.
-     * @param int $timestamp
-     * @return string Дата, формат зависит от разницы с текущей временной меткой
-     *
-     */
-    public function timestampToSpecialStr($timestamp)
-    {
-        $delta_time = ((int) date('d') - (int) date('d', $timestamp));
-        if ($delta_time < 1) //Для сообщений размещенных сегодня
-        {
-            $format_date = 'Сегодня в ' . date('H:i', $timestamp);
-        }
-        elseif ($delta_time >= 1 && $delta_time < 2) //Для сообщений размещенных вчера
-        {
-            $format_date = 'Вчера в ' . date('H:i', $timestamp);
-        }
-        elseif ($delta_time >= 2 && $delta_time < 7) //Для сообщений размещенных на этой неделе
-        {
-            $dateArray = getdate($timestamp);
-            $dayName = $this->daysRu[1][$dateArray['wday']];
-            $format_date = $dayName . ' в ' . date('H:i', $timestamp);
-        }
-        elseif ($delta_time >= 7 && $delta_time < 365) //Для сообщений размещенных в этом году
-        {
-            $dateArray = getdate($timestamp);
-            $monthName = $this->monthName($dateArray['mon'], 2);
-            $format_date = date('d', $timestamp) . ' ' . $monthName . ' в ' . date('H:i', $timestamp);
-        }
-        else  //Для всех других
-        {
-            $dateArray = getdate($timestamp);
-            $monthName = $this->monthName($dateArray['mon'], 2);
-            $format_date = date('d', $timestamp) . ' ' . $monthName . ' ' . date('Y', $timestamp) . ' г. в ' . date('H:i', $timestamp);
-        }
-
-        return $format_date;
-    }
-
-	/**
-	 * @desc Возвращает максимальную из дат
-	 * @param DateTime $a
-	 * @param DateTime $b
-	 * @return DateTime
-	 */
-	public static function max ($a, $b)
-	{
-		if (!($a instanceof DateTime))
-		{
-			if ($a == null)
-			{
-				return $b;
-			}
-			$a = self::parseDateTime ($a);
-		}
-
-		if (!($b instanceof DateTime))
-		{
-			if ($b == null)
-			{
-				return $a;
-			}
-			$b = self::parseDateTime ($b);
-		}
-
-		$diff = $a->diff ($b);
-
-		return $diff->invert ? $a : $b;
-	}
-
-	/**
-	 * @desc Возвращает минимальную из дат
-	 * @param DateTime $a
-	 * @param DateTime $b
-	 * @return DateTime
-	 */
-	public static function min ($a, $b)
-	{
-		if (!($a instanceof DateTime))
-		{
-			if ($a == null)
-			{
-				return $b;
-			}
-			$a = self::parseDateTime ($a);
-		}
-
-		if (!($b instanceof DateTime))
-		{
-			if ($b == null)
-			{
-				return $a;
-			}
-			$b = self::parseDateTime ($b);
-		}
-
-		$diff = $a->diff ($b);
-
-		return $diff->invert ? $b : $a;
-	}
-
-	/**
-	 * @desc Сравнение месяцев двух дат.
-	 * @param integer $date1 Первая дата.
-	 * @param integer $date2 Вторая дата.
-	 * @return boolean true, если даты относятся к одному месяцу, иначе false.
-	 */
-	public static function monthEqual ($date1, $date2)
-	{
-		return date ('m', $date1) == date ('m', $date2);
-	}
-
-	/**
-	 * @desc Возвращает название месяца.
-	 * @param integer $month_num Номер месяца (от 1 до 12).
-	 * @param integer $form Возвращаемая форма. 1 - именительный патеж,
-	 * 2 - родительный.
-	 * @return string Название месяца.
-	 */
-	public function monthName ($month_num, $form = 1)
-	{
-		return $this->monthesRu [$form][(int) $month_num];
-	}
-
-    /**
-	 *
-	 */
-	public function dayAndMonth($date = null) {
-		if (empty($date)) {
-			$date = new DateTime();
-			$m = $date->format('m');
-			$d = $date->format('d');
-		} else {
-			$date = explode('-', $date);
-			$m =(int) $date[1];
-            $d =(int) $date[2];
-		}
-        $month = $this->monthesRu[2][$m];
-		return $d . ' ' . $month;
-	}
-    
-	 /**
-	 *
+	 * Получить дату в формате "Месяц YYYY"
+     * 
 	 * @param string $date дата
 	 * @return string  месяц и год
 	 */
-	public static function monthAndYear ($date = null) {
-		static $months = array (
+	public static function monthAndYear($date = null) 
+    {
+		static $months = array(
 			1 => 'Январь',
 			2 => 'Февраль',
 			3 => 'Март',
@@ -439,67 +265,29 @@ class Helper_Date
 			11 => 'Ноябрь',
 			12 => 'Декабрь'
 		);
-
-		if (empty($date))
-		{
+		if (!$date) {
 			$date = new DateTime();
 			$m = $date->format('m');
 			$y =  $date->format('Y');
 		} else {
 			$date = explode('-', $date);
-			$y =(int) $date[0];
-			$m=(int) $date[1];
+			$y = (int) $date[0];
+			$m = (int) $date[1];
 		}
-
 		return $months[$m] . ' ' . $y;
 	}
-
+    
 	/**
-	 * @desc Возвращает следующее время согласно периоду
-	 * @param integer $time Исходная метка времени (unix timestamp)
-	 * @param string $period Период.
-	 * Задается либо в секундах, либо строкой.
-	 * @return integer Следующая метка времени (unix timestamp).
-	 * Если период указан неверно, возвращается false
+	 * Возвращает название месяца.
+	 * 
+     * @param integer $monthNum Номер месяца (от 1 до 12).
+	 * @param integer $form Возвращаемая форма. 1 - именительный патеж,
+	 * 2 - родительный.
+	 * @return string Название месяца.
 	 */
-	public static function nextTime ($time, $period)
+	public function monthName($monthNum, $form = 1)
 	{
-		if (is_numeric ($period))
-		{
-			return $time + $period;
-		}
-		else
-		{
-			switch ($period)
-			{
-				case 'second';
-				case '1 second':
-					return $time + 1;
-				break;
-				case 'minute';
-				case '1 minute':
-					return $time + 60;
-				break;
-				case 'hour';
-				case '1 hour':
-					return $time + 60 * 60;
-				break;
-				case '4 hour':
-					return $time + 60 * 60 * 4;
-				break;
-				case 'day':
-					return $time + 60 * 60 * 24;
-				break;
-				case 'week':
-					return $time + 60 * 60 * 24 * 7;
-				break;
-				case 'month':
-					return strtotime ('+1 month', $time);
-				break;
-			}
-		}
-
-		return false;
+		return self::$monthesR[$form][(int) $monthNum];
 	}
 
 	/**
@@ -550,171 +338,65 @@ class Helper_Date
 		}
 		return null;
 	}
-
-	/**
-	 * @desc Разница между датами в секундах.
-	 * @param string $now
-	 * @param string $then
-	 */
-	public static function secondsBetween ($now, $then = null)
-	{
-		return
-			self::strToTimestamp ($then, time ()) -
-			self::strToTimestamp ($now, 0);
-	}
-
-	/**
-	 * @desc Получение даты и времени из строки.
+    
+    /**
+	 * Получение даты и времени из строки.
 	 * В качестве исходной строки может выступать запись
 	 * даты и времени практически в любом формате, не зависимо от разделителя
 	 * и порядка данных.
-	 * @param string|integer $str Строка с датой или unix timestamp.
+	 * 
+     * @param string|integer $str Строка с датой или unix timestamp.
 	 * @param integer $default Возвращаемое значение по умолчанию.
 	 * @return integer Опередленная дата или $def, если дату определить
 	 * не удалось.
 	 */
-	public static function strToTimestamp($str, $default = 0)
+	public function strToTimestamp($str, $default = 0)
 	{
-		if (is_numeric ($str))
-		{
+		if (is_numeric($str)) {
 			return (int) $str;
 		}
-		if (strlen ($str) < 8)
-		{
+		if (strlen($str) < 8) {
 			return $default;
 		}
 		$n = 0;
-
-		$arr = array (
-			'', '', '',
-			'', '', ''
-		);
-
-		for ($i = 0; $i < strlen ($str); ++$i)
-		{
-			if (strpos ('-0123456789', $str [$i]) == 0)
-			{
-				if (strlen ($arr [$n]) > 0)
-				{
-					$arr [$n] = (int) $arr [$n];
+		$arr = array('', '', '', '', '', '');
+		for ($i = 0; $i < strlen($str); ++$i) {
+			if (strpos('-0123456789', $str[$i]) == 0) {
+				if (strlen($arr[$n]) > 0) {
+					$arr[$n] = (int) $arr[$n];
 					++$n;
 				}
-			}
-			else
-			{
-				$arr [$n] .= $str [$i];
+			} else {
+				$arr[$n] .= $str[$i];
 			}
 		}
-
-		for ($i = $n; $i <= 5; ++$i)
-		{
-			$arr [$i] = (int) $arr [$i];
+		for ($i = $n; $i <= 5; ++$i) {
+			$arr[$i] = (int) $arr[$i];
 		}
-
-		if (strlen ($arr[0]) == 4)
-		{
+		if (strlen($arr[0]) == 4) {
 			// Y-m-d H:i:s
-			return mktime ($arr[3], $arr[4], $arr[5], $arr[1], $arr[2], min(2040, $arr[0]));
-		}
-		elseif (strlen ($arr[2]) == 4)
-		{
+			return mktime(
+                $arr[3], $arr[4], $arr[5], $arr[1], $arr[2], min(2040, $arr[0])
+            );
+		} elseif (strlen($arr[2]) == 4) {
 			// d.m.Y H:i:s
-			return mktime ($arr[3], $arr[4], $arr[5], $arr[1], $arr[0], min(2040, $arr[2]));
-		}
-		elseif (strlen ($arr[3]) == 4)
-		{
+			return mktime(
+                $arr[3], $arr[4], $arr[5], $arr[1], $arr[0], min(2040, $arr[2])
+            );
+		} elseif (strlen($arr[3]) == 4) {
 			// H:i:s Y-m-d
-			return mktime ($arr[0], $arr[1], $arr[2], $arr[4], $arr[5], min(2040, $arr[3]));
-		}
-		elseif (strlen ($arr[5]) == 4)
-		{
+			return mktime(
+                $arr[0], $arr[1], $arr[2], $arr[4], $arr[5], min(2040, $arr[3])
+            );
+		} elseif (strlen($arr[5]) == 4) {
 			// H:i:s d.m.Y
-			return mktime ($arr[0], $arr[1], $arr[2], $arr[4], $arr[3], min(2040, $arr[5]));
+			return mktime(
+                $arr[0], $arr[1], $arr[2], $arr[4], $arr[3], min(2040, $arr[5])
+            );
 		}
-
 		return $default;
-	} # function str_to_timestamp
-
-	/**
-	 * @desc Перевод строки в unix timestamp
-	 * @param string $str Исходная строка.
-	 * @param integer $def Возвращаемое значение по умолчанию.
-	 * @return integer Время в unix timestamp.
-	 * Если не удалось определить время, возвращается $def
-	 */
-	public static function strToTimeDef ($str, $def = 0)
-	{
-		if (is_numeric ($str))
-		{
-			return $str;
-		}
-		if (strlen ($str) < 3)
-		{
-			return $def;
-		}
-
-		$n = 0;
-
-		$arr = array ('', '', '');
-		for ($i = 0; $i < strlen ($str); ++$i)
-		{
-			if (strpos ('-0123456789', $str [$i]) == 0)
-			{
-				if (strlen ($arr [$n]) > 0)
-				{
-					$n++;
-				}
-			}
-			else
-			{
-				$arr [$n] .= $str [$i];
-			}
-		}
-
-		return mktime ((int) $arr [0], (int) $arr [1], (int) $arr [2]);
 	}
-
-	/**
-	 * @desc Преобразует дату в "24 февраля 2010" (?) года.
-	 * Без года, если дата соответсвует текущему году.
-	 * @param string $date
-	 * @return string
-	 */
-	public function toCasualDate ($date)
-	{
-		$date = date ('Y-m-d', strtotime ($date));
-
-		if ($date >= 0)
-		{
-			list (
-				$year,
-				$month,
-				$day
-			) = explode ('-', $date);
-
-			$currentYear = date ('Y');
-
-			$result =
-				(int) $day .
-				'&nbsp' .
-				$this->monthesRu [2][(int) $month] .
-				($year != $currentYear ? ' ' . $year : '');
-
-			return $result;
-
-		}
-	}
-
-	/**
-	 * @descs Разбирает дату и возвращает DateTime.
-	 * @param string $date Дата в формате UNIX.
-	 * @return DateTime
-	 */
-	public static function toDateTime ($date)
-	{
-		return DateTime::createFromFormat (self::UNIX_FORMAT, $date);
-	}
-
+    
 	/**
 	 * Перевод даты из любого распознаваемого форматав формат в Unix.
      *
@@ -733,107 +415,4 @@ class Helper_Date
 		}
 		return $date->format(self::UNIX_FORMAT);
 	}
-
-    /**
-     * @desc перевод временной метки в количество прошедших дней/недель/лет до текущей
-     * временной метки (может использоваться для подсчета времени
-     * проведенном пользователем на сайте)
-     * @param int $timestamp
-     * @return string $date
-     */
-    public static function timestampToDaysCount($timestamp)
-    {
-        $days = round((time() - $timestamp) / (60 * 60 * 24));
-        if ($days <= 7)
-        {
-            if ($days <= 1)
-            {
-                $date = '1 день';
-            }
-            elseif ($days > 1 && $days <= 4)
-            {
-                $date = $days . ' дня';
-            }
-            elseif ($days > 4 && $days <= 7)
-            {
-                $date = $days . ' дней';
-            }
-        }
-        elseif ($days > 7 && $days <= 31)
-        {
-            $days = floor($days / 7);
-
-            if ($days < 2)
-            {
-                $date = '1 неделя';
-            }
-            elseif ($days >= 2)
-            {
-                $date = $days . ' недели';
-            }
-        }
-        elseif ($days > 31 && $days < 365)
-        {
-            $days = floor($days / 31);
-            if ($days < 2)
-            {
-                $date = '1 месяц';
-            }
-            elseif ($days >= 2 && $days < 5)
-            {
-                $date = $days . ' месяца';
-            }
-            elseif ($days >= 5 && $days <= 12)
-            {
-                $date = $days . ' месяцев';
-            }
-        }
-        elseif ($days > 365 && $days < 7500)
-        {
-            $days = floor($days / 365);
-            if ($days < 2)
-            {
-                $date = '1 год';
-            }
-            elseif ($days >= 2 && $days < 4)
-            {
-                $date = $days . ' года';
-            }
-            elseif ($days >= 5 && $days >= 5) //хватит до 20 лет, больше думаю не понадобится
-            {
-                $date = $days . ' лет';
-            }
-        }
-        else
-        {
-            $date = null;
-        }
-        return $date;
-    }
-
-    /**
-     * @desc перевод временной метки в количество прошедших лет до текущей
-     * временной метки (может использоваться для подсчета возраста пользователя)
-     * @param int $timestamp
-     * @return string $years_count
-     */
-    public static function timestampToYearsCount($timestamp)
-    {
-        $years_count = floor((time() - $timestamp) / (60 * 60 * 24 * 365.25)); //с учетом високосных годов
-        $years_count_temp = $years_count % 10;
-        if (($years_count_temp >= 5 || $years_count_temp == 0) || ($years_count >= 11 && $years_count <= 20))
-        {
-            $years_count = $years_count . ' лет';
-        }
-        elseif ($years_count_temp == 1)
-        {
-            $years_count = $years_count . ' год';
-        }
-        elseif ($years_count_temp >= 2 && $years_count_temp < 5)
-        {
-            $years_count = $years_count . ' года';
-        }
-
-        return $years_count;
-    }
 }

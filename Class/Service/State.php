@@ -8,6 +8,13 @@
 class Service_State
 {
     /**
+     * Аннотации
+     * 
+     * @var array
+     */
+    protected $annotations;
+    
+    /**
      * Имя класса услуги
      *
      * @var string
@@ -20,7 +27,14 @@ class Service_State
      * @var \ReflectionClass
      */
     protected $classReflection;
-
+    
+    /**
+     * Внедренния в оригинальный объект
+     * 
+     * @var array
+     */
+    protected $injects = array();
+    
     /**
      * Обработчик нового вызова сервиса
      *
@@ -40,11 +54,16 @@ class Service_State
      *
      * @param mixed $object
      */
-    public function __construct($object, $className, $instanceCallback)
+    public function __construct($object, $className, $instanceCallback,
+        $injects)
     {
         $this->object = $object;
         $this->className = $className;
         $this->instanceCallback = $instanceCallback;
+        $this->injects = $injects;
+        $serviceLocator = IcEngine::serviceLocator();
+        $this->annotations = $serviceLocator->getService('helperAnnotation')
+            ->getAnnotation($className)->getData();
     }
 
     /**
@@ -55,11 +74,22 @@ class Service_State
      */
     public function __call($method, $args)
     {
-        if (is_bool($this->instanceCallback)) {
-            if (!$this->classReflection) {
-                $this->classReflection = new \ReflectionClass($this->className);
+        $serviceLocator = IcEngine::serviceLocator();
+        if (isset($this->annotations['methods'][$method]['Inject'])) {
+            $injectData = $this->annotations['methods'][$method]['Inject'];
+            foreach (reset($injectData) as $serviceName) {
+                $args[] = $serviceLocator->getService($serviceName);
             }
-            $methodReflection = $this->classReflection->getMethod($method);
+        } elseif (isset($this->annotations['class']['Injectible'])) {
+            $methodReflection = $this->getMethodReflection($method);
+            $methodArgs = $methodReflection->getParameters();
+            $serviceNames = array_slice($methodArgs, count($args));
+            foreach ($serviceNames as $serviceName) {
+                $args[] = $serviceLocator->getService($serviceName->name);
+            }
+        }
+        if (is_bool($this->instanceCallback)) {
+            $methodReflection = $this->getMethodReflection($method);
             if ($methodReflection->isStatic()) {
                 return call_user_func_array(
                     array($this->className, $method), $args
@@ -103,6 +133,21 @@ class Service_State
     }
 
     /**
+     * Получить рефлексию метода
+     * 
+     * @param string $method
+     * @return \ReflectionMethod
+     */
+    public function getMethodReflection($method)
+    {
+        if (!$this->classReflection) {
+            $this->classReflection = new \ReflectionClass($this->className);
+        }
+        $methodReflection = $this->classReflection->getMethod($method);
+        return $methodReflection;
+    }
+    
+    /**
      * Создать новый экземпляр сервиса
      *
      * @return mixed
@@ -122,8 +167,18 @@ class Service_State
             $methodReflection = $this->classReflection->getMethod(
                 'newInstance'
             );
-            return $methodReflection->invokeArgs($this->object, $args);
+            $instance = $methodReflection->invokeArgs($this->object, $args);
+        } else {
+            $instance = $this->classReflection->newInstanceArgs($args);
         }
-        return $this->classReflection->newInstanceArgs($args);
+        if ($this->injects) {
+            foreach ($this->injects as $propertyName => $service) {
+                $setterName = 'set' . ucfirst($propertyName);
+                if (method_exists($instance, $setterName)) {
+                    $instance->$setterName($service);
+                } 
+            }
+        }
+        return $instance;
     }
 }

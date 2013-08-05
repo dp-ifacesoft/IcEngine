@@ -9,20 +9,36 @@ class Controller_Annotation_Service extends Controller_Abstract
 {
     /**
      * Обновить аннотации
+     * 
+     * @Context("helperCodeGenerator")
+     * @Template(null)
+     * @Validator("Not_Null"={"data"})
      */
-    public function update($data)
+    public function update($data, $context)
     {
-        $this->task->setTemplate(null);
-        if (!$data) {
-            return;
-        }
+        $annotationManager = IcEngine::serviceLocator()->getSource()
+            ->getAnnotationManager();
         $services = array();
         foreach ($data as $className => $annotationData) {
+            if (!isset($annotationData['Service'])) {
+                continue;
+            }
+            $disableConstruct = false;
+            if (strpos($className, '/') === false) {
+                $annotation = $annotationManager->getAnnotation($className)
+                    ->getData();
+                $disableConstruct = isset($annotation['class']['Injectible']);
+            }
             $subData = $annotationData['Service'];
-            $serviceName = array_shift($subData['data'][0]);
-            $services[$serviceName] = $subData['data'][0];
-            $services[$serviceName]['class'] = $className;
-            $services[$serviceName]['name'] = $serviceName;
+            foreach ($subData['data'] as $serviceData) {
+                $serviceName = array_shift($serviceData);
+                $services[$serviceName] = $serviceData;
+                if (empty($services[$serviceName]) && $disableConstruct) {
+                    $services[$serviceName]['disableConstruct'] = true;
+                }
+                $services[$serviceName]['class'] = $className;
+                $services[$serviceName]['name'] = $serviceName;
+            }
         }
         if (!$services) {
             return;
@@ -39,7 +55,7 @@ class Controller_Annotation_Service extends Controller_Abstract
             }
         }
         ksort($services);
-        $output = Helper_Code_Generator::fromTemplate(
+        $output = $context->helperCodeGenerator->fromTemplate(
             'service',
             array (
                 'services'  => $services

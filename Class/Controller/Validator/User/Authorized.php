@@ -17,5 +17,6 @@ class Controller_Validator_User_Authorized extends
         if (!$user->key()) {
             return $this->accessDenied();
         }
+        return true;
     }
 }

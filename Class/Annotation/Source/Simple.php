@@ -46,12 +46,9 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	 * @inheritdoc
 	 * @see Annotation_Source_Abstract::getClass
 	 */
-	public function getClass($class)
+	public function getClass($className)
 	{
-		$reflection = $this->getReflection($class);
-        if ($class == 'Controller_Fellow') {
-           // print_r($reflection->getDocComment());die;
-        }
+		$reflection = $this->getReflection($className);
 		$doc = $reflection->getDocComment();
 		$data = $this->parse($doc);
 		return $data;
@@ -61,9 +58,9 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	 * @inheritdoc
 	 * @see Annotation_Source_Abstract::getMethods
 	 */
-	public function getMethods($class)
+	public function getMethods($className)
 	{
-		$reflection = $this->getReflection($class);
+		$reflection = $this->getReflection($className);
 		$methods = $reflection->getMethods();
 		$resultMethods = array();
 		foreach ($methods as $method) {
@@ -77,9 +74,9 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	 * @inheritdoc
 	 * @see Annotation_SourceA_bstract::getProperties
 	 */
-	public function getProperties($class)
+	public function getProperties($className)
 	{
-		$reflection = $this->getReflection($class);
+		$reflection = $this->getReflection($className);
 		$properties = $reflection->getProperties();
 		$resultProperties = array();
 		foreach ($properties as $property) {
@@ -92,12 +89,11 @@ class Annotation_Source_Simple extends Annotation_Source_Abstract
 	/**
 	 * Получить рефлексию класса
 	 *
-	 * @param \StdClass $class
+	 * @param string $class
 	 * @return \ReflectionClass
 	 */
-	protected function getReflection($class)
+	protected function getReflection($className)
 	{
-        $className = is_string($class) ? $class : get_class($class);
 		if (!isset($this->reflections[$className])) {
 			$this->reflections[$className] = new \ReflectionClass($className);
 		}

@@ -174,7 +174,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
         $config = $this->config();
         $helperDate = $this->getService('helperDate');
         $activationQuery = $this->getService('query')
-            ->select('id')
+            ->select('Activation.id')
             ->from('Activation')
             ->where('type', $config->activation_type)
             ->where('code', $data['activation_code'])
@@ -239,6 +239,22 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
         return $user;
 	}
 
+    /**
+     * Сгенерировать код активации
+     *
+     * @param int $minLength
+     * @param int $maxLength
+     * @return string
+     */
+    public function genCode($minLength = 5, $maxLength = 7)
+	{
+        $code = (string) rand(
+			str_pad("1", $minLength, '0'),	// от 10000
+			str_repeat('9', $maxLength)		// до 9999999
+		);
+		return $code;
+	}
+
 	/**
 	 * Отправляет пользователю СМС для авторизации
 	 *
@@ -265,15 +281,14 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 			return 'Data_Validator_Authorization_User/denied';
 		}
 		$config = $this->config ();
-		$activationCode = $this->getService('helperActivation')
-            ->generateNumeric(
-                $config['code_min_length'],
-                $config['code_max_length']
-            );
+		$activationCode = $this->genCode(
+            $config['code_min_length'],
+            $config['code_max_length']
+        );
 		$modelManager = $this->getService('modelManager');
         $helperDate = $this->getService('helperDate');
 		$activationQuery = $this->getService('query')
-            ->select('id')
+            ->select('Activation.id')
             ->from('Activation')
             ->where('User__id', $user->key())
             ->where('address', $user->phone)
@@ -307,14 +322,8 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		 *
          * @var Mail_Provider_Abstract
 		 */
-        $provider = $modelManager->byOptions(
-            'Mail_Provider',
-            array(
-                'name'  => '::Name',
-                'value' => !empty($data['provider'])
-                    ? $data['provider'] : $config['sms_provider']
-            )
-        );
+        $providerName = !empty($data['provider'])
+            ? $data['provider'] : $config['sms_provider'];
 		$mailMessage = $this->getService('mailMessage');
         $dto = $this->getService('dto')->newInstance('Mail_Message')
             ->setTemplate($config['sms_mail_template'])
@@ -326,7 +335,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
             ))
             ->setToUserId($user->key())
             ->setMailProviderParams($config['sms_provider_params']->__toArray())
-            ->setMailProviderId($provider->key());
+            ->setMailProvider($providerName);
         $message = $mailMessage->create($dto)->save();
 		if ($config['sms_test_mode']) {
 			echo 'sms test mode';

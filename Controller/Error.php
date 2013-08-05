@@ -1,65 +1,79 @@
 <?php
 
+/**
+ * Контроллер ошибок
+ *
+ * @author goorus, morph
+ */
 class Controller_Error extends Controller_Abstract
 {
-
+    /**
+     * Ошибка 403
+     */
     public function e403 ()
     {
-        Header::setStatus (Header::E403);
+        $this->getService('helperHeader')->setStatus(Helper_Header::E403);
     }
 
+    /**
+     * Ошибка 404
+     */
 	public function e404 ()
 	{
-		Header::setStatus(Header::E404);
+		$this->getService('helperHeader')->setStatus(Helper_Header::E404);
 	}
 
 	/**
-	 * @desc Доступ запрещен.
+	 * Доступ запрещен.
 	 */
-	public function accessDenied ()
+	public function accessDenied()
 	{
-		$this->output->send (array (
+        $task = IcEngine::getTask();
+        $task->setTemplate('Controller/Front/index');
+        $this->getService('helperHeader')->setStatus(Helper_Header::E403);
+		$this->output->send(array(
 			'error'	=> 'access denied',
-			'data'	=> array (
+			'data'	=> array(
 				'error' => 'access denied'
 			)
 		));
-		return $this->replaceAction ('Authorization', 'accessDenied');
 	}
 
 	/**
-	 * @desc Пустое вместо
+	 * Пустое вместо
 	 */
-	public function blank ()
+	public function blank()
 	{
 	}
 
 	/**
-	 * @desc Страница не найдена
+	 * Страница не найдена
 	 */
 	public function notFound ()
 	{
-		$this->output->send (array (
+        $task = IcEngine::getTask();
+        $task->setTemplate('Controller/Front/index');
+        $this->getService('helperHeader')->setStatus(Helper_Header::E404);
+		$this->output->send(array(
 			'error'	=> 'not found',
-			'data'	=> array (
+			'data'	=> array(
 				'error' => 'not found'
 			)
 		));
 	}
 
 	/**
-	 * @desc Страница устарела.
+	 * Страница устарела
 	 * В большинстве случаев означает неверный utcode или прикрепление
 	 * компонента к несуществующей модели.
 	 */
-	public function obsolete ()
+	public function obsolete()
 	{
-		$this->output->send (array (
+		$this->output->send(array(
 			'error' => 'page obsolete',
-			'data'	=> array (
+			'data'	=> array(
 				'error'	=> 'page obsolete'
 			)
 		));
 	}
-
 }

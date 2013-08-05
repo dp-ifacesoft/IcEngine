@@ -7,6 +7,9 @@
  */
 class Mail_Message_Dto extends Dto
 {
+    /**
+     * @inheritdoc
+     */
     protected static $defaults = array(
         // имя шаблона
         'template'          => '',
@@ -19,7 +22,7 @@ class Mail_Message_Dto extends Dto
         // ид пользователя, который получит сообщение
         'toUserId'              => 0,
         // ид провайдера отправки
-        'mailProviderId'        => 1,
+        'mailProvider'        => 'Mimemail',
         // параметры для провайдера отправки
         'mailProviderParams'    => array()
     );

@@ -2,8 +2,8 @@
 
 /**
  * Транслятор запросов типа insert драйвера mysql
- * 
- * @author goorus, morph
+ *
+ * @author goorus, morph, neon
  */
 class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 {
@@ -13,24 +13,27 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 	 * @param Query_Abstract $query Запро с.
 	 * @return string Сформированный SQL запрос.
 	 */
-	public function _renderInsert(Query_Abstract $query)
+	public function doRenderInsert(Query_Abstract $query)
 	{
 		if ($query->getMultiple()) {
-			return $this->_renderInsertMultiple($query);
+			return $this->renderInsertMultiple($query);
 		}
-        $serviceLocator = IcEngine::serviceLocator();
-        $modelScheme = $serviceLocator->getService('modelScheme');
+        $modelScheme = $this->modelScheme();
 		$table = $query->part(Query::INSERT);
-		$sql = 'INSERT ' . strtolower($modelScheme->table($table)) . ' (';
+		$sql = self::SQL_INSERT . ' ' .
+            strtolower($modelScheme->table($table)) . ' (';
 		$fields = array_keys($query->part(Query::VALUES));
 		$values = array_values($query->part(Query::VALUES));
-		for ($i = 0, $icount = count($fields); $i < $icount; $i++) {
-			$fields [$i] = self::_escape($fields[$i]);
-			$values [$i] = self::_quote($values[$i]);
+        $helper = $this->helper();
+		for ($i = 0, $count = count($fields); $i < $count; $i++) {
+			$fields[$i] = $helper->escape($fields[$i]);
+			$values[$i] = $helper->quote($values[$i]);
 		}
-		$fieldsImploded = implode(', ', $fields);
-		$valuesImploded = implode(', ', $values);
-		return $sql . $fieldsImploded . ') VALUES (' . $valuesImploded . ')';
+		$resultFields = implode(', ', $fields);
+		$resultValues = implode(', ', $values);
+		return $sql . $resultFields .
+            ') ' . self::SQL_VALUES . ' (' .
+            $resultValues . ')';
 	}
 
 	/**
@@ -39,39 +42,41 @@ class Query_Translator_Mysql_Insert extends Query_Translator_Mysql_Select
 	 * @param Query_Abstract $query
 	 * @return string
 	 */
-	public function _renderInsertMultiple(Query_Abstract $query)
+	public function renderInsertMultiple(Query_Abstract $query)
 	{
 		$table = $query->part(Query::INSERT);
-        $serviceLocator = IcEngine::serviceLocator();
-        $modelScheme = $serviceLocator->getService('modelScheme');
-		$sql = 'INSERT ' . strtolower($modelScheme->table($table)) . ' (';
+        $modelScheme = $this->modelScheme();
+		$sql = self::SQL_INSERT . ' ' .
+            strtolower($modelScheme->table($table)) . ' (';
 		$fields = null;
 		$values = array();
-		$queryValues = $query->part(QUERY::VALUES);
+		$queryValues = $query->part(Query::VALUES);
 		foreach ($queryValues as $queryValue) {
 			if (!$fields) {
 				$fields = array_keys($queryValue);
 			}
 			$values[] = array_values($queryValue);
 		}
-		foreach ($fields as $key=>$field) {
-			$fields[$key] = self::_escape($field);
+        $helper = $this->helper();
+		foreach ($fields as $key => $field) {
+			$fields[$key] = $helper->escape($field);
 		}
 		$valuesPrepared = array();
-		foreach ($values as $key=>$value) {
-			foreach ($value as $k=>$v) {
-				$values[$key][$k] = self::_quote($v);
+		foreach ($values as $key => $value) {
+			foreach ($value as $subKey => $subValue) {
+				$values[$key][$subKey] = $helper->quote($subValue);
 			}
 			$valuesPrepared[] = implode(', ', $values[$key]);
 		}
 		$fieldsImploded = implode(', ', $fields);
 		$valuesImploded = implode('), (', $valuesPrepared);
-		$sql = $sql . $fieldsImploded . ') VALUES (' . $valuesImploded . ')';
+		$sql = $sql . $fieldsImploded . ') ' . self::SQL_VALUES .
+            ' (' . $valuesImploded . ')';
 		if (($onDuplicateKey = $query->getFlag('onDuplicateKey'))) {
 			$duplicateArray = array();
 			foreach ($onDuplicateKey as $field) {
-				$duplicateArray[] = '`' . 
-                    $field . '` = VALUES(`' . $field . '`)';
+				$duplicateArray[] = '`' .
+                    $field . '` = ' . self::SQL_VALUES. '(`' . $field . '`)';
 			}
 			$sql .= ' ON DUPLICATE KEY UPDATE ' .
 				implode(', ', $duplicateArray);

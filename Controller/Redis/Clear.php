@@ -21,99 +21,14 @@ class Controller_Redis_Clear extends Controller_Abstract
 	);
 
 	/**
-	 * Проверить права да доступ
-	 *
-	 * @return boolean
-	 */
-	public function _checkAccess()
-	{
-		$user = $this->getService('user')->getCurrent();
-		if ($user->key() < 0 || $user->isAdmin()) {
-			return true;
-		}
-		foreach ($this->config()->access_roles as $role) {
-			if ($user->hasRole($role)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Controller_Abstract::_beforeAction()
-	 */
-	public function _beforeAction($action)
-	{
-		$dds = $this->getService('dds');
-		$query = $this->getService('query');
-		$helperDate = $this->getService('helperDate');
-		$userService = $this->getService('user');
-		$dds->execute(
-			$query->insert('Redis_Log')
-				->values(array(
-					'time'		=> $helperDate->toUnix(),
-					'User__id'	=> $userService->id(),
-					'action'	=> $action,
-					'data'		=> var_export($this->input->receiveAll(), true)
-				))
-		);
-		parent::_beforeAction($action);
-	}
-
-	public function clear()
-	{
-		$this->task->setTemplate(null);
-		if (!$this->_checkAccess()) {
-			return;
-		}
-		$indexes = $this->input->receive('index');
-		$controllers = $this->input->receive('controllers');
-		if (!$indexes && !$controllers) {
-			return;
-		}
-		$dataProviderManager = $this->getService('dataProviderManager');
-		$helperHeader = $this->getService('helperHeader');
-		if ($controllers) {
-			$provider = $dataProviderManager->get('executor');
-			$methods = array('callUncached', 'htmlUncached');
-			foreach ($controllers as $controller) {
-				$controller = explode('::', $controller);
-				foreach ($methods as $method) {
-					$key = 'Controller_Manager/' . $method . '/' .
-						md5($controller);
-					$key = urlencode($key);
-					$provider->delete($key);
-				}
-			}
-			return $helperHeader->redirect('/caches');
-		}
-		$ignoreProviders = (array) $this->config()->ignore_providers
-			->__toArray();;
-		foreach ($indexes as $index) {
-			list($name, $pattern) = explode(':', $index);
-			$provider = Data_Provider_Manager::get($name);
-			if (in_array($name, $ignoreProviders)) {
-				continue;
-			}
-			if (!$provider) {
-				continue;
-			}
-			$provider->conn->clearByPattern($pattern);
-		}
-		$helperHeader->redirect('/caches');
-	}
-
-	/**
 	 * Очистка контента, не затрагивающего сессии пользователей.
 	 * Будут очищены результаты запросов, конфиги, виджеты.
+     *
+     * @Template(null)
+     * @Validator("User_CliOrEditor")
 	 */
-	public function clearContent()
+	public function clearContent($context)
 	{
-		$this->task->setTemplate(null);
-		if (!$this->_checkAccess()) {
-			return;
-		}
 		$cleared = 0;
 		$ignored = array();
 		$indexes = array();

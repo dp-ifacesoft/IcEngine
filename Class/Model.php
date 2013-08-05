@@ -12,6 +12,13 @@ abstract class Model implements ArrayAccess
      */
     const DATA_FIELD = 'data';
 
+    /**
+     * Аннотации моделей
+     * 
+     * @var array
+     */
+    protected static $annotations = array();
+    
 	/**
 	 * Конфигурация модели
      *
@@ -19,6 +26,13 @@ abstract class Model implements ArrayAccess
 	 */
 	protected static $config;
 
+    /**
+     * Ошибки
+     * 
+     * @var array
+     */
+    protected $errors = array();
+    
 	/**
 	 * Связанные данные
      *
@@ -31,7 +45,7 @@ abstract class Model implements ArrayAccess
      *
 	 * @var array
 	 */
-	protected $fields;
+	protected $fields = array();
 
 	/**
 	 * Подгруженные объекты
@@ -39,6 +53,13 @@ abstract class Model implements ArrayAccess
 	 * @var array
 	 */
 	protected $joints = array();
+
+    /**
+     * Флаг показывает, что модель новая и сохранена в текущем выполнение
+     *
+     * @var boolean
+     */
+    protected $isNew = false;
 
     /**
      * Помощник модели
@@ -58,6 +79,20 @@ abstract class Model implements ArrayAccess
 	 * @var bool
 	 */
 	protected $lazy;
+
+    /**
+     * Схема связей модели
+     *
+     * @var Model_Mapper_Scheme
+     */
+    protected $modelMapperScheme;
+
+    /**
+     * Репозиторий модели
+     *
+     * @var Model_Repository
+     */
+    protected $repository;
 
 	/**
 	 * Схема модели
@@ -81,11 +116,21 @@ abstract class Model implements ArrayAccess
 	protected $updatedFields = array();
 
     /**
-     * Действие после выполнения конструктора
+     * Вызов метода через репозиторий модели
+     *
+     * @param string $method
+     * @param array $args
+     * @return mixed
      */
-    protected function _afterConstruct()
+    public function __call($method, $args)
     {
-
+        $repository = $this->repository();
+        if (!method_exists($repository, $method)) {
+            throw new Exception(
+                'Method "' . $method . '" unexists in repository'
+            );
+        }
+        return call_user_func_array(array($repository, $method), $args);
     }
 
 	/**
@@ -95,7 +140,7 @@ abstract class Model implements ArrayAccess
 	 */
 	public function __construct(array $fields = array())
 	{
-		$this->fields = $fields;
+		$this->set($fields);
         $selfFields = $this->helper()->getVars($this);
         foreach (array_keys($selfFields) as $fieldName) {
             if (!$fieldName || $fieldName[0] == '_') {
@@ -106,7 +151,6 @@ abstract class Model implements ArrayAccess
             }
             unset($this->$fieldName);
         }
-        $this->_afterConstruct();
 	}
 
 	/**
@@ -124,16 +168,22 @@ abstract class Model implements ArrayAccess
             return $this->getData();
 		}
         $joinField = $field . '__id';
+        $references = $this->scheme()->references;
         if (isset($this->joints[$field])) {
             return $this->joints[$field];
+        } elseif (isset($references[$field])) {
+            if (!$this->modelMapperScheme) {
+                $this->modelMapperScheme = $this->getService('modelMapper')
+                    ->scheme($this);
+            }
+            return $this->modelMapperScheme->get($field);
         } elseif (array_key_exists($field, $this->fields)) {
-            return $this->fields[$field];
+            $field = $this->helper()->unserializeValue(
+                $this, $field, $this->fields[$field]
+            );
+            return $field;
         } elseif (array_key_exists($joinField, $this->fields)) {
             return $this->joint($field, $this->fields[$joinField]);
-        }
-        $references = $this->scheme()->references;
-        if (isset($references[$field])) {
-            return $this->getService('modelMapper')->scheme($this)->$field;
         }
         $value = null;
         return $value;
@@ -167,9 +217,7 @@ abstract class Model implements ArrayAccess
         }
         $fields = $this->scheme()->fields;
 		if (isset($fields[$field])) {
-            $this->fields[$field] = $value;
-		} elseif (property_exists($this, $field)) {
-            $this->$field = $value;
+            $this->set($field, $value);
 		} else {
 			throw new Exception(
                 'Field or property unexists "' . $field . '" ' . $this->table()
@@ -225,6 +273,16 @@ abstract class Model implements ArrayAccess
 	}
 
     /**
+     * Для переопределения возвращает базовую модель
+     * 
+     * @return string
+     */
+    public function baseTable()
+    {
+        return $this->table();
+    }
+
+    /**
 	 * Имя класса модели
      *
 	 * @return string
@@ -233,6 +291,16 @@ abstract class Model implements ArrayAccess
 	{
 		return get_class($this);
 	}
+
+    /**
+     * Говорит, новая ли модель
+     *
+     * @return boolean
+     */
+    public function isNew()
+    {
+        return $this->isNew;
+    }
 
 	/**
 	 * Присоединить сущность
@@ -312,18 +380,20 @@ abstract class Model implements ArrayAccess
 	 * @param mixed $value [optional] Значение (не обязательно).
 	 * @return mixed Текущее значение или null.
 	 */
-	public function &data($key, $value = null)
+	public function &data($key = null, $value = null)
 	{
         if (!is_object($this->data)) {
             $this->data = $this->getData();
         }
-		if (func_num_args()  == 1) {
+		if (func_num_args() == 1) {
 			if (is_scalar($key)) {
-                $result = isset($this->data[$key]) ? $this->data[$key] : null;
-				return $result;
+                $data = isset($this->data[$key]) ? $this->data[$key] : null;
+				$result = $data instanceof Objective
+                    ? $data->__toArray() : $data;
+                return $result;
 			}
 			$this->data = array_merge($this->data->__toArray(), $key);
-		} else {
+		} elseif (func_num_args() == 2) {
 			$this->data[$key] = $value;
 		}
         return $this->data;
@@ -379,6 +449,27 @@ abstract class Model implements ArrayAccess
 		}
 	}
 
+    /**
+     * Получить аннотации модели
+     * 
+     * @return array
+     */
+    public function getAnnotations()
+    {
+        return $this->getService('helperAnnotation')
+            ->getAnnotation($this->modelName())->getData();
+    }
+    
+    /**
+     * Получить ошбики
+     * 
+     * @return array
+     */
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+    
 	/**
 	 * Получить все хранимые данные модели
 	 *
@@ -477,7 +568,8 @@ abstract class Model implements ArrayAccess
 	public function key()
 	{
 		$keyField = $this->keyField();
-        return isset($this->fields[$keyField]) ? $this->fields[$keyField] : null;
+        return isset($this->fields[$keyField])
+            ? $this->fields[$keyField] : null;
 	}
 
 	/**
@@ -546,6 +638,7 @@ abstract class Model implements ArrayAccess
 
     /**
      * Получить данные модели массивом
+     * @param array $schema
      * @return array
      */
     public function raw($schema = array())
@@ -558,8 +651,12 @@ abstract class Model implements ArrayAccess
                 }
             }
         }
+        $data = $this->data() ?: array();
+        if (is_object($data)) {
+            $data = $data->__toArray();
+        }
         return array_merge($result, array(
-            'data'      => $this->data ? $this->data->__toArray() : array()
+            'data'      => $data
         ));
     }
 
@@ -573,6 +670,19 @@ abstract class Model implements ArrayAccess
 		return $this->table() . '__' . $this->key();
 	}
 
+    /**
+     * Получить или инициализировать репозиторий модели
+     *
+     * @return Model_Repository
+     */
+    protected function repository()
+    {
+        $modelRepositoryManager = $this->getService(
+            'modelRepositoryManager'
+        );
+        return $modelRepositoryManager->get($this);
+    }
+
 	/**
 	 * Сохранение данных модели
      *
@@ -582,6 +692,9 @@ abstract class Model implements ArrayAccess
 	 */
 	public function save($hardInsert = false)
 	{
+        if (!$this->key()) {
+            $this->isNew = true;
+        }
 		$this->getService('modelManager')->set($this, $hardInsert);
 		return $this;
 	}
@@ -596,7 +709,9 @@ abstract class Model implements ArrayAccess
         if (!is_null($this->scheme)) {
             return $this->scheme;
         }
-		return $this->getService('modelScheme')->scheme($this->table());
+		$scheme = $this->getService('modelScheme')->scheme($this->table());
+        $scheme['signals'] = $scheme['signals'] ?: array();
+        return $scheme;
 	}
 
 	/**
@@ -619,12 +734,30 @@ abstract class Model implements ArrayAccess
         if ($scheme->fields) {
             $schemeFields = array_keys($scheme->fields->__toArray());
         }
+        $updatedFields = array();
+        $helper = $this->helper();
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
-                $this->fields[$field] = $value;
+                $value = $helper->filterValue($this, $field, $value);
+                if (array_key_exists($field, $this->fields) && 
+                    !$helper->validateField($this, $field, $value))  {
+                    $this->errors[$field] = true;
+                } else {
+                    $this->fields[$field] = $value;
+                    $updatedFields[$field] = $value;
+                    if (isset($this->errors[$field])) {
+                        unset($this->errors[$field]);
+                    }
+                }
             } else {
                 $data[$field] = $value;
             }
+        }
+        if ($updatedFields) {
+            $oldUpdatedFields = $this->getUpdatedFields();
+            $this->setUpdatedFields(
+                array_merge($oldUpdatedFields, $updatedFields)
+            );
         }
         if ($data) {
             $this->data($data);
@@ -650,7 +783,7 @@ abstract class Model implements ArrayAccess
 	{
 		$this->lazy = $value;
 	}
-
+    
     /**
      * Изменить схему модели
      *
@@ -669,6 +802,16 @@ abstract class Model implements ArrayAccess
     public function setServiceLocator($serviceLocator)
     {
         self::$serviceLocator = $serviceLocator;
+    }
+
+    /**
+     * Изменить поля для обновления
+     *
+     * @param array $fields
+     */
+    public function setUpdatedFields($fields)
+    {
+        $this->updatedFields = $fields;
     }
 
 	/**
@@ -718,29 +861,9 @@ abstract class Model implements ArrayAccess
             $modelManager->get($this->table(), $this->key(), $this);
         }
         if (is_null($this->fields)) {
-            $this->fields = array(
-                $this->keyField() => null
-            );
+            $this->fields = array($this->keyField() => null);
         }
 		return $this;
-	}
-
-    /**
-     * Валидация модели с использованием схемы валидации
-     *
-     * @param array|Data_Transport $input
-     * @param string $name
-     * @return boolean|array
-     */
-	public function validateWith($input, $name = 'default')
-	{
-        $scheme = $this->scheme();
-        if (!isset($scheme->validators) || !isset($scheme->validators[$name])) {
-            return true;
-        }
-        return $this->getService('modelValidator')->validate(
-            $this, $scheme->validators[$name], $input
-        );
 	}
 
 	/**
@@ -771,14 +894,31 @@ abstract class Model implements ArrayAccess
 		if (is_null($this->fields)) {
             $this->load();
         }
-        $fields = $this->scheme()->fields;
+        $scheme = $this->scheme();
+        $fields = $scheme->fields;
         foreach ($data as $key => $value) {
             if (!isset($fields[$key])) {
                 continue;
             }
+            if ($value == $this->field($key)) {
+                continue;
+            }
             $this->updatedFields[$key] = $value;
         }
+        if (!$this->updatedFields && $this->key() && !$hardUpdate) {
+            return $this;
+        }
         $this->set($this->updatedFields);
-		return $this->save($hardUpdate);
+        $result = $this->save($hardUpdate);
+        if (isset($scheme['updateSignal'])) {
+            $eventManager = $this->getService('eventManager');
+            $signalName = 'update' . str_replace('_', '', $this->modelName());
+            $signal = $eventManager->getSignal($signalName);
+            if ($signal) {
+                $signal->setData($this->getFields());
+                $signal->notify();
+            }
+        }
+		return $result;
 	}
 }

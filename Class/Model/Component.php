@@ -6,10 +6,9 @@
  * Коллекция компонентов может быть получена от модели через метод
  * component ().
  *
- * @author Юрий Шведов
- * @package IcEngine.
+ * @author goorus
  */
-abstract class Model_Component extends Model_Child
+abstract class Model_Component extends Model
 {
 
     /**

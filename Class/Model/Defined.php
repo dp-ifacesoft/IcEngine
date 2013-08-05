@@ -27,7 +27,7 @@ class Model_Defined extends Model
 	 * (non-PHPDoc)
 	 * @see Model::save
 	 */
-	public function save($hard_insert = false)
+	public function save($hardInsert = false)
 	{
 		throw new Exception('It\'s a defined model');
 	}
@@ -36,7 +36,7 @@ class Model_Defined extends Model
 	 * (non-PHPDoc)
 	 * @see Model::update
 	 */
-	public function update(array $data, $hard = false)
+	public function update(array $data, $hardUpdate = false)
 	{
 		throw new Exception('It\'s a defined model');
 	}

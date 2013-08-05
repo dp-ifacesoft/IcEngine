@@ -13,7 +13,7 @@ class Registry
 	 * 
      * @var array
 	 */
-	protected static $data = array ();
+	protected $data = array();
 
 	/**
 	 * Возвращает true, если значение задано и отлично от null.
@@ -24,7 +24,7 @@ class Registry
 	 */
 	public function defined($index)
 	{
-		return isset(self::$data[$index]);
+		return isset($this->data[$index]);
 	}
 
 	/**
@@ -35,7 +35,7 @@ class Registry
 	 */
 	public  function get($index)
 	{
-		return self::$data[$index];
+		return $this->data[$index];
 	}
 
 	/**
@@ -46,7 +46,7 @@ class Registry
 	 */
 	public function set($index, $value)
 	{
-		self::$data[$index] = $value;
+		$this->data[$index] = $value;
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Registry
 	 */
 	public function sget($index)
 	{
-		return isset(self::$data[$index]) ? self::$data[$index] : null;
+		return isset($this->data[$index]) ? $this->data[$index] : null;
 	}
 
 	/**
@@ -68,7 +68,7 @@ class Registry
 	 */
 	public function &rget($index)
 	{
-		return self::$data[$index];
+		return $this->data[$index];
 	}
 
 	/**
@@ -79,6 +79,6 @@ class Registry
 	 */
 	public function rset($index, &$value)
 	{
-		self::$data[$index] = &$value;
+		$this->data[$index] = &$value;
 	}
 }

@@ -2,8 +2,8 @@
 
 /**
  * Сообщение
- * @author neon, Юрий Шведов
- *
+ * 
+ * @author neon, goorus
  * @Service("mailMessage")
  */
 class Mail_Message extends Model
@@ -44,14 +44,6 @@ class Mail_Message extends Model
 		$template = $mailTemplate->byName($dto->template);
 		$mailProviderParams = is_object($dto->mailProviderParams) ?
             $dto->mailProviderParams->__toArray() : $dto->mailProviderParams;
-        $mailProviderId = $dto->mailProviderId;
-		if (!is_numeric($mailProviderId)) {
-			if (!is_object($mailProviderId)) {
-				$mailProviderService = $this->getService('mailProvider');
-				$mailProvider = $mailProviderService->byName($mailProviderId);
-			}
-			$mailProviderId = $mailProvider->key();
-		}
         $helperDate = $this->getService('helperDate');
 		$message = new self(array(
 			'Mail_Template__id'		=> $template->key(),
@@ -62,7 +54,7 @@ class Mail_Message extends Model
 		    'time'					=> $helperDate->toUnix(),
 			'body'					=> $template->body($dto->data),
 			'toUserId'				=> $dto->toUserId,
-			'Mail_Provider__id'		=> $mailProviderId,
+			'mailProvider'          => $dto->mailProvider,
 			'params'				=> json_encode($mailProviderParams)
 		));
 		return $message;
@@ -80,17 +72,16 @@ class Mail_Message extends Model
 			'sendTime'		=> $helperDate->toUnix(),
 			'sendTries'	    => $this->sendTries + 1
 		));
-		$provider = $this->Mail_Provider__id ? $this->Mail_Provider : null;
+		$provider = $this->mailProvider 
+            ? $this->getService('mailProvider')->byName($this->mailProvider) 
+            : null;
 		if (!$provider) {
 			$provider = new Mail_Provider_Mimemail();
 		}
         $result = $provider->send(
-            $this,
-            (array) json_decode($this->params, true)
+            $this, (array) json_decode($this->params, true)
         );
-        $this->update(array(
-            'sended'	=> 1
-        ));
+        $this->update(array('sended' => 1));
         if (!$result) {
             $debug = $this->getService('debug');
 		    $debug->logVar('Sendmail error message');

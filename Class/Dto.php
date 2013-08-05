@@ -10,6 +10,7 @@ class Dto
 {
     /**
      * Параметры по умолчанию
+     * 
      * @var array
      */
     protected static $defaults = array(
@@ -18,12 +19,14 @@ class Dto
 
     /**
      * Данные
+     * 
      * @var array
      */
     protected $fields = array();
 
     /**
      * Схема
+     * 
      * @var array
      */
     protected static $scheme = array();
@@ -37,7 +40,8 @@ class Dto
     }
 
     /**
-     *
+     * @see StdClass::__call
+     * 
      * @param type $method
      * @param type $args
      */
@@ -61,7 +65,8 @@ class Dto
     }
 
     /**
-     *
+     * @see StdClass::__get
+     *  
      * @param type $key
      * @return mixed
      */
@@ -74,7 +79,8 @@ class Dto
     }
 
     /**
-     *
+     * @see StdClass::__set
+     * 
      * @param type $key
      * @param type $value
      */
@@ -95,19 +101,21 @@ class Dto
 
     /**
      * Создаёт экземпляр класса
+     * 
      * @return Dto
      */
-    public function newInstance($name)
+    public function newInstance($name = null)
     {
         if ($name) {
             $className = $name . '_Dto';
             return new $className();
         }
-        return new self();
+        return new static();
     }
 
     /**
      * Установить значения массива
+     * 
      * @return Dto
      */
     public function set()
@@ -123,17 +131,15 @@ class Dto
     }
 
     /**
-     *
+     * Изменить данные
+     * 
      * @param array $array
-     * @return void
+     * @return Dto
      */
     public function setArray($array)
     {
-        if (empty(static::$scheme)) {
-            return $this;
-        }
         foreach ($array as $key => $value) {
-            if (!in_array($key, static::$scheme)) {
+            if (!empty(static::$scheme) && !in_array($key, static::$scheme)) {
                 continue;
             }
             $this->fields[$key] = $value;
