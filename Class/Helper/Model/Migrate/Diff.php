@@ -44,8 +44,13 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
             count($schemeAttributeNames) != count($sourceAttributeNames)) {
             return true;
         }
-        if (array_diff($schemeAttributes, $sourceAttributes)) {
-            return true;
+        foreach ($schemeAttributeNames as $key) {
+            if (!isset($sourceAttributes[$key])) {
+                return false;
+            }
+            if ($schemeAttributes[$key] != $sourceAttributes[$key]) {
+                return false;
+            }
         }
         return false;
     }
@@ -201,8 +206,10 @@ class Helper_Model_Migrate_Diff extends Helper_Abstract
             $newField->setSize($fieldAttrs[1]['Size']);
         }
         $newField->setNullable(in_array('Not_Null', $fieldAttrs[1]));
-        $newField->setAutoIncrement(in_array('Auto_Icrement', $fieldAttrs[1]));
-        $newField->setUnsigned(in_array('Unsigned', $fieldAttrs[1]));
+        $newField->setAutoIncrement(
+            in_array('Auto_Icrement', $fieldAttrs[1], true)
+        );
+        $newField->setUnsigned(in_array('Unsigned', $fieldAttrs[1], true));
         if (!empty($fieldAttrs[1]['Comment'])) {
             $newField->setComment($fieldAttrs[1]['Comment']);
         }

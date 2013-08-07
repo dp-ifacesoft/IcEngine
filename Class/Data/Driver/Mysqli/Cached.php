@@ -185,7 +185,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 			$options = $this->getDefaultOptions();
 		}
 		$result = $this->callMethod($query, $options);
-		if ($this->errno) {
+        if ($this->errno) {
 			throw new Exception($this->error . "\n" . $this->sql, $this->errno);
 		}
 		if (!$this->errno && is_null($result)) {

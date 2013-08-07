@@ -12,6 +12,8 @@ array(
 {/if}
 {$pad}){else}
 '{$data}'{/if}
+{elseif !$data && !is_null($data)}
+{$data}
 {else}
 null
 {/if}
