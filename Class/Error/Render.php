@@ -52,7 +52,9 @@ class Error_Render extends Manager_Abstract
      */
 	public function render (Exception $e)
 	{
-        $msg = 'url: ' . $_SERVER['REQUEST_URI'] . "\n" .
+        $requestUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : './cli';
+
+        $msg = 'url: ' . $requestUri . "\n" .
             '[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
