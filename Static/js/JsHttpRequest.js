@@ -288,6 +288,7 @@ req.onreadystatechange=function(){
 if(req.readyState==4){
 _36(req.responseJS,req.responseText);
 }
+console.log(req);
 };
 req.open(null,url,true);
 req.send(_35);
