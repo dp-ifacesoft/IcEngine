@@ -123,7 +123,25 @@ class Helper_Meta
      */
     public function set($className, $data)
     {
-        $this->write($className . '_Meta', $data);
+        $notEmpty = false;
+        foreach ($data as $i => &$section) {
+            if (!is_array($section)) {
+                continue;
+            }
+            foreach ($section as $j => $value) {
+                if ($value) {
+                    $notEmpty = true;
+                } else {
+                    unset($section[$j]);
+                }
+            }
+            if (!$section) {
+                unset($data[$i]);
+            }
+        }
+        if ($notEmpty) {
+            $this->write($className . '_Meta', $data);
+        }
     }
     
     /**

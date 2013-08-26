@@ -41,7 +41,9 @@ class Controller_Annotation_Orm extends Controller_Abstract
                 echo $className . PHP_EOL;
                 $context->helperModelMigrateSync->resync($className);
             }
-            if (!$scheme->fields) {
+            $dataSource = $context->modelScheme->dataSource($className);
+            if (!$context->helperModelTable->exists($className) && 
+                strpos(get_class($dataSource), 'Mysql') !== false) {
                 $context->helperModelTable->create($className);
             }
         }
