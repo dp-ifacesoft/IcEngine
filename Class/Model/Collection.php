@@ -583,11 +583,12 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		return $this->lastQuery;
 	}
 
-	/**
-	 * Загрузка данных
+    /**
+     * Загрузка данных
      *
-	 * @return Model_Collection
-	 */
+     * @param array $columns
+     * @return Model_Collection
+     */
 	public function load($columns = array())
 	{
         if (!is_null($this->items)) {
@@ -710,9 +711,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      * Получить чистые данные
      *
      * @param array $columns
+     * @param string $index
      * @return array
      */
-    public function raw($columns = array())
+    public function raw($columns = array(), $index = null)
     {
         $helperArray = $this->getService('helperArray');
 		$keyField = $this->keyField();
@@ -831,7 +833,11 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
             $this->rawFields = array();
         }
-        return array_values((array) $result);
+        $readyResult = array_values((array) $result);
+        if ($index) {
+            $readyResult = $helperArray->reindex($readyResult, $index);
+        }
+        return $readyResult;
     }
 
     /**

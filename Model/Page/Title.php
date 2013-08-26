@@ -24,12 +24,13 @@
  */
 class Page_Title extends Model
 {
-	/**
-	 * Получить тайтл по городу и урлу
-	 *
-	 * @param string $cityId
-	 * @param string $uri
-	 */
+    /**
+     * Получить тайтл по городу и урлу
+     *
+     * @param string $cityId
+     * @param string $uri
+     * @return null
+     */
 	public function byAddress($cityId, $uri)
 	{
         $modelManager = $this->getService('modelManager');

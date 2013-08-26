@@ -34,7 +34,7 @@ class Controller_Annotation extends Controller_Abstract
         $config = $context->configManager->get('Data_Provider_Manager');
         $annotationConfig = $config['Annotation'];
         $filename = IcEngine::root() . $annotationConfig['params']['path'] .
-            $name;
+            str_replace('_', '/', $name) . '/Meta.php';
         if (file_exists($filename)) {
             unlink($filename);
         }
@@ -61,9 +61,6 @@ class Controller_Annotation extends Controller_Abstract
                     ' (' . $class['file'] . ') done.' . PHP_EOL;
             }
             $className = $class['class'];
-            $context->controllerManager->call('Annotation', 'flush', array(
-                'name'  => $class['class']
-            ));
             ob_start();
             $helperAnnotationUpdate->getDelegees(
                 $delegees, $className, $delegeeData, $class['file']
@@ -72,6 +69,7 @@ class Controller_Annotation extends Controller_Abstract
             ob_end_clean();
             if ($content) {
                 echo 'Output: ' . $className . PHP_EOL;
+                echo $content . PHP_EOL;
             }
         }
         foreach ($delegeeData as $delegeeName => $data) {

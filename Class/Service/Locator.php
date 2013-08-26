@@ -33,7 +33,7 @@ class Service_Locator
         return self::$services[$serviceName];
     }
 
-    /**
+    /**$serviceName
      * Получить источник услуг
      *
      * @return Service_Source
@@ -43,6 +43,17 @@ class Service_Locator
         return $this->source();
     }
 
+    /**
+     * Зарегистрирован ли сервис
+     * 
+     * @param string $serviceName
+     * @return boolean
+     */
+    public function isRegistered($serviceName)
+    {
+        return isset(self::$services[$serviceName]);
+    }
+    
     /**
      * Привести имя класса к стандартному имени сервиса
      * 

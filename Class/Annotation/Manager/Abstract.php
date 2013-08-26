@@ -21,6 +21,23 @@ abstract class Annotation_Manager_Abstract
 	 */
 	protected $source;
 
+    /**
+     * Сравнить новый и существующий сеты аннотаций
+     * 
+     * @param string $className
+     * @param Annotation_Set $annotationSet
+     * @return boolean
+     */
+    public function compare($className)
+    {
+        $existsAnnotationSet = $this->repository->get($className);
+        if (!$existsAnnotationSet) {
+            return false;
+        }
+        $parsedAnnotationSet = $this->source->get($className);
+        return $existsAnnotationSet->compare($parsedAnnotationSet);
+    }
+    
 	/**
 	 * Получить набор аннотациий класса по экземпляру класса
 	 *

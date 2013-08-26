@@ -15,12 +15,19 @@ class Data_Provider_Annotation extends Data_Provider_Abstract
     protected $annotations = array();
     
     /**
+     * Мета хелпер
+     * 
+     * @var Helper_Meta
+     */
+    protected $helper;
+    
+    /**
      * Путь до директории с аннотациями
      *
      * @var string
      */
     protected $path = 'Ice/Var/Annotation/';
-
+    
     /**
 	 * @inheritdoc
 	 */
@@ -31,26 +38,22 @@ class Data_Provider_Annotation extends Data_Provider_Abstract
 		}
 		return parent::_setOption($key, $value);
 	}
-
+    
     /**
      * @inheritdoc
      */
     public function get($key, $plain = false)
     {
         if (isset($this->annotations[$key])) {
-            $json = $this->annotations[$key];
+            $data = $this->annotations[$key];
             $annotationSet =  new Annotation_Set(
-                $json['class'], $json['methods'], $json['properties']
+                $data['class'], $data['methods'], $data['properties']
             );
             return $annotationSet;
         }
-        $filename = IcEngine::root() . $this->path . $key;
-        if (file_exists($filename)) {
-            $json = json_decode(file_get_contents($filename), true);
-            $annotationSet =  new Annotation_Set(
-                $json['class'], $json['methods'], $json['properties']
-            );
-            $this->annotations[$key] = $json;
+        if (IcEngine::getLoader()->tryLoad($key . '_Meta')) {
+            $annotationSet = $this->helper()->getAnnotationSet($key);
+            $this->annotations[$key] = $annotationSet->getData();
             return $annotationSet;
         }
     }
@@ -64,17 +67,27 @@ class Data_Provider_Annotation extends Data_Provider_Abstract
     {
         return $this->path;
     }
+    
+    /**
+     * Получить мета-хелпер
+     * 
+     * @return Helper_Meta
+     */
+    public function helper()
+    {
+        if (is_null($this->helper)) {
+            $this->helper = new Helper_Meta();
+            $this->helper->setPath($this->path);
+        }
+        return $this->helper;
+    }
 
     /**
      * @inheritdoc
      */
     public function set($key, $value, $expiration = 0, $tags = array())
     {
-        $filename = IcEngine::root() . $this->path . $key;
-		if (!file_exists(IcEngine::root() . $this->path)) {
-			mkdir(IcEngine::root() . $this->path);
-		}
-        file_put_contents($filename, json_encode($value->getData()));
+        $this->helper()->set($key, $value->getData());
     }
 
     /**

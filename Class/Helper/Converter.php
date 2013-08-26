@@ -10,11 +10,14 @@ class Helper_Converter
 {
 	/**
 	 * Создает текстовое представление массива по синтаксису php
+     * 
+     * @param array $data
+     * @param integer $offer
+     * @return string
 	 */
 	public function arrayToString($data, $offset = 0)
 	{
-		$locator = IcEngine::serviceLocator();
-		$viewRenderManager = $locator->getService('viewRenderManager');
+		$viewRenderManager = IcEngine::getManager('View_Render');
 		$smarty = $viewRenderManager->byName('Smarty');
 		$padding = null;
 		$padding2 = 0;
@@ -24,6 +27,7 @@ class Helper_Converter
 			}
 			$padding .= '	';
 		}
+        $smarty->assign('helper', $this);
 		$smarty->assign('data', $data);
 		$smarty->assign('offset', $offset);
 		$smarty->assign('padding', $padding);

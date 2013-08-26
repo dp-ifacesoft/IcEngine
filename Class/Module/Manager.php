@@ -16,11 +16,12 @@ class Module_Manager extends Manager_Abstract
         'defaultModule'     => 'Ice',
         'fromModel'         => false,
         'loaderPaths'       => array(
-            'Class'         => 'Class',
-            'Model'         => 'Class',
-            ''              => 'Class',
-            'Controller'    => 'Controller',
-            'Vendor'        => 'Vendor'
+            'Class'             => 'Class',
+            'Model'             => 'Class',
+            ''                  => 'Class',
+            'Controller'        => 'Controller',
+            'Vendor'            => 'Vendor',
+            'Var/Annotation'    => 'Class'
         ),
         'modules'           => array(),
         'viewPath'          => 'View'

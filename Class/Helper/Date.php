@@ -117,10 +117,11 @@ class Helper_Date
 
     /**
      * Получение даты по номеру недели в году
-     * 
-     * @param integer $week_number Номер недели в году в формате ISO-8601.
+     *
+     * @param $week
      * @param integer $year Четырехзначный номер года.
      * Если параметр не указан, будет взят номер текущего года.
+     * @internal param int $week_number Номер недели в году в формате ISO-8601.
      * @return integer|false unix timestamp
      */
     public function dateByWeek ($week, $year = null)
@@ -128,6 +129,37 @@ class Helper_Date
         $year = $year ? $year : date('Y');
         $week = sprintf('%02d', $week);
         return strtotime($year . 'W' . $week . '1 00:00:00');
+    }
+
+    /**
+     * @desc Преобразует дату в "24 февраля 2010" (?) года.
+     * Без года, если дата соответсвует текущему году.
+     * @param string $date
+     * @return string
+     */
+    public function toCasualDate ($date)
+    {
+        $date = date ('Y-m-d', strtotime ($date));
+
+        if ($date >= 0)
+        {
+            list (
+                $year,
+                $month,
+                $day
+                ) = explode ('-', $date);
+
+            $currentYear = date ('Y');
+
+            $result =
+                (int) $day .
+                '&nbsp' .
+                Helper_Date::$monthesRu [2][(int) $month] .
+                ($year != $currentYear ? ' ' . $year : '');
+
+            return $result;
+
+        }
     }
 
     /**
@@ -149,8 +181,9 @@ class Helper_Date
      * format = 1 : 15 мая 2012 года 10:40
      *
      * @param type $string
-     * @param type $showYear
-     * @param type $format
+     * @param bool|\type $showYear
+     * @param int|\type $format
+     * @param bool $showTime
      * @return type
      */
 	public function datetime($string, $showYear = false, $format = 0,
@@ -203,12 +236,12 @@ class Helper_Date
 		return (int) (365.25 * $y + 30.6 * $m + $d);
 	}
 
-	/**
-	 * Возвращает номер часа от начала эры
-	 * 
-     * @param integer $date Дата.
-	 * @return intger Номер недели.
-	 */
+    /**
+     * Возвращает номер часа от начала эры
+     *
+     * @param bool|int $date Дата.
+     * @return intger Номер недели.
+     */
 	public function eraHourNum($date = false)
 	{
 		if ($date === null) {
@@ -217,12 +250,13 @@ class Helper_Date
 		return $this->eraDayNum($date) * 24 + (int) date('H', $date);
 	}
 
-	/**
-	 * Возвращает номер минуты от начала эры
-	 * 
-     * @param integer $date Дата.
-	 * @return intger Номер недели.
-	 */
+    /**
+     * Возвращает номер минуты от начала эры
+     *
+     * @param $delta
+     * @param bool|int $date Дата.
+     * @return intger Номер недели.
+     */
 	public function eraMinNum($delta, $date = false)
 	{
 		if ($date === null) {
@@ -287,15 +321,16 @@ class Helper_Date
 	 */
 	public function monthName($monthNum, $form = 1)
 	{
-		return self::$monthesR[$form][(int) $monthNum];
+		return self::$monthesRu[$form][(int) $monthNum];
 	}
 
-	/**
-	 * Получение даты и времени из строки.
+    /**
+     * Получение даты и времени из строки.
      *
-	 * @param mixed $date
-	 * @return DateTime|null
-	 */
+     * @param $str
+     * @internal param mixed $date
+     * @return DateTime|null
+     */
 	public function parseDateTime($str)
 	{
 		if (is_numeric($str)) {

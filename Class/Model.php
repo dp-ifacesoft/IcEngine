@@ -120,6 +120,7 @@ abstract class Model implements ArrayAccess
      *
      * @param string $method
      * @param array $args
+     * @throws Exception
      * @return mixed
      */
     public function __call($method, $args)
@@ -201,11 +202,13 @@ abstract class Model implements ArrayAccess
 	}
 
     /**
-	 * Изменяет значение поля
+     * Изменяет значение поля
      *
-	 * @param string $field Поле
-	 * @param mixed $value Значение
-	 */
+     * @param string $field Поле
+     * @param mixed $value Значение
+     * @throws Exception
+     * @return mixed
+     */
 	public function __set($field, $value)
 	{
         if (!$this->fields) {

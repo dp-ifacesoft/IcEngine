@@ -80,9 +80,16 @@ class Helper_Annotation_Update extends Helper_Abstract
      */
     public function getDelegees($delegees, $className, &$delegeeData, $filename)
     {
-        $annotation = $this->getService('helperAnnotation')
-            ->getAnnotation($className)
-            ->getData();
+        $helperAnnotation = $this->getService('helperAnnotation');
+        $annotationManager = $helperAnnotation->getManager();
+        if (!$annotationManager->compare($className)) {
+            $annotationSet = $annotationManager->getSource()->get($className);
+            $annotationManager->getRepository()->set($className, $annotationSet);
+            $annotation = $annotationSet->getData();
+        } else {
+            $annotation = $annotationManager->getAnnotation($className)
+                ->getData();
+        }
         $moduleName = !empty($annotation['class']['Module'])
             ? reset($annotation['class']['Module'][0]) : null;
         foreach ($annotation as $delegeeType => $annotationData) {

@@ -13,20 +13,27 @@ class Annotation_Set
 	 * @var array
 	 */
 	protected $classAnnotation;
+    
+    /**
+     * Хелпер для работы с массивами
+     * 
+     * @var Helper_Array
+     */
+    protected static $helper;
 
 	/**
 	 * Полученные аннотации методов
 	 *
 	 * @var array
 	 */
-	protected $methodAnnotations;
+	protected $methodsAnnotations;
 
 	/**
 	 * Полученные аннотации полей
 	 *
 	 * @var array
 	 */
-	protected $propertyAnnotations;
+	protected $propertiesAnnotations;
 
 	/**
 	 * Конструктор
@@ -38,9 +45,22 @@ class Annotation_Set
 	public function __construct($class, $methods, $properties)
 	{
 		$this->classAnnotation = $class;
-		$this->methodAnnotations = $methods;
-		$this->propertyAnnotations = $properties;
+		$this->methodsAnnotations = $methods;
+		$this->propertiesAnnotations = $properties;
 	}
+    
+    /**
+     * Сравнить сеты аннотаций
+     * 
+     * @param Annotation_Set $annotationSet
+     * @return boolean
+     */
+    public function compare($annotationSet)
+    {
+        $data = $this->getData();
+        $otherData = $annotationSet->getData();
+        return !$this->helper()->diffRecursive($data, $otherData);
+    }
 
 	/**
 	 * Получить аннотацию класса
@@ -62,9 +82,22 @@ class Annotation_Set
     {
         return array(
             'class'         => $this->classAnnotation,
-            'methods'       => $this->methodAnnotations,
-            'properties'    => $this->propertyAnnotations
+            'methods'       => $this->methodsAnnotations,
+            'properties'    => $this->propertiesAnnotations
         );
+    }
+    
+    /**
+     * Получить хелпер
+     * 
+     * @return Helper_Array
+     */
+    public function helper()
+    {
+        if (!self::$helper) {
+            self::$helper = new Helper_Array();
+        }
+        return self::$helper;
     }
     
 	/**
@@ -85,8 +118,8 @@ class Annotation_Set
 	 */
 	public function getMethod($methodName)
 	{
-		return isset($this->methodAnnotations[$methodName])
-			? $this->methodAnnotations[$methodName] : null;
+		return isset($this->methodsAnnotations[$methodName])
+			? $this->methodsAnnotations[$methodName] : null;
 	}
 
 	/**
@@ -97,8 +130,8 @@ class Annotation_Set
 	 */
 	public function getProperty($propertyName)
 	{
-		return isset($this->propertyAnnotations[$propertyName])
-			? $this->propertyAnnotations[$propertyName] : null;
+		return isset($this->propertiesAnnotations[$propertyName])
+			? $this->propertiesAnnotations[$propertyName] : null;
 	}
 
 	/**
@@ -109,7 +142,7 @@ class Annotation_Set
 	 */
 	public function setMethod($methodName, $annotationRow)
 	{
-		$this->methodAnnotations[$methodName] = $annotationRow;
+		$this->methodsAnnotations[$methodName] = $annotationRow;
 	}
 
 	/**
@@ -120,6 +153,6 @@ class Annotation_Set
 	 */
 	public function setProperty($propertyName, $annotationRow)
 	{
-		$this->propertyAnnotations[$propertyName] = $annotationRow;
+		$this->propertiesAnnotations[$propertyName] = $annotationRow;
 	}
 }

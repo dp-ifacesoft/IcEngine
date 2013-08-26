@@ -23,7 +23,8 @@ $queryBuilder = $this->getService('query');
 $field{$i} = new \Model_Field('{$fieldName}');
 $field{$i}->setType('{$attr[Model_Field::ATTR_TYPE]}');
 {if !empty($attr[Model_Field::ATTR_SIZE])}
-$field{$i}->setSize({$attr[Model_Field::ATTR_SIZE]});
+{$size=$attr[Model_Field::ATTR_SIZE]}
+$field{$i}->setSize({if is_array($size)}array({$size|implode:','}){else}{$size}{/if});
 {/if}
 {if isset($attr[Model_Field::ATTR_DEFAULT])}
 $field{$i}->setDefault('{$attr[Model_Field::ATTR_DEFAULT]}');    
