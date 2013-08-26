@@ -59,7 +59,8 @@ class Annotation_Set
     {
         $data = $this->getData();
         $otherData = $annotationSet->getData();
-        return !$this->helper()->diffRecursive($data, $otherData);
+        return !$this->helper()->diffRecursive($data, $otherData) &&
+            !$this->helper()->diffRecursive($otherData, $data);
     }
 
 	/**
