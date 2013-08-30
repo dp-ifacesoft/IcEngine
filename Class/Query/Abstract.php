@@ -118,6 +118,11 @@ class Query_Abstract
 			$from = reset($from);
 			$modelName = $from[Query::TABLE];
 		}
+        if (count($args) == 2) {
+            if (is_string($args[0]) && is_array($args[1])) {
+                $args = array(array($args[0], $args[1]));
+            }
+        }
 		foreach ($args as $arg) {
 			$name = $arg;
 			$params = array();

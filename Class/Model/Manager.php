@@ -35,15 +35,14 @@ class Model_Manager extends Manager_Abstract
 	 */
 	public function byKey($modelName, $key, $lazy = false)
 	{
-		$locator = IcEngine::serviceLocator();
-        $resourceManager = $locator->getService('resourceManager');
+        $resourceManager = $this->getService('resourceManager');
         $result = $resourceManager->get('Model', $modelName . '__' . $key);
         if ($result) {
             return $result;
         }
-        $modelScheme = $locator->getService('modelScheme');
+        $modelScheme = $this->getService('modelScheme');
         $keyField = $modelScheme->keyField($modelName);
-        $queryBuilder = $locator->getService('query');
+        $queryBuilder = $this->getService('query');
         if (!$lazy) {
             $query = $queryBuilder->where($keyField, $key);
             return $this->byQuery($modelName, $query);
@@ -51,7 +50,7 @@ class Model_Manager extends Manager_Abstract
         $model = $this->create($modelName, array());
         $model->set($keyField, $key);
         $query = $queryBuilder->select('*')->where($keyField, $key);
-        $locator->getService('unitOfWork')->push($query, $model, 'Simple');
+        $this->getService('unitOfWork')->push($query, $model, 'Simple');
         $model->setLazy(true);
         return $model;
 	}

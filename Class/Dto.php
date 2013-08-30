@@ -90,6 +90,17 @@ class Dto
     }
 
     /**
+     * Получить поле
+     * 
+     * @param string $field
+     * @return mixed
+     */
+    public function getField($field)
+    {
+        return $this->__get($field);
+    }
+    
+    /**
      * Получить данные Dto
      *
      * @return array

@@ -23,17 +23,23 @@ class Service_Locator
      * Получить сервис
      *
      * @param string $serviceName
+     * @return mixed
      */
     public function getService($serviceName)
     {
-        if (!isset(self::$services[$serviceName])) {
-            $service = $this->source()->getService($serviceName);
-            $this->registerService($serviceName, $service);
+        $serviceNames = func_get_args();
+        $result = array();
+        foreach ($serviceNames as $serviceName) {
+            if (!isset(self::$services[$serviceName])) {
+                $service = $this->source()->getService($serviceName);
+                $this->registerService($serviceName, $service);
+            }
+            $result[] = self::$services[$serviceName];
         }
-        return self::$services[$serviceName];
+        return count($serviceNames) > 1 ? $result : reset($result);
     }
 
-    /**$serviceName
+    /**
      * Получить источник услуг
      *
      * @return Service_Source

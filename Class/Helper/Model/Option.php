@@ -27,6 +27,10 @@ class Helper_Model_Option extends Helper_Abstract
         $filename = IcEngine::root() . 'Ice/Model/' . 
             str_replace('_', '/', $modelName) . '/Option/' .
             str_replace('_', '/', $optionName) . '.php';
+        $dirname = dirname($filename);
+        if (!is_dir($dirname)) {
+            mkdir($dirname, 0755, true);
+        }
         $output = $this->helperCodeGenerator->fromTemplate(
             'modelOption', array(
                 'name'      => $optionName,

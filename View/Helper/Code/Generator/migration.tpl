@@ -24,7 +24,7 @@
 	 * 
      * @var string
 	 */
-	public $model{if $modelName} = '{$modelName}'{/if};
+	public $model{if !empty($modelName)} = '{$modelName}'{/if};
 
 	/**
 	 * @see Migration_Abstract::down()

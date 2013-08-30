@@ -3,7 +3,7 @@
 /**
  * Базовая модель для всех сущностей
  *
- * @author goorus, morph
+ * @author morph
  */
 abstract class Model implements ArrayAccess
 {
