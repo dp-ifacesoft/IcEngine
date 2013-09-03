@@ -10,7 +10,7 @@ class Dto
 {
     /**
      * Параметры по умолчанию
-     * 
+     *
      * @var array
      */
     protected static $defaults = array(
@@ -19,14 +19,14 @@ class Dto
 
     /**
      * Данные
-     * 
+     *
      * @var array
      */
     protected $fields = array();
 
     /**
      * Схема
-     * 
+     *
      * @var array
      */
     protected static $scheme = array();
@@ -41,7 +41,7 @@ class Dto
 
     /**
      * @see StdClass::__call
-     * 
+     *
      * @param type $method
      * @param type $args
      */
@@ -66,7 +66,7 @@ class Dto
 
     /**
      * @see StdClass::__get
-     *  
+     *
      * @param type $key
      * @return mixed
      */
@@ -80,13 +80,24 @@ class Dto
 
     /**
      * @see StdClass::__set
-     * 
+     *
      * @param type $key
      * @param type $value
      */
     public function __set($key, $value)
     {
         $this->fields[$key] = $value;
+    }
+
+    /**
+     * Получить значение поля
+     *
+     * @param string $key
+     * @return type
+     */
+    public function getField($key)
+    {
+        return isset($this->fields[$key]) ? $this->fields[$key] : null;
     }
 
     /**
@@ -101,7 +112,7 @@ class Dto
 
     /**
      * Создаёт экземпляр класса
-     * 
+     *
      * @return Dto
      */
     public function newInstance($name = null)
@@ -115,7 +126,7 @@ class Dto
 
     /**
      * Установить значения массива
-     * 
+     *
      * @return Dto
      */
     public function set()
@@ -132,7 +143,7 @@ class Dto
 
     /**
      * Изменить данные
-     * 
+     *
      * @param array $array
      * @return Dto
      */

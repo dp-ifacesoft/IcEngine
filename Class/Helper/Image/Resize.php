@@ -106,7 +106,15 @@ class Helper_Image_Resize extends Helper_Abstract
         if (!file_exists($input)) {
             return false;
         }
+        if (!is_readable($input)) {
+            echo 'not readable' . PHP_EOL;
+            return false;
+        }
         list($inputWidth, $inputHeight, $inputType) = getimagesize($input);
+        if (!$inputWidth || !$inputHeight) {
+            echo 'incorrect file' . PHP_EOL;
+            return false;
+        }
         //пропорционально
 		if ($proportional || $scale) {
             if (!$scale) {
