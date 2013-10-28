@@ -112,6 +112,22 @@ class Helper_Array extends Helper_Abstract
     }
 
     /**
+     * Группировка по полю
+     * 
+     * @param array $array Массив
+     * @param string $fieldName название поля
+     * @return array
+     */
+    public function group($array, $fieldName)
+    {
+        $groups = array();
+        foreach ($array as $item) {
+            $groups[$item[$fieldName]][] = $item;
+        }
+        return $groups;
+    }
+    
+    /**
      * Переиндексировать массив по полю
      *
      * @param array $array
