@@ -22,6 +22,9 @@ class Manager_Simple extends Manager_Abstract
         if (!class_exists($objectClassName) && $default) {
             $objectClassName = $plainName . '_' . $default;
         }
+        if (!class_exists($objectClassName)) {
+            return null;
+        }
         $object = new $objectClassName;
         return $object;
     }
