@@ -277,7 +277,8 @@ class Helper_Image
 		}
         $fields = $locator->getService('modelScheme')
             ->scheme('Component_Image')->fields->__toArray();
-        $dateFieldName = in_array('createdAt', $fields) ? 'createdAt' : 'date';
+        $dateFieldName = in_array('createdAt', array_keys($fields)) ? 
+            'createdAt' : 'date';
         $data = array(
 			'table'			=> $table,
 			'rowId'			=> $row_id,
