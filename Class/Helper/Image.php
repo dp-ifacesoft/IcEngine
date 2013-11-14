@@ -275,10 +275,12 @@ class Helper_Image
 		if (!$sizing) {
 			$sizing = $this->_sizing($type);
 		}
-		$image = $modelManager->create('Component_Image', array(
+        $fields = $locator->getService('modelScheme')
+            ->scheme('Component_Image')->fields->__toArray();
+        $dateFieldName = in_array('createdAt', $fields) ? 'createdAt' : 'date';
+        $data = array(
 			'table'			=> $table,
 			'rowId'			=> $row_id,
-			'date'			=> $helperDate->toUnix(),
 			'author'		=> '',
 			'text'			=> '',
             'name'          => $type,
@@ -286,7 +288,9 @@ class Helper_Image
 			'smallUrl'		=> '',
 			'originalUrl'	=> '',
 			'User__id'		=> $user->key()
-		));
+		);
+        $data[$dateFieldName] = $helperDate->toUnix();
+		$image = $modelManager->create('Component_Image', $data);
 		$image->save();
 		$dst_path = $this->config['upload_path'];
 		$original = $this->_filename(
