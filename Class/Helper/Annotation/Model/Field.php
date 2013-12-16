@@ -5,7 +5,7 @@
  * 
  * @author morph
  * @Service("helperAnnotationModelField")
- * @Injectible
+ * @Injectable
  */
 class Helper_Annotation_Model_Field 
 {
