@@ -5,7 +5,7 @@
  * 
  * @author morph
  * @Service("helperMigrationModel")
- * @Injectible
+ * @Injectable
  */
 class Helper_Migration_Model extends Helper_Abstract
 {
