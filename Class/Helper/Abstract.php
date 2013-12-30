@@ -7,7 +7,7 @@
  */
 class Helper_Abstract
 {
-    /**
+    /** 
      * @var Service_Locator
      */
     protected static $serviceLocator = null;

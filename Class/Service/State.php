@@ -80,7 +80,7 @@ class Service_State
             foreach (reset($injectData) as $serviceName) {
                 $args[] = $serviceLocator->getService($serviceName);
             }
-        } elseif (isset($this->annotations['class']['Injectible'])) {
+        } elseif (isset($this->annotations['class']['Injectable'])) {
             $methodReflection = $this->getMethodReflection($method);
             $methodArgs = $methodReflection->getParameters();
             $serviceNames = array_slice($methodArgs, count($args));
