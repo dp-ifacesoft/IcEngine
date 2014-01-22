@@ -145,6 +145,99 @@ class Helper_String
     }
 
     /**
+     * Получение превью для текста.
+     * @param string    $text
+     * @param int       $length
+     * @param bool      $wordsafe
+     * @param bool      $dots
+     * @return string   Длина превью с учетом кодировки.
+     */
+    public function superSmartPreview ($text, $length = 150,
+        $wordsafe = true, $dots = true)
+    {
+        $text = stripslashes($text);
+        $text = $this->html2text($text);
+        $text = trim($text);
+        return $this->truncateUtf8($text, $length, $wordsafe, $dots);
+
+    }
+
+    /**
+     * @desc Перевод html в текст
+     * @param string $document Исходный текст с тэгами
+     * @return string Полученный чистый текст
+     */
+    public function html2text ($document)
+    {
+        $search = array('@<script[^>]*?>.*?</script>@si',  // Strip out javascript
+            '@<[\/\!]*?[^<>]*?>@si',            // Strip out HTML tags
+            '@<style[^>]*?>.*?</style>@siU',    // Strip style tags properly
+            '@<![\s\S]*?--[ \t\n\r]*>@'         // Strip multi-line comments including CDATA
+        );
+        $text = preg_replace($search, '', $document);
+        return $text;
+    }
+
+    /**
+     * Возвращает строку, усеченную до заданной длины с учетом кодировки.
+     * Гарантируется, что в конце строки не останется части мультибайтового символа.
+     * 10x to Drupal
+     *
+     * @param string $string
+     * 		Исходная строка
+     * @param integer $len
+     * 		Необходимая длина
+     * @param boolean $wordsafe
+     * 		Сохранение цельных слов. Если true, усечение произойдет по пробелу.
+     * @param boolean $dots
+     * 		Вставить многоточие в конец строки, если строка была усечена.
+     * @return string
+     * 		Усеченная строка.
+     */
+    public function truncateUtf8($string, $len, $wordsafe = false, $dots = false)
+    {
+        $slen = strlen ($string);
+
+        if ($slen <= $len)
+        {
+            return $string;
+        }
+
+        if ($wordsafe)
+        {
+            $end = $len;
+            while (($string[--$len] != ' ') && ($len > 0)) {};
+            if ($len == 0)
+            {
+                $len = $end;
+            }
+        }
+        if ((ord($string[$len]) < 0x80) || (ord($string[$len]) >= 0xC0))
+        {
+        	return substr($string, 0, $len) . ($dots ? ' ...' : '');
+        }
+        $p = 0;
+        while ($len > 0 && $p < strlen ($string))
+        {
+            if (ord ($string[$p]) >= 0x80 && ord ($string[$p]) < 0xC0)
+            {
+                $p++;
+            }
+            $len--;
+            $p++;
+        };
+        if (
+            $p < strlen ($string) &&
+            ord ($string[$p]) >= 0x80 && ord ($string[$p]) < 0xC0
+        )
+        {
+            $p++;
+        }
+
+        return substr ($string, 0, $p) . ($dots ? ' ...' : '');
+    }
+
+    /**
 	 * Получение превью для текста
      *
 	 * @param string $text
