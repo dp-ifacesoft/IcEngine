@@ -833,14 +833,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 
                     if (!empty($subColumns[0])) {
                         $result[$item[$keyField]][$fieldName] = isset($item[$fieldName])
-                        ? $item[$fieldName]
-                        : $item['data'][$fieldName];
+                            ? $item[$fieldName]
+                            : (isset($item['data'][$fieldName])
+                                ? $item['data'][$fieldName]
+                                : null);
                     } else {
                         $result[$item[$keyField]][$fieldName] = isset($item['data'][$fieldName])
-                        ? $item['data'][$fieldName]
-                            :$subColumns[0];
+                            ? $item['data'][$fieldName]
+                            : $subColumns[0];
                     }
-                  }
+                }
             }
             $this->rawFields = array();
         }
