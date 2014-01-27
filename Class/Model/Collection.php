@@ -714,7 +714,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      * @param string $index
      * @return array
      */
-    public function raw($columns = array(), $index = null)
+    public function raw($columns = array(), $index = null, $addictMode = true)
     {
         $helperArray = $this->getService('helperArray');
         $keyField = $this->keyField();
@@ -798,6 +798,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 $result[$row] = array($columnName => $row);
             }
         }
+
         foreach ($this->items as $item) {
             if (!is_array($this->items) || !isset($item['data'])) {
                 continue;
@@ -816,40 +817,44 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             );
         }
 
-        if ($this->rawFields) {
-            foreach ($this->items as $item) {
-                $subColumns = $helperArray->column(
-                    $item, (array)$this->rawFields
-                );
-                if (empty($subColumns)) {
-                    continue;
-                }
-                if (!isset($result[$item[$keyField]])) {
-                    $result[$item[$keyField]] = array();
-                }
+        /* Наркоманы херовы */
+        if ($addictMode) {
+            if ($this->rawFields) {
+                foreach ($this->items as $item) {
+                    $subColumns = $helperArray->column($item, (array)$this->rawFields);
+                    if (empty($subColumns)) {
+                        continue;
+                    }
+                    if (!isset($result[$item[$keyField]])) {
+                        $result[$item[$keyField]] = array();
+                    }
 
-                foreach ($this->rawFields as $i => $fieldName) {
-                    $result[$item[$keyField]][$fieldName] = null;
+                    foreach ($this->rawFields as $i => $fieldName) {
+                        $result[$item[$keyField]][$fieldName] = null;
 
-                    if (!empty($subColumns[0])) {
-                        $result[$item[$keyField]][$fieldName] = isset($item[$fieldName])
-                            ? $item[$fieldName]
-                            : (isset($item['data'][$fieldName])
+                        if (!empty($subColumns[0])) {
+                            $result[$item[$keyField]][$fieldName] = isset($item[$fieldName])
+                                ? $item[$fieldName]
+                                : (isset($item['data'][$fieldName])
+                                    ? $item['data'][$fieldName]
+                                    : null);
+                        } else {
+                            $result[$item[$keyField]][$fieldName] = isset($item['data'][$fieldName])
                                 ? $item['data'][$fieldName]
-                                : null);
-                    } else {
-                        $result[$item[$keyField]][$fieldName] = isset($item['data'][$fieldName])
-                            ? $item['data'][$fieldName]
-                            : $subColumns[0];
+                                : $subColumns[0];
+                        }
                     }
                 }
+                $this->rawFields = array();
             }
-            $this->rawFields = array();
+        } else {
+            $result = $this->items;
         }
         $readyResult = array_values((array)$result);
         if ($index) {
             $readyResult = $helperArray->reindex($readyResult, $index);
         }
+
         return $readyResult;
     }
 
