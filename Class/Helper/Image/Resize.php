@@ -382,7 +382,6 @@ class Helper_Image_Resize extends Helper_Abstract
 			default:
 				return false;
 		}
-        echo $output;
         imagedestroy($image);
         imagedestroy($containerResized);
 		return array(
