@@ -44,4 +44,9 @@ class Schedule extends Model
      * @Orm\Index\Key
      */
     public $priority;
+    
+    /**
+     * @Orm\Field\Tinyint(Size=1, Not_Null)
+     */
+    public $inProcess;
 }
