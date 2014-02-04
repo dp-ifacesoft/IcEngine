@@ -35,7 +35,7 @@ class Schedule extends Model
     public $lastTs;
     
     /**
-     * @Orm\Datetime(Not_Null)
+     * @Orm\Field\Datetime(Not_Null)
      */
     public $lastDate;
     
