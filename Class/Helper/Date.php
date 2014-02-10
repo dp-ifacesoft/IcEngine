@@ -212,6 +212,39 @@ class Helper_Date
             return $return;
         }
 	}
+    
+    /**
+     * Возвращает дату в сокращенном формате
+     */
+    public function dateTimeMin($date)
+    {
+        static $months = array(
+			1 => 'янв.',
+			2 => 'фев.',
+			3 => 'мар.',
+			4 => 'апр.',
+			5 => 'мая',
+			6 => 'июн.',
+			7 => 'июл.',
+			8 => 'авг.',
+			9 => 'сен.',
+			10 => 'окт.',
+			11 => 'ноя.',
+			12 => 'дек.'
+		);
+		if (!$date) {
+			$date = new DateTime();
+			$m = $date->format('m');
+			$y =  $date->format('Y');
+            $d = $date->format('d');
+		} else {
+			$date = explode('-', $date);
+			$y = (int) $date[0];
+			$m = (int) $date[1];
+            $d = (int) $date[2];
+		}
+		return $d . ' ' . $months[$m] . ' ' . $y;
+    }
 
 	/**
 	 * Возвращает номер дня от начала эры.

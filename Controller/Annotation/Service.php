@@ -27,7 +27,7 @@ class Controller_Annotation_Service extends Controller_Abstract
             if (strpos($className, '/') === false) {
                 $annotation = $annotationManager->getAnnotation($className)
                     ->getData();
-                $disableConstruct = isset($annotation['class']['Injectible']);
+                $disableConstruct = isset($annotation['class']['Injectable']);
             }
             $subData = $annotationData['Service'];
             foreach ($subData['data'] as $serviceData) {
