@@ -126,6 +126,7 @@ class Helper_Model_Manager extends Helper_Abstract
         $modelName = $model->table();
         $key = $model->key();
         $keyField = $model->keyField();
+        /** @var Model_Scheme $modelScheme */
         $modelScheme = $this->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($modelName);
         $queryBuilder = $this->getService('query');

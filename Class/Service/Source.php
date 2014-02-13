@@ -161,9 +161,9 @@ class Service_Source
         }
         if (!isset(self::$services[$serviceName])) {
             $className = $this->helper()->normalizeName($serviceName);
-            if (!class_exists($className)) {
-                return null;
-            }
+//            if (!class_exists($className)) {
+//                return null;
+//            }
             $classReflection = new \ReflectionClass($className);
             self::$services[$serviceName] = array(
                 'class'             => $className,
