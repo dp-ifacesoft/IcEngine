@@ -27,6 +27,12 @@ class Form implements IteratorAggregate
      */
     public function add(Form_Element $element)
     {
+        foreach ($this->elements as $key => $item) {
+            if ($item->name == $element->name) {
+                $this->elements[$key] = $element;
+                return;
+            }
+        }
         $this->elements[] = $element;
     }
     
@@ -39,11 +45,27 @@ class Form implements IteratorAggregate
     }
     
     /**
+     * Получить елемент по имени
+     * 
+     * @param string $name название элемента
+     * @return Form_Element
+     */
+    public function element($name)
+    {
+        foreach ($this->elements as $element) {
+            if ($element->name == $name) {
+                return $element;
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Получить элементы
      */
     public function elements()
     {
-        return $this->elements();
+        return $this->elements;
     }
     
     /**

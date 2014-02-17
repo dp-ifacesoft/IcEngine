@@ -15,10 +15,21 @@ class Controller_Form_Test extends Controller_Abstract
     {
         $form = $context->formBuilder
             ->setName('testForm')
-            ->setAttribute('action', '/test/')
-            ->setAttribute('enctype', 'text/plain')
+            ->setFormAttributes(array(
+                'action'    => '/test/',
+                'enctype'   => 'text/plain'
+            ))
+            ->add('title', 'text')
+                ->setAttributes(array(
+                    'type'          => 'text',
+                    'placeholder'   => 'example'
+                ))
+                ->setValidators(array(
+                    'min'   => 100,
+                    'max'   => 200,
+                    'required'
+                ))
             ->add('author', 'text')
-            ->add('name', 'text')
                 ->getForm();
         $this->output->send(array(
             'form'  => $form

@@ -1,3 +1,6 @@
-{form instance=$form}
+{form instance=$form}{/form}
+{*
     <div class="sdfsdf">test</div>
-{/form}
+    {form_element form=$form name="author"}<br>
+    {form_element form=$form name="title"}
+*}

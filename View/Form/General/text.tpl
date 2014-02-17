@@ -1,1 +1,1 @@
-<input {foreach from=$attrs item='attr' key='key'}"{$key}"="{$attr}" {/foreach} />
+<input name="{$element->name}" {foreach from=$element->attributes item='attr' key='key'}{$key}="{$attr}" {/foreach} />

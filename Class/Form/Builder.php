@@ -9,6 +9,11 @@
  */
 class Form_Builder
 {   
+    /**
+     * Текущий элемент
+     */
+    private $currentElement;
+    
     protected $form;
     
     /**
@@ -46,35 +51,59 @@ class Form_Builder
      * @param array $options дополнительные параметры
      * @return $this
      */
-    public function add($name, $elementType, $options = array())
+    public function add($name, $elementType)
     {
         $formElement = $this->formElementManager->get(ucfirst($elementType));
         $formElement->setName($name);
-        $formElement->setOptions($options);
         $this->form->add($formElement);
+        $this->currentElement = $formElement;
         return $this;
     }
     
     /**
-     * Устанавливает атрибут
+     * Устанавливает атрибуты элемента
+     * 
+     * @param array $attributes атрибуты
+     * @return $this
+     */
+    public function setAttributes($attributes)
+    {
+        $this->currentElement->setAttributes($attributes);
+        return $this;
+    }
+    
+    /**
+     * Устанавливает валидаторы формы
+     * 
+     * @param array $validators валидаторы
+     * @return $this
+     */
+    public function setValidators($validators)
+    {
+        $this->currentElement->setValidators($validators);
+        return $this;
+    }
+    
+    /**
+     * Устанавливает атрибут формы
      * 
      * @param string $name название атрибута
      * @param string $value значение 
      * @return $this
      */
-    public function setAttribute($name, $value)
+    public function setFormAttribute($name, $value)
     {
         $this->form->setAttribute($name, $value);
         return $this;
     }
     
     /**
-     * Устанавливает атрибуты
+     * Устанавливает атрибуты формы
      * 
      * @param array $attributes атрибуты
      * @return $this
      */
-    public function setAttributes($attributes)
+    public function setFormAttributes($attributes)
     {
         $this->form->setAttributes($attributes);
         return $this;
