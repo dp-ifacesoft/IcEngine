@@ -1,0 +1,1 @@
+<input {foreach from=$attrs item='attr' key='key'}"{$key}"="{$attr}" {/foreach} />
