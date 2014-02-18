@@ -16,24 +16,25 @@ class Controller_Form_Element_View extends Controller_Abstract
     {
         $element = $form->element($elementName);
         $elementType = $element->getType();
-        $path = 'General/' . $elementType;
-        $pathByName = $form->name . '/' . $element->name . '/' 
-            . $elementType;
-        $existsPathByName = $context->loader->findFile(
-            $pathByName  . '.tpl', 'Form'
-        );
-        if ($existsPathByName) {
-            $path = $pathByName;
-        } else {
-            $pathByType = $form->name . '/'. $elementType;
-            $pathExistsByType = $context->loader->findFile(
-                $pathByType  . '.tpl', 'Form'
+        $path = 'Form/General/' . $elementType;
+        if ($form->name) {
+            $pathByName = 'Form/' . $form->name . '/' . $element->name; 
+            $existsPathByName = $context->loader->findFile(
+                $pathByName  . '.tpl', 'Form'
             );
-            if ($pathExistsByType) {
-                $path = $pathByType;
+            if ($existsPathByName) {
+                $path = $pathByName;
+            } else {
+                $pathByType = 'Form/' . $form->name . '/General/'. $elementType;
+                $pathExistsByType = $context->loader->findFile(
+                    $pathByType  . '.tpl', 'Form'
+                );
+                if ($pathExistsByType) {
+                    $path = $pathByType;
+                }
             }
         }
-        $this->task->setTemplate('Form/' . $path);
+        $this->task->setTemplate($path);
         $this->output->send(array(
             'element'   => $element
         ));
