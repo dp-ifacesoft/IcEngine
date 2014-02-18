@@ -37,6 +37,21 @@ class Form implements IteratorAggregate
     }
     
     /**
+     * Присоединяет данные с формы
+     * 
+     * @param array $request
+     */
+    public function bindRequest($request)
+    {
+        foreach($this->elements as $element) {
+            if (!isset($request[$element->name])) {
+                continue;
+            }
+            $element->setValue($request[$element->name]);
+        }
+    }
+    
+    /**
      * Очищает все элементы формы
      */
     public function clear()
@@ -103,5 +118,21 @@ class Form implements IteratorAggregate
     public function setName($name)
     {
         $this->name = $name;
+    }
+    
+    /**
+     * Проверяет проходит ли валидацию
+     * 
+     * @return boolean
+     */
+    public function validate()
+    {
+        $isValidate = true;
+        foreach ($this->elements as $element) {
+            if (!$element->validate()) {
+                $isValidate = false;
+            }
+        }
+        return $isValidate;
     }
 }

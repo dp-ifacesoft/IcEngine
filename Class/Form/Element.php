@@ -13,6 +13,11 @@ abstract class Form_Element
     public $name;
 
     /**
+     * Значение
+     */
+    public $value;
+    
+    /**
      * Аттрибуты
      */
     public $attributes = array();
@@ -21,6 +26,11 @@ abstract class Form_Element
      * Валидаторы
      */
     public $validators = array();
+    
+    /**
+     * Выбираемые данные (select)
+     */
+    public $selectable = array();
     
     /**
      * Получает тип элемента формы
@@ -71,4 +81,35 @@ abstract class Form_Element
     {
         $this->name = $name;
     }
+    
+    /**
+     * Устанавливает значение
+     * 
+     * @param array $value значение
+     */
+    public function setSelectable($values)
+    {
+        $this->selectable = $values;
+    }
+    
+    /**
+     * Устанавливает значение
+     * 
+     * @param mixed $value значение
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+    }
+    
+    /**
+     * Валидирует елемент формы
+     * 
+     * @return boolean
+     */
+    public function validate()
+    {
+        return true;
+    }
+    
 }

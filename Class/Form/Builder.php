@@ -28,22 +28,6 @@ class Form_Builder
     }
     
     /**
-     * Создать форму
-     * 
-     * @param Dto
-     * @return Form
-     */
-    public function create(Dto $dto = null)
-    {
-        foreach ($dto->getFields() as $field) {
-            $field['options'] = isset($field['options']) ? 
-                $field['options'] : array();
-            $this->add($field['name'], $field['type'], $field['options']);
-        }
-        return $this->getForm();
-    }
-    
-    /**
      * Добавить элемент к форме
      * 
      * @param string $name имя поля
@@ -60,6 +44,44 @@ class Form_Builder
         return $this;
     }
     
+    /**
+     * Создает форму по dto
+     * 
+     * @param Dto $dto
+     * @return Form
+     */
+    public function create($dto)
+    {
+        $this->instance();
+        if (isset($dto->formName)) {
+            $this->setFormName($dto->formName);
+        }
+        if (isset($dto->formAttributes)) {
+            $this->setFormAttributes($dto->formAttributes);
+        }
+        if ($dto->elements) {
+            foreach ($dto->elements as $element) {
+                reset($element);
+                $name = key($element);
+                $type = $element[$name];
+                $this->add($name, $type);
+                if (isset($element['attributes'])) {
+                    $this->setAttributes($element['attributes']);
+                }
+                if (isset($element['validators'])) {
+                    $this->setValidators($element['validators']);
+                }
+                if (isset($element['selectable'])) {
+                    $this->setSelectable($element['selectable']);
+                }
+                if (isset($element['value'])) {
+                    $this->setValue($element['value']);
+                }
+            }
+        }
+        return $this->getForm();
+    }
+ 
     /**
      * Устанавливает атрибуты элемента
      * 
@@ -81,6 +103,30 @@ class Form_Builder
     public function setValidators($validators)
     {
         $this->currentElement->setValidators($validators);
+        return $this;
+    }
+    
+    /**
+     * Устанавливает все значения для выбора элемента формы
+     * 
+     * @param array $value все значения
+     * @return $this
+     */
+    public function setSelectable($values)
+    {
+        $this->currentElement->setSelectable($values);
+        return $this;
+    }
+    
+    /**
+     * Устанавливает значение элемента формы
+     * 
+     * @param array $value активные значения
+     * @return $this
+     */
+    public function setValue($value)
+    {
+        $this->currentElement->setValue($value);
         return $this;
     }
     
@@ -115,7 +161,7 @@ class Form_Builder
      * @param String $name название формы
      * @return $this
      */
-    public function setName($name)
+    public function setFormName($name)
     {
         $this->form->setName($name);
         return $this;
