@@ -69,7 +69,18 @@ abstract class Form_Element
      */
     public function setValidators($validators)
     {
-        $this->validators = array_merge($this->validators, $validators);
+        $locator = IcEngine::serviceLocator();
+        $formValidatorManager = $locator->getService('formValidatorManager');
+        foreach ($validators as $key => $item) {
+            $validatorName = $key;
+            if (!is_string($key)) {
+                $validatorName = $item;
+                $item = array();
+            }
+            $validator = $formValidatorManager->get($validatorName);
+            $validator->setParams($item);
+            $this->validators[] = $validator;
+        }
     }
     
     /**
@@ -109,6 +120,12 @@ abstract class Form_Element
      */
     public function validate()
     {
+        foreach ($this->validators as $validator) {
+            $isValidate = $validator->validate($this->value);
+            if (!$isValidate) {
+                return false;
+            }
+        }
         return true;
     }
     

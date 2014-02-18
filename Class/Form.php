@@ -127,12 +127,11 @@ class Form implements IteratorAggregate
      */
     public function validate()
     {
-        $isValidate = true;
         foreach ($this->elements as $element) {
             if (!$element->validate()) {
-                $isValidate = false;
+                return false;
             }
         }
-        return $isValidate;
+        return true;
     }
 }

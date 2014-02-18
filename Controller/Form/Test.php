@@ -39,10 +39,9 @@ class Controller_Form_Test extends Controller_Abstract
                     'placeholder'   => 'example'
                 ))
                 ->setValidators(array(
-                    'Min'   => 100,
-                    'Max'   => 200,
-                    'Not_null',
-                    'Email'
+                    'Intersect'     => array(
+                        30, 200, 50
+                    )
                 ))
             ->add('author', 'text')
             ->add('text', 'textarea')
@@ -65,10 +64,6 @@ class Controller_Form_Test extends Controller_Abstract
                         'placeholder'   => 'example'
                     ),
                     'validators'    => array(
-                        'Min'   => 100,
-                        'Max'   => 200,
-                        'Not_null',
-                        'Email'
                     )
                 ),
                 array('author' => 'text'),
@@ -81,8 +76,10 @@ class Controller_Form_Test extends Controller_Abstract
             ));
         $form2 = $context->formBuilder->create($dto);
         $form->bindRequest(array(
-            'author'    => 'Пушкин'
+            'author'    => 'Пушкин',
+            'title'     => 50
         ));
+        var_dump($form->validate());
         $this->output->send(array(
             'form'  => $form,
             'form2' => $form2
