@@ -18,6 +18,11 @@ abstract class Form_Element
     public $value;
     
     /**
+     * Ошибки после валидации формы
+     */
+    public $errors = array();
+    
+    /**
      * Аттрибуты
      */
     public $attributes = array();
@@ -120,13 +125,16 @@ abstract class Form_Element
      */
     public function validate()
     {
+        $result = true;
         foreach ($this->validators as $validator) {
             $isValidate = $validator->validate($this->value);
+                        var_dump($isValidate);
             if (!$isValidate) {
-                return false;
+                $this->errors[] = $validator->errorMessage($this->value);
+                $result = false;
             }
         }
-        return true;
+        return $result;
     }
     
 }

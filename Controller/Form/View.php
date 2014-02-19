@@ -20,6 +20,12 @@ class Controller_Form_View extends Controller_Abstract
                         'elementName'   => $element->name
                     )
                 );
+                $content .= $context->controllerManager->html(
+                    'Form_Element_Error/index', array(
+                        'form'          => $form,
+                        'elementName'   => $element->name
+                    )  
+                );
             }
         }
         $this->output->send(array(

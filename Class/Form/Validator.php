@@ -18,6 +18,17 @@ abstract class Form_Validator
     protected $params = array();
     
     /**
+     * Возвращает текст ошибки
+     * 
+     * @param mixed $value
+     * @return string
+     */
+    public function errorMessage($value = null)
+    {
+        return 'Ошибка валидации';
+    }
+    
+    /**
      * @return Data_Validator_Abstract
      */
     public function getDataValidator() 

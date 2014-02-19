@@ -28,7 +28,6 @@ class Controller_Form_Test extends Controller_Abstract
             ),
         );
         $form = $context->formBuilder
-            ->setFormName('testForm')
             ->setFormAttributes(array(
                 'action'    => '/test/',
                 'enctype'   => 'text/plain'
@@ -39,9 +38,8 @@ class Controller_Form_Test extends Controller_Abstract
                     'placeholder'   => 'example'
                 ))
                 ->setValidators(array(
-                    'Intersect'     => array(
-                        30, 200, 50
-                    )
+                    'Not_Empty', 
+                    'Not_Equal' => 'sdfdsfsdf'
                 ))
             ->add('author', 'text')
             ->add('text', 'textarea')
@@ -59,11 +57,14 @@ class Controller_Form_Test extends Controller_Abstract
             ->setElements(array(
                 array(
                     'title' => 'text',
+                    'formName'  => 'testForm',
                     'attributes'    => array(
                         'type'          => 'text',
                         'placeholder'   => 'example'
                     ),
                     'validators'    => array(
+                        'Not_Empty',
+                        'Min_Length' => 101
                     )
                 ),
                 array('author' => 'text'),
@@ -75,11 +76,11 @@ class Controller_Form_Test extends Controller_Abstract
                 )
             ));
         $form2 = $context->formBuilder->create($dto);
-        $form->bindRequest(array(
+        $form2->bind(array(
             'author'    => 'Пушкин',
-            'title'     => 50
+            'title'     => 'dfgdfgfd'
         ));
-        var_dump($form->validate());
+        $form2->validate();
         $this->output->send(array(
             'form'  => $form,
             'form2' => $form2

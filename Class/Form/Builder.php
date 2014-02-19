@@ -53,10 +53,10 @@ class Form_Builder
     public function create($dto)
     {
         $this->instance();
-        if (isset($dto->formName)) {
+        if ($dto->formName) {
             $this->setFormName($dto->formName);
         }
-        if (isset($dto->formAttributes)) {
+        if ($dto->formAttributes) {
             $this->setFormAttributes($dto->formAttributes);
         }
         if ($dto->elements) {

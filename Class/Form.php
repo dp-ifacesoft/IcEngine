@@ -41,7 +41,7 @@ class Form implements IteratorAggregate
      * 
      * @param array $request
      */
-    public function bindRequest($request)
+    public function bind($request)
     {
         foreach($this->elements as $element) {
             if (!isset($request[$element->name])) {
