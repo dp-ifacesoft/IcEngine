@@ -12,6 +12,6 @@ class Query_Part_Ip extends Query_Part
 	 */
 	public function query()
 	{
-		$this->query->where($this->modelName . '.ip', $this->params['ip']);
+		$this->query->where($this->modelName . '.ip', $this->params['id']);
 	}
 }
