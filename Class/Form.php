@@ -8,6 +8,11 @@
 class Form implements IteratorAggregate
 {
     /**
+     * Валидная ли форма
+     */
+    public $isValid = true;
+    
+    /**
      * Название формы
      */
     public $name;
@@ -127,11 +132,13 @@ class Form implements IteratorAggregate
      */
     public function validate()
     {
+        $isValid = true;
         foreach ($this->elements as $element) {
             if (!$element->validate()) {
-                return false;
+                $isValid = false;
             }
         }
-        return true;
+        $this->isValid = $isValid;
+        return $isValid;
     }
 }

@@ -73,6 +73,10 @@ class Controller_Form_Test extends Controller_Abstract
                     'services' => 'select',
                     'selectable' => $services,
                     'value'      => 2
+                ),
+                array(
+                    'save'  => 'submit',
+                    'value' => 'Отправить'
                 )
             ));
         $form2 = $context->formBuilder->create($dto);
