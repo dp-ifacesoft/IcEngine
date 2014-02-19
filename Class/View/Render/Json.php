@@ -30,7 +30,7 @@ class View_Render_Json extends View_Render_Abstract
         $task = reset($buffer['tasks']);
         $vars = $task->getTransaction()->buffer();
         if ($vars) {
-            echo json_encode($vars);
+            echo json_encode($vars, JSON_UNESCAPED_UNICODE);
         }
         die;
 	}
