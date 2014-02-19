@@ -12,9 +12,10 @@ class Controller_Form_Element_View extends Controller_Abstract
      * 
      * @Context("loader")
      */
-    public function index($form, $elementName, $context)
+    public function index($form, $elementName, $context, $attributes = array())
     {
         $element = $form->element($elementName);
+        $element->setAttributes($attributes);
         $elementType = $element->getType();
         $path = 'Form/General/' . $elementType;
         if ($form->name) {
