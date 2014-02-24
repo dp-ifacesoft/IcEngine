@@ -1114,4 +1114,17 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         }
         $unitOfWork->flush();
     }
+    
+    /**
+     * Обновляет как модели, чтобы вызывались Event Slot'ы
+     * @param array $data данные для апдейта
+     */
+    public function updateAsModel(array $data) {
+        $modelCollection = $this->items();
+        foreach($modelCollection as $model){
+            if (isset($model) && $model instanceof Model) {
+                $model->update($data);
+            }
+        }
+    }
 }

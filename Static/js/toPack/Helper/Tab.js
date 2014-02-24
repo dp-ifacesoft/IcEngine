@@ -86,7 +86,6 @@ var Helper_Tab = {
 				activeTabName = $(this).attr('rel');
                 if (writeHash) {
                     location.hash = $(this).attr('rel');
-                    console.log(writeHash, 2);
                 }
 			}
 		});
@@ -95,7 +94,6 @@ var Helper_Tab = {
             $tabs.first().addClass(selectedClassName);
             if (writeHash) {
                 location.hash = activeTabName;
-                console.log(writeHash, 3);
             }
         }
 		$container.hide();

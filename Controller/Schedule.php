@@ -54,7 +54,7 @@ class Controller_Schedule extends Controller_Abstract
             $params = $schedule['paramsJson'] 
                 ? $context->helperSchedule->get($schedule['paramsJson']) : null;
             exec(
-                './ice ' . $schedule['controllerAction'] . 
+                './ic ' . $schedule['controllerAction'] . 
                 ($params ? ' ' . $params : '')
             );
             $schedule->update(array(
