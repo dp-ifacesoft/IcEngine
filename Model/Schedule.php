@@ -35,7 +35,7 @@ class Schedule extends Model
     public $lastTs;
     
     /**
-     * @Orm\Datetime(Not_Null)
+     * @Orm\Field\Datetime(Not_Null)
      */
     public $lastDate;
     
@@ -44,4 +44,9 @@ class Schedule extends Model
      * @Orm\Index\Key
      */
     public $priority;
+    
+    /**
+     * @Orm\Field\Tinyint(Size=1, Not_Null)
+     */
+    public $inProcess;
 }
