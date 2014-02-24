@@ -145,7 +145,7 @@ class Helper_String
     }
 
     /**
-     * Получение превью для текста.
+     * Получение превью для текста. У него есть суперсила
      * @param string    $text
      * @param int       $length
      * @param bool      $wordsafe
@@ -155,6 +155,7 @@ class Helper_String
     public function superSmartPreview ($text, $length = 150,
         $wordsafe = true, $dots = true)
     {
+        $text = htmlspecialchars_decode($text);
         $text = stripslashes($text);
         $text = $this->html2text($text);
         $text = trim($text);
