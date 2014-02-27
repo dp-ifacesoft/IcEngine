@@ -9,7 +9,7 @@ class Controller_Form_Test extends Controller_Abstract
 {
     /**
      * @Context("formBuilder", "dto")
-     * @Route('/testform/')
+     * Route('/testform/')
      */
     public function test($context)
     {
