@@ -126,6 +126,14 @@ class Form implements IteratorAggregate
     }
     
     /**
+     * @return String
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+    
+    /**
      * Проверяет проходит ли валидацию
      * 
      * @return boolean

@@ -28,6 +28,7 @@ class Controller_Form_Test extends Controller_Abstract
             ),
         );
         $form = $context->formBuilder
+            ->setFormName('test')
             ->setFormAttributes(array(
                 'action'    => '/test/',
                 'enctype'   => 'text/plain'
@@ -49,7 +50,7 @@ class Controller_Form_Test extends Controller_Abstract
             ->getForm();
         
         $dto = $context->dto->newInstance()
-            ->setFormName('testForm')
+            ->setFormName('test')
             ->setFormAttributes(array(
                 'action'    => '/test/',
                 'enctype'   => 'text/plain'

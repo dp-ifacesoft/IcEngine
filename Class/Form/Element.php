@@ -18,6 +18,12 @@ abstract class Form_Element
     public $value;
     
     /**
+     *
+     * @var Form
+     */
+    public $form = null;
+    
+    /**
      * Ошибки после валидации формы
      */
     public $errors = array();
@@ -76,6 +82,9 @@ abstract class Form_Element
     {
         $locator = IcEngine::serviceLocator();
         $formValidatorManager = $locator->getService('formValidatorManager');
+        $formValidatorErrorManager = $locator->getService(
+            'formValidatorErrorManager'
+        );
         foreach ($validators as $key => $item) {
             $validatorName = $key;
             if (!is_string($key)) {
@@ -84,8 +93,39 @@ abstract class Form_Element
             }
             $validator = $formValidatorManager->get($validatorName);
             $validator->setParams($item);
+            $formName = $this->getForm()->getName();
+            if ($formName) {
+                $formValidatorError = $formValidatorErrorManager
+                    ->get(ucfirst($formName) . '_' . $validatorName);
+            }
+            if (!$formValidatorError) {
+                $formValidatorError = $formValidatorErrorManager
+                    ->get($validatorName);
+            }
+            if ($formValidatorError) {
+                $formValidatorError->setParams($validator->getParams());
+                $validator->setFormValidatorError($formValidatorError);
+            }
             $this->validators[] = $validator;
         }
+    }
+    
+    /**
+     * Устанавливает форму
+     * 
+     * @param String $name
+     */
+    public function setForm(Form $form)
+    {
+        $this->form = $form;
+    }
+    
+    /**
+     * @return Form
+     */
+    public function getForm()
+    {
+        return $this->form;
     }
     
     /**
@@ -128,7 +168,6 @@ abstract class Form_Element
         $result = true;
         foreach ($this->validators as $validator) {
             $isValidate = $validator->validate($this->value);
-                        var_dump($isValidate);
             if (!$isValidate) {
                 $this->errors[] = $validator->errorMessage($this->value);
                 $result = false;

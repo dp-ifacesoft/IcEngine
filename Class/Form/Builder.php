@@ -40,6 +40,7 @@ class Form_Builder
         $formElement = $this->formElementManager->get(ucfirst($elementType));
         $formElement->setName($name);
         $this->form->add($formElement);
+        $formElement->setForm($this->form);
         $this->currentElement = $formElement;
         return $this;
     }

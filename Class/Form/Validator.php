@@ -13,6 +13,11 @@ abstract class Form_Validator
     protected $dataValidator = '';
     
     /**
+     *
+     * @var <Form_Validator_Error>
+     */
+    protected $formValidatorError = null;
+    /**
      * Параметры
      */
     protected $params = array();
@@ -25,7 +30,19 @@ abstract class Form_Validator
      */
     public function errorMessage($value = null)
     {
-        return 'Ошибка валидации';
+        return $this->formValidatorError->errorMessage($value);
+    }
+    
+    /**
+     * @return Form_Validator_Error
+     */
+    public function getFormValidatorError()
+    {
+        if (!$this->formValidatorError) {
+            $this->formValidatorError = new Form_Validator_Error();
+            $this->formValidatorError->setParams($this->params);
+        } 
+        return $this->formValidatorError;
     }
     
     /**
@@ -43,6 +60,16 @@ abstract class Form_Validator
         $dataValidator = $locator->getService('dataValidatorManager')
             ->get($validatorName);
         return $dataValidator;
+    }
+    
+    /**
+     * Устанавливает ошибку валидации
+     * 
+     * @param Form_Validator_Error $error
+     */
+    public function setFormValidatorError(Form_Validator_Error $error)
+    {
+        $this->formValidatorError = $error;
     }
     
     /**
