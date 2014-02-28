@@ -33,6 +33,7 @@ class Controller_Manager extends Manager_Abstract
          * Контекст по умолчанию
          */
         'context' => array(
+            'query'        => 'query',
             'queryBuilder' => 'query',
             'modelManager' => 'modelManager',
             'dds' => 'dds',
