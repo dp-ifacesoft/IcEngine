@@ -4,6 +4,7 @@
  * @author morph
  */
 var Loader = {
+    
     /**
      * Группы путей
      */
@@ -88,8 +89,9 @@ var Loader = {
             url: filename,
             success: function(text) {
                 Loader.statuses[filename] = true;
-                $('<script></script>').attr('type', 'text/javascript').
-                    html(text).appendTo($('head'));
+                var script = document.createElement('script');
+                script.src = filename;
+                document.getElementsByTagName('head')[0].appendChild(script);
             },
             async: async
         });
