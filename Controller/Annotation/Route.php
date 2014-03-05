@@ -127,6 +127,9 @@ class Controller_Annotation_Route extends Controller_Abstract
             ? $config['emptyRoute'] : array();
         if (!empty($config['routes'])) {
             foreach ($config['routes'] as $routeName => $route) {
+                if (!isset($route['weight'])) {
+                    $route['weight'] = 0;
+                }
                 if (empty($route['route'])) {
                     continue;
                 }
