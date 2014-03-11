@@ -54,6 +54,105 @@ class Helper_Image_Resize
         return self::newResize($paramsBuilded);
     }
 
+    public static function superCrop($params)
+    {
+        $input = isset($params['input']) ? $params['input'] : null;
+        $output = isset($params['output']) ? $params['output'] : null;
+        $crop = $params['crop'];
+        if (!$output) {
+            return false;
+        }
+        if (!file_exists($input)) {
+            return false;
+        }
+        if (!is_readable($input)) {
+            echo 'not readable' . PHP_EOL;
+            return false;
+        }
+        list($inputWidth, $inputHeight, $inputType) = getimagesize($input);
+        if (!$inputWidth || !$inputHeight) {
+            echo 'incorrect file' . PHP_EOL;
+            return false;
+        }
+        switch ($inputType) {
+            case IMAGETYPE_GIF:
+                $image = imagecreatefromgif($input);
+                $ext = 'gif';
+                break;
+            case IMAGETYPE_JPEG:
+                $image = imagecreatefromjpeg($input);
+                $ext = 'jpg';
+                break;
+            case IMAGETYPE_PNG:
+                $image = imagecreatefrompng($input);
+                $ext = 'png';
+                break;
+            default:
+                return false;
+        }
+        $imageCrop = imagecreatetruecolor(
+            $params['widthResult'], $params['heightResult']
+        );
+        $isGif = $inputType == IMAGETYPE_GIF;
+        $isPng = $inputType == IMAGETYPE_PNG;
+        if ($isGif || $isPng){
+            $transparentIndex = imagecolortransparent($image);
+            // If we have a specific transparent color
+            if ($transparentIndex >= 0) {
+                // Get the original image's transparent color's RGB values
+                $transparentColor = imagecolorsforindex(
+                    $image, $transparentIndex
+                );
+                // Allocate the same color in the new image resource
+                $transparentIndex = imagecolorallocate (
+                    $imageCrop,
+                    $transparentColor['red'],
+                    $transparentColor['green'],
+                    $transparentColor['blue']
+                );
+                // Completely fill the background of the new image with allocated color.
+                imagefill($imageCrop, 0, 0, $transparentIndex);
+                // Set the background color for new image to transparent
+                imagecolortransparent($imageCrop, $transparentIndex);
+                // Always make a transparent background color for PNGs that don't
+                // have one allocated already
+            } elseif ($isPng) {
+                // Turn off transparency blending (temporarily)
+                imagealphablending($imageCrop, false);
+                // Create a new transparent color for image
+                $color = imagecolorallocatealpha($imageCrop, 0, 0, 0, 100);
+                // Completely fill the background of the new image with allocated color.
+                imagefill($imageCrop, 0, 0, $color);
+                // Restore transparency blending
+                imagesavealpha($imageCrop, true);
+            }
+        }
+
+        //resize исходной картинки
+        imagecopyresampled(
+            $imageCrop, $image,
+            0, 0, $crop['left'], $crop['top'],
+            $params['widthResult'], $params['heightResult'],
+            $crop['width'], $crop['height']
+        );
+        switch ($inputType) {
+            case IMAGETYPE_GIF:
+                imagegif($imageCrop, $output);
+                break;
+            case IMAGETYPE_JPEG:
+                imagejpeg($imageCrop, $output, self::$jpegQuality);
+                break;
+            case IMAGETYPE_PNG:
+                imagepng($imageCrop, $output);
+                break;
+            default:
+                return false;
+        }
+        imagedestroy($image);
+        imagedestroy($imageCrop);
+        return true;
+    }
+
     public function cropCustom($params)
     {
         $crop = $params['crop'];
