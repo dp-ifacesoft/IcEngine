@@ -4,7 +4,7 @@
  * Помощник для консоли 
  *
  * @author Apostle
- * @Service("Helper_Cli")
+ * @Service("helperCli")
  */
 class Helper_Cli extends Helper_Abstract
 {
@@ -29,4 +29,13 @@ class Helper_Cli extends Helper_Abstract
         }
         return $this->indicator;
     }
+    
+    
+    /**
+     * очищает консоль
+     */
+    public function cls()
+    {
+        array_map(create_function('$a', 'print chr($a);'), array(27, 91, 72, 27, 91, 50, 74));
+    }  
 }

@@ -10,7 +10,7 @@ class Controller_Annotation_Route extends Controller_Abstract
     /**
      * Распарсить аннотацию
      * 
-     * @Context("helperCodeGenerator")
+     * @Context("helperCodeGenerator", "helperArray")
      * @Template(null)
      * @Validator("Not_Null"={"data"})
      */
@@ -127,6 +127,9 @@ class Controller_Annotation_Route extends Controller_Abstract
             ? $config['emptyRoute'] : array();
         if (!empty($config['routes'])) {
             foreach ($config['routes'] as $routeName => $route) {
+                if (!isset($route['weight'])) {
+                    $route['weight'] = 0;
+                }
                 if (empty($route['route'])) {
                     continue;
                 }
@@ -151,19 +154,11 @@ class Controller_Annotation_Route extends Controller_Abstract
         ksort($routesWithGroups);
         ksort($routesWithoutGroups);
         $routes = array();
-        if ($routesWithoutGroups) {
-            foreach ($routesWithGroups as $groupRoutes) {
-                foreach ($groupRoutes as $routeName => $route) {
-                    if (is_numeric($routeName)) {
-                        $routes[] = $route;
-                    } else {
-                        $routes[$routeName] = $route;
-                    }
-                }
-            }
-        }
-        if ($routesWithoutGroups) {
-            foreach ($routesWithoutGroups as $routeName => $route) {
+        $routesWithGroups[] = $routesWithoutGroups;
+        foreach ($routesWithGroups as $groupRoutes) {
+            $groupRoutesSortedByWeight = $context->helperArray
+                ->masort($groupRoutes, 'weight DESC');
+            foreach ($groupRoutesSortedByWeight as $routeName => $route) {
                 if (is_numeric($routeName)) {
                     $routes[] = $route;
                 } else {
