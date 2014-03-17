@@ -73,10 +73,6 @@ class Helper_Annotation_Update extends Helper_Abstract
             }
         }
         ksort($classes);
-        if (is_file($logFile = IcEngine::path() . '../log/log.log'))
-        {
-            file_put_contents($logFile, __METHOD__ . ' classes = ' . print_r($classes, true) . PHP_EOL, FILE_APPEND);
-        }
         return array_values($classes);
     }
 
