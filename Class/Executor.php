@@ -178,7 +178,9 @@ class Executor
 
 		$tags = array ();
 
-		if ($options->current_tags)
+
+
+		if (isset($options['current_tags']))
 		{
 			foreach ($options->current_tags as $tag => $e)
 			{

@@ -223,7 +223,7 @@ class Helper_View_Resource
 	 */
 	public static function embedJs()
 	{
-		$config = Config_Manager::get('Controller_Resource');
+        $config = self::config();
 		$route = Router::getRoute();
 		$call = $route->actions[0];
 		$path = $config['js']['defaultPath'];
@@ -276,7 +276,7 @@ class Helper_View_Resource
 
 	public static function embedJsKeys()
 	{
-		$config = Config_Manager::get('Controller_Resource');
+        $config = self::config();
 		$route = Router::getRoute();
 		$call = $route->actions[0];
 		$rules = $config->js->rules;
