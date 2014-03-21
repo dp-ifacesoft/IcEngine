@@ -43,17 +43,6 @@ class Validator_Error
     {
         return 'errorCode';
     }
-
-    /**
-     * Возвращает код ошибки
-     * 
-     * @param mixed $value
-     * @return string
-     */
-    public function errorCode()
-    {
-        return 'errorCode';
-    }
     
     /**
      * Возвращает текст ошибки
