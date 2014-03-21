@@ -31,15 +31,26 @@ class Validator_Error
     public function setParams($params)
     {
         $this->params = $params;
-    }
+    }    
     
+    /**
+     * Возвращает код ошибки
+     * 
+     * @param mixed $value
+     * @return string
+     */
+    public function errorCode()
+    {
+        return 'errorCode';
+    }
+
     /**
      * Возвращает текст ошибки
      * 
      * @param mixed $value
      * @return string
      */
-    public function errorMessage($value)
+    public function errorMessage($value = null)
     {
         return 'Ошибка валидации';
     }

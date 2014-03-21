@@ -34,7 +34,7 @@ abstract class Validator
     }
     
     /**
-     * @return Form_Validator_Error
+     * @return Validator_Error
      */
     public function getValidatorError()
     {
