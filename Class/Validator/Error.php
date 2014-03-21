@@ -34,12 +34,23 @@ class Validator_Error
     }
     
     /**
+     * Возвращает код ошибки
+     * 
+     * @param mixed $value
+     * @return string
+     */
+    public function errorCode()
+    {
+        return 'errorCode';
+    }
+    
+    /**
      * Возвращает текст ошибки
      * 
      * @param mixed $value
      * @return string
      */
-    public function errorMessage($value)
+    public function errorMessage($value = null)
     {
         return 'Ошибка валидации';
     }
