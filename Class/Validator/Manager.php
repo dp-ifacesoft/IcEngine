@@ -4,9 +4,9 @@
  * Менеджер валидаторов форм
  *
  * @author markov
- * @Service("formValidatorManager")
+ * @Service("validatorManager")
  */
-class Form_Validator_Manager extends Manager_Simple
+class Validator_Manager extends Manager_Simple
 {
     
 }

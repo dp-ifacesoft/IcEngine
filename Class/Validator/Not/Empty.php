@@ -5,7 +5,7 @@
  *
  * @author markov
  */
-class Form_Validator_Not_Empty extends Form_Validator
+class Validator_Not_Empty extends Validator
 {
     
 }

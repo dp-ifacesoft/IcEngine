@@ -5,7 +5,7 @@
  * 
  * @author markov
  */
-class Form_Validator_Regexp extends Form_Validator
+class Validator_Regexp extends Validator
 {
     /**
      * @inheritdoc
