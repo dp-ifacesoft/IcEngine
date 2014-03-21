@@ -99,7 +99,7 @@ abstract class Validator
      */
     public function setParams($params)
     {
-        if (!is_array($params)) {
+        if (is_string($params)) {
             $this->params = array($params);
         } else {
             $this->params = $params;
