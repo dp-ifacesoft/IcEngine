@@ -1,0 +1,1 @@
+<?php/** * @desc Опция для выбора сразу по нескольким полям * @param array() * @author viktor * @package IcEngine */class Model_Option_Compare extends Model_Option {    /**     * @inheritdoc     */    protected $queryName = 'Compare';}
