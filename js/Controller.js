@@ -7,6 +7,10 @@ var Controller = {
 
 	_callbacksData: {},
 
+    _callOnceControllers: {},
+
+    _callOnes: {},
+
 	_lastback: 0,
 
 	_slowTimer: null,
@@ -50,6 +54,26 @@ var Controller = {
 			nocache ? true : false
 		);
 	},
+
+    /**
+     * @desc Однократный вызов метода контроллера на сервере
+     * @param controller
+     * @param params
+     * @param callback
+     * @param nocache
+     */
+
+    callOnce: function(controller, params, callback, nocache)
+    {
+        if (controller in Controller._callOnes)
+        {
+            return false;
+        }
+        var back = Controller._lastback;
+        Controller._callOnceControllers[back] = controller;
+        Controller._callOnes[controller] = back;
+        Controller.call(controller, params, callback, nocache);
+    },
 
 	/**
 	 * @desc Ответ сервера
