@@ -73,6 +73,14 @@ abstract class Validator
     }
     
     /**
+     *  Получить сервис
+     */
+    public function getService($name)
+    {
+        return IcEngine::serviceLocator()->getService($name);
+    }
+    
+    /**
      * Устанавливает ошибку валидации
      * 
      * @param Validator_Error $error
