@@ -5,7 +5,7 @@
  *
  * @author markov
  */
-class Form_Validator_Error_Not_Equal extends Form_Validator_Error
+class Validator_Error_Not_Equal extends Validator_Error
 {
     /**
      * @inheritdoc

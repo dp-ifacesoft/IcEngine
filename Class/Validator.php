@@ -5,7 +5,7 @@
  *
  * @author markov
  */
-abstract class Form_Validator 
+abstract class Validator 
 {
     /**
      * Название валидатора данных
@@ -14,9 +14,9 @@ abstract class Form_Validator
     
     /**
      *
-     * @var <Form_Validator_Error>
+     * @var <Validator_Error>
      */
-    protected $formValidatorError = null;
+    protected $validatorError = null;
     /**
      * Параметры
      */
@@ -30,19 +30,19 @@ abstract class Form_Validator
      */
     public function errorMessage($value = null)
     {
-        return $this->formValidatorError->errorMessage($value);
+        return $this->validatorError->errorMessage($value);
     }
     
     /**
      * @return Form_Validator_Error
      */
-    public function getFormValidatorError()
+    public function getValidatorError()
     {
-        if (!$this->formValidatorError) {
-            $this->formValidatorError = new Form_Validator_Error();
-            $this->formValidatorError->setParams($this->params);
+        if (!$this->validatorError) {
+            $this->validatorError = new Validator_Error();
+            $this->validatorError->setParams($this->params);
         } 
-        return $this->formValidatorError;
+        return $this->validatorError;
     }
     
     /**
@@ -55,7 +55,7 @@ abstract class Form_Validator
             $validatorName = $this->dataValidator; 
         } else {
             $className = get_class($this);
-            $validatorName = substr($className, strlen('Form_Validator_'));
+            $validatorName = substr($className, strlen('Validator_'));
         }
         $dataValidator = $locator->getService('dataValidatorManager')
             ->get($validatorName);
@@ -65,11 +65,11 @@ abstract class Form_Validator
     /**
      * Устанавливает ошибку валидации
      * 
-     * @param Form_Validator_Error $error
+     * @param Validator_Error $error
      */
-    public function setFormValidatorError(Form_Validator_Error $error)
+    public function setValidatorError(Validator_Error $error)
     {
-        $this->formValidatorError = $error;
+        $this->validatorError = $error;
     }
     
     /**

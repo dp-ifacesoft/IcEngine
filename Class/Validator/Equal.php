@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Валидатор проверяет на не идентичность
+ * Валидатор проверяет на идентичность
  *
  * @author markov
  */
-class Form_Validator_Not_Equal extends Form_Validator
+class Validator_Equal extends Validator
 {
     /**
      * @inheritdoc

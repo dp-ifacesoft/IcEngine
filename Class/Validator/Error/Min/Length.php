@@ -5,7 +5,7 @@
  * 
  * @author markov
  */
-class Form_Validator_Error_Max_Length extends Form_Validator_Error
+class Validator_Error_Min_Length extends Validator_Error
 {    
     /**
      * @inheritdoc
@@ -13,9 +13,9 @@ class Form_Validator_Error_Max_Length extends Form_Validator_Error
     public function errorMessage($value = null) 
     {
         $locator = IcEngine::serviceLocator();
-        $max = $this->getParams()[0];
+        $min = $this->getParams()[0];
         $plural = $locator->getService('helperPlural')
-            ->plural($max, 'символа, символов, символов');
-        return 'Длина значения не должна быть больше ' . $max . ' ' . $plural;
+            ->plural($min, 'символа, символов, символов');
+        return 'Длина значения не должна быть меньше ' . $min . ' ' . $plural;
     }
 }

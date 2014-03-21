@@ -5,7 +5,7 @@
  * 
  * @author markov
  */
-class Form_Validator_Max_Length extends Form_Validator
+class Validator_Max_Length extends Validator
 {
     /**
      * @inheritdoc

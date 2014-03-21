@@ -5,7 +5,7 @@
  *
  * @author markov
  */
-class Form_Validator_Error_Not_Empty extends Form_Validator_Error
+class Validator_Error_Not_Empty extends Validator_Error
 {
     /**
      * @inheritdoc

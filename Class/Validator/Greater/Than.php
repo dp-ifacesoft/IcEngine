@@ -5,7 +5,7 @@
  * 
  * @author markov
  */
-class Form_Validator_Greater_Than extends Form_Validator
+class Validator_Greater_Than extends Validator
 {
     /**
      * @inheritdoc

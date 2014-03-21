@@ -5,7 +5,7 @@
  * 
  * @author markov
  */
-class Form_Validator_Intersect extends Form_Validator
+class Validator_Intersect extends Validator
 {
     /**
      * @inheritdoc

@@ -6,7 +6,7 @@
  *
  * @author markov
  */
-class Form_Validator_Error 
+class Validator_Error 
 { 
     /**
      * Параметры
