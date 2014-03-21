@@ -39,6 +39,16 @@ abstract class Validator
      */
     public function getValidatorError()
     {
+        $locator = IcEngine::serviceLocator();
+        if (!$this->validatorError) {
+            $className = get_class($this);
+            $validatorName = substr($className, strlen('Validator_'));
+            $this->validatorError = $locator->getService(
+                'validatorErrorManager'
+            )
+                ->get($validatorName);
+            $this->validatorError->setParams($this->params);
+        }
         if (!$this->validatorError) {
             $this->validatorError = new Validator_Error();
             $this->validatorError->setParams($this->params);

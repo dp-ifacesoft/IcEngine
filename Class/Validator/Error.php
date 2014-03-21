@@ -31,8 +31,19 @@ class Validator_Error
     public function setParams($params)
     {
         $this->params = $params;
-    }
+    }    
     
+    /**
+     * Возвращает код ошибки
+     * 
+     * @param mixed $value
+     * @return string
+     */
+    public function errorCode()
+    {
+        return 'errorCode';
+    }
+
     /**
      * Возвращает код ошибки
      * 
