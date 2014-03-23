@@ -16,7 +16,7 @@ class Validator_Error
     /**
      * Получить параметры
      * 
-     * @param array $params
+     * @return array $params
      */
     public function getParams() 
     {
@@ -27,16 +27,17 @@ class Validator_Error
      * Устанавливает параметры
      * 
      * @param array $params
+     * @return $this
      */
     public function setParams($params)
     {
         $this->params = $params;
+        return $this;
     }    
     
     /**
      * Возвращает код ошибки
-     * 
-     * @param mixed $value
+     *
      * @return string
      */
     public function errorCode()

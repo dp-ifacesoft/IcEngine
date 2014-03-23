@@ -10,8 +10,9 @@ class Validator_Intersect extends Validator
     /**
      * @inheritdoc
      */
-    public function validate($value)
+    public function validate()
     {
+        $value = $this->getData();
         $params = $this->getParams();
         $dataValidator = $this->getDataValidator();  
         $dataValidator->setParams(array(
