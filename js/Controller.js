@@ -7,10 +7,6 @@ var Controller = {
 
 	_callbacksData: {},
 
-    _callOnceControllers: {},
-
-    _callOnes: {},
-
 	_lastback: 0,
 
 	_slowTimer: null,
@@ -65,14 +61,18 @@ var Controller = {
 
     callOnce: function(controller, params, callback, nocache)
     {
-        if (controller in Controller._callOnes)
-        {
-            return false;
-        }
-        var back = Controller._lastback;
-        Controller._callOnceControllers[back] = controller;
-        Controller._callOnes[controller] = back;
         Controller.call(controller, params, callback, nocache);
+        /**
+         * implementation fas bug. First fix
+         */
+//        if (controller in Controller._callOnes)
+//        {
+//            return false;
+//        }
+//        var back = Controller._lastback;
+//        Controller._callOnceControllers[back] = controller;
+//        Controller._callOnes[controller] = back;
+//        Controller.call(controller, params, callback, nocache);
     },
 
 	/**
