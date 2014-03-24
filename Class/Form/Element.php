@@ -164,7 +164,9 @@ abstract class Form_Element
     {
         $result = true;
         foreach ($this->validators as $validator) {
-            $isValidate = $validator->validate($this->value);
+            /** @var Validator $validator */
+            $validator->setData($this->value);
+            $isValidate = $validator->validate();
             if (!$isValidate) {
                 $this->errors[] = $validator->errorMessage($this->value);
                 $result = false;
