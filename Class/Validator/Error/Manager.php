@@ -4,9 +4,9 @@
  * Менеджер ошибок валидации формы
  *
  * @author markov
- * @Service("formValidatorErrorManager")
+ * @Service("validatorErrorManager")
  */
-class Form_Validator_Error_Manager extends Manager_Simple 
+class Validator_Error_Manager extends Manager_Simple 
 {
     
 }

@@ -6,7 +6,7 @@
  *
  * @author markov
  */
-class Form_Validator_Error 
+class Validator_Error 
 { 
     /**
      * Параметры
@@ -16,7 +16,7 @@ class Form_Validator_Error
     /**
      * Получить параметры
      * 
-     * @param array $params
+     * @return array $params
      */
     public function getParams() 
     {
@@ -27,19 +27,31 @@ class Form_Validator_Error
      * Устанавливает параметры
      * 
      * @param array $params
+     * @return $this
      */
     public function setParams($params)
     {
         $this->params = $params;
-    }
+        return $this;
+    }    
     
+    /**
+     * Возвращает код ошибки
+     *
+     * @return string
+     */
+    public function errorCode()
+    {
+        return 'errorCode';
+    }
+
     /**
      * Возвращает текст ошибки
      * 
      * @param mixed $value
      * @return string
      */
-    public function errorMessage($value)
+    public function errorMessage($value = null)
     {
         return 'Ошибка валидации';
     }

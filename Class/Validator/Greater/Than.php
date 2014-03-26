@@ -5,13 +5,14 @@
  * 
  * @author markov
  */
-class Form_Validator_Greater_Than extends Form_Validator
+class Validator_Greater_Than extends Validator
 {
     /**
      * @inheritdoc
      */
-    public function validate($value)
+    public function validate()
     {
+        $value = $this->getData();
         return $this->getDataValidator()
             ->validate($value, $this->getParams()[0]);
     }

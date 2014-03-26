@@ -22,8 +22,8 @@ class Helper_Email extends Helper_Abstract
 
     public function isValid($email)
     {
-        /**$regExp = "/^([a-zA-Z0-9])+([\.a-zA-Z0-9-_])*@([a-zA-Z0-9-])+(\.[a-zA-Z0-9-]+)*\.([a-zA-Z]{2,6})$/";
-        $result = preg_match($regExp, $email);**/
-        return strpos($email, '@') !== false;
+        $dataValidatorManager = $this->getService('dataValidatorManager');
+        $validatorEmail = $dataValidatorManager->get('Email');
+        return $validatorEmail->validate($email);
     }
 }

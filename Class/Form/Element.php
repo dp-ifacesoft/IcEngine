@@ -81,30 +81,27 @@ abstract class Form_Element
     public function setValidators($validators)
     {
         $locator = IcEngine::serviceLocator();
-        $formValidatorManager = $locator->getService('formValidatorManager');
-        $formValidatorErrorManager = $locator->getService(
-            'formValidatorErrorManager'
-        );
+        $validatorManager = $locator->getService('validatorManager');
+        $validatorErrorManager = $locator->getService('validatorErrorManager');
         foreach ($validators as $key => $item) {
             $validatorName = $key;
             if (!is_string($key)) {
                 $validatorName = $item;
                 $item = array();
             }
-            $validator = $formValidatorManager->get($validatorName);
+            $validator = $validatorManager->get($validatorName);
             $validator->setParams($item);
             $formName = $this->getForm()->getName();
             if ($formName) {
-                $formValidatorError = $formValidatorErrorManager
+                $validatorError = $validatorErrorManager
                     ->get(ucfirst($formName) . '_' . $validatorName);
             }
-            if (!$formValidatorError) {
-                $formValidatorError = $formValidatorErrorManager
-                    ->get($validatorName);
+            if (!$validatorError) {
+                $validatorError = $validatorErrorManager->get($validatorName);
             }
-            if ($formValidatorError) {
-                $formValidatorError->setParams($validator->getParams());
-                $validator->setFormValidatorError($formValidatorError);
+            if ($validatorError) {
+                $validatorError->setParams($validator->getParams());
+                $validator->setValidatorError($validatorError);
             }
             $this->validators[] = $validator;
         }
@@ -167,7 +164,9 @@ abstract class Form_Element
     {
         $result = true;
         foreach ($this->validators as $validator) {
-            $isValidate = $validator->validate($this->value);
+            /** @var Validator $validator */
+            $validator->setData($this->value);
+            $isValidate = $validator->validate();
             if (!$isValidate) {
                 $this->errors[] = $validator->errorMessage($this->value);
                 $result = false;
