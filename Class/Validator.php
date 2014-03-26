@@ -135,6 +135,7 @@ abstract class Validator
      * Устанавливает параметры
      *
      * @param array $params
+     * @return $this
      */
     public function setParams($params)
     {
@@ -143,6 +144,7 @@ abstract class Validator
         } else {
             $this->params = $params;
         }
+        return $this;
     }
 
     /**

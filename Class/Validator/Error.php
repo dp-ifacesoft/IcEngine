@@ -55,4 +55,15 @@ class Validator_Error
     {
         return 'Ошибка валидации';
     }
+
+    /**
+     * Получить экземпляр сервиса
+     *
+     * @param string $name
+     * @return mixed
+     */
+    protected function getService($name)
+    {
+        return IcEngine::serviceLocator()->getService($name);
+    }
 }
