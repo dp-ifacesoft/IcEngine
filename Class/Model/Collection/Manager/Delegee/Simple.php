@@ -14,27 +14,27 @@ class Model_Collection_Manager_Delegee_Simple
      * @param Query_Abstract $query
      * @return array
      */
-	public static function load(Model_Collection $collection,
-        Query_Abstract $query)
-	{
+    public static function load(Model_Collection $collection,
+                                Query_Abstract $query)
+    {
         // Выполняем запрос, получаем элементы коллеции
-		$modelName = $collection->modelName();
+        $modelName = $collection->modelName();
         $serviceLocator = IcEngine::serviceLocator();
         $modelScheme = $serviceLocator->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($modelName);
         $queryResult = $dataSource->execute($query)->getResult();
-		$collection->queryResult($queryResult);
-		// Если установлен флагp CALC_FOUND_ROWS,
-		// то назначаем ему значение
-		if ($query->getPart(Query::CALC_FOUND_ROWS)) {
-			$collection->data('foundRows', $queryResult->foundRows());
-		}
+        $collection->queryResult($queryResult);
+        // Если установлен флагp CALC_FOUND_ROWS,
+        // то назначаем ему значение
+        if ($query->getPart(Query::CALC_FOUND_ROWS)) {
+            $collection->data('foundRows', $queryResult->foundRows());
+        }
         $scheme = $modelScheme->scheme($modelName);
-		if (!$scheme['fields']) {
-			return;
-		}
-		$schemeFields = $scheme['fields']->keys();
-		$rows = $queryResult->asTable();
+        if (!$scheme['fields']) {
+            return;
+        }
+        $schemeFields = $scheme['fields']->keys();
+        $rows = $queryResult->asTable();
         if (!$rows) {
             return array('items' => array());
         }
@@ -57,5 +57,5 @@ class Model_Collection_Manager_Delegee_Simple
         }
         $items = $rows;
         return array('items' => $items);
-	}
+    }
 }

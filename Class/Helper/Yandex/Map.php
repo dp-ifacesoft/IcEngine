@@ -51,9 +51,9 @@ class Helper_Yandex_Map
 	 * Функция взята из YMaps.GeoCoordSystem
 	 *
      * @param array $A Координаты первой точки в градусах
-	 * $A [0] широта (longitude), $a долгота (latitude)
+	 * $A [0] (longitude), $A[1] (latitude)
 	 * @param array $z
-	 * $z [0] широта (longitude), $z долгота (latitude)
+	 * $Z [0] (longitude), $Z[1] (latitude)
 	 * @return float
 	 */
 	public function distance($A, $z)
@@ -82,7 +82,7 @@ class Helper_Yandex_Map
 	}
 
 	/**
-	 * Альтернативный метод расчета расстояния
+	 * Альтернативный метод расчета расстояния !!! работает не корректно !!! lucifer... 07/02/2014
      *
 	 * Функция найдена на просторах инета, в целом результаты не сильно
 	 * отличаются от функции яндекса.
