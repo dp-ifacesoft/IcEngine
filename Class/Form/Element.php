@@ -51,7 +51,7 @@ abstract class Form_Element
     public function getType()
     {
         $className = get_class($this);
-        return strtolower(substr($className, strlen('Form_Element_')));
+        return lcfirst(substr($className, strlen('Form_Element_')));
     }
     
      /**
