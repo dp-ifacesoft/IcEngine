@@ -26,7 +26,8 @@ class View_Resource_Packer_Ngtpl extends View_Resource_Packer_Js
 			array('\\\\', '\\"', '"+"\\r\\n"+"', '"+"\\n"+"', '"+"\\r"+"'),
 			$resource->content()
 		);
-		$content = 'Ng_Template.templates[\'' . $resource->localPath . '\']="' . 
+        $nameFormated = lcfirst(str_replace('/', '', $resource->localPath));
+		$content = 'Ng_Template.templates[\'' . $nameFormated . '\']="' . 
             $replacedContent . '";';
 		if (!empty($this->currentResource->nopack) || $this->noPack) {
 			$result .= $content . "\n";
