@@ -24,8 +24,7 @@ class Helper_View_Resource_Ngtpl
             IcEngine::root() . 'Ice/Static/ngtpl/', '', $filename
         );
         $name = isset($params['name']) ? $params['name'] : $filename;
-        $nameFormated = lcfirst(str_replace('/', '', $name));
-        $result = 'Ng_Template.templates[\'' . $nameFormated . '\']="' .
+        $result = 'Ng_Template.templates[\'' . $name . '\']="' .
             $replacedContent . '";';
 		return $result;
 	}
