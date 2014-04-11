@@ -1,0 +1,14 @@
+syntax: regexp
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$
+\.\#
+relre:\.svn
+
+syntax: glob
+
+nbproject/
+Model/newEmptyPHP.php
+.idea/**
