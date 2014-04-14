@@ -16,32 +16,32 @@ class Data_Source
     protected $config;
 
     /**
-	 * Текущий драйвер источника данных
+     * Текущий драйвер источника данных
      *
-	 * @var Data_Driver_Abstract
-	 */
-	protected $driver;
+     * @var Data_Driver_Abstract
+     */
+    protected $driver;
 
     /**
      * Фильтры
-     *  
+     *
      * @var array
      */
     protected $filters = array();
-    
+
     /**
      * Название источника данных
-     * 
+     *
      * @var string
      */
     protected $name;
-    
-	/**
-	 * Текущий запрос
-	 *
+
+    /**
+     * Текущий запрос
+     *
      * @var Query
-	 */
-	private $query;
+     */
+    private $query;
 
     /**
      * Зарегистирированные таблицы
@@ -50,16 +50,16 @@ class Data_Source
      */
     protected $registeredTables = array();
 
-	/**
-	 * Результат последнего выполненного запроса
-	 *
+    /**
+     * Результат последнего выполненного запроса
+     *
      * @var Query_Result
-	 */
-	private $result;
+     */
+    private $result;
 
     /**
      * Применить фильтры
-     * 
+     *
      * @param Query_Abstract $query
      */
     public function applyFilters(Query_Abstract $query)
@@ -72,16 +72,16 @@ class Data_Source
         }
         return $query;
     }
-    
-	/**
-	 * Проверяет доступность источника данных
-	 *
+
+    /**
+     * Проверяет доступность источника данных
+     *
      * @return boolean
-	 */
-	public function available()
-	{
-		return $this->driver()->available();
-	}
+     */
+    public function available()
+    {
+        return $this->driver()->available();
+    }
 
     /**
      * Получить (инициализировать) драйвер
@@ -108,9 +108,9 @@ class Data_Source
      * @throws Exception
      * @return Data_Source_Abstract
      */
-	public function execute(Query_Abstract $query, $options = null)
-	{
-        $options = $options ?: new Query_Options();
+    public function execute(Query_Abstract $query, $options = null)
+    {
+        $options = $options ? : new Query_Options();
         $query = $this->applyFilters($query);
         if (!$query) {
             return $this;
@@ -118,17 +118,15 @@ class Data_Source
         $this->setQuery($query);
         try {
             $result = $this->driver()->execute($query, $options);
-        } catch (Exception $e) { 
-            throw new Exception(
-                'query error: ' . $this->query->translate(), 0, $e
-            );
+        } catch (Exception $e) {
+            throw new ErrorException('query: ' . $this->query->translate(), 0, 1, __FILE__, __LINE__, $e);
         }
         if ($result->touchedRows()) {
             $this->notifySignal($query, $result);
         }
-		$this->setResult($result);
-		return $this;
-	}
+        $this->setResult($result);
+        return $this;
+    }
 
     /**
      * Получить собственную конфигурацию источника данных
@@ -140,60 +138,60 @@ class Data_Source
         return $this->config;
     }
 
-	/**
+    /**
      * Получить текущий драйвер
      *
-	 * @return Data_Driver_Abstract
-	 */
-	public function getDataDriver()
-	{
-		return $this->driver;
-	}
+     * @return Data_Driver_Abstract
+     */
+    public function getDataDriver()
+    {
+        return $this->driver;
+    }
 
     /**
      * Получить фильтры
-     * 
+     *
      * @return array
      */
     public function getFilters()
     {
         return $this->filters;
     }
-    
+
     /**
      * Получить название источника
-     * 
+     *
      * @return string
      */
     public function getName()
     {
         return $this->name;
     }
-    
-	/**
-	 * Возвращает запрос
-	 *
-     * @params null|string $translator
-	 * 		Ожидаемый вид запроса.
-	 * 		Если необходим объект запроса, ничего не указывется (по умолчанию).
-	 * 		Если указать транслятор, то результом будет результат трансляции.
-	 * @return Query|mixed
-	 */
-	public function getQuery($translator = null)
-	{
-		return $translator
-            ? $this->query->translate($translator) : $this->query;
-	}
 
-	/**
+    /**
+     * Возвращает запрос
+     *
+     * @params null|string $translator
+     *        Ожидаемый вид запроса.
+     *        Если необходим объект запроса, ничего не указывется (по умолчанию).
+     *        Если указать транслятор, то результом будет результат трансляции.
+     * @return Query|mixed
+     */
+    public function getQuery($translator = null)
+    {
+        return $translator
+            ? $this->query->translate($translator) : $this->query;
+    }
+
+    /**
      * Получить результат последнего выполненного запроса
      *
-	 * @return Query_Result
-	 */
-	public function getResult()
-	{
-		return $this->result;
-	}
+     * @return Query_Result
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
 
     /**
      * Наполнить схему данных через источник данных
@@ -211,7 +209,7 @@ class Data_Source
 
     /**
      * Нотификация сигнала
-     * 
+     *
      * @param Query_Abstract $query
      * @param Query_Result $result
      */
@@ -226,13 +224,13 @@ class Data_Source
             $eventManager = $serviceLocator->getService('eventManager');
             $signal = $eventManager->getSignal($signalName);
             $signal->setData(array(
-                'result'    => $result,
-                'table'     => $tableName
+                'result' => $result,
+                'table' => $tableName
             ));
             $signal->notify();
         }
     }
-    
+
     /**
      * Зарегистировать таблицу
      *
@@ -240,7 +238,7 @@ class Data_Source
      */
     public function registerTable($table)
     {
-        foreach ((array) $table as $tableName) {
+        foreach ((array)$table as $tableName) {
             $this->registeredTables[] = $tableName;
         }
     }
@@ -256,19 +254,19 @@ class Data_Source
     }
 
     /**
-	 * Устанавливает драйвер
-	 *
+     * Устанавливает драйвер
+     *
      * @param Data_Driver_Abstract $driver
      * @return Data_Source
-	 */
-	public function setDataDriver(Data_Driver_Abstract $driver)
-	{
-		$this->driver = $driver;
-		return $this;
-	}
-    
+     */
+    public function setDataDriver(Data_Driver_Abstract $driver)
+    {
+        $this->driver = $driver;
+        return $this;
+    }
+
     /**
-     * 
+     *
      * @param type $filters
      * @return Data_Source
      */
@@ -277,10 +275,10 @@ class Data_Source
         $this->filters = $filters;
         return $this;
     }
-    
+
     /**
      * Изменить название источника
-     * 
+     *
      * @param string $name
      */
     public function setName($name)
@@ -289,26 +287,26 @@ class Data_Source
     }
 
     /**
-	 * Устанавливает запрос
-	 *
+     * Устанавливает запрос
+     *
      * @param Query_Abstract $query
-	 * @return Data_Source
-	 */
-	public function setQuery(Query_Abstract $query)
-	{
-		$this->query = $query;
-		return $this;
-	}
+     * @return Data_Source
+     */
+    public function setQuery(Query_Abstract $query)
+    {
+        $this->query = $query;
+        return $this;
+    }
 
-	/**
-	 * Устанавливает результат запроса.
-	 *
+    /**
+     * Устанавливает результат запроса.
+     *
      * @param Query_Result $result
-	 * @return Data_Source
-	 */
-	public function setResult(Query_Result $result)
-	{
-		$this->result = $result;
-		return $this;
-	}
+     * @return Data_Source
+     */
+    public function setResult(Query_Result $result)
+    {
+        $this->result = $result;
+        return $this;
+    }
 }
