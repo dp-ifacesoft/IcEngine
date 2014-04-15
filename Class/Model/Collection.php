@@ -1132,12 +1132,13 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Антидот для отравленой коллекции
      */
-    public function antidot()
+    public function antidote()
     {
         array_walk($this->items, function (&$item, $key) {
             if (is_array($item)) {
                 $item = IcEngine::modelManager()->create($this->modelName(), $item);
             }
         });
+        $this->isRaw(false);
     }
 }
