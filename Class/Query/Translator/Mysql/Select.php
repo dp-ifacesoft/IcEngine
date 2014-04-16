@@ -183,9 +183,10 @@ class Query_Translator_Mysql_Select extends Query_Translator_Abstract
             if (!array_key_exists($i, $values)) {
                 break;
             }
-            $value = is_array($values[$i])
-                ? $this->renderInArray($values[$i])
-                : $helper->quote($values[$i]);
+
+            $value = count($values) > 1
+                ? $this->renderInArray($values)
+                : $helper->quote(reset($values));
             $left = substr($condition, 0, $charPos);
             $right = substr($condition, $charPos + 1);
             $condition = $left . $value . $right;
