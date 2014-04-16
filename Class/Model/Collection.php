@@ -1132,7 +1132,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Антидот для отравленой коллекции
      */
-    public function antidote()
+    public function rawAntidote()
     {
         array_walk($this->items, function (&$item, $key) {
             if (is_array($item)) {
