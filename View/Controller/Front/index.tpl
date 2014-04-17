@@ -1,0 +1,1 @@
+{if !empty($content)}{$content}{/if}
