@@ -12,11 +12,15 @@ class Controller_Annotation_Schedule extends Controller_Abstract
      * 
      * @Template(null)
      * @Validator("Not_Null"={"data"})
-     * @Context("helperAnnotationSchedule", "helperArray")
+     * @Context("helperAnnotationSchedule", "helperArray", "unitOfWork")
      */
     public function update($data, $context)
     {
         $schedules = array();
+        $schedulesForSave = array();
+        $context->unitOfWork->setAutoFlush(500);
+        $schedulesExists = $context->collectionManager->create('Schedule')
+            ->raw();
         foreach ($data as $controllerAction => $annotationData) {
             $subData = $annotationData['Schedule'];
             $scheduleData = $subData['data'][0];
@@ -39,178 +43,61 @@ class Controller_Annotation_Schedule extends Controller_Abstract
             $interval = reset($scheduleData);
             $priority = isset($scheduleData['priority'])
                 ? $scheduleData['priority'] : 0;
-            $schedules[$controllerAction][] = array(
+            $deltaSec = $context->helperAnnotationSchedule->delta(array(
+                'interval'  => $interval
+            ));
+            $schedules[] = array(
+                'controllerAction'  => $controllerAction,
+                'deltaSec'  => $deltaSec,
                 'interval'  => $interval,
                 'priority'  => $priority,
-                'params'    => $params
+                'params'    => $params,
+                'paramsJson' => json_encode($params, JSON_UNESCAPED_UNICODE),
+                'exectTime' => isset($scheduleData['exectTime']) ? 
+                    '0000-00-00 00:' . $scheduleData['exectTime'] : null,
+                'hasExectTime'  => (int) isset($scheduleData['exectTime'])
             );
         }
-        $dds = $this->getService('dds');
-        $queryBuilder = $this->getService('query');
-        $serviceSchedule = array();
-        if (isset($schedules['Service/run'])) {
-            $serviceSchedule = $schedules['Service/run'];
-            unset($schedules['Service/run']);
-        }
-        $scheduleNames = array_keys($schedules);
-        $scheduleQuery = $queryBuilder
-            ->select('id', 'controllerAction', 'priority', 'paramsJson', 
-                'deltaSec')
-            ->from('Schedule');
-        $existsSchedules = $dds->execute($scheduleQuery)->getResult()
-            ->asTable();
-        $existsScheduleNames = array_unique(
-            $context->helperArray->column($existsSchedules, 'controllerAction')
-        );
-        $existsServiceSchedule = array();
-        $serviceIndex = array_search('Service/run', $existsScheduleNames);
-        if ($serviceIndex !== false) {
-            unset($existsScheduleNames[$serviceIndex]);
-            foreach ($existsSchedules as $schedule) {
-                if ($schedule['controllerAction'] != 'Service/run') {
+        foreach ($schedules as $schedule) {
+            $scheduleDataForSave = array(
+                'controllerAction'  => $schedule['controllerAction'],
+                'deltaSec'          => $schedule['deltaSec'],
+                'interval'          => $schedule['interval'],
+                'priority'          => $schedule['priority'],
+                'paramsJson'        => $schedule['paramsJson'],
+                'exectTime'         => $schedule['exectTime'],
+                'hasExectTime'      => $schedule['hasExectTime']
+            );
+            $schedulesExistsFound = $context->helperArray->filter(
+                $schedulesExists, array(
+                    'controllerAction'  => $schedule['controllerAction']
+                )
+            );
+            foreach ($schedulesExistsFound as $item) {
+                if (!$context->helperAnnotationSchedule
+                        ->exists($item, $schedule)
+                ) {
                     continue;
                 }
-                $schedule['params'] = json_decode(
-                    urldecode($schedule['paramsJson']), true
+                $scheduleDataForSave = array_merge($scheduleDataForSave, 
+                    array(
+                        'deltaSec'  => $item['deltaSec'],
+                        'lastTs'    => $item['lastTs'],
+                        'lastDate'  => $item['lastDate']
+                    )
                 );
-                unset($schedule['paramsJson']);
-                $existsServiceSchedule[] = $schedule;
             }
+            $schedulesForSave[] = $scheduleDataForSave;
         }
-        $unitOfWork = $this->getService('unitOfWork');
-        if ($serviceSchedule) {
-            $indexedServiceSchedule = array();
-            $indexedExistsServiceSchedule = array();
-            foreach ($serviceSchedule as $schedule) {
-                $key = $schedule['params']['name'] . '/'. 
-                    $schedule['params']['method'];
-                $indexedServiceSchedule[$key] = $schedule;
-            }
-            if ($existsServiceSchedule) {
-                foreach ($existsServiceSchedule as $schedule) {
-                    $key = $schedule['params']['name'] . '/'. 
-                        $schedule['params']['method'];
-                    $indexedExistsServiceSchedule[$key] = $schedule; 
-                }
-            }
-            $serviceScheduleNames = array_keys($indexedServiceSchedule);
-            $existsServiceScheduleNames = array_keys(
-                $indexedExistsServiceSchedule
-            );
-            sort($serviceScheduleNames);
-            sort($existsServiceScheduleNames);
-            $renaimedServiceScheduleNames = array_intersect(
-                $serviceScheduleNames, $existsServiceScheduleNames
-            );
-            $addedServiceScheduleNames = array_diff(
-                $serviceScheduleNames, $existsServiceScheduleNames
-            );
-            $deletedServiceScheduleNames = array_diff(
-                $serviceScheduleNames, $existsServiceScheduleNames
-            );
-            if ($renaimedServiceScheduleNames) {
-                foreach ($renaimedServiceScheduleNames as $schedule) {
-                    $scheduleData = $indexedServiceSchedule[$schedule];
-                    $deltaSec = $context->helperAnnotationSchedule->delta(
-                        $scheduleData
-                    );
-                    $paramsJson = urlencode(
-                        json_encode($scheduleData['params'])
-                    );
-                    $priority = $scheduleData['priority'];
-                    $oldScheduleData = $indexedExistsServiceSchedule[$schedule];
-                    $oldParamsJson = urlencode(
-                        json_encode($oldScheduleData['params'])
-                    );
-                    if ($deltaSec == $oldScheduleData['deltaSec'] &&
-                        $paramsJson == $oldParamsJson &&
-                        $priority == $oldScheduleData['priority']) {
-                        continue;
-                    }
-                    $query = $queryBuilder
-                        ->update('Schedule')
-                        ->set('deltaSec', $deltaSec)
-                        ->set('priority', $priority)
-                        ->set('paramsJson', $paramsJson);
-                    $unitOfWork->push($query);
-                }
-                $unitOfWork->flush();
-            }
-            if ($deletedServiceScheduleNames) {
-                $deleteIds = array();
-                foreach ($deletedServiceScheduleNames as $schedule) {
-                    if (!isset($indexedExistsServiceSchedule[$schedule])) {
-                        continue;
-                    }
-                    $id = $indexedExistsServiceSchedule[$schedule]['id'];
-                    $deleteIds[] = $id;
-                }
-                if ($deleteIds) {
-                    $query = $queryBuilder
-                        ->delete()
-                        ->from('Schedule')
-                        ->where('id', $deleteIds);
-                    $dds->execute($query);
-                }
-            }
-            if ($addedServiceScheduleNames) {
-                foreach ($addedServiceScheduleNames as $schedule) {
-                    $scheduleData = $indexedServiceSchedule[$schedule];
-                    $deltaSec = $context->helperAnnotationSchedule->delta(
-                        $scheduleData
-                    );
-                    $paramsJson = urlencode(
-                        json_encode($scheduleData['params'])
-                    );
-                    $query = $queryBuilder
-                        ->insert('Schedule')
-                        ->values(array(
-                            'controllerAction'  => 'Service/run',
-                            'deltaSec'          => $deltaSec,
-                            'lastTs'            => time(),
-                            'paramsJson'        => $paramsJson,
-                            'priority'          => $scheduleData['priority']
-                        ));
-                    $unitOfWork->push($query);
-                }
-                $unitOfWork->flush();
-            }
-        }
-        sort($existsScheduleNames);
-        sort($scheduleNames);
-        $addedScheduleNames = array_diff($scheduleNames, $existsScheduleNames);
-        $deletedScheduleNames = array_diff(
-            $existsScheduleNames, $scheduleNames
-        );
-        if ($deletedScheduleNames) {
-            $deleteQuery = $queryBuilder
-                ->delete()
-                ->from('Schedule')
-                ->where('controllerAction', $deletedScheduleNames);
-            $dds->execute($deleteQuery);
-        }
-        if ($addedScheduleNames) {
-            foreach ($addedScheduleNames as $scheduleName) {
-                if (!isset($schedules[$scheduleName])) {
-                    continue;
-                }
-                $scheduleData = reset($schedules[$scheduleName]);
-                $deltaSec = $context->helperAnnotationSchedule->delta(
-                    $scheduleData
-                );
-                $paramsJson = urlencode(json_encode($scheduleData['params']));
-                $insertQuery = $queryBuilder
-                    ->insert('Schedule')
-                    ->values(array(
-                        'controllerAction'  => $scheduleName,
-                        'deltaSec'          => $deltaSec,
-                        'lastTs'            => time(),
-                        'paramsJson'        => $paramsJson,
-                        'priority'          => $scheduleData['priority']
-                    ));
-                $unitOfWork->push($insertQuery);
-            }
-            $unitOfWork->flush();
-        }
+        $scheduleQueryTruncate = $context->queryBuilder
+            ->truncateTable('Schedule');
+        $context->dds->execute($scheduleQueryTruncate);
+        foreach ($schedulesForSave as $schedule) {
+            $scheduleQueryInsert = $context->queryBuilder
+                ->insert('Schedule')
+                ->values($schedule);
+            $context->unitOfWork->push($scheduleQueryInsert);
+        } 
+        $context->unitOfWork->flush();
     }
 }
