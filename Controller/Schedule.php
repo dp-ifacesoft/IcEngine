@@ -45,9 +45,17 @@ class Controller_Schedule extends Controller_Abstract
             if ($scheduleTs > $currentTs) {
                 continue;
             }
+            $lastDate = $helperDate->toUnix();
+            if ($schedule['hasExectTime']) {
+                $lastDate = substr($lastDate, 0 , strlen($lastDate) - 8) . 
+                    substr($schedule['exectTime'], 
+                        strlen($schedule['exectTime']) - 8 , 8
+                    );
+                $currentTs = (new DateTime($lastDate))->getTimestamp();
+            }
             $schedule->update(array(
                 'lastTs'    => $currentTs,
-                'lastDate'  => $helperDate->toUnix(),
+                'lastDate'  => $lastDate,
                 'inProcess' => 1
             ));
             echo $schedule['controllerAction'] . PHP_EOL;

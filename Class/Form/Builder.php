@@ -82,7 +82,20 @@ class Form_Builder
         }
         return $this->getForm();
     }
- 
+    
+    /**
+     * Устанавливает атрибуты элемента
+     * 
+     * @param string $name название атрибута
+     * @param string $value значение
+     * @return $this
+     */
+    public function setAttribute($name, $value)
+    {
+        $this->currentElement->setAttribute($name, $value);
+        return $this;
+    }
+    
     /**
      * Устанавливает атрибуты элемента
      * 
