@@ -310,8 +310,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             ->from($modelName)
             ->where($keyField, $ids);
         $dataSource = $this->getService('modelScheme')->dataSource($modelName);
-        print_r($dataSource);
-        die();
         $dataSource->execute($query);
 		$this->items = array();
 	}
