@@ -1,17 +1,1 @@
-<?php
-
-/**
- * Продвайдер $_SESSION данных.
- * 
- * @author goorus, morph
- */
-class Data_Provider_Session extends Data_Provider_Buffer
-{
-    /**
-     * @inheritdoc
-     */
-	public function __construct()
-    {
-        $this->buffer = &$_SESSION;
-    }
-}
+<?php/** * Не блокирующий провадер сессий пхп * * @author dp */class Data_Provider_Session extends Data_Provider_Abstract{    private $maxLifeTime = 86400;    public function __construct($config = null)    {        if (!empty($config['maxLifeTime'])) {            $this->maxLifeTime = $config['maxLifeTime'];        }        if (isset($config['sessionHandlerClass'])) {            /** @var SessionHandlerInterface $sessionHandlerClass */            $sessionHandlerClass = $config['sessionHandlerClass'];            session_set_save_handler(new $sessionHandlerClass($this->maxLifeTime), true);        }    }    public function getSessionId()    {        session_start();        $id = session_id();        session_write_close();        return $id;    }    public function get($key, $plain = false)    {        session_start();        $value = isset($_SESSION[$key]) ? $_SESSION[$key] : null;        session_write_close();        return $value;    }    public function set($key, $value, $expiration = 0, $tags = array())    {        session_start();        $_SESSION[$key] = $value;        session_write_close();    }    public function delete($keys, $time = 0, $setDeleted = false)    {        session_start();        if (isset($_SESSION[$keys])) {            unset($_SESSION[$keys]);        }        session_write_close();    }    public function destroy() {        session_start();        session_destroy();        session_write_close();    }    public function getMaxLifeTime()    {        return $this->maxLifeTime;    }}
