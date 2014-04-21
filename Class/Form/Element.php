@@ -18,6 +18,13 @@ abstract class Form_Element
     public $value;
     
     /**
+     * Дополнительные данные
+     * 
+     * @var array
+     */
+    public $data = array();
+    
+    /**
      *
      * @var Form
      */
@@ -42,6 +49,14 @@ abstract class Form_Element
      * Выбираемые данные (select)
      */
     public $selectable = array();
+    
+    /**
+     * Получить дополнительные данные
+     */
+    public function data()
+    {
+        return $this->data;
+    }
     
     /**
      * Получает тип элемента формы

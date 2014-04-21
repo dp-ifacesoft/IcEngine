@@ -22,6 +22,11 @@ class Helper_View_Resource
      * Метка для jtpl файлов
      */
     const JTPL = 'jtpl';
+    
+    /**
+     * Метка для ngtpl файлов
+     */
+    const NGTPL = 'ngtpl';
 
 	/**
 	 * Конфигурация
@@ -42,22 +47,29 @@ class Helper_View_Resource
             self::JTPL  => array(
                 'default'   => 'Ice/Static/jtpl/',
                 'view'      => 'Ice/View/'
+            ),
+            self::NGTPL  => array(
+                'default'   => 'Ice/Static/ngtpl/',
+                'view'      => 'Ice/View/'
             )
         ),
 		'packDelegates'	=> array(
 			self::CSS	=> 'Helper_View_Resource_Css::pack',
 			self::JS    => 'Helper_View_Resource_Js::pack',
-            self::JTPL  => 'Helper_View_Resource_Jtpl::pack'
+            self::JTPL  => 'Helper_View_Resource_Jtpl::pack',
+            self::NGTPL  => 'Helper_View_Resource_Ngtpl::pack'
    		),
 		'packGroups'	=> array(
 			self::CSS	=> '.css',
 			self::JS		=> '.js',
-            self::JTPL  => '.js'
+            self::JTPL  => '.js',
+            self::NGTPL  => '.js'
 		),
 		'packTemplates'	=> array(
 			self::CSS	=> '<style type="text/css">@import url("{$filename}");</style>',
 			self::JS		=> '<script type="text/javascript" src="{$filename}"></script>',
-            self::JTPL	=> '<script type="text/javascript" src="{$filename}"></script>'
+            self::JTPL	=> '<script type="text/javascript" src="{$filename}"></script>',
+            self::NGTPL	=> '<script type="text/javascript" src="{$filename}"></script>'
 		),
 		'path'			=> 'cache/static/',
 		'provider'		=> 'Static'
@@ -71,7 +83,8 @@ class Helper_View_Resource
 	protected static $files = array(
 		self::CSS	=> array(),
 		self::JS    	=> array(),
-        self::JTPL  => array()
+        self::JTPL  => array(),
+        self::NGTPL  => array()
 	);
 
 	/**
@@ -149,6 +162,18 @@ class Helper_View_Resource
 	public function appendJtpl($filename, $pathName = null, $params = array())
 	{
 		$this->append(self::JTPL, array($filename, 'default', $params));
+	}
+    
+    /**
+	 * Добавляет ngtpl файлы
+	 *
+	 * @param string $filename
+     * @param string $pathName
+     * @param array $params
+	 */
+	public function appendNgtpl($filename, $pathName = null, $params = array())
+	{
+		$this->append(self::NGTPL, array($filename, 'default', $params));
 	}
 
 	/**
@@ -380,6 +405,17 @@ class Helper_View_Resource
 	{
         $key = $this->resourceKey();
 		return $this->embed(self::JTPL, $key . '_jtpl');
+	}
+    
+    /**
+	 * Внедряет упакованный ngtpl файл
+	 *
+	 * @return string
+	 */
+	public function embedNgtpl()
+	{
+        $key = $this->resourceKey();
+		return $this->embed(self::NGTPL, $key . '_ngtpl');
 	}
 
 	/**

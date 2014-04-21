@@ -170,7 +170,7 @@ class Helper_Date
             return intval($day) . "&nbsp;" . $month .
 				(($year != date("Y") || $showYear) 
                     ? ("&nbsp;" . $year . "&nbsp;г.") : "") .
-                    ($showTime ? "&nbsp;" . $hour . ':' . $minute : '');
+                    ($showTime ? " в&nbsp;" . $hour . ':' . $minute : '');
         } elseif ($format == 1) {
             $return = intval($day) . "&nbsp;" . $month . 
                 (($year != date("Y") || $showYear) 
