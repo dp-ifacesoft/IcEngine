@@ -14,7 +14,26 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @var Redis
      */
     protected $connections = array();
-
+    
+    /**
+     * Добавление значения к ключу.
+     * Атомарная операция.
+     * 
+     * @param string $key Ключ
+     * @param string $value Строка, которая будет добавлена к текущему значению ключа.
+     * @return int Длина нового значения (строки)
+     */
+    public function append($key, $value)
+    {
+        if ($this->tracer) {
+            $this->tracer->add('append', $key);
+        }
+        return $this->getConnection($key)->append(
+                $this->keyEncode($key),
+                $value
+        );
+    }
+    
     /**
      * @inheritdoc
      */
@@ -195,6 +214,20 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 
         return $sortedItems;
 
+    }
+    
+    /**
+     * Получение текущего значения ключа с одновременной заменой на новое значение.
+     * Атомарная операция.
+     *
+     * @param string $key Ключ
+     * @param mixed $vslue Данные
+     * @return string|null Текущее значение ключа
+     */
+    public function getSet($key, $value)
+    {
+        $value = $this->getConnection($key)->getSet($this->keyEncode($key), $value);
+        return $value;
     }
 
     /**

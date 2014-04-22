@@ -276,7 +276,23 @@ class Data_Provider_Abstract
         }
         return $result;
     }
-
+    
+    /**
+     * Получение текущего значения ключа с одновременной заменой на новое значение.
+     * Для реальных провайдеров эта операция может быть атомарной,
+     * для абстрактного это лишь последовательность двух действий.
+     *
+     * @param string $key Ключ
+     * @param mixed $vslue Данные
+     * @return string|null Текущее значение ключа
+     */
+    public function getSet($key, $value)
+    {
+        $value = $this->get($key);
+        $this->set($key, $value);
+        return $value;
+    }
+    
     /**
      * Статистика по провайдеру
      * 
