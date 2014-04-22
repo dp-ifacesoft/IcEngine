@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Рендер данных для библиотеки JsHttpRequest
  * 
@@ -13,7 +13,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
      * @var JsHttpRequest
 	 */
 	protected $request;
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -22,7 +22,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 		IcEngine::getLoader()->load('JsHttpRequest', 'Vendor');
 		$this->request = new JsHttpRequest('UTF-8');
 	}
-
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
@@ -33,7 +33,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 		$this->vars = array();
 		return $result;
 	}
-
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
@@ -43,7 +43,7 @@ class View_Render_JsHttpRequest extends View_Render_Abstract
 		$GLOBALS['_RESULT'] = $this->vars;
 		die();
 	}
-
+
     /**
      * @inheritdoc
      */

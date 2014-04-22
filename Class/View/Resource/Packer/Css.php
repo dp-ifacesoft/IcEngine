@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Упаковщик Css ресурсов представления
  *
@@ -13,28 +13,28 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
      * @var array
 	 */
 	protected $imports = array();
-
+
 	/**
 	 * Домен второго уровня
 	 *
      * @var string
 	 */
 	protected $domain = 'localhost';
-
+
 	/**
 	 * Шаблоны имен доменов
 	 *
      * @var Objective
 	 */
 	protected $domains;
-
+
 	/**
 	 * Последний использованный домен.
 	 *
      * @var integer
 	 */
 	protected $last = 0;
-
+
 	/**
 	 * Расширения конфига
 	 *
@@ -54,7 +54,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 //			'img9.{$domain}{$url}'
 //		)
 	);
-
+
 	/**
 	 * Сформированные адреса изображений.
 	 * Необходимо чтобы на одно изображние не получалось несколько ссылок.
@@ -62,7 +62,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
      * @var array <String>
 	 */
 	protected $formedUrls = array();
-
+
 	/**
 	 * Конструктор
 	 */
@@ -77,7 +77,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		);
 		$this->domains = $this->config()->domains;
 	}
-
+
 	/**
 	 * Callback для preg_replace вырезания @import.
 	 *
@@ -95,7 +95,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		}
 		return '';
 	}
-
+
 	/**
 	 * Callback для preg_replace замены путей к изображениям.
 	 *
@@ -133,7 +133,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 		}
 		return 'url("' . $url . '")';
 	}
-
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Resource_Packer_Abstract::compile()
@@ -144,7 +144,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
 			implode("\n", $this->imports) . "\n" .
 			implode("\n", $packages);
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */

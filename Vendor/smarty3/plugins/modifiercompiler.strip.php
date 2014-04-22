@@ -5,7 +5,7 @@
  * @package Smarty
  * @subpackage PluginsModifierCompiler
  */
-
+
 /**
  * Smarty strip modifier plugin
  * 
@@ -21,7 +21,7 @@
  * @param array $params parameters
  * @return string with compiled code
  */
-
+
 function smarty_modifiercompiler_strip($params, $compiler)
 {
     if (!isset($params[1])) {
@@ -29,5 +29,5 @@ function smarty_modifiercompiler_strip($params, $compiler)
     }
     return "preg_replace('!\s+!u', {$params[1]},{$params[0]})";
 } 
-
+
 ?>

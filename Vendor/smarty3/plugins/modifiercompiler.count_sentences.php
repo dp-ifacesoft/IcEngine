@@ -5,7 +5,7 @@
  * @package Smarty
  * @subpackage PluginsModifierCompiler
  */
-
+
 /**
  * Smarty count_sentences modifier plugin
  *
@@ -23,5 +23,5 @@ function smarty_modifiercompiler_count_sentences($params, $compiler)
     // find periods with a word before but not after.
     return 'preg_match_all(\'/[^\s]\.(?!\w)/\', ' . $params[0] . ', $tmp)';
 }
-
+
 ?>

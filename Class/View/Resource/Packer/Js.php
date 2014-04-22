@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Упаковщик Js ресурсов представления.
  * 
@@ -20,7 +20,7 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
      * @var boolean
      */
     protected $noPack = false;
-
+
     /**
      * Конструктор
      */
@@ -28,7 +28,7 @@ class View_Resource_Packer_Js extends View_Resource_Packer_Abstract
 	{
 		IcEngine::getLoader()->requireOnce(self::PACKER, 'Vendor');
 	}
-
+
     /**
      * @inheritdoc
      */

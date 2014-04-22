@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер провайдеров данных. По переданному названию создает и 
  * возвращает соответсвующего провайдера.
@@ -20,7 +20,7 @@ class Data_Provider_Manager extends Manager_Abstract
      * @var array <Data_Provider_Abstract>
 	 */
 	protected $providers = array();
-
+
 	/**
 	 * Возвращает провайдера.
 	 * 

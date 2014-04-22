@@ -102,7 +102,7 @@ class Crypt_Xxtea extends Crypt_Abstract
 	    }
 	    return self::_long2str($v, true);
 	}
-
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Crypt_Abstract::encode()

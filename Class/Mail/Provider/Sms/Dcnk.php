@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Отправка sms через dc-nk.ru
  * 
@@ -7,7 +7,7 @@
  */
 class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 {
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -25,14 +25,14 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 		// кодировка отправляемых сообщений
 		'send_charset'	=> 'utf-8'
 	);
-
+
 	/**
 	 * SOAP клиент
 	 * 
      * @var yakoon_soapclient
 	 */
 	protected $client;
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -51,7 +51,7 @@ class Mail_Provider_Sms_Dcnk extends Mail_Provider_Abstract
 			$proxyusername, $proxypassword
 		);
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */

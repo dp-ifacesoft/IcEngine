@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Модель, содержащая информацию по ключу в логинзе.
  *
@@ -15,14 +15,14 @@ class Authorization_Loginza_Token extends Model
 		// Адрес логинзы, где хранится результат авторизации
 		'loginzaUrl'    => 'http://loginza.ru/api/authinfo?token={$token}'
 	);
-
+
 	/**
 	 * Текущие данные (полученные в этом процессе).
 	 *
      * @var Authorization_Loginza_Token
 	 */
 	protected static $current;
-
+
 	/**
 	 * Перенаправление пользователя с ключом результата авторизации.
 	 *

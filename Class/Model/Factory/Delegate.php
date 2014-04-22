@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Представитель модели
  *
@@ -20,7 +20,7 @@ class Model_Factory_Delegate extends Model
 	 * @var Model_Factory
 	 */
 	protected $modelFactory;
-
+
 	/**
 	 * Конструктор
      *
@@ -45,7 +45,7 @@ class Model_Factory_Delegate extends Model
 	{
 		return get_class($this->modelFactory);
 	}
-
+
 	/**
 	 * @desc Задает фабрику.
 	 * @param Model_Factory $factory Экземпляр фабрики.
@@ -54,7 +54,7 @@ class Model_Factory_Delegate extends Model
 	{
 		$this->modelFactory = $factory;
 	}
-
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Model::table()

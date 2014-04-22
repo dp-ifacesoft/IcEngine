@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Исполнитель всякого. Необходим для того, чтобы исполнять всякое. (с) morph
  * Предназначени для запуска функций/методов и кэширования результатов
@@ -16,14 +16,14 @@ class Executor extends Manager_Abstract
 	 * @var string
 	 */
 	const DELIM = '/';
-
+
 	/**
 	 * Кэшер
      * 
 	 * @var Data_Provider_Abstract
 	 */
 	protected $cacher;
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -53,7 +53,7 @@ class Executor extends Manager_Abstract
 		'tag_provider'		=> null,
 		'tags'				=> array()
 	);
-
+
     /**
 	 * Возвращает ключ для кэширования
 	 * 
@@ -109,7 +109,7 @@ class Executor extends Manager_Abstract
 		}
 		return $this->executeUncaching($function, $args);
 	}
-
+
 	/**
 	 * Выполнение функции подлежащей кэшированию.
 	 * 
@@ -182,7 +182,7 @@ class Executor extends Manager_Abstract
         }
 		return $value;
 	}
-
+
 	/**
 	 * Выполнение функции без кэширования.
 	 * 
@@ -194,7 +194,7 @@ class Executor extends Manager_Abstract
 	{
 		return call_user_func_array($function, $args);
 	}
-
+
 	/**
 	 * Возвращает текущий кэшер.
 	 * 
@@ -213,7 +213,7 @@ class Executor extends Manager_Abstract
         } 
 		return $this->cacher;
 	}
-
+
     /**
      * Проверяет валидны ли данные входного транспорта
      * 

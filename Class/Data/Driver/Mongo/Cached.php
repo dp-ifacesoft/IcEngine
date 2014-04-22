@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Драйвер для работы с Mongodb, с кэшированием запросов
  *
@@ -13,7 +13,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 	 * @var Data_Provider_Abstract
 	 */
 	protected $cacher;
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -30,7 +30,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 			$this->cacher->tagDelete($tags[$i]);
 		}
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -47,7 +47,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 			$this->cacher->tagDelete($tags [$i]);
 		}
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -86,7 +86,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 			)
 		);
 	}
-
+
     /**
      * @inheritdoc
      */
@@ -95,7 +95,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
         $this->connect();
         parent::executeShow($query, $options);
     }
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -112,7 +112,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 			$this->cacher->tagDelete($tags[$i]);
 		}
 	}
-
+
     /**
      * @inheritdoc
      */
@@ -144,7 +144,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 			'insertKey'		=> $this->insertId
 		));
 	}
-
+
 	/**
      * Получить кэшер запросов
      *
@@ -164,7 +164,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 	{
 		return md5(json_encode($this->query));
 	}
-
+
 	/**
 	 * Изменить кэшер запросов
      *
@@ -174,7 +174,7 @@ class Data_Driver_Mongo_Cached extends Data_Driver_Mongo
 	{
 		$this->cacher = $cacher;
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */

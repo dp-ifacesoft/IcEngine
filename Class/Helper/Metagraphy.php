@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Помощник для перевода текста в транслит
  *
@@ -30,7 +30,7 @@ class Helper_Metagraphy extends Helper_Abstract
 			'ч' => 'ch',  'ш' => 'sh',  'щ' => 'sch',
 			'ь' => '\'',  'ы' => 'y',   'ъ' => '\'',
 			'э' => 'e',   'ю' => 'yu',  'я' => 'ya',
-
+
 			'А' => 'A',   'Б' => 'B',   'В' => 'V',
 			'Г' => 'G',   'Д' => 'D',   'Е' => 'E',
 			'Ё' => 'E',   'Ж' => 'Zh',  'З' => 'Z',
@@ -69,7 +69,7 @@ class Helper_Metagraphy extends Helper_Abstract
         $strategy = $metagraphyStrategyManager->get($strategyName);
         return $strategy->process($text, $lang);
 	}
-
+
 	/**
 	 * Формирует из названия статьи ссылку.
 	 *

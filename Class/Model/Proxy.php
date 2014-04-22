@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Проксирующая модель. Используется в случаях, когда невозможно использовать
  * класс самой модели.
@@ -8,14 +8,14 @@
  */
 class Model_Proxy extends Model
 {
-
+
 	/**
 	 * Представляемая модель.
 	 *
      * @var string
 	 */
 	protected $modelName;
-
+
     /**
 	 * Изменяет значение поля
      *
@@ -31,7 +31,7 @@ class Model_Proxy extends Model
 			throw new Exception('Field unexists "' . $field . '".');
 		}
 	}
-
+
 	/**
      * Конструктор
      *
@@ -44,7 +44,7 @@ class Model_Proxy extends Model
 		$this->modelName = $modelName;
 		parent::__construct ($fields);
 	}
-
+
     /**
      * @inheritdoc
      */
@@ -52,7 +52,7 @@ class Model_Proxy extends Model
     {
         return $this;
     }
-
+
     /**
      * @inheritdoc
      */
@@ -60,7 +60,7 @@ class Model_Proxy extends Model
 	{
 	    return $this;
 	}
-
+
     /**
      * @inheritdoc
      */
@@ -68,7 +68,7 @@ class Model_Proxy extends Model
 	{
 		return $this->modelName;
 	}
-
+
     /**
      * @inheritdoc
      */
@@ -76,12 +76,12 @@ class Model_Proxy extends Model
 	{
 	    return $this;
 	}
-
+
     public function scheme()
     {
         return $this->getService('modelScheme')->scheme($this->modelName);
     }
-
+
     /**
      * @inheritdoc
      */

@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Провайдер данных Redis
  *
@@ -33,7 +33,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
 		return parent::_setOption($key, $value);
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -43,7 +43,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $this->keyEncode($key), $value
         );
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -66,7 +66,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $this->delete($key);
 		}
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -74,7 +74,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	{
         $this->delete($this->keys($pattern));
 	}
-
+
     /**
      * Отфильтровать ключу для конкретного соединения
      *
@@ -97,7 +97,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         }
         return $result;
     }
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -117,7 +117,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		$value = $this->valueDecode($result);
         return $value;
 	}
-
+
 	/**
 	 * Получить соединение (сокет)
 	 *
@@ -133,7 +133,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		$index = abs(crc32($key)) % $count;
         return $this->connections[$index];
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -171,7 +171,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         }
         return $sortedItems;
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -181,7 +181,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $this->keyEncode($key), $value
         );
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -189,7 +189,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	{
 		return urlencode($this->prefix . $key);
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -197,7 +197,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	{
 		return substr(urldecode($key), strlen($this->prefix));
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -226,7 +226,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
         return array_map(array($this, 'keyDecode'), $keys);
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -236,7 +236,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $connection->publish($channel, $message);
         }
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -263,7 +263,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
 		return $result;
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -273,7 +273,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $connection->subscribe($channel);
         }
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -283,7 +283,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $connection->unsubscribe($channel);
         }
 	}
-
+
     /**
      * Расшифровывает значение
      *
@@ -294,7 +294,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     {
         return json_decode(urldecode($value), true);
     }
-
+
     /**
      * Кодирует значение
      *

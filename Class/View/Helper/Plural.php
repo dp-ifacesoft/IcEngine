@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Помощник вида, для вывода слова с нужным окончанием, в зависимости от
  * переданного на вход числа
@@ -27,7 +27,7 @@ class View_Helper_Plural extends View_Helper_Abstract
 		reset($forms);
 		return current($forms);
 	}
-
+
 	/**
 	 * Получение подходящей формы слова через Morphy
      *
@@ -61,7 +61,7 @@ class View_Helper_Plural extends View_Helper_Abstract
 		}
 		return $word;
 	}
-
+
 	/**
 	 * Выбирает подходящую форму для числа
      *

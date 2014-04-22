@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Smarty Internal Plugin Nocache Insert
  * 
@@ -9,7 +9,7 @@
  * @subpackage Compiler
  * @author Uwe Tews 
  */
-
+
 /**
  * Smarty Internal Plugin Compile Insert Class
  */
@@ -45,5 +45,5 @@ class Smarty_Internal_Nocache_Insert {
         return "/*%%SmartyNocache:{$_tpl->properties['nocache_hash']}%%*/" . $_output . "/*/%%SmartyNocache:{$_tpl->properties['nocache_hash']}%%*/";
     } 
 } 
-
+
 ?>

@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер ресурсов
  *
@@ -14,14 +14,14 @@ class Resource_Manager extends Manager_Abstract
      * @var array
 	 */
 	protected $transports = array();
-
+
 	/**
 	 * Загруженные ресурсы
 	 *
      * @var array
 	 */
 	protected $resources = array();
-
+
 	/**
 	 * Обновленные в процессе ресурсы.
 	 * Необходимо для предотвращения постоянной записи неизменяемых ресурсов.
@@ -29,7 +29,7 @@ class Resource_Manager extends Manager_Abstract
      * @var array <boolean>
 	 */
 	protected $updatedResources = array();
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -45,7 +45,7 @@ class Resource_Manager extends Manager_Abstract
 		 */
 		'Resource_Manager'	=> array()
 	);
-
+
 	/**
 	 * Возвращает транспорт согласно конфигу.
 	 *
@@ -69,7 +69,7 @@ class Resource_Manager extends Manager_Abstract
         }
 		return $transport;
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -81,7 +81,7 @@ class Resource_Manager extends Manager_Abstract
 		}
 		return $this->config;
 	}
-
+
 	/**
 	 * Возвращает Ресурс указанного типа по идентификатору.
 	 *
@@ -100,7 +100,7 @@ class Resource_Manager extends Manager_Abstract
 		}
 		return $this->resources[$type][$name];
 	}
-
+
     /**
      * Получить ресурсы по типу
      *
@@ -112,7 +112,7 @@ class Resource_Manager extends Manager_Abstract
         return isset($this->resources[$type])
             ? $this->resources[$type] : array();
     }
-
+
 	/**
 	 * Получить обновленные ресурсы
 	 *
@@ -122,7 +122,7 @@ class Resource_Manager extends Manager_Abstract
 	{
 		return $this->updatedResources[$type];
 	}
-
+
 	/**
 	 * Слить объекты хранилища
 	 */
@@ -138,7 +138,7 @@ class Resource_Manager extends Manager_Abstract
 			}
 		}
 	}
-
+
 	/**
 	 * Сохраняет ресурс
 	 *
@@ -165,7 +165,7 @@ class Resource_Manager extends Manager_Abstract
 		}
 		$this->resources[$type][$name] = $resource;
 	}
-
+
     /**
      * Изменить ресурс по типу
      *
@@ -176,7 +176,7 @@ class Resource_Manager extends Manager_Abstract
     {
         $this->resources[$type] = $resources;
     }
-
+
 	/**
 	 * Обновить ресурс
 	 *
@@ -191,7 +191,7 @@ class Resource_Manager extends Manager_Abstract
         }
 		$this->updatedResources[$type][$name] = $updated;
 	}
-
+
 	/**
 	 * Возвращает транспорт для ресурсов указанного типа.
 	 *

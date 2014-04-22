@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Получить все связи модели
  * 
@@ -16,5 +16,5 @@ class Link_Option_From extends Model_Option
             ->where('Link.fromTable=?', $this->params['table'])
             ->where('Link.fromRowId=?', $this->params['rowId']);
     }
-
+
 }

@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * DDS Default Data Source
  *
@@ -17,7 +17,7 @@ class DDS
      * @var Data_Source_Abstract
 	 */
 	protected $source;
-
+
 	/**
 	 * Выполняет запрос и возвращает текущний источник
 	 *
@@ -53,7 +53,7 @@ class DDS
         }
 		return $dataSource->execute($query, $options);
 	}
-
+
 	/**
 	 * Возвращает текущий источник по умолчанию
      *
@@ -63,7 +63,7 @@ class DDS
 	{
 		return $this->source;
 	}
-
+
 	/**
 	 * Изменить источник данных по умолчанию
      *
