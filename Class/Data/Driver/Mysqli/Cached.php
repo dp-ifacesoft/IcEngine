@@ -200,8 +200,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             'foundRows' => $this->foundRows,
             'numRows' => $this->numRows,
             'result' => $result,
-            'touchedRows' => $this->touchedRows ? :
-                    $this->numRows + $this->affectedRows,
+            'touchedRows' => $this->touchedRows ? : $this->numRows + $this->affectedRows,
             'insertKey' => $this->insertId
         ));
         return $queryResult;
@@ -234,7 +233,17 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             Tracer::begin(__CLASS__, __METHOD__, __LINE__);
         }
         $key = $this->sqlHash($query);
-        $this->sql = $query->translate('Mysql');
+        $queryTextKey = 'q_' . $key;
+        
+        $this->sql = $this->cacher->get($queryTextKey);
+        if (!$this->sql) {
+            $this->sql = $query->translate('Mysql');
+            // Для получения профита на малоизменяемых таблицах 
+            // время жизни транслированного запроса должно быть больше времени жизни результатов этого запроса, 
+            // т.к. наличие в кеше результатов проверяется до трансляции запроса.
+            $this->cacher->set($queryTextKey, $this->sql, $options->getExpiration() * 4);
+        }
+        // родительский метод использует $this->sql для выполнения запроса
         $rows = parent::executeSelect($query, $options);
         if (Tracer::$enabled) {
             $endTime = microtime(true);
