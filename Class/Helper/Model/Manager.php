@@ -10,8 +10,9 @@ class Helper_Model_Manager extends Helper_Abstract
 {
     /**
      * Применить генераторы к модели
-     * 
+     *
      * @param Model $model
+     * @throws ErrorException
      */
     public function applyGenerators($model)
     {
@@ -56,6 +57,7 @@ class Helper_Model_Manager extends Helper_Abstract
      * Получить имя родительского класса
      *
      * @param string $modelName
+     * @param $config
      * @return string
      */
     public function getParentClass($modelName, $config)
@@ -162,6 +164,19 @@ class Helper_Model_Manager extends Helper_Abstract
             if (!$key) {
                 $key = $result->insertId();
                 $model->set($keyField, $key);
+            }
+
+            $scheme = $model->scheme();
+            if (isset($scheme['signals']) && !empty($scheme['signals']['afterInsert'])) {
+                $signalName = $scheme['signals']['afterInsert'];
+                /** @var Event_Manager $eventManager */
+                $eventManager = $this->getService('eventManager');
+                /** @var Event_Signal $signal */
+                $signal = $eventManager->getSignal($signalName);
+                $signal->setData(array(
+                    'model' => $model
+                ));
+                $signal->notify();
             }
         }
 	}

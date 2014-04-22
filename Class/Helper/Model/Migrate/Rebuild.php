@@ -150,7 +150,7 @@ class Helper_Model_Migrate_Rebuild extends Helper_Abstract
         $author = null;
         $comment = null;
         static $convertingFields = array(
-            'admin', 'languageScheme', 'createScheme'
+            'admin', 'languageScheme', 'createScheme', 'geoFields',
         );
         $dataConverted = array();
         if ($scheme->count()) {

@@ -592,7 +592,7 @@ class Controller_Manager extends Manager_Abstract
      * @param string $controllerAction Название контроллера или контроллер и
      * экшен в формате "Controller/action".
      * @param array $args Параметры контроллера.
-     * @param mixed $options=true Параметры вызова.
+     * @param mixed $options =true Параметры вызова.
      * @return string Результат компиляции шабона.
      * @todo Это будет в Controller_Render
      * @tutorial
@@ -626,7 +626,7 @@ class Controller_Manager extends Manager_Abstract
      *
      * @param $controllerAction
      * @param array $args Параметры контроллера.
-     * @param mixed $options=true Параметры вызова.
+     * @param mixed $options =true Параметры вызова.
      * @internal param string $action Название контроллера или контроллер и экшен
      * в формате "Controller/action".
      * @return string Результат компиляции шабона.
@@ -702,16 +702,14 @@ class Controller_Manager extends Manager_Abstract
      */
     public function logError($e)
     {
-        $msg = 'url: ' . $_SERVER['REQUEST_URI'] . "\n" .
-            '[' . $e->getFile() . '@' .
+        $referer = isset($_SERVER['HTTP_REFERER']) ? '<i>referer: ' . $_SERVER['HTTP_REFERER'] . "</i>\n" : '';
+        $msg = '<i>url: ' . $_SERVER['REQUEST_URI'] . "</i>\n" .
+            $referer .
+            '<b style="color: red;">[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
-            $e->getMessage() . "\n" .
-            $e->getTraceAsString();
-        trigger_error(
-            $msg . PHP_EOL .
-            E_USER_ERROR, 3
-        );
+            $e->getMessage() . "</b>\n" .
+            $e->getTraceAsString() . "\n\n";
         $this->getService('debug')->log($msg);
     }
 
@@ -766,6 +764,7 @@ class Controller_Manager extends Manager_Abstract
      * Запустить задание на выполнение
      *
      * @param Controller_Task $task
+     * @throws ErrorException
      * @return Controller_Task
      */
     public function run($task)
@@ -774,12 +773,18 @@ class Controller_Manager extends Manager_Abstract
         $parentTask = $this->currentTask;
         $this->currentTask = $task;
         $action = $task->controllerAction();
-        $task = $this->call(
-            $action['controller'],
-            $action['action'],
-            $task->getInput(),
-            $task
-        );
+        try {
+            $task = $this->call(
+                $action['controller'],
+                $action['action'],
+                $task->getInput(),
+                $task
+            );
+        } catch (Exception $e) {
+            throw new ErrorException('Не удалось вызвать экшин "' .
+                $action['controller'] . '/' . $action['action'] . '"',
+                0, 1, __FILE__, __LINE__, $e);
+        }
         $this->currentTask = $parentTask;
         return $task;
     }

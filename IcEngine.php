@@ -362,10 +362,10 @@ class IcEngine
                 self::$task
             );
         } catch (Exception $e) {
-            die;
+            Debug::outputErrors($e);
         }
 	}
-
+ 
     /**
      * Получить локатор сервисов
      *
@@ -489,4 +489,35 @@ class IcEngine
 			}
 		}
 	}
+
+    /**
+     * Белая магия на службе добра // dp
+     *
+     * IcEngine::modelManager(array('byKey'=>array('City', 1)));
+     * IcEngine::modelManager()->byKey('City', 1);
+     *
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     */
+    public static function __callStatic($name, $arguments) {
+        $service = IcEngine::getServiceLocator()->getService($name);
+
+        if (empty($arguments)) {
+            return $service;
+        }
+
+        $arguments = reset($arguments);
+
+        if (is_array($arguments)) {
+
+            $method = key($arguments);
+            $params = $arguments[$method];
+            return is_array($params)
+                ? call_user_func_array(array($service, $method), $params)
+                : call_user_func(array($service, $method), $params);
+        } else {
+            return $service->$arguments();
+        }
+    }
 }

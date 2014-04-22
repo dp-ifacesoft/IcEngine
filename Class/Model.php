@@ -14,45 +14,45 @@ abstract class Model implements ArrayAccess
 
     /**
      * Аннотации моделей
-     * 
+     *
      * @var array
      */
     protected static $annotations = array();
-    
-	/**
-	 * Конфигурация модели
+
+    /**
+     * Конфигурация модели
      *
-	 * @var array|Objective
-	 */
-	protected static $config;
+     * @var array|Objective
+     */
+    protected static $config;
 
     /**
      * Ошибки
-     * 
+     *
      * @var array
      */
     protected $errors = array();
-    
-	/**
-	 * Связанные данные
-     *
-	 * @var array
-	 */
-	protected $data = array();
 
     /**
-	 * Данные модели
+     * Связанные данные
      *
-	 * @var array
-	 */
-	protected $fields = array();
+     * @var array
+     */
+    protected $data = array();
 
-	/**
-	 * Подгруженные объекты
+    /**
+     * Данные модели
      *
-	 * @var array
-	 */
-	protected $joints = array();
+     * @var array
+     */
+    protected $fields = array();
+
+    /**
+     * Подгруженные объекты
+     *
+     * @var array
+     */
+    protected $joints = array();
 
     /**
      * Флаг показывает, что модель новая и сохранена в текущем выполнение
@@ -73,12 +73,12 @@ abstract class Model implements ArrayAccess
      */
     protected $keyField;
 
-	/**
-	 * Означает, что модель отложенная для true
+    /**
+     * Означает, что модель отложенная для true
      *
-	 * @var bool
-	 */
-	protected $lazy;
+     * @var bool
+     */
+    protected $lazy;
 
     /**
      * Схема связей модели
@@ -94,12 +94,12 @@ abstract class Model implements ArrayAccess
      */
     protected $repository;
 
-	/**
-	 * Схема модели
+    /**
+     * Схема модели
      *
-	 * @var array
-	 */
-	protected $scheme;
+     * @var array
+     */
+    protected $scheme;
 
     /**
      * Локатор сервисов
@@ -108,18 +108,19 @@ abstract class Model implements ArrayAccess
      */
     protected static $serviceLocator;
 
-	/**
-	 * Обновленные поля
+    /**
+     * Обновленные поля
      *
-	 * @var array
-	 */
-	protected $updatedFields = array();
+     * @var array
+     */
+    protected $updatedFields = array();
 
     /**
      * Вызов метода через репозиторий модели
      *
      * @param string $method
      * @param array $args
+     * @throws Exception
      * @return mixed
      */
     public function __call($method, $args)
@@ -133,40 +134,40 @@ abstract class Model implements ArrayAccess
         return call_user_func_array(array($repository, $method), $args);
     }
 
-	/**
-	 * Создает и возвращает модель
+    /**
+     * Создает и возвращает модель
      *
-	 * @param array $fields Данные модели
-	 */
-	public function __construct(array $fields = array())
-	{
-		$this->set($fields);
+     * @param array $fields Данные модели
+     */
+    public function __construct(array $fields = array())
+    {
+        $this->set($fields);
         $selfFields = $this->helper()->getVars($this);
         foreach (array_keys($selfFields) as $fieldName) {
             if (!$fieldName || $fieldName[0] == '_') {
-				continue;
-			}
+                continue;
+            }
             if (!array_key_exists($fieldName, $this->fields)) {
                 $this->fields[$fieldName] = $this->$fieldName;
             }
             unset($this->$fieldName);
         }
-	}
+    }
 
-	/**
-	 * Возвращает поле
+    /**
+     * Возвращает поле
      *
-	 * @param string $field Поле
-	 * @return mixed
-	 */
-	public function __get($field)
-	{
+     * @param string $field Поле
+     * @return mixed
+     */
+    public function __get($field)
+    {
         if (is_null($this->fields)) {
             $this->load();
         }
-		if ($field == self::DATA_FIELD) {
+        if ($field == self::DATA_FIELD) {
             return $this->getData();
-		}
+        }
         $joinField = $field . '__id';
         $references = $this->scheme()->references;
         if (isset($this->joints[$field])) {
@@ -187,80 +188,81 @@ abstract class Model implements ArrayAccess
         }
         $value = null;
         return $value;
-	}
+    }
 
     /**
-	 * Проверяет существует ли поле
+     * Проверяет существует ли поле
      *
      * @param string $key
-	 * @return boolean
-	 */
-	public function __isset($key)
-	{
-		return isset($this->fields[$key]);
-	}
+     * @return boolean
+     */
+    public function __isset($key)
+    {
+        return isset($this->fields[$key]);
+    }
 
     /**
-	 * Изменяет значение поля
+     * Изменяет значение поля
      *
-	 * @param string $field Поле
-	 * @param mixed $value Значение
-	 */
-	public function __set($field, $value)
-	{
+     * @param string $field Поле
+     * @param mixed $value Значение
+     * @throws Exception
+     * @return mixed
+     */
+    public function __set($field, $value)
+    {
         if (!$this->fields) {
             $this->load();
         }
         if ($field == self::DATA_FIELD) {
-            $data = &$this->data($value);
-            return $data;
+            return $this->data($value);
         }
         $fields = $this->scheme()->fields;
-		if (isset($fields[$field])) {
+        if (isset($fields[$field])) {
             $this->set($field, $value);
-		} else {
-			throw new Exception(
+        } else {
+            throw new Exception(
                 'Field or property unexists "' . $field . '" ' . $this->table()
             );
-		}
-	}
+        }
+    }
 
     /**
-	 * Преобразование к массиву
+     * Преобразование к массиву
      *
-	 * @return array
-	 */
-	public function __toArray()
-	{
-		return array(
-			'class'     => get_class($this),
-			'model'     => $this->modelName(),
-			'fields'    => $this->asRow(),
-			'data'      => $this->getData()->__toArray()
-		);
-	}
+     * @return array
+     */
+    public function __toArray()
+    {
+        return array(
+            'class' => get_class($this),
+            'model' => $this->modelName(),
+            'fields' => $this->asRow(),
+            'data' => $this->getData()->__toArray()
+        );
+    }
 
     /**
-	 * Возвращает массив, создержащий все поля модели
+     * Возвращает массив, создержащий все поля модели
      *
-	 * @return array
-	 */
-	public function asRow()
-	{
-		return $this->fields ?: array();
-	}
+     * @return array
+     */
+    public function asRow()
+    {
+        return $this->fields ? : array();
+    }
 
     /**
-	 * Возвращает или устанавливает значение атрибута
+     * Возвращает или устанавливает значение атрибута
      *
-	 * @param string|array $key Название атрибута или массив пар
-	 * (название => значение).
-	 * @param mixed $value [optional] Новое значение атрибута.
-	 * @return mixed Если не задан второй параметр, возвращает значение
-	 * аттрибута, иначе null.
-	 */
-	public function attr($key, $value = null)
-	{
+     * @param string|array $key Название атрибута или массив пар
+     * (название => значение).
+     * @param mixed $value [optional] Новое значение атрибута.
+     * @return mixed Если не задан второй параметр, возвращает значение
+     * аттрибута, иначе null.
+     */
+    public function attr($key, $value = null)
+    {
         $attributeManager = $this->getService('attributeManager');
         if (func_num_args() == 1) {
             if (is_scalar($key)) {
@@ -270,11 +272,11 @@ abstract class Model implements ArrayAccess
             $key = array($key => $value);
         }
         $attributeManager->set($this, $key, null);
-	}
+    }
 
     /**
      * Для переопределения возвращает базовую модель
-     * 
+     *
      * @return string
      */
     public function baseTable()
@@ -283,14 +285,14 @@ abstract class Model implements ArrayAccess
     }
 
     /**
-	 * Имя класса модели
+     * Имя класса модели
      *
-	 * @return string
-	 */
-	public function className()
-	{
-		return get_class($this);
-	}
+     * @return string
+     */
+    public function className()
+    {
+        return get_class($this);
+    }
 
     /**
      * Говорит, новая ли модель
@@ -302,22 +304,22 @@ abstract class Model implements ArrayAccess
         return $this->isNew;
     }
 
-	/**
-	 * Присоединить сущность
+    /**
+     * Присоединить сущность
      *
-	 * @param string $modelName
-	 * @param mixed $key
-	 * @return Model Присоединенная модель
-	 */
-	protected function joint($modelName, $key = null)
-	{
-		if (!is_null($key)) {
+     * @param string $modelName
+     * @param mixed $key
+     * @return Model Присоединенная модель
+     */
+    protected function joint($modelName, $key = null)
+    {
+        if (!is_null($key)) {
             $modelManager = $this->getService('modelManager');
-            $joinedModel = $modelManager->byKey($modelName, $key);
-			$this->joints[$modelName] = $joinedModel;
-		}
-		return $this->joints[$modelName];
-	}
+            $joinedModel = $modelName::getModel($key);
+            $this->joints[$modelName] = $joinedModel;
+        }
+        return $this->joints[$modelName];
+    }
 
     /**
      * Проинициализировать и получить помощник модели
@@ -332,126 +334,134 @@ abstract class Model implements ArrayAccess
         return self::$helper;
     }
 
-	/**
-	 * Возвращает коллекцию связанных компонентов или
-	 * элемент коллекции с указанным индексом
+    /**
+     * Возвращает коллекцию связанных компонентов или
+     * элемент коллекции с указанным индексом
      *
-	 * @param string $type Тип компонентов
-	 * @param integer $index Индекс для получения
-	 * @return Model_Collection
-	 */
-	public function component($type, $index = null)
-	{
+     * @param string $type Тип компонентов
+     * @param integer $index Индекс для получения
+     * @return Model_Collection
+     */
+    public function component($type, $index = null)
+    {
         $collectionManager = $this->getService('collectionManager');
-		$collection = $collectionManager->create('Component_' . $type)
+        $collection = $collectionManager->create('Component_' . $type)
             ->addOptions(
                 array(
-                    'name'  => '::Table',
+                    'name' => '::Table',
                     'table' => $this->table()
                 ),
                 array(
-                    'name'  => '::Row',
-                    'id'    => $this->key()
+                    'name' => '::Row',
+                    'id' => $this->key()
                 )
             );
         return !is_null($index) ? $collection->item($index) : $collection;
-	}
+    }
 
-	/**
-	 * Загружает и возвращает конфиг для модели
+    /**
+     * Загружает и возвращает конфиг для модели
      *
-	 * @return Objective
-	 */
-	public function config()
-	{
-		if (!is_object(static::$config)) {
-			$configManager = $this->getService('configManager');
+     * @return Objective
+     */
+    public function config()
+    {
+        if (!is_object(static::$config)) {
+            $configManager = $this->getService('configManager');
             static::$config = $configManager->get(
-				get_class($this), static::$config
-			);
-		}
-		return static::$config;
-	}
-
-	/**
-	 * Устанавливает или получает связанные данные объекта
-     *
-	 * @param string $key Ключ.
-	 * @param mixed $value [optional] Значение (не обязательно).
-	 * @return mixed Текущее значение или null.
-	 */
-	public function &data($key = null, $value = null)
-	{
-        if (!is_object($this->data)) {
-            $this->data = $this->getData();
+                get_class($this), static::$config
+            );
         }
-		if (func_num_args() == 1) {
-			if (is_scalar($key)) {
-                $data = isset($this->data[$key]) ? $this->data[$key] : null;
-				$result = $data instanceof Objective
-                    ? $data->__toArray() : $data;
-                return $result;
-			}
-			$this->data = array_merge($this->data->__toArray(), $key);
-		} elseif (func_num_args() == 2) {
-			$this->data[$key] = $value;
-		}
-        return $this->data;
-	}
+        return static::$config;
+    }
 
-	/**
-	 * Удаление модели
-	 */
-	public function delete()
-	{
-        $modelManager = $this->getService('modelManager');
-		if ($this->key()) {
-			$modelManager->remove($this);
-		}
-	}
-
-	/**
-	 * Возвращает коллекцию моделей типа $model,
-	 * связанных по первичному ключу с этой моделью
-	 * В модели $model должно существовать поле "THISMODEL__id",
-	 * где THISMODEL - название этой модели.
+    /**
+     * Устанавливает или получает связанные данные объекта
      *
-	 * @param string $modelName
+     * @param string $key [optional] Ключ
+     * @param mixed $value [optional]
+     *        Значение (не обязательно)
+     * @return mixed
+     *        Текущее значение
+     */
+    public function data($key = null, $value = null)
+    {
+        $numArgs = func_num_args();
+        if (!$numArgs) {
+            return $this->data;
+        }
+
+        if ($numArgs == 1) {
+            if (is_object($key)) {
+                return;
+            }
+
+            if (is_array($key)) {
+                $data = is_object($this->data()) ? $this->data()->__toArray() : $this->data();
+                $this->data = array_merge($data, $key);
+            } else {
+                return isset($this->data[$key])
+                    ? $this->data[$key]
+                    : null;
+            }
+        } else {
+            $this->data[$key] = $value;
+        }
+    }
+
+    /**
+     * Удаление модели
+     */
+    public function delete()
+    {
+        $modelManager = $this->getService('modelManager');
+        if ($this->key()) {
+            $modelManager->remove($this);
+        }
+    }
+
+    /**
+     * Возвращает коллекцию моделей типа $model,
+     * связанных по первичному ключу с этой моделью
+     * В модели $model должно существовать поле "THISMODEL__id",
+     * где THISMODEL - название этой модели.
+     *
+     * @param string $modelName
      * @param integer $index
-	 * @return Model_Collection
-	 */
-	public function external($modelName, $index = null)
-	{
+     * @return Model_Collection
+     */
+    public function external($modelName, $index = null)
+    {
         $collectionManager = $this->getService('collectionManager');
         $collection = $collectionManager->create($modelName)
             ->addOptions(array(
-                'name'  => '::External',
+                'name' => '::External',
                 'model' => $this->modelName(),
-                'id'    => $this->key()
+                'id' => $this->key()
             ));
-		return !is_null($index) ? $collection->item($index) : $collection;
-	}
+        return !is_null($index) ? $collection->item($index) : $collection;
+    }
 
-	/**
-	 * Получение или установка значения
+    /**
+     * Получение или установка значения
      *
-	 * @param string $key Поле
-	 * @param mixed $value Значение (не обязательно).
-	 * Если указано значение, оно будет записано в поле.
-	 * @return mixed Если $value не передан, будет возвращено значение поля.
-	 */
-	public function field($key)
-	{
-		if (func_num_args() > 1) {
-			$this->__set($key, func_get_arg(1));
-		} else {
-			return $this->__get($key);
-		}
-	}
+     * @param string $key Поле
+     * @internal param mixed $value Значение (не обязательно).
+     * Если указано значение, оно будет записано в поле.
+     * @return mixed Если $value не передан, будет возвращено значение поля.
+     */
+    public function field($key)
+    {
+        if (func_num_args() > 1) {
+            $this->__set($key, func_get_arg(1));
+        } else {
+            return $this->__get($key);
+        }
+    }
 
     /**
      * Получить аннотации модели
-     * 
+     *
      * @return array
      */
     public function getAnnotations()
@@ -459,39 +469,39 @@ abstract class Model implements ArrayAccess
         return $this->getService('helperAnnotation')
             ->getAnnotation($this->modelName())->getData();
     }
-    
+
     /**
      * Получить ошбики
-     * 
+     *
      * @return array
      */
     public function getErrors()
     {
         return $this->errors;
     }
-    
-	/**
-	 * Получить все хранимые данные модели
-	 *
-	 * @return array
-	 */
-	public function &getData()
-	{
+
+    /**
+     * Получить все хранимые данные модели
+     *
+     * @return array
+     */
+    public function &getData()
+    {
         if (!is_object($this->data)) {
             $this->data = new Objective($this->data);
         }
-		return $this->data;
-	}
+        return $this->data;
+    }
 
-	/**
-	 * Получить значения полей. Синоним asRow
+    /**
+     * Получить значения полей. Синоним asRow
      *
-	 * @return array
-	 */
-	public function getFields()
-	{
-		return $this->fields;
-	}
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
 
     /**
      * Получить помощника модели
@@ -542,99 +552,100 @@ abstract class Model implements ArrayAccess
      *
      * @return array
      */
-	public function getUpdatedFields()
-	{
-		return $this->updatedFields;
-	}
+    public function getUpdatedFields()
+    {
+        return $this->updatedFields;
+    }
 
-	/**
-	 * Проверяет существование поля в модели
+    /**
+     * Проверяет существование поля в модели
      *
-	 * @return boolean
-	 */
-	public function hasField($field)
-	{
+     * @param $field
+     * @return boolean
+     */
+    public function hasField($field)
+    {
         if (is_null($this->fields)) {
             $this->load();
         }
         return array_key_exists($field, $this->fields);
-	}
+    }
 
-	/**
-	 * Возвращает значение первичного ключа
+    /**
+     * Возвращает значение первичного ключа
      *
-	 * @return string|null
-	 */
-	public function key()
-	{
-		$keyField = $this->keyField();
+     * @return string|null
+     */
+    public function key()
+    {
+        $keyField = $this->keyField();
         return isset($this->fields[$keyField])
             ? $this->fields[$keyField] : null;
-	}
+    }
 
-	/**
-	 * Имя поля первичного ключа
+    /**
+     * Имя поля первичного ключа
      *
-	 * @return string
-	 */
-	public function keyField()
-	{
+     * @return string
+     */
+    public function keyField()
+    {
         if (!$this->keyField) {
             $modelScheme = $this->getService('modelScheme');
             $this->keyField = $modelScheme->keyField($this->table());
         }
-		return $this->keyField;
-	}
+        return $this->keyField;
+    }
 
-	/**
-	 * Имя класса модели. Синоним table
+    /**
+     * Имя класса модели. Синоним table
      *
-	 * @return string
-	 */
-	public function modelName()
-	{
-		return $this->table();
-	}
+     * @return string
+     */
+    public function modelName()
+    {
+        return $this->table();
+    }
 
-	/**
-	 * Проверяет существование поля
+    /**
+     * Проверяет существование поля
      *
-	 * @param string $offset Название поля
-	 * @return boolean true если поле существует
-	 */
-	public function offsetExists($offset)
-	{
-		return $this->hasField($offset);
-	}
+     * @param string $offset Название поля
+     * @return boolean true если поле существует
+     */
+    public function offsetExists($offset)
+    {
+        return $this->hasField($offset);
+    }
 
-	/**
-	 * @see Model::__get
-	 */
-	public function &offsetGet($offset)
-	{
+    /**
+     * @see Model::__get
+     */
+    public function &offsetGet($offset)
+    {
         $value = $this->__get($offset);
         return $value;
-	}
+    }
 
-	/**
-	 * @see Model::__set
-	 */
-	public function offsetSet($offset, $value)
-	{
-		$this->__set($offset, $value);
-	}
+    /**
+     * @see Model::__set
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->__set($offset, $value);
+    }
 
-	/**
-	 * Исключение поля из модели
+    /**
+     * Исключение поля из модели
      *
-	 * @param string $offset название поля
-	 */
-	public function offsetUnset($offset)
-	{
+     * @param string $offset название поля
+     */
+    public function offsetUnset($offset)
+    {
         if (array_key_exists($offset, $this->fields)) {
             unset($this->fields[$offset]);
         }
-	}
+    }
 
     /**
      * Получить данные модели массивом
@@ -651,24 +662,24 @@ abstract class Model implements ArrayAccess
                 }
             }
         }
-        $data = $this->data() ?: array();
+        $data = $this->data() ? : array();
         if (is_object($data)) {
             $data = $data->__toArray();
         }
         return array_merge($result, array(
-            'data'      => $data
+            'data' => $data
         ));
     }
 
-	/**
-	 * Название ресурса модели. Состоит из название модели и первичного ключа
+    /**
+     * Название ресурса модели. Состоит из название модели и первичного ключа
      *
-	 * @return string
-	 */
-	public function resourceKey()
-	{
-		return $this->table() . '__' . $this->key();
-	}
+     * @return string
+     */
+    public function resourceKey()
+    {
+        return $this->table() . '__' . $this->key();
+    }
 
     /**
      * Получить или инициализировать репозиторий модели
@@ -683,52 +694,52 @@ abstract class Model implements ArrayAccess
         return $modelRepositoryManager->get($this);
     }
 
-	/**
-	 * Сохранение данных модели
+    /**
+     * Сохранение данных модели
      *
-	 * @param boolean $hardInsert Принудительное сохранение - даже если уже
+     * @param boolean $hardInsert Принудительное сохранение - даже если уже
      * задано значение первичного ключа
-	 * @return Model
-	 */
-	public function save($hardInsert = false)
-	{
+     * @return Model
+     */
+    public function save($hardInsert = false)
+    {
         if (!$this->key()) {
             $this->isNew = true;
         }
-		$this->getService('modelManager')->set($this, $hardInsert);
-		return $this;
-	}
+        $this->getService('modelManager')->set($this, $hardInsert);
+        return $this;
+    }
 
-	/**
-	 * Получить схему модели
+    /**
+     * Получить схему модели
      *
-	 * @return Objective
-	 */
-	public function scheme()
-	{
+     * @return Objective
+     */
+    public function scheme()
+    {
         if (!is_null($this->scheme)) {
             return $this->scheme;
         }
-		$scheme = $this->getService('modelScheme')->scheme($this->table());
-        $scheme['signals'] = $scheme['signals'] ?: array();
+        $scheme = $this->getService('modelScheme')->scheme($this->table());
+        $scheme['signals'] = $scheme['signals'] ? : array();
         return $scheme;
-	}
+    }
 
-	/**
-	 * Установка значений полей без обновления источника.
-	 * При использовании этого метод не проверяется сущестовование полей
-	 * у модели. Это позволяет установить поля для создаваемой модели,
-	 * однако может привести к ошибкам в дальнейшем при сохранении, если
-	 * были заданы несуществующие поля.
+    /**
+     * Установка значений полей без обновления источника.
+     * При использовании этого метод не проверяется сущестовование полей
+     * у модели. Это позволяет установить поля для создаваемой модели,
+     * однако может привести к ошибкам в дальнейшем при сохранении, если
+     * были заданы несуществующие поля.
      *
-	 * @param string|array $field Имя поля или массив пар "поле - значение".
-	 * @param string $value Значение поля для случае, если первым параметром
-	 * передано имя.
-	 */
-	public function set($field, $value = null)
-	{
-		$fields = is_array($field) ? $field : array($field => $value);
-		$scheme = $this->scheme();
+     * @param string|array $field Имя поля или массив пар "поле - значение".
+     * @param string $value Значение поля для случае, если первым параметром
+     * передано имя.
+     */
+    public function set($field, $value = null)
+    {
+        $fields = is_array($field) ? $field : array($field => $value);
+        $scheme = $this->scheme();
         $data = array();
         $schemeFields = array();
         if ($scheme->fields) {
@@ -739,8 +750,9 @@ abstract class Model implements ArrayAccess
         foreach ($fields as $field => $value) {
             if (!$schemeFields || in_array($field, $schemeFields)) {
                 $value = $helper->filterValue($this, $field, $value);
-                if (array_key_exists($field, $this->fields) && 
-                    !$helper->validateField($this, $field, $value))  {
+                if (array_key_exists($field, $this->fields) &&
+                    !$helper->validateField($this, $field, $value)
+                ) {
                     $this->errors[$field] = true;
                 } else {
                     $this->fields[$field] = $value;
@@ -762,7 +774,7 @@ abstract class Model implements ArrayAccess
         if ($data) {
             $this->data($data);
         }
-	}
+    }
 
     /**
      * Изменить помощник модели
@@ -775,15 +787,15 @@ abstract class Model implements ArrayAccess
     }
 
     /**
-	 * Установить флаг отложенной модели, через Unit Of Work
-	 *
-	 * @param bool $value
-	 */
-	public function setLazy($value)
-	{
-		$this->lazy = $value;
-	}
-    
+     * Установить флаг отложенной модели, через Unit Of Work
+     *
+     * @param bool $value
+     */
+    public function setLazy($value)
+    {
+        $this->lazy = $value;
+    }
+
     /**
      * Изменить схему модели
      *
@@ -814,46 +826,46 @@ abstract class Model implements ArrayAccess
         $this->updatedFields = $fields;
     }
 
-	/**
-	 * Тихое получение или установка поля
+    /**
+     * Тихое получение или установка поля
      *
-	 * @param string $key Название поля.
-	 * @param mixed $value [optional] Значение поля.
-	 * @return mixed Текущее значение поля или null.
-	 */
-	public function sfield($key)
-	{
-		return $this->hasField($key) ? $this->fields[$key] : null;
-	}
+     * @param string $key Название поля.
+     * @param mixed $value [optional] Значение поля.
+     * @return mixed Текущее значение поля или null.
+     */
+    public function sfield($key)
+    {
+        return $this->hasField($key) ? $this->fields[$key] : null;
+    }
 
-	/**
-	 * Таблица БД
+    /**
+     * Таблица БД
      *
-	 * @return string
-	 */
-	public function table()
-	{
-		return $this->className();
-	}
+     * @return string
+     */
+    public function table()
+    {
+        return $this->className();
+    }
 
-	/**
-	 * Возвращает имя сущности
+    /**
+     * Возвращает имя сущности
      *
-	 * @return string
-	 */
-	public function title()
-	{
-		return $this->hasField('title') ? $this->title : null;
-	}
+     * @return string
+     */
+    public function title()
+    {
+        return $this->hasField('title') ? $this->title : null;
+    }
 
-	/**
-	 * Загрузка данных модели
+    /**
+     * Загрузка данных модели
      *
-	 * @param mixed $key Первичный ключ.
-	 * @return Model Эта модель.
-	 */
-	public function load()
-	{
+     * @param mixed $key Первичный ключ.
+     * @return Model Эта модель.
+     */
+    public function load()
+    {
         if ($this->lazy) {
             $this->getService('unitOfWork')->load($this);
         } else {
@@ -863,35 +875,35 @@ abstract class Model implements ArrayAccess
         if (is_null($this->fields)) {
             $this->fields = array($this->keyField() => null);
         }
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Удаляет поле из объекта
-	 * Используется в Model_Manager для удаления первичного ключа перед
-	 * вставкой в БД
+    /**
+     * Удаляет поле из объекта
+     * Используется в Model_Manager для удаления первичного ключа перед
+     * вставкой в БД
      *
-	 * @param string $name Имя поля.
-	 * @return Model Эта модель.
-	 */
-	public function unsetField ($name)
-	{
+     * @param string $name Имя поля.
+     * @return Model Эта модель.
+     */
+    public function unsetField($name)
+    {
         if ($this->hasField($name)) {
             unset($this->fields[$name]);
         }
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Обновление данных модели и полей в БД
+    /**
+     * Обновление данных модели и полей в БД
      *
-	 * @param array $data Массив пар (поле => значение)
+     * @param array $data Массив пар (поле => значение)
      * @param boolean $hardUpdate
-	 * @return Model Эта модель.
-	 */
-	public function update(array $data, $hardUpdate = false)
-	{
-		if (is_null($this->fields)) {
+     * @return Model Эта модель.
+     */
+    public function update(array $data, $hardUpdate = false)
+    {
+        if (is_null($this->fields)) {
             $this->load();
         }
         $scheme = $this->scheme();
@@ -900,9 +912,9 @@ abstract class Model implements ArrayAccess
             if (!isset($fields[$key])) {
                 continue;
             }
-            if ($value == $this->field($key)) {
-                continue;
-            }
+//            if ($value == $this->field($key)) {
+//                continue;
+//            }
             $this->updatedFields[$key] = $value;
         }
         if (!$this->updatedFields && $this->key() && !$hardUpdate) {
@@ -911,14 +923,41 @@ abstract class Model implements ArrayAccess
         $this->set($this->updatedFields);
         $result = $this->save($hardUpdate);
         if (isset($scheme['updateSignal'])) {
+            /** @var Event_Manager $eventManager */
             $eventManager = $this->getService('eventManager');
             $signalName = 'update' . str_replace('_', '', $this->modelName());
+            /** @var Event_Signal $signal */
             $signal = $eventManager->getSignal($signalName);
             if ($signal) {
                 $signal->setData($this->getFields());
                 $signal->notify();
             }
         }
-		return $result;
-	}
+        return $result;
+    }
+
+    /**
+     * Обертка для получения модели по ключу
+     *
+     * @param $key
+     * @return Model
+     */
+    public static function getModel($key)
+    {
+        return IcEngine::getServiceLocator()
+            ->getService('modelManager')
+            ->byKey(get_called_class(), $key);
+    }
+
+    /**
+     * Обертка для создания коллекции моделей
+     *
+     * @return Model_Collection
+     */
+    public static function getCollection()
+    {
+        return IcEngine::getServiceLocator()
+            ->getService('collectionManager')
+            ->create(get_called_class());
+    }
 }

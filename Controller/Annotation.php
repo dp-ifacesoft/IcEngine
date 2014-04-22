@@ -48,6 +48,7 @@ class Controller_Annotation extends Controller_Abstract
      */
     public function update($path, $name, $verbose, $author, $context)
     {
+        /** @var Helper_Annotation_Update $helperAnnotationUpdate */
         $helperAnnotationUpdate = $this->getService('helperAnnotationUpdate');
         $classes = $helperAnnotationUpdate->getClasses($path);
         $delegees = $this->config();
