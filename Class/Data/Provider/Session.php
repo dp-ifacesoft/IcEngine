@@ -11,17 +11,18 @@ class Data_Provider_Session extends Data_Provider_Abstract
 
     public function __construct($config = null)
     {
-        if (!empty($config['maxLifeTime'])) {
-            $this->maxLifeTime = $config['maxLifeTime'];
-        }
-
-        if (isset($config['sessionHandlerClass'])) {
-            /** @var SessionHandlerInterface $sessionHandlerClass */
-            $sessionHandlerClass = $config['sessionHandlerClass'];
-            session_set_save_handler(new $sessionHandlerClass($this->maxLifeTime), true);
-        }
-
         if (!isset($_SESSION)) {
+            if (!empty($config['maxLifeTime'])) {
+                $this->maxLifeTime = $config['maxLifeTime'];
+            }
+
+            if (isset($config['sessionHandlerClass'])) {
+                /** @var SessionHandlerInterface $sessionHandlerClass */
+                $sessionHandlerClass = $config['sessionHandlerClass'];
+                $sessionHandler = new $sessionHandlerClass($this->maxLifeTime);
+                session_set_save_handler($sessionHandler);
+            }
+
             session_start();
         }
     }
@@ -49,12 +50,18 @@ class Data_Provider_Session extends Data_Provider_Abstract
         }
     }
 
-    public function destroy() {
+    public function destroy()
+    {
         session_destroy();
     }
 
     public function getMaxLifeTime()
     {
         return $this->maxLifeTime;
+    }
+
+    public function __destruct()
+    {
+//        session_write_close();
     }
 }

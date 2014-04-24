@@ -49,6 +49,7 @@ class Session_Handler_Redis implements SessionHandlerInterface
     public function destroy($session_id)
     {
         self::getDataProvider()->delete($session_id);
+        return true;
     }
 
     /**
@@ -120,7 +121,7 @@ class Session_Handler_Redis implements SessionHandlerInterface
      */
     public function write($session_id, $session_data)
     {
-        self::getDataProvider()->set($session_id, $session_data, $this->maxLifeTime);
+        return self::getDataProvider()->set($session_id, $session_data, $this->maxLifeTime);
     }
 
     /**
