@@ -54,7 +54,7 @@ class Controller_Annotation_Schedule extends Controller_Abstract
                 'params'    => $params,
                 'paramsJson' => json_encode($params, JSON_UNESCAPED_UNICODE),
                 'exectTime' => isset($scheduleData['exectTime']) ? 
-                    '0000-00-00 00:' . $scheduleData['exectTime'] : null,
+                    '0000-00-00 ' . $scheduleData['exectTime'] . ':00' : null,
                 'hasExectTime'  => (int) isset($scheduleData['exectTime'])
             );
         }

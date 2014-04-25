@@ -47,8 +47,10 @@ class Controller_Schedule extends Controller_Abstract
             }
             $lastDate = $helperDate->toUnix();
             if ($schedule['hasExectTime']) {
-                $lastDate = substr($lastDate, 0 , strlen($lastDate)-5) . 
-                    substr($schedule['exectTime'], strlen($schedule['exectTime'])-5 , 5);
+                $lastDate = substr($lastDate, 0 , strlen($lastDate) - 8) . 
+                    substr($schedule['exectTime'], 
+                        strlen($schedule['exectTime']) - 8 , 8
+                    );
                 $currentTs = (new DateTime($lastDate))->getTimestamp();
             }
             $schedule->update(array(

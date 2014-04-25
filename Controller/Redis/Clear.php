@@ -14,8 +14,7 @@ class Controller_Redis_Clear extends Controller_Abstract
 		// Роли, имеющие доступ
 		'access_roles'		=> array('admin', 'editor', 'cli'),
 		// Провайдеры, которые будут игнорироваться при очищение
-		'ignore_providers'	=> array('user_session', 'Session_Manager',
-			'temp_content'),
+		'ignore_providers'	=> array('user_session', 'Session_Manager', 'temp_content', 'session', 'session_redis'),
 		// Обработчики провайдеров, которые будут чиститься
 		'provider_names'	=> array('Redis')
 	);
