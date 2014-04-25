@@ -395,7 +395,6 @@ abstract class Model implements ArrayAccess
             if (is_object($key)) {
                 return;
             }
-
             if (is_array($key)) {
                 $data = is_object($this->data()) ? $this->data()->__toArray() : $this->data();
                 $this->data = array_merge($data, $key);
