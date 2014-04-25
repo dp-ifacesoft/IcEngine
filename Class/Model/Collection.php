@@ -815,6 +815,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             $result[$item[$keyField]]['data'] = array_merge(
                 (array)$result[$item[$keyField]]['data'], $data
             );
+
+            if (array_key_exists('data', $result[$item[$keyField]]) && empty($result[$item[$keyField]]['data'])) {
+                unset($result[$item[$keyField]]['data']);
+            }
         }
 
         /* Наркоманы херовы */
@@ -829,7 +833,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                         $result[$item[$keyField]] = array();
                     }
 
-                    foreach ($this->rawFields as $i => $fieldName) {
+                    foreach ($this->rawFields as $fieldName) {
                         $result[$item[$keyField]][$fieldName] = null;
 
                         if (!empty($subColumns[0])) {
@@ -850,6 +854,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         } else {
             $result = $this->items;
         }
+
         $readyResult = array_values((array)$result);
         if ($index) {
             $readyResult = $helperArray->reindex($readyResult, $index);
