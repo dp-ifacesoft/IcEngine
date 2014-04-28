@@ -110,7 +110,6 @@ class Data_Source
      */
     public function execute(Query_Abstract $query, $options = null)
     {
-        $options = $options ? : new Query_Options();
         $query = $this->applyFilters($query);
         if (!$query) {
             return $this;
