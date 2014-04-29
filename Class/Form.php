@@ -42,6 +42,20 @@ class Form implements IteratorAggregate
     }
     
     /**
+     * Возвращает данные с формы
+     * 
+     * @return array
+     */
+    public function getData()
+    {
+        $result = array();
+        foreach ($this->elements as $element) {
+            $result[$element->name] = $element->getValue();
+        }
+        return $result;
+    }
+    
+    /**
      * Присоединяет данные с формы
      * 
      * @param array $request

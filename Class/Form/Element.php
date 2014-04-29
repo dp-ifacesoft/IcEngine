@@ -52,10 +52,24 @@ abstract class Form_Element
     
     /**
      * Получить дополнительные данные
+     * 
+     * @return array
      */
     public function data()
     {
         return $this->data;
+    }
+    
+    /**
+     * Установить дополнительные данные
+     * 
+     * @param array $data
+     * @return $this
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
     }
     
     /**
@@ -168,6 +182,16 @@ abstract class Form_Element
     public function setValue($value)
     {
         $this->value = $value;
+    }
+    
+    /**
+     * Возвращает значение
+     * 
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
     }
     
     /**
