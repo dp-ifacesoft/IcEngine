@@ -1,0 +1,291 @@
+<?php
+
+/**
+ *
+ * @desc Класс необходимый для инициализации фреймворка.
+ * @author Юрий Шведов, Илья Колесников
+ * @package IcEngine
+ *
+ */
+class IcEngine
+{
+    /**
+     * @desc Загрузчик
+     * @var Bootstrap_Abstract
+     */
+    protected static $_bootstrap;
+
+    /**
+     * @desc Путь до движка.
+     * @var string
+     */
+    protected static $_path;
+
+    /**
+     * @desc Путь до корня сайта.
+     * @var string
+     */
+    protected static $_root;
+
+    /**
+     * @desc Задача фронт контроллера.
+     * @var Controller_Task
+     */
+    protected static $_task;
+
+    /**
+     * @desc Экшин фронт контролера по умолчанию
+     * @var string
+     */
+    public static $frontAction = 'index';
+
+    /**
+     * @desc Фронт контролер по умолчанию
+     * @var string
+     */
+    public static $frontController = 'Front';
+
+    /**
+     * @desc Название транспорта по умолчанию
+     * @var string
+     */
+    public static $frontInput = 'default_input';
+
+    /**
+     * @desc Рендер по умолчанию
+     * @var string
+     */
+    public static $frontRender = 'Front';
+
+    /**
+     * @desc Лайаут
+     * @var string
+     */
+    public static $frontTemplate;
+
+    /**
+     * @desc Зарегистрированные менеджеры
+     * @var array
+     */
+    protected static $_managers = array();
+
+    /**
+     * @desc Возвращает путь до корня сайта.
+     * @return string
+     */
+    protected static function _getRoot()
+    {
+        return isset ($_SERVER ['DOCUMENT_ROOT']) ?
+            rtrim($_SERVER ['DOCUMENT_ROOT'], '/') . '/' :
+            rtrim(realpath(self::$_path . '..'), '/') . '/';
+    }
+
+    /**
+     * @desc Получить текущий бутстрап
+     * @desc Bootstrap_Abstract
+     */
+    public static function bootstrap()
+    {
+        return self::$_bootstrap;
+    }
+
+    /**
+     * Выполняется после работы всего
+     */
+    public static function end()
+    {
+        self::saveLocation();
+    }
+
+    /**
+     * @desc Вывод результата работы.
+     */
+    public static function flush()
+    {
+        if (self::$frontTemplate) {
+            self::$_task->setTemplate(self::$frontTemplate);
+        }
+
+        Controller_Manager::call(
+            'Render', 'index',
+            array(
+                'task' => self::$_task
+            )
+        );
+    }
+
+    /**
+     * @desc Инициализация лоадера.
+     * @param string $root Путь до корня сайта.
+     * @param string $bootstap Путь до загрузчика.
+     */
+    public static function init($root = null, $bootstap = null)
+    {
+        // Запоминаем путь до движка
+        self::$_path = dirname(__FILE__) . '/';
+        if (strlen(self::$_path) < 2) {
+            self::$_path = '';
+        }
+
+        // путь до корня сайта
+        self::$_root = $root ?
+            rtrim($root, '/\\') . '/' :
+            self::_getRoot();
+
+        self::initLoader();
+        if ($bootstap) {
+            self::initBootstrap($bootstap);
+        }
+
+        register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
+    }
+
+    /**
+     * @desc Подключает загрузчик и запускает его.
+     * @param string $path Путь до загрузчика.
+     */
+    public static function initBootstrap($path)
+    {
+        require $path;
+
+        $name = basename($path, '.php');
+        require_once __DIR__ . '/Model/Bootstrap/Manager.php';
+        self::$_bootstrap = Bootstrap_Manager::get($name, $path);
+    }
+
+    /**
+     * @desc Подключение класса Debug
+     */
+    public static function initDebug($params)
+    {
+        static $loaded = false;
+        if (!$loaded) {
+            $loaded = true;
+            require dirname(__FILE__) . '/Class/Debug.php';
+        }
+
+        call_user_func_array(array('Debug', 'init'), func_get_args());
+    }
+
+    /**
+     * @desc Инициализация лоадера.
+     */
+    public static function initLoader()
+    {
+        require dirname(__FILE__) . '/Class/Loader.php';
+
+        Loader::addPathes(array(
+            'Class' => array(
+                self::$_path . 'Class/',
+                self::$_path . 'Model/',
+                self::$_path
+            ),
+            'Controller' => array(
+                self::$_path . 'Controller/'
+            ),
+            'includes' => self::$_path . 'includes/'
+        ));
+    }
+
+    /**
+     * @desc Подключение класса Tracer
+     */
+    public static function initTracer()
+    {
+        static $loaded = false;
+        if (!$loaded) {
+            $loaded = true;
+            require dirname(__FILE__) . '/Class/Tracer.php';
+        }
+    }
+
+    /**
+     * @desc Получить менеджера по имени
+     * @param string $name
+     * @return Manager_Abstract
+     */
+    public static function getManager($name)
+    {
+        if (!isset (self::$_managers [$name])) {
+            self::$_managers [$name] = new $name . '_Manager';
+        }
+        return self::$_managers [$name];
+    }
+
+    /**
+     * @desc Путь до корня движка
+     * @return string
+     */
+    public static function path()
+    {
+        return self::$_path;
+    }
+
+    /**
+     * @desc Зарегистрировать нового менеджера по имени
+     * @param string $name
+     * @param Manager_Abstract $manager
+     */
+    public static function registerManager($name, Manager_Abstract $manager)
+    {
+        self::$_managers [$name] = $manager;
+    }
+
+    /**
+     * @desc Путь до корня сайта.
+     * @return string
+     */
+    public static function root()
+    {
+        return self::$_root;
+    }
+
+    /**
+     * @desc Запуск рабочего цикла и вывод результата.
+     */
+    public static function run()
+    {
+        self::$_bootstrap->run();
+        self::$_task = new Controller_Task (
+            new Controller_Action (array(
+                'id' => null,
+                'controller' => self::$frontController,
+                'action' => self::$frontAction
+            ))
+        );
+        self::$_task->setViewRender(
+            View_Render_Manager::byName(self::$frontRender)
+        );
+
+        Controller_Manager::call(
+            self::$frontController,
+            self::$frontAction,
+            Data_Transport_Manager::get(self::$frontInput),
+            self::$_task
+        );
+    }
+
+
+    public static function saveLocation()
+    {
+        $routeActions = Router::getRoute()->actions;
+        $action = reset($routeActions);
+        $provider = Data_Provider_Manager::get('Redis');
+        $session = User_Session::getCurrent();
+        $key = $session->key() . '_locationUrl';
+        $provider->set($key, $action);
+    }
+
+    public static function shutdownHandler()
+    {
+        $e = error_get_last();
+        if ($e) {
+            if (!headers_sent()) {
+                header('HTTP/1.0 500 Internal Server Error');
+            }
+
+            Debug::errorHandler($e['type'], $e['message'], $e['file'], $e['line'], array());
+        }
+    }
+}
+
