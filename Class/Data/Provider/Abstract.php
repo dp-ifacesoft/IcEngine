@@ -9,6 +9,14 @@ class Data_Provider_Abstract
 {
 
     /**
+     * Время жизни данных по умолчанию.
+     * Применяются только положительные значения.
+     * 
+     * @var int
+     */
+    public $expiration = -1;
+
+    /**
      * Локи установленные текущим экземпляром скрипта.
      * Хранятся для снятия в конце работы
      * 
@@ -77,8 +85,13 @@ class Data_Provider_Abstract
      */
     protected function _setOption($key, $value)
     {
-        if ($key == 'prefix') {
-            $this->prefix = $value;
+        switch ($key) {
+            case 'prefix': 
+                $this->prefix = $value;
+                break;
+            case 'expiration':
+                $this->expiration = $value;
+                break;
         }
     }
 
@@ -276,7 +289,7 @@ class Data_Provider_Abstract
         }
         return $result;
     }
-    
+
     /**
      * Получение текущего значения ключа с одновременной заменой на новое значение.
      * Для реальных провайдеров эта операция может быть атомарной,
@@ -289,10 +302,10 @@ class Data_Provider_Abstract
     public function getSet($key, $value)
     {
         $value = $this->get($key);
-        $this->set($key, $value);
+        $this->set($key, $value, $this->expiration);
         return $value;
     }
-    
+
     /**
      * Статистика по провайдеру
      * 
@@ -487,7 +500,7 @@ class Data_Provider_Abstract
      * @param integer $expiration Время жизни ключа.
      * @param array $tags Теги.
      */
-    public function set($key, $value, $expiration = 0, $tags = array())
+    public function set($key, $value, $expiration = null, $tags = array())
     {
         if ($this->tracer) {
             $this->tracer->add('set', $key);

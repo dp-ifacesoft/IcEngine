@@ -226,7 +226,12 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function getSet($key, $value)
     {
-        $value = $this->getConnection($key)->getSet($this->keyEncode($key), $value);
+        $connection = $this->getConnection($key);
+        $keyEncoded = $this->keyEncode($key);
+        $value = $connection->getSet($keyEncoded, $value);
+        if (0 < $this->expiration) {
+            $connection->expire($keyEncoded, $this->expiration);
+        }
         return $value;
     }
 
@@ -306,8 +311,12 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     /**
      * @inheritdoc
      */
-    public function set($key, $value, $expiration = 3600, $tags = array())
+    public function set($key, $value, $expiration = null, $tags = array())
     {
+        if (is_null($expiration)) {
+            // используем значение по умолчанию
+            $expiration = $this->expiration;
+        }
         if ($expiration < 0) {
             $expiration = 0;
         }
