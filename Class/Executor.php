@@ -116,6 +116,7 @@ class Executor extends Manager_Abstract
         $cache = array();
         $tagValid = true;
         $expiresValid = true;
+        $expiration = (int) $options->expiration;
         if ($this->getCacher()) {
             $keyFunction = $function;
             if (is_object($keyFunction[0])) {
@@ -167,7 +168,7 @@ class Executor extends Manager_Abstract
             if ($tags) {
                 $cacheValue['t'] = $tags;
             }
-            $this->cacher->set($key, $cacheValue);
+            $this->cacher->set($key, $cacheValue, $expiration);
             if ($cache) {
                 $this->cacher->unlock($key);
             }

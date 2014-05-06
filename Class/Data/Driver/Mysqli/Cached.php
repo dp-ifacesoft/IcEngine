@@ -275,7 +275,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             'f' => $this->foundRows
         );
         self::$caches[$key] = $cache;
-        $this->cacher->set($key, $cache);
+        $this->cacher->set($key, $cache, $options->getExpiration());
         return $rows;
     }
 
