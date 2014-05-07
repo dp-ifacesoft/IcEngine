@@ -23,7 +23,6 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
         'password' => '',
         'database' => 'unknown',
         'charset' => 'utf8',
-        'port' => '3306'
     );
 
     /**
