@@ -38,7 +38,8 @@ class User_Abstract extends Model
         $userService = $this->getService('user');
         $userService->setCurrent($this);
         $session = $this->getService('userSession')->getCurrent();
-        $session->userRole = json_encode($this->getService('helperAdmin')->getUserRoles());
+        $roles = $this->getService('helperAdmin')->getUserRoles();
+        $session->userRole = json_encode($roles);
         $session->updateSession($this->key());
         $this->update(array('phpSessionId' => $session->key()));
         $authorizationLog = $this->getService('authorizationLog');
