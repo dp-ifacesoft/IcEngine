@@ -39,7 +39,7 @@ class Query_Translator_KeyValue_Select extends Query_Translator_Abstract
 	{
 		return $this->compileKeyMask(
 			$this->extractTable($query),
-			$query->part(Query::WHERE)
+			($query->part(Query::WHERE)) ?: array()
 		);
 	}
 

@@ -39,7 +39,7 @@ abstract class User_Session_Abstract extends Model
 	public function byPhpSessionId($sessionId, $autocreate = true)
 	{
         $modelManager = $this->getService('modelManager');
-		$session = User_Session::getModel($sessionId);
+		$session = $modelManager->byKey('User_Session', $sessionId);
         $request = $this->getService('request');
 		if (!$session && $autocreate) {
             $sessionData = array(
@@ -49,7 +49,8 @@ abstract class User_Session_Abstract extends Model
     			'lastActive'	=> time(),
                 'url'           => $request->uri(),
     			'remoteIp'		=> $request->ip(),
-    			'userAgent'	    => substr(getenv('HTTP_USER_AGENT'), 0, 64)
+    			'userAgent'	    => substr(getenv('HTTP_USER_AGENT'), 0, 64),
+                'userRole'      => ''
     		);
     		$session = $modelManager->create('User_Session', array_merge(
                 $sessionData, $this->getParams()
@@ -134,6 +135,9 @@ abstract class User_Session_Abstract extends Model
         $updateData = array();
         if ($this->url != $url) {
             $updateData['url'] = $url;
+        }
+        if($this->userRole) {
+            $updateData['userRole'] = $this->userRole;
         }
         if ($now - $this->lastActive > 300) {
             $updateData['lastActive'] = $now;

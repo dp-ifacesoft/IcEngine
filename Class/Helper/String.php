@@ -89,15 +89,7 @@ class Helper_String
      */
     public function replaceSpecialChars($string, $value = ' ')
     {
-        $value = str_replace(array(
-            "\r", "\n", "\t", ',', '(', ')',
-            '[', ']', '{', '}', '-', '_',
-            '!', '@', '#', '$', '%', '^', ':',
-            '&', '*', ',', '.', '+', '=',
-            '/', ' \\', '|', '\'', '"', '~', ' '),
-            $value, $string
-        );
-        return $value;
+        return preg_replace("/[^a-zA-ZА-Яа-я\d\s]/u",$value,$string);
     }
 
     /**
@@ -161,6 +153,17 @@ class Helper_String
         $text = trim($text);
         return $this->truncateUtf8($text, $length, $wordsafe, $dots);
 
+    }
+    
+    /**
+     * Удаляет дублирующиеся пробелы
+     * @param type $text
+     * @param type $value
+     * @return type
+     */
+    public function removeMultiWhiteSpace($text, $value=' ') 
+    {
+        return preg_replace("/\s{2,}/u",$value,$text);
     }
 
     /**

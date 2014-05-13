@@ -6,7 +6,7 @@
  * @author neon
  * @Service("dto")
  */
-class Dto
+class Dto implements ArrayAccess
 {
     /**
      * Параметры по умолчанию
@@ -156,5 +156,39 @@ class Dto
             $this->fields[$key] = $value;
         }
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->fields[$offset]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function offsetGet($offset)
+    {
+        return $this->getField($offset);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->set($offset, $value);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function offsetUnset($offset)
+    {
+        if (array_key_exists($offset, $this->fields)) {
+            $this->fields[$offset];
+        }
     }
 }

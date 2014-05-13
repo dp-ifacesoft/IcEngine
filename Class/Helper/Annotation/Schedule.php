@@ -9,6 +9,22 @@
 class Helper_Annotation_Schedule extends Helper_Abstract
 {
     /**
+     * Проверяет на существование записи по косвенным данным
+     * 
+     * @param array $scheduleOld
+     * @param array $scheduleNew
+     * @return boolean
+     */
+    public function exists($scheduleOld, $scheduleNew)
+    {
+        $paramsOld = json_decode(urldecode($scheduleOld['paramsJson']), true);
+        $paramsNew = json_decode(urldecode($scheduleNew['paramsJson']), true);
+        return ($paramsOld === $paramsNew &&
+            $scheduleOld['controllerAction'] == $scheduleNew['controllerAction']
+        );
+    }
+    
+    /**
      * Получить дельту в секундах
      * 
      * @param array $scheduleData

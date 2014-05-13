@@ -17,6 +17,9 @@ class Query_Delete extends Query_Select
      */
     public function tableName()
     {
-        return $this->getPart($this->type);
+        $fromPart = $this->getPart(Query::FROM);
+        $keys = array_keys($fromPart);
+        $tableName = reset($keys);
+        return $tableName;
     }
 }

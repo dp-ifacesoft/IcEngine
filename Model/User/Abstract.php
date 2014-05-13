@@ -15,6 +15,13 @@ class User_Abstract extends Model
 	protected $current;
 
     /**
+     * Текущая сессия.
+     * 
+     * @var Session
+     */
+    protected $currentSession;
+
+    /**
      * Доступные пользователю роли
      *
      * @var array
@@ -32,6 +39,10 @@ class User_Abstract extends Model
 		$session->updateSession($this->key());
         $userService = $this->getService('user');
         $userService->setCurrent($this);
+        $session = $this->getService('userSession')->getCurrent();
+        $roles = $this->getService('helperAdmin')->getUserRoles();
+        $session->userRole = json_encode($roles);
+        $session->updateSession($this->key());
         $this->update(array('phpSessionId' => $session->key()));
         $authorizationLog = $this->getService('authorizationLog');
         $authorizationLog->log();
@@ -110,6 +121,15 @@ class User_Abstract extends Model
     public function getSessionId()
     {
         return $this->phpSessionId;
+    }
+
+    /**
+     * Получить роли пользователя
+     * @return mixed ассоциативный массив с ролями пользователя
+     */
+    public function getRoles() {
+        $session = $this->getService('userSession')->getCurrent();
+        return json_decode($session->userRole);
     }
 
 	/**

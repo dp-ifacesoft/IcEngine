@@ -49,4 +49,14 @@ class Schedule extends Model
      * @Orm\Field\Tinyint(Size=1, Not_Null)
      */
     public $inProcess;
+    
+    /**
+     * @Orm\Field\Datetime(Not_Null)
+     */
+    public $exectTime;
+    
+    /**
+     * @Orm\Field\Tinyint(Size=0, Not_Null)
+     */
+    public $hasExectTime;
 }
