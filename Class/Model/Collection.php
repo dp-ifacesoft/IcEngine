@@ -92,6 +92,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	protected $queryResult;
 
     /**
+     * @return \Query_Result
+     */
+    public function getQueryResult()
+    {
+        return $this->queryResult;
+    }
+
+    /**
      * Включенные для raw-запроса поля
      *
      * @var array
@@ -183,6 +191,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         $this->setItems($source->items());
 		return $this;
 	}
+
+    public function getQuery()
+    {
+        if (!$this->query) {
+            $this->beforeLoad();
+        }
+        return $this->query();
+    }
 
     /**
      * Действия до загрузки коллекции
