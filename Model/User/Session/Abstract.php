@@ -39,7 +39,7 @@ abstract class User_Session_Abstract extends Model
 	public function byPhpSessionId($sessionId, $autocreate = true)
 	{
         $modelManager = $this->getService('modelManager');
-		$session = User_Session::getModel($sessionId);
+		$session = $modelManager->byKey('User_Session', $sessionId);
         $request = $this->getService('request');
 		if (!$session && $autocreate) {
             $sessionData = array(
