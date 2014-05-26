@@ -132,15 +132,6 @@ class User_Abstract extends Model
         return json_decode($session->userRole);
     }
 
-    /**
-     * Получить роли пользователя
-     * @return mixed ассоциативный массив с ролями пользователя
-     */
-    public function getRoles() {
-        $session = $this->getService('userSession')->getCurrent();
-        return json_decode($session->userRole);
-    }
-
 	/**
 	 * Возвращает id текущего пользователя.
 	 *
