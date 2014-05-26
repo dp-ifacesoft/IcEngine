@@ -19,9 +19,9 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 	 * @desc Получение хэша запроса
 	 * @return string
 	 */
-	protected function _sqlHash ()
+	protected function _sqlHash ($query)
 	{
-		return md5 ($this->_sql);
+		return md5 (json_encode ($query->parts ()));
 	}
 
 	/**
@@ -134,7 +134,7 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			Tracer::incSelectQueryCount();
 		}
 
-		$key = $this->_sqlHash ();
+		$key = $this->_sqlHash ($query);
 
 		$expiration = $options->getExpiration ();
 		$cache = $this->_cacher->get ($key);
@@ -250,7 +250,11 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 			return new Query_Result (null);
 		}
 		$this->connect ();
-		$expiration = $options ? $options->getExpiration () : 0;
+
+		if (!$options)
+		{
+			$options = $this->getDefaultOptions ();
+		}
 
 		$start = microtime (true);
 
@@ -260,14 +264,14 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		$this->_filters->apply ($where, Query::VALUE);
 		$clone->setPart (Query::WHERE, $where);
 
-		$query_key = 'query_' . md5 (json_encode ($query->parts ()));
+		$query_key = 'query_' . $this->_sqlHash ($query);
 		$this->_sql = $this->_cacher->get ($query_key);
 
 		if (!$this->_sql)
 		{
 			$this->_sql = $clone->translate ('Mysql');
 
-			$this->_cacher->set ($query_key, $this->_sql, $expiration * 24);
+			$this->_cacher->set ($query_key, $this->_sql, $options->getExpiration () * 24);
 		}
 		$result = null;
 		$this->_errno = 0;
@@ -276,11 +280,6 @@ class Data_Mapper_Mysqli_Cached extends Data_Mapper_Mysqli
 		$this->_foundRows = 0;
 		$this->_numRows = 0;
 		$this->_insertId = null;
-
-		if (!$options)
-		{
-			$options = $this->getDefaultOptions ();
-		}
 
 		$m = $this->_queryMethods [$query->type ()];
 		$result = $this->{$m} ($query, $options);
