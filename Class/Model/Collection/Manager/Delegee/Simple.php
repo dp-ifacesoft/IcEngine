@@ -22,7 +22,7 @@ class Model_Collection_Manager_Delegee_Simple
         $serviceLocator = IcEngine::serviceLocator();
         $modelScheme = $serviceLocator->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($modelName);
-        $queryResult = $dataSource->execute($query)->getResult();
+        $queryResult = $dataSource->execute($query, $collection->getQueryOptions())->getResult();
         $collection->queryResult($queryResult);
         // Если установлен флагp CALC_FOUND_ROWS,
         // то назначаем ему значение
