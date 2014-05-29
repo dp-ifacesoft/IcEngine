@@ -372,7 +372,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     protected function valueDecode($value)
     {
-        return json_decode(urldecode($value), true);
+        return json_decode($value, true);
     }
 
     /**
@@ -383,7 +383,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     protected function valueEncode($value)
     {
-        return urlencode(json_encode($value));
+        return json_encode($value);
     }
 
 }
