@@ -966,7 +966,6 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     {
         if (!$this->queryOptions instanceof Query_Options) {
             $this->queryOptions = new Query_Options();
-            var_dump($expiration);
         }
         $this->queryOptions->setExpiration($expiration);
         return $this;
