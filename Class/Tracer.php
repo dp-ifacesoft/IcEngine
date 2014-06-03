@@ -124,6 +124,12 @@ class Tracer
      */
     protected static $allQueryVector = array();
     
+    /**
+     * @desc Хешировать трассируемые запросы, а не транслировать.
+     * @var boolean
+     */
+    public static $hashQuery = false;
+        
 	/**
 	 * Время на запросы
 	 *
@@ -401,11 +407,16 @@ class Tracer
     /**
      * Добавить запрос в вектор
      * 
-     * @param string $query
+     * @param string|Query_Abstract $query
      */
     public static function appendQueryToVector($query)
     {
-        self::$allQueryVector[] = $query;
+        if (is_string($query)) {
+            self::$allQueryVector[] = $query;
+        } else {
+            /** @see Data_Driver_Mysqli_Cached::sqlHash() */
+            self::$allQueryVector[] = self::$hashQuery ? md5(serialize($query->getParts())) : $query->translate('Mysql');
+        }
     }
     
     /**

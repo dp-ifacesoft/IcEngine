@@ -133,7 +133,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
     {
         if (Tracer::$enabled) {
             Tracer::incSelectQueryCount();
-            Tracer::appendQueryToVector($query->translate('Mysql'));
+            Tracer::appendQueryToVector($query);
         }
         $key = $this->sqlHash($query);
         $expiration = $options->getExpiration();
