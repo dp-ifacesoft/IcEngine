@@ -20,7 +20,8 @@ return array(
     'author' => '{$author|addslashes}',
 {/if}
     'fields' => array(
-        {foreach from=$fields item="field" name="fields" key="name"}'{$name}' => array(
+    {foreach from=$fields item="field" name="fields" key="name"}
+    '{$name}' => array(
             '{$field[0]}'{if !empty($field[1])},
             array(
             {foreach from=$field[1] item="f" name="field1" key="field_name"}{if !$smarty.foreach.field1.first}{/if}
@@ -36,11 +37,10 @@ return array(
     {/if}
 {/if}
 
-            {/foreach})
-        {/if}    
+            {/foreach}){/if}    
         ){if !$smarty.foreach.fields.last},{/if}
 
-        {/foreach}){if !empty($indexes)},{/if}
+    {/foreach}){if !empty($indexes)},{/if}
     
     {if !empty($indexes)}'indexes' => array(
     {foreach from=$indexes item="index" name="indexes" key="name"}
