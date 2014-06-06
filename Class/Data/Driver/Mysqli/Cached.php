@@ -133,7 +133,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
     {
         if (Tracer::$enabled) {
             Tracer::incSelectQueryCount();
-            Tracer::appendQueryToVector($query->translate('Mysql'));
+            Tracer::appendQueryToVector($query);
         }
         $key = $this->sqlHash($query);
         $expiration = $options->getExpiration();
@@ -160,6 +160,23 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             $rows = $cache['v'];
         } else {
             $rows = $this->getRows($query, $options);
+            if (!is_null($rows)) {
+                $tags = $query->getTags();
+                $providerTags = $this->cacher->getTags($tags);
+                if ($tags) {
+                    foreach (array_keys($providerTags) as $tag) {
+                        self::$tagsCaches[$tag][] = $key;
+                    }
+                }
+                $cache = array(
+                    'v' => $rows,
+                    'a' => time(),
+                    't' => $providerTags,
+                    'f' => $this->foundRows
+                );
+                self::$caches[$key] = $cache;
+                $this->cacher->set($key, $cache, $options->getExpiration());
+            }
             $this->numRows = count($rows);
         }
         return $rows;
@@ -258,24 +275,6 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             );
             Tracer::incDeltaQueryCount();
         }
-        if (is_null($rows)) {
-            return null;
-        }
-        $tags = $query->getTags();
-        $providerTags = $this->cacher->getTags($tags);
-        if ($tags) {
-            foreach (array_keys($providerTags) as $tag) {
-                self::$tagsCaches[$tag][] = $key;
-            }
-        }
-        $cache = array(
-            'v' => $rows,
-            'a' => time(),
-            't' => $providerTags,
-            'f' => $this->foundRows
-        );
-        self::$caches[$key] = $cache;
-        $this->cacher->set($key, $cache, $options->getExpiration());
         return $rows;
     }
 
