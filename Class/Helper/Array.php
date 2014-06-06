@@ -383,6 +383,59 @@ class Helper_Array extends Helper_Abstract
 		return $result;
 	}
     
+    
+    /**
+     * Построить дерево
+     * @param type $array
+     * @param type $parentField
+     * @return type
+     */
+    public function sortArrayByParent($array, $parentField = 'parentId') 
+    {
+        $arrayReindexed = array();
+        foreach ($array as $item) {
+            $arrayReindexed[$item['id']] = $item;
+        }
+        $arrayPrepared = array();
+        foreach ($arrayReindexed as $key => $item) {
+            $parentId = $item[$parentField];
+            $parents = array();
+            while($parentId) {
+                if (!isset($arrayReindexed[$parentId])) {
+                    break;
+                }
+                $parent = $arrayReindexed[$parentId];
+                $parents[] = $parent;
+                $parentId = $parent[$parentField];
+            }
+            $arrayPrepared[$key] = $item;
+            $arrayPrepared[$key]['parents'] = $parents;
+        }
+        $arrayGroupsByLevel = array();
+        foreach ($arrayPrepared as $item) {
+            $level = count($item['parents']);
+            $arrayGroupsByLevel[$level][] = $item;
+        }
+        $arrayGroupsByLevelReversed = array_reverse($arrayGroupsByLevel);
+        foreach ($arrayGroupsByLevelReversed as $key => $group) {
+            foreach ($group as $key => $item) {
+                if (!$item[$parentField]) {
+                    continue;
+                }
+                $arrayReindexed[$item[$parentField]]['children'][] = 
+                    $arrayReindexed[$item['id']];
+            }
+        }
+        $arrayResult = array();
+        foreach ($arrayReindexed as $item) {
+            if ($item[$parentField]) {
+                continue;
+            }
+            $arrayResult[] = $item;
+        }
+        return $arrayResult;
+    }
+
     /**
      * Проверить ячейку на соответствие фильтру
      *

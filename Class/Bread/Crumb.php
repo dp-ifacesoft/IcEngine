@@ -14,6 +14,12 @@ class Bread_Crumb
 	 * @var array
 	 */
 	protected $list = array();
+    
+    /**
+     * Html справа от крошек
+     * @var string 
+     */
+    protected $rightHtml = '';
 
 	/**
 	 * Добавить хлебную крошку
@@ -35,6 +41,7 @@ class Bread_Crumb
 	public function clear()
 	{
 		$this->list = array();
+        $this->rightHtml = '';
 	}
 
 	/**
@@ -56,4 +63,20 @@ class Bread_Crumb
 	{
 		return empty($this->list);
 	}
+    
+    /**
+     * Html справа от крошек(например, кнопка)
+     */
+    public function setRightHtml($html)
+    {
+        $this->rightHtml = $html;
+    }
+    
+    /**
+     * Html справа от крошек(например, кнопка)
+     */
+    public function getRightHtml()
+    {
+        return $this->rightHtml;
+    }
 }
