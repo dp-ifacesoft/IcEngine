@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Исполнитель всякого. Необходим для того, чтобы исполнять всякое. (с) morph
  * Предназначени для запуска функций/методов и кэширования результатов
@@ -9,18 +10,21 @@
  */
 class Executor extends Manager_Abstract
 {
+
     /**
      * Разделитель частей при формировании ключа для кэширования
      * 
      * @var string
      */
     const DELIM = '/';
+
     /**
      * Кэшер
      * 
      * @var Data_Provider_Abstract
      */
     protected $cacher;
+
     /**
      * @inheritdoc
      */
@@ -50,6 +54,7 @@ class Executor extends Manager_Abstract
         'tag_provider' => null,
         'tags' => array()
     );
+
     /**
      * Возвращает ключ для кэширования
      * 
@@ -58,13 +63,14 @@ class Executor extends Manager_Abstract
      * @return string Ключ кэша.
      */
     protected function getCacheKey($function, array $args)
-        {
+    {
         $key = $this->getFunctionName($function) . self::DELIM;
         if ($args) {
             $key .= md5(json_encode($args));
-                }
-        return $key;
         }
+        return $key;
+    }
+
     /**
      * Возвращает название функции
      * 
@@ -79,9 +85,10 @@ class Executor extends Manager_Abstract
                 $first = get_class($first);
             }
             return $first . self::DELIM . $function[1];
-                }
+        }
         return $function;
     }
+
     /**
      * Выполняет переданную функцию.
      * 
@@ -92,17 +99,18 @@ class Executor extends Manager_Abstract
      * @return mixed Результат выполнения функции.
      */
     public function execute($function, array $args = array(), $options = null)
-        {
+    {
         $functionName = $this->getFunctionName($function);
         $config = $this->config();
         if ($options) {
             return $this->executeCaching($function, $args, $options);
-                } elseif ($config->functions[$functionName]) {
+        } elseif ($config->functions[$functionName]) {
             $functionOption = $config->functions[$functionName];
             return $this->executeCaching($function, $args, $functionOption);
-                }
-        return $this->executeUncaching($function, $args);
         }
+        return $this->executeUncaching($function, $args);
+    }
+
     /**
      * Выполнение функции подлежащей кэшированию.
      * 
@@ -142,11 +150,11 @@ class Executor extends Manager_Abstract
                 if (Tracer::$enabled) {
                     if ($functionName == 'Controller_Manager') {
                         Tracer::incCachedControllerCount();
-                                        }
-                                }
+                    }
+                }
                 return $cache['v'];
             }
-                }
+        }
         $start = microtime(true);
         $value = $this->executeUncaching($function, $args);
         $end = microtime(true);
@@ -155,7 +163,7 @@ class Executor extends Manager_Abstract
         $forLog = $config->forLog->__toArray();
         if (in_array($functionName, $forLog)) {
             $this->logFunction($function, $delta, $args);
-                }
+        }
         if ($this->cacher && $inputValid) {
             $cacheValue = array(
                 'v' => $value,
@@ -175,6 +183,7 @@ class Executor extends Manager_Abstract
         }
         return $value;
     }
+
     /**
      * Выполнение функции без кэширования.
      * 
@@ -186,6 +195,7 @@ class Executor extends Manager_Abstract
     {
         return call_user_func_array($function, $args);
     }
+
     /**
      * Возвращает текущий кэшер.
      * 
@@ -204,6 +214,7 @@ class Executor extends Manager_Abstract
         }
         return $this->cacher;
     }
+
     /**
      * Проверяет валидны ли данные входного транспорта
      * 
@@ -225,6 +236,7 @@ class Executor extends Manager_Abstract
         }
         return $inputValid;
     }
+
     /**
      * Не вышел ли срок валидности кэша
      * 
@@ -237,6 +249,7 @@ class Executor extends Manager_Abstract
         $expiration = (int) $options->expiration;
         return ($cache['a'] + $expiration > time()) || $expiration == 0;
     }
+
     /**
      * Проверяет валидны ли текущие тэги кэша
      * 
@@ -257,6 +270,7 @@ class Executor extends Manager_Abstract
         }
         return $tagValid;
     }
+
     /**
      * Логирует вызов функции
      * 
@@ -281,6 +295,7 @@ class Executor extends Manager_Abstract
             'last' => time()
         ));
     }
+
     /**
      * Устаналвивает кэшер
      * 
@@ -290,4 +305,5 @@ class Executor extends Manager_Abstract
     {
         $this->cacher = $cacher;
     }
+
 }
