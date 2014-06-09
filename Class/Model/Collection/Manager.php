@@ -84,7 +84,6 @@ class Model_Collection_Manager extends Manager_Abstract
 	 */
 	public function load(Model_Collection $collection, Query_Abstract $query)
 	{
-		$modelName = $collection->modelName();
         $keyField = $collection->keyField();
         $data = $this->callDelegee($collection, $query);
         $addicts = $collection->data('addicts');
@@ -92,18 +91,17 @@ class Model_Collection_Manager extends Manager_Abstract
 		if ($iterator) {
 			return $iterator->setData($data['items']);
 		}
-        $modelManager = $this->getService('modelManager');
 		foreach ($data['items'] as $i => $item) {
-            if (isset($item[$keyField])) {
-                $data['items'][$i] = $modelManager->get(
-                    $modelName, $item[$keyField], $item
-                );
-            } else {
+            if (!isset($item[$keyField])) {
                 unset($data['items'][$i]);
                 continue;
             }
 			if (!empty($addicts[$i])) {
-				$data['items'][$i]->data($addicts[$i]);
+                $data['items'][$i]['data'] = isset($data['items'][$i]['data']) 
+                    ? $data['items'][$i]['data'] : array();
+                $data['items'][$i]['data'] = array_merge(
+                    $data['items'][$i]['data'], $addicts[$i]
+                );
 			}
 		}
 		$collection->setItems($data['items']);

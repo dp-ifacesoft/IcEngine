@@ -445,10 +445,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         if (!is_array($this->items)) {
             $this->load();
         }
-        if ($this->isRaw) {
-            return new Model_Collection_Iterator_Array($this);
-        }
-        return new ArrayIterator($this->items);
+        return new Model_Collection_Iterator_Array($this);
 	}
 
 	/**

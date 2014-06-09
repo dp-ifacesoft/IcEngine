@@ -21,6 +21,12 @@ class Model_Collection_Iterator_Array extends ArrayIterator
 	 */
 	protected $index;
 
+    protected $modelName;
+    
+    protected $keyField;
+    
+    protected $modelManager;
+    
     /**
      * Конструктор
      * 
@@ -30,6 +36,9 @@ class Model_Collection_Iterator_Array extends ArrayIterator
     {
         $this->index = 0;
         $this->data = $collection;
+        $this->modelManager = IcEngine::serviceLocator()->getService('modelManager');
+        $this->modelName = $collection->modelName();
+        $this->keyField = $collection->keyField();
     }
     
 	/**
@@ -37,12 +46,9 @@ class Model_Collection_Iterator_Array extends ArrayIterator
 	 */
 	public function current()
 	{
-        $modelManager = IcEngine::serviceLocator()->getService('modelManager');
-        $modelName = $this->data->modelName();
-        $keyField = $this->data->keyField();
         $item = $this->data->item($this->index);
-        $model = $modelManager->get(
-            $modelName, $item[$keyField], $item
+        $model = $this->modelManager->get(
+            $this->modelName, $item[$this->keyField], $item
         );
 		return $model;
 	}
