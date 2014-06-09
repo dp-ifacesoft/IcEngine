@@ -54,6 +54,13 @@ class Executor extends Manager_Abstract
         'tag_provider' => null,
         'tags' => array()
     );
+    
+    /**
+     * Провайдер для лога вызовов.
+     * 
+     * @var Data_Provider_Abstract
+     */
+    protected $logProvider;
 
     /**
      * Возвращает ключ для кэширования
@@ -212,6 +219,25 @@ class Executor extends Manager_Abstract
         }
         return $this->cacher;
     }
+    
+    /**
+     * Возвращает провайдер для лога вызовов.
+     * 
+     * @return Data_Provider_Abstract|null
+     */
+    public function getLogProvider()
+    {
+        if ($this->logProvider) {
+            return $this->logProvider;
+        }
+        $config = $this->config();
+        if ($config->logProvider) {
+            $this->logProvider = $this->getService('dataProviderManager')->get(
+                    $config->logProvider
+            );
+        }
+        return $this->logProvider;
+    }
     /**
      * Проверяет валидны ли данные входного транспорта
      * 
@@ -277,13 +303,13 @@ class Executor extends Manager_Abstract
      */
     protected function logFunction($function, $delta, $args)
     {
-        $config = $this->config();
+        $provider = $this->getLogProvider();
+        if(!$provider) {
+            return;
+        }
         if (is_object($function[0])) {
             $function[0] = get_class($function[0]);
         }
-        $provider = $this->getService('dataProviderManager')->get(
-                $config->logProvider
-        );
         $logKey = 'log_' . uniqid();
         $provider->set($logKey, array(
             'function' => $function,
