@@ -87,27 +87,9 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Результат последнего выполненного запроса
      *
-	 * @var Query_Result
-	 */
-	protected $queryResult;
-
-    /**
-     * Возвращает результат выполненного запроса и сам запрос с дополнительными 
-     * парамаетрами запроса
-     * @return \Query_Result
+     * @var Query_Result
      */
-    public function getQueryResult()
-    {
-        return $this->queryResult;
-    }
-
-    /**
-     * @return \Query_Result
-     */
-    public function getQueryResult()
-    {
-        return $this->queryResult;
-    }
+    protected $queryResult;
 
     /**
      * Опции выполнения запроса для драйвера
@@ -207,7 +189,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         $this->data($source->data());
         $this->setItems($source->items());
 		return $this;
-	}
+    }
 
     /**
      * Возращает запрос незагруженной коллекции
@@ -221,12 +203,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $this->query();
     }
 
-    public function getQuery()
+    /**
+     * Возвращает результат выполненного запроса и сам запрос с дополнительными 
+     * парамаетрами запроса
+     * @return \Query_Result
+     */
+    public function getQueryResult()
     {
-        if (!$this->query) {
-            $this->beforeLoad();
-        }
-        return $this->query();
+        return $this->queryResult;
     }
 
     /**
