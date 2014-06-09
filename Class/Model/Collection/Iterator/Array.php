@@ -20,13 +20,6 @@ class Model_Collection_Iterator_Array extends ArrayIterator
 	 * @var integer
 	 */
 	protected $index;
-    
-    /**
-     * Состояние итерации
-     * 
-     * @var Model_Collection_Iterator_Array_State
-     */
-    private $state;
 
     /**
      * Конструктор
@@ -37,7 +30,6 @@ class Model_Collection_Iterator_Array extends ArrayIterator
     {
         $this->index = 0;
         $this->data = $collection;
-        $this->state = new Model_Collection_Iterator_Array_State($this);
     }
     
 	/**
@@ -45,17 +37,14 @@ class Model_Collection_Iterator_Array extends ArrayIterator
 	 */
 	public function current()
 	{
-		return $this->state;
-	}
-
-    /**
-	 * Получить данные для итерации
-	 *
-	 * @return array
-	 */
-	public function getData()
-	{
-		return $this->data;
+        $modelManager = IcEngine::serviceLocator()->getService('modelManager');
+        $modelName = $this->data->modelName();
+        $keyField = $this->data->keyField();
+        $item = $this->data->item($this->index);
+        $model = $modelManager->get(
+            $modelName, $item[$keyField], $item
+        );
+		return $model;
 	}
     
 	/**
