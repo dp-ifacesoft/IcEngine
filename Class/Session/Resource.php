@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Ресурс для хранения в сессии
  *
@@ -14,7 +14,7 @@ class Session_Resource extends Objective
 	 * @var string
 	 */
 	protected $name;
-
+
 	/**
 	 * Конструктор
      *
@@ -34,7 +34,7 @@ class Session_Resource extends Objective
             $this->data = &$_SESSION[$name];
         }
 	}
-
+
     /**
      * Проверяет существует ли ресурс сессии
      */
@@ -42,7 +42,7 @@ class Session_Resource extends Objective
     {
         return isset($_SESSION[$this->name]);
     }
-
+
 	/**
 	 * Получить имя ресурса
 	 *
@@ -52,7 +52,7 @@ class Session_Resource extends Objective
 	{
 		return $this->name;
 	}
-
+
 	/**
 	 * Удалить ресурс сессии
 	 */
@@ -62,7 +62,7 @@ class Session_Resource extends Objective
 			unset($_SESSION[$this->name]);
 		}
 	}
-
+
 	/**
 	 * Изменить имя ресурса
 	 *

@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер атрибутов. Получает и устанавливает значения атрибутов модели
  * 
@@ -14,14 +14,14 @@ class Attribute_Manager extends Manager_Abstract
      * @var string
 	 */
 	const DELIM = '/';
-
+
 	/**
 	 * Таблица аттрибутов
 	 * 
      * @var string
 	 */
     const TABLE = 'Attribute';
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -38,14 +38,14 @@ class Attribute_Manager extends Manager_Abstract
      * Инициализирован ли атрибут менеджер
      */
     protected $isInited = false;
-
+
 	/**
 	 * Провайдер для кэширования
 	 * 
      * @var Data_Provider_Abstract
 	 */
 	protected $provider;
-
+
     /**
 	 * Место хранения аттрибутов
 	 * 
@@ -76,7 +76,7 @@ class Attribute_Manager extends Manager_Abstract
 			);
 		}
 	}
-
+
 	/**
 	 * Удаляет все атрибуты модели
 	 * 
@@ -99,7 +99,7 @@ class Attribute_Manager extends Manager_Abstract
             $this->provider->deleteByPattern($this->getPattern($model));
         }
 	}
-
+
 	/**
 	 * Получение значения атрибута.
 	 * 
@@ -163,7 +163,7 @@ class Attribute_Manager extends Manager_Abstract
         }
         return self::TABLE;
     }
-
+
 	/**
      * Получить дата сорс по имени модели
      * 
@@ -183,7 +183,7 @@ class Attribute_Manager extends Manager_Abstract
 		}
 		return $source;
 	}
-
+
 	/**
 	 * Задание значения атрибуту
 	 * 

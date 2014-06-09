@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Smarty Internal Plugin Compile Break
  * 
@@ -16,8 +16,8 @@ class Smarty_Internal_Compile_Break extends Smarty_Internal_CompileBase {
 	// attribute definitions
     public $optional_attributes = array('levels'); 
     public $shorttag_order = array('levels');
-
-
+
+
     /**
      * Compiles code for the {break} tag
      * 
@@ -32,11 +32,11 @@ class Smarty_Internal_Compile_Break extends Smarty_Internal_CompileBase {
         $this->smarty = $compiler->smarty;
         // check and get attributes
         $_attr = $this->_get_attributes($args);
-
+
         if ($_attr['nocache'] === true) {
         	$this->compiler->trigger_template_error('nocache option not allowed', $this->compiler->lex->taglineno);
         }
-
+
         if (isset($_attr['levels'])) {
             if (!is_numeric($_attr['levels'])) {
                 $this->compiler->trigger_template_error('level attribute must be a numeric constant', $this->compiler->lex->taglineno);
@@ -61,5 +61,5 @@ class Smarty_Internal_Compile_Break extends Smarty_Internal_CompileBase {
         return "<?php break {$_levels}?>";
     } 
 } 
-
+
 ?>

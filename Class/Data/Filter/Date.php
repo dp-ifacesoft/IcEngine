@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Фильтр получения даты
  *
@@ -16,7 +16,7 @@ class Data_Filter_Date extends Data_Filter_Abstract
 		$helperDate = $locator->getService('helperDate');
 		return $helperDate->toUnix($helperDate->strToTimestamp($data));
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */

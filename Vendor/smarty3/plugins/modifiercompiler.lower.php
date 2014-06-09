@@ -4,7 +4,7 @@
  * @package Smarty
  * @subpackage PluginsModifierCompiler
  */
-
+
 /**
  * Smarty lower modifier plugin
  * 
@@ -18,7 +18,7 @@
  * @param array $params parameters
  * @return string with compiled code
  */
-
+
 function smarty_modifiercompiler_lower($params, $compiler)
 {
     if (function_exists('mb_strtolower')) {
@@ -27,5 +27,5 @@ function smarty_modifiercompiler_lower($params, $compiler)
         return 'strtolower(' . $params[0] . ')';
     } 
 } 
-
+
 ?>

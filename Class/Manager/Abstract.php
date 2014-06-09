@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Абстрактный класс менеджера
  *
@@ -34,14 +34,14 @@ abstract class Manager_Abstract
      * @var Event_Manager
      */
     protected $eventManager;
-
+
     /**
      * Локатор сервисов
      *
      * @var Service_Locator
      */
     protected $serviceLocator;
-
+
     /**
      * Получить менеджер аннотаций
      *
@@ -149,7 +149,7 @@ abstract class Manager_Abstract
         }
         return $this->serviceLocator->getService($serviceName);
     }
-
+
     /**
      * Изменить менеджер аннотаций
      *
@@ -189,7 +189,7 @@ abstract class Manager_Abstract
     {
         return $this->serviceLocator;
     }
-
+
     /**
      * Изменить текущий локатор сервисов
      *

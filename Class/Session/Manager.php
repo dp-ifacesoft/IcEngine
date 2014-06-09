@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер для работы с сессиями.
  *
@@ -14,14 +14,14 @@ class Session_Manager extends Manager_Abstract
      * @var Data_Provider_Abstract
 	 */
 	protected $provider;
-
+
 	/**
 	 * Путь для сохранения сессии
      *
 	 * @var string
 	 */
 	protected $sessionSavePath;
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -37,7 +37,7 @@ class Session_Manager extends Manager_Abstract
 		 */
 		'provider'		=> null,
 	);
-
+
 	/**
 	 * Close function, this works like a destructor in classes and is
      * executed when the session operation is done.
@@ -46,7 +46,7 @@ class Session_Manager extends Manager_Abstract
 	{
 		return true;
 	}
-
+
 	/**
 	 * The destroy handler, this is executed when a session is destroyed
      * with session_destroy() and takes the session id as its only parameter.
@@ -56,7 +56,7 @@ class Session_Manager extends Manager_Abstract
  		$this->provider->delete($id);
  		return true;
  	}
-
+
 	/**
 	 * The garbage collector, this is executed when the session
      * garbage collector is executed and takes the max session lifetime
@@ -64,9 +64,9 @@ class Session_Manager extends Manager_Abstract
 	 */
 	public function gc($maxlifetime)
 	{
-
+
 	}
-
+
 	/**
 	 * Инициализация менеджера сессий
 	 */
@@ -79,7 +79,7 @@ class Session_Manager extends Manager_Abstract
 			$this->initProvider($provider);
 		}
 	}
-
+
 	/**
 	 * Инициализация провайдера
      *
@@ -97,7 +97,7 @@ class Session_Manager extends Manager_Abstract
 			array($this, 'gc')
 		);
 	}
-
+
 	/**
 	 * Open function, this works like a constructor in classes and
 	 * is executed when the session is being opened. The open function expects
@@ -112,7 +112,7 @@ class Session_Manager extends Manager_Abstract
 		$this->sessionSavePath = $savePath;
 		return true;
 	}
-
+
 	/**
 	 * Read function must return string value always to make save handler
 	 * work as expected. Return empty string if there is no data to read.
@@ -123,7 +123,7 @@ class Session_Manager extends Manager_Abstract
 	{
 		return (string) $this->provider->get($id);
 	}
-
+
 	/**
 	 * Write function that is called when session data is to be saved.
 	 * This function expects two parameters: an identifier and the data

@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Файлы в Post-запросе
  * 
@@ -7,63 +7,63 @@
  */
 class Request_File
 {
-
+
 	/**
 	 * Элемент массива $_FILES
      * 
 	 * @var array
 	 */
 	public $file;
-
+
 	/**
 	 * Имя исходного файла
      * 
 	 * @var string
 	 */
 	public $name;
-
+
 	/**
 	 * Расширение исходного файла
      * 
 	 * @var extension
 	 */
 	public $extension;
-
+
 	/**
 	 * Тип
      * 
 	 * @var string
 	 */
 	public $type;
-
+
 	/**
 	 * Размер
      * 
 	 * @var integer
 	 */
 	public $size;
-
+
 	/**
 	 * Имя временного файла
      * 
 	 * @var string
 	 */
 	public $tmp_name;
-
+
 	/**
 	 * Ошибки загрузки
      * 
 	 * @var integer
 	 */
 	public $error;
-
+
 	/**
 	 * Путь к конечному файлу на сервере
      * 
 	 * @var string
 	 */
 	public $destination = false;
-
+
 	/**
 	 * Конструктор
      * 
@@ -79,7 +79,7 @@ class Request_File
 		$this->error = $file['error'];
 		$this->extension = strtolower(substr(strrchr($this->name, '.'), 1));
 	}
-
+
 	/**
      * Были ли ошибки при загрузке
      * 
@@ -89,7 +89,7 @@ class Request_File
 	{
 		return $this->isUploaded() && $this->error != UPLOAD_ERR_OK;
 	}
-
+
 	/**
      * Загружен ли файл
      * 
@@ -99,7 +99,7 @@ class Request_File
 	{
 		return $this->error != UPLOAD_ERR_NO_FILE;
 	}
-
+
 	/**
 	 * Сохранить файл в $destination
      * 
@@ -111,7 +111,7 @@ class Request_File
 		$this->destination = $destination;
 		return copy($this->tmp_name, $destination);
 	}
-
+
 	/**
 	 * Сохранить файл с уникальным именем
      * 

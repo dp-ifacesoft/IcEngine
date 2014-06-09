@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Абстрактный класс опций модели.
  *
@@ -13,28 +13,28 @@ class Model_Option
 	 * @var Model_Collection
 	 */
 	public $collection;
-
+
 	/**
 	 * Название опции
      *
 	 * @var string
 	 */
 	public $name;
-
+
 	/**
 	 * Опции
      *
 	 * @var array
 	 */
 	public $params;
-
+
 	/**
 	 * Имя части запроса
 	 *
 	 * @var string
 	 */
 	protected $queryName;
-
+
 	/**
 	 * Запрос, выполняемый коллекцией
      *
@@ -44,7 +44,7 @@ class Model_Option
 	 * @var Query
 	 */
 	public $query;
-
+
 	/**
 	 * Создает и возвращает опцию
 	 */
@@ -57,15 +57,15 @@ class Model_Option
 		$this->collection = $collection;
 		$this->params = $params;
 	}
-
+
 	/**
 	 * Вызывается после выполения запроса.
 	 */
 	public function after()
 	{
-
+
 	}
-
+
 	/**
 	 * Вызывается перед выполнением запроса.
 	 */

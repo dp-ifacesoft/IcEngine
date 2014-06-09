@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Редер фронт контроллера
  * 
@@ -14,7 +14,7 @@ class View_Render_Front extends View_Render_Abstract
 		// Render for layout
 		'layoutRender'	=> 'Smarty'
 	);
-
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::addHelper()
@@ -23,7 +23,7 @@ class View_Render_Front extends View_Render_Abstract
 	{
         
 	}
-
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::display()
@@ -32,7 +32,7 @@ class View_Render_Front extends View_Render_Abstract
 	{
 		$this->fetch($tpl);
 	}
-
+
     /**
      * @inheritdoc
      */
@@ -40,7 +40,7 @@ class View_Render_Front extends View_Render_Abstract
 	{
 		throw new Exception('Front controller render cannot fetches templates');
 	}
-
+
 	/**
 	 * (non-PHPdoc)
 	 * @see View_Render_Abstract::fetch()
@@ -70,5 +70,5 @@ class View_Render_Front extends View_Render_Abstract
         $render->assign($vars);
 		$render->display($task->getTemplate());
 	}
-
+
 }

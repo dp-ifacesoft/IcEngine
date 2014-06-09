@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Smarty read include path plugin
  * 
@@ -7,7 +7,7 @@
  * @subpackage PluginsInternal
  * @author Monte Ohrt 
  */
-
+
 /**
  * Smarty Internal Read Include Path Class
  */
@@ -21,10 +21,10 @@ class Smarty_Internal_Get_Include_Path {
     public static function getIncludePath($filepath)
     {
     static $_path_array = null;
-
+
     if(!isset($_path_array)) {
         $_ini_include_path = ini_get('include_path');
-
+
         if(strstr($_ini_include_path,';')) {
             // windows pathnames
             $_path_array = explode(';',$_ini_include_path);
@@ -40,5 +40,5 @@ class Smarty_Internal_Get_Include_Path {
     return false;
     } 
 } 
-
+
 ?>

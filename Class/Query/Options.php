@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Опции запроса по умолчанию
  * 
@@ -13,21 +13,21 @@ class Query_Options extends Cache_Options
      * @var array
      */
 	private $tags;
-
+
 	/**
 	 * Запрос пуст?
      * 
 	 * @var boolean
 	 */
 	private $notEmpty;
-
+
 	/**
 	 * Опции для некэширвования
      * 
 	 * @var Query_Options
 	 */
 	private $nocache;
-
+
     /**
      * Конструктор
      */
@@ -36,7 +36,7 @@ class Query_Options extends Cache_Options
 		$this->tags = array ();
 		$this->notEmpty = false;
 	}
-
+
 	/**
 	 * Узнать пуст ли запрос
      * 
@@ -46,7 +46,7 @@ class Query_Options extends Cache_Options
 	{
 		return $this->notEmpty;
 	}
-
+
 	/**
      * Поулчить тэги запроса
      * 
@@ -56,7 +56,7 @@ class Query_Options extends Cache_Options
 	{
 		return $this->tags;
 	}
-
+
 	/**
 	 * Изменить тэги запроса
      * 
@@ -68,7 +68,7 @@ class Query_Options extends Cache_Options
 		$this->tags = (array)$tags;
 		return $this;
 	}
-
+
 	/**
 	 * Изменить флаг того, что запрос не пуст
      * 
@@ -78,7 +78,7 @@ class Query_Options extends Cache_Options
 	{
 		$this->notEmpty = !((bool) $empty);
 	}
-
+
 	/**
      * Получить новые пустые опции для некэширования
      * 

@@ -5,7 +5,7 @@
  * @package Smarty
  * @subpackage PluginsModifierCompiler
  */
-
+
 /**
  * Smarty default modifier plugin
  * 
@@ -29,5 +29,5 @@ function smarty_modifiercompiler_default ($params, $compiler)
     } 
     return $output;
 } 
-
+
 ?>

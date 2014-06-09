@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер хелперов представления
  *
@@ -14,7 +14,7 @@ class View_Helper_Manager
 	 * @var array <View_Helper_Abstract>
 	 */
 	protected $helpers;
-
+
 	/**
 	 * Возвращает результат работы хелпера.
 	 *

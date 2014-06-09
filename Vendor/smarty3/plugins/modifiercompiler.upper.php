@@ -5,7 +5,7 @@
  * @package Smarty
  * @subpackage PluginsModifierCompiler
  */
-
+
 /**
  * Smarty upper modifier plugin
  * 
@@ -26,5 +26,5 @@ function smarty_modifiercompiler_upper($params, $compiler)
         return 'strtoupper(' . $params[0] . ')';
     } 
 } 
-
+
 ?>

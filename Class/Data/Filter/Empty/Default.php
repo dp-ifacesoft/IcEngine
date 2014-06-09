@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Фильтр проверяет на пустоту данных
  *
@@ -14,7 +14,7 @@ class Data_Filter_Empty_Default extends Data_Filter_Abstract
 	{
 		return $data ? $data : '';
 	}
-
+
 	/**
 	 * @inheridoc
 	 */
