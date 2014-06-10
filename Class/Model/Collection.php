@@ -277,7 +277,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function count()
 	{
-		return count($this->items());
+        if (is_null($this->items)) {
+			$this->load();
+		}
+		return count($this->items);
 	}
 
 	/**
