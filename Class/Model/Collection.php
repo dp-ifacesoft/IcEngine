@@ -767,17 +767,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
         } elseif (!$this->items) {
             return array();
-        } else {
-            $items = array();
-            foreach ($this->items as $item) {
-                if (!isset($item[$keyField])) {
-                    $items[] = $item;
-                } else {
-                    $items[$item[$keyField]] = $item;
-                }
-            }
-            $this->items = $items;
-        }
+        } 
+//        хер знает зачем этот кастыль, но при повторном raw() индексы съезжают
+//        else {
+//            $items = array();
+//            foreach ($this->items as $item) {
+//                if (!isset($item[$keyField])) {
+//                    $items[] = $item;
+//                } else {
+//                    $items[$item[$keyField]] = $item;
+//                }
+//            }
+//            $this->items = $items;
+//        }
         foreach ($this->items as $key => $data) {
             $this->items[$key]['data'] = new ArrayIterator(
                 isset($data['data']) ? (array) $data['data'] : array()
