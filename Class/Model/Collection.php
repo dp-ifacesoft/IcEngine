@@ -541,7 +541,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if (is_null($this->items)) {
 			$this->load();
 		}
-		return $this->items;
+		return $this;
 	}
 
 	/**
