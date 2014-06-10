@@ -109,6 +109,20 @@ class Paginator
 		$this->total = $total;
 		$this->notGet = $notGet;
 	}
+    
+    /**
+	 * Возвращает новый экземпляр
+     *
+	 * @param integer $page Текущая страница
+	 * @param integer $page_limit Количество элементов на странице
+	 * @param integer $full_count Полное количество элементов
+	 * @param boolean $notGet ЧПУ стиль
+	 */
+    public function newInstance($page, $perPage = 30,
+        $total = 0, $notGet = false)
+    {
+        return new self($page, $perPage, $total, $notGet);
+    }
 
 	/**
 	 * Заполнение массива страниц со ссылками.
@@ -284,5 +298,15 @@ class Paginator
         $this->pageCount = ceil($this->total / $this->perPage);
         $this->nextPage = $this->page < $this->pageCount ? $this->page + 1 :
             $this->pageCount;
+	}
+    
+    /**
+	 * Установить число элементов на страницу
+	 *
+	 * @param int $value
+	 */
+	public function setPage($value)
+	{
+		$this->page = $value;
 	}
 }
