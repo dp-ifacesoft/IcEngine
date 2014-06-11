@@ -599,8 +599,7 @@ class Controller_Manager extends Manager_Abstract
      *        html ('Controller', array ('param'    => 'val'));
      *        html ('Controller/action')
      */
-    public function html($controllerAction, $args = array(),
-                         $options = true)
+    public function html($controllerAction, $args = array(), $options = true, $forceRесасhe = false, $expiration = null)
     {
         $controllerAction = explode('/', $controllerAction);
         if (!isset($controllerAction[1])) {
@@ -609,6 +608,15 @@ class Controller_Manager extends Manager_Abstract
         $cacheConfig = $this->getCacheConfig(
             $controllerAction[0], $controllerAction[1]
         );
+        if ($forceRесасhe) {
+            if (null === $cacheConfig) {
+                $cacheConfig = new Objective();
+            }
+            $cacheConfig->forceRecache = (bool) $forceRесасhe;
+            if (is_numeric($expiration)) {
+                $cacheConfig->expiration = $expiration;
+            }
+        }
         if (is_bool($options)) {
             $options = $this->createEmptyOptions($options);
         }
