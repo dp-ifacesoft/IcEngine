@@ -11,6 +11,7 @@ function smarty_function_Controller(array $params)
     $serviceLocator = IcEngine::serviceLocator();
     $controllerManager = $serviceLocator->getService('controllerManager');
     $controllerParams = $params;
+    unset($controllerParams['call']);
     if (isset($params['controllerParams'])) {
         $controllerParams = $params['controllerParams'];
     }

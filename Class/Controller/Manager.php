@@ -620,6 +620,7 @@ class Controller_Manager extends Manager_Abstract
         if (is_bool($options)) {
             $options = $this->createEmptyOptions($options);
         }
+        ksort($args);
         $html = $this->getService('executor')->execute(
             array($this, 'htmlUncached'),
             array($controllerAction, $args, $options),
