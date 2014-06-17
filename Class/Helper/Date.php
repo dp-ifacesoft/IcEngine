@@ -144,7 +144,7 @@ class Helper_Date
         if ($date >= 0) {
             list ($year, $month, $day) = explode('-', $date);
             $currentYear = date('Y');
-            $result = (int) $day .'&nbsp' .
+            $result = (int) $day . '&nbsp' .
                     Helper_Date::$monthesRu [2][(int) $month] .
                     ($year != $currentYear ? ' ' . $year : '');
 
@@ -373,8 +373,8 @@ class Helper_Date
                 $arr[$n] .= $str[$i];
             }
         }
-        for ($i = $n; $i <= 5; ++$i) {
-            $arr[$i] = (int) $arr[$i];
+        for ($i = $n + 1; $i < 6; ++$i) {
+            $arr[$i] = '00';
         }
         $str = implode('.', $arr);
         if (strlen($arr [0]) == 4) {
