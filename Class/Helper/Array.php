@@ -365,7 +365,7 @@ class Helper_Array extends Helper_Abstract
      * @param type $parentField
      * @return type
      */
-    public function sortArrayByParent($array, $parentField = 'parentId') 
+    public function sortArrayByParent($array, $parentField = 'parentId', $childrenName = 'children') 
     {
         $arrayReindexed = array();
         foreach ($array as $item) {
@@ -397,7 +397,7 @@ class Helper_Array extends Helper_Abstract
                 if (!$item[$parentField]) {
                     continue;
                 }
-                $arrayReindexed[$item[$parentField]]['children'][] = 
+                $arrayReindexed[$item[$parentField]][$childrenName][] = 
                     $arrayReindexed[$item['id']];
             }
         }
@@ -410,7 +410,50 @@ class Helper_Array extends Helper_Abstract
         }
         return $arrayResult;
     }
-
+    
+    /**
+     * Рекурсивный поиск узла в дереве
+     * @param array $tree дерево
+     * @param string $nodeName имя узла
+     * @return array узел
+     */
+    public function findNodeInTreeRecursive($tree, $nodeValue, $nodeName = 'id', $childrenName = 'children')
+    {
+        foreach ($tree as $node) {
+            if ($node[$nodeName] == $nodeValue) {
+                if (isset($node[$childrenName])) {
+                    return $node[$childrenName];
+                } else {
+                    return null;
+                }
+            } elseif (isset($node[$childrenName])) {
+                $neededNode = $this->findNodeInTreeRecursive($node[$childrenName], $nodeValue, $nodeName, $childrenName);
+                if ($neededNode) {
+                    return $neededNode;
+                }
+            }
+        }
+        return null;
+    }
+    
+    public function treeToFlatArray($tree, $childrenName = 'children') 
+    {
+        $noChilds = 0;
+        foreach($tree as $key => $node) {
+            if (isset($node[$childrenName])) {
+                
+                $nodeRemoved = $node[$childrenName];
+                unset($tree[$key][$node[$childrenName]]);
+                array_push($tree, $nodeRemoved); 
+                $noChilds =1;
+                $this->treeToFlatArray($tree);
+            } 
+        }
+        if($noChilds == 0) {
+            return $tree;
+        }
+    }
+    
     /**
      * Проверить ячейку на соответствие фильтру
      *
