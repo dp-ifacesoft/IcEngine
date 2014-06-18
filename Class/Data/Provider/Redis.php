@@ -463,13 +463,17 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::set()
 	 */
-	public function set ($key, $value, $expiration = 0, $tags = array ())
+	public function set ($key, $value, $expiration = null, $tags = array ())
 	{
 		if ($this->tracer)
 		{
 			$this->tracer->add ('set', $key, $value, $expiration);
 		}
 
+		if (is_null($expiration))
+		{
+			$expiration = $this->expiration;
+		}
 		if ($expiration < 0)
 		{
 			$expiration = 0;

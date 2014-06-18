@@ -22,6 +22,14 @@ class Data_Provider_Abstract
 	 */
 	public $tracer;
 
+    /**
+     * Время жизни данных по умолчанию.
+     * Применяются только положительные значения.
+     * 
+     * @var int
+     */
+    public $expiration = -1;
+
 	/**
 	 * @desc Префикс ключей.
 	 * @var string
@@ -82,6 +90,10 @@ class Data_Provider_Abstract
 		{
 			$this->prefix = $value;
 		}
+                elseif ($key == 'expiration')
+                {
+                    $this->expiration = $value;
+                }
 	}
 
 	public function _valDump ($value)

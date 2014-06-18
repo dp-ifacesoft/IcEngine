@@ -199,7 +199,21 @@ var Helper_Form = {
 							} else {
 								$(this).removeClass('errorRequired');
 							}
+						} else {
+							if ($(this).attr('id') &&
+								$('#' + $(this).attr('id') + '_tbl').length &&
+								$('#' + $(this).attr('id') + '_tbl').is(':visible')) {
+									if (Controller_TinyMce.getVal({'id': $(this).attr('id')}) == '') {
+										$('#' + $(this).attr('id') + '_tbl')
+											.addClass('errorRequired');
+										errorRequired = true;
+									} else {
+										$('#' + $(this).attr('id') + '_tbl')
+											.removeClass('errorRequired');
+									}
+								}
 						}
+
 					}
 				}
 				if (this.tagName.toLowerCase() == 'select') {
