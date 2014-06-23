@@ -277,7 +277,10 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 	 */
 	public function count()
 	{
-		return count($this->items());
+        if (is_null($this->items)) {
+			$this->load();
+		}
+		return count($this->items);
 	}
 
 	/**
@@ -445,10 +448,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         if (!is_array($this->items)) {
             $this->load();
         }
-        if ($this->isRaw) {
-            return new Model_Collection_Iterator_Array($this);
-        }
-        return new ArrayIterator($this->items);
+        return new Model_Collection_Iterator_Array($this);
 	}
 
 	/**
@@ -544,7 +544,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		if (is_null($this->items)) {
 			$this->load();
 		}
-		return $this->items;
+		return $this;
 	}
 
 	/**
@@ -770,17 +770,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             }
         } elseif (!$this->items) {
             return array();
-        } else {
-            $items = array();
-            foreach ($this->items as $item) {
-                if (!isset($item[$keyField])) {
-                    $items[] = $item;
-                } else {
-                    $items[$item[$keyField]] = $item;
-                }
-            }
-            $this->items = $items;
-        }
+        } 
+//        хер знает зачем этот кастыль, но при повторном raw() индексы съезжают
+//        else {
+//            $items = array();
+//            foreach ($this->items as $item) {
+//                if (!isset($item[$keyField])) {
+//                    $items[] = $item;
+//                } else {
+//                    $items[$item[$keyField]] = $item;
+//                }
+//            }
+//            $this->items = $items;
+//        }
         foreach ($this->items as $key => $data) {
             $this->items[$key]['data'] = new ArrayIterator(
                 isset($data['data']) ? (array) $data['data'] : array()
