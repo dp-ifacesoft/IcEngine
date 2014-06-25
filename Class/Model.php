@@ -959,4 +959,20 @@ abstract class Model implements ArrayAccess
             ->getService('collectionManager')
             ->create(get_called_class());
     }
+    
+    /**
+     * дублирование модели
+     * @param @data
+     */
+    public function duplicate($data = NULL)
+    {
+        $modelManager = $this->getService('modelManager');
+        $table = $this->table();
+        $currentData = $this->asRow();
+        
+        $currentData[$this->keyField()] = NULL;
+        $newModel = $modelManager->create($table, $currentData);
+        $newModel->set($data);
+        return $newModel;
+    }
 }

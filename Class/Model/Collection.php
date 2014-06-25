@@ -84,12 +84,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      */
     protected $query;
 
-    /**и
+    /**
      * Результат последнего выполненного запроса
      *
      * @var Query_Result
      */
     protected $queryResult;
+
+    /**
+     * Опции выполнения запроса для драйвера
+     *
+     * @var Query_Options
+     */
+    protected $queryOptions;
 
     /**
      * Включенные для raw-запроса поля
@@ -181,7 +188,29 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     {
         $this->data($source->data());
         $this->setItems($source->items());
-        return $this;
+		return $this;
+    }
+
+    /**
+     * Возращает запрос незагруженной коллекции
+     * @return Query
+     */
+    public function getQuery()
+    {
+        if (!$this->query) {
+            $this->beforeLoad();
+        }
+        return $this->query();
+    }
+
+    /**
+     * Возвращает результат выполненного запроса и сам запрос с дополнительными 
+     * парамаетрами запроса
+     * @return \Query_Result
+     */
+    public function getQueryResult()
+    {
+        return $this->queryResult;
     }
 
     /**
@@ -439,6 +468,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $this->paginator;
     }
 
+    /**
+     * Получить опции выполнения запроса датасорсом.
+     *
+     * @return Query_Options|null
+     */
+    public function getQueryOptions()
+    {
+        return $this->queryOptions;
+    }
+    
     /**
      * Получить сервис
      *
@@ -924,6 +963,21 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
+     * Установить опцию "время кэширования" для выполнения запроса датасорсом.
+     *
+     * @param  int $expiration
+     * @return Model_Collection Эта коллекция
+     */
+    public function setExpiration($expiration)
+    {
+        if (!$this->queryOptions instanceof Query_Options) {
+            $this->queryOptions = new Query_Options();
+        }
+        $this->queryOptions->setExpiration($expiration);
+        return $this;
+    }
+    
+    /**
      * Изменить помощник коллекции моделей
      *
      * @param Helper_Model_Collection $helper
@@ -995,6 +1049,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         $this->query = $query;
     }
 
+    /**
+     * Установить опции выполнения запроса датасорсом.
+     *
+     * @param  Query_Options $queryOptions
+     * @return Model_Collection Эта коллекция
+     */
+    public function setQueryOptions($queryOptions)
+    {
+        $this->queryOptions = $queryOptions;
+        return $this;
+    }
+    
     /**
      * Изменить локатор сервисов
      *

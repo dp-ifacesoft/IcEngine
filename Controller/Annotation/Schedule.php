@@ -83,7 +83,8 @@ class Controller_Annotation_Schedule extends Controller_Abstract
                     array(
                         'deltaSec'  => $item['deltaSec'],
                         'lastTs'    => $item['lastTs'],
-                        'lastDate'  => $item['lastDate']
+                        'lastDate'  => $item['lastDate'],
+                        'inProcess' => $item['inProcess']
                     )
                 );
             }

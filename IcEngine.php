@@ -227,6 +227,7 @@ class IcEngine
     {
         return self::$frontTemplate;
     }
+
     /**
      * Получить имя сервиса менеджера для локатора сервисов
      *

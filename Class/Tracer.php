@@ -415,7 +415,9 @@ class Tracer
             self::$allQueryVector[] = $query;
         } else {
             /** @see Data_Driver_Mysqli_Cached::sqlHash() */
-            self::$allQueryVector[] = self::$hashQuery ? md5(serialize($query->getParts())) : $query->translate('Mysql');
+            self::$allQueryVector[] = self::$hashQuery ? 
+                    md5(serialize($query->getParts())) :
+                    'HASH:' . md5(serialize($query->getParts())) . ' ' . $query->translate('Mysql');
         }
     }
     
