@@ -8,7 +8,7 @@
 class Controller_Schedule extends Controller_Abstract
 {
     protected $config = array(
-        'processLimit'  => 1
+        'processLimit'  => 3
     );
     
     /**
