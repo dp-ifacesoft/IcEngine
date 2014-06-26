@@ -38,6 +38,9 @@ class Controller_Schedule extends Controller_Abstract
             return false;
         }
         foreach ($schedules as $schedule) {
+            if ($inProcessCount >= $config->processLimit) {
+                break;
+            }
             if ($schedule['inProcess']) {
                 continue;
             }
@@ -53,6 +56,7 @@ class Controller_Schedule extends Controller_Abstract
                     );
                 $currentTs = (new DateTime($lastDate))->getTimestamp();
             }
+            $inProcessCount ++;
             $schedule->update(array(
                 'lastTs'    => $currentTs,
                 'lastDate'  => $lastDate,
