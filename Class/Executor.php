@@ -71,6 +71,7 @@ class Executor extends Manager_Abstract
      */
     protected function getCacheKey($function, array $args)
     {
+        ksort($args);
         $key = $this->getFunctionName($function) . self::DELIM;
         if ($args) {
             $key .= md5(json_encode($args));
