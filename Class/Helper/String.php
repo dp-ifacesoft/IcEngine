@@ -157,9 +157,9 @@ class Helper_String
     
     /**
      * Удаляет дублирующиеся пробелы
-     * @param type $text
-     * @param type $value
-     * @return type
+     * @param string $text исходный
+     * @param string $value чем заменить двойные пробелы
+     * @return sting итоговый текст
      */
     public function removeMultiWhiteSpace($text, $value=' ') 
     {
