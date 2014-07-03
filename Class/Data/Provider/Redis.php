@@ -143,9 +143,11 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             Tracer::incRedisGetDelta();
             Tracer::incRedisGetTime($endTime - $startTime);
         }
-
-        $value = $this->valueDecode($result);
-
+        if (!$plain) {
+            $value = $this->valueDecode($result);
+        } else {
+            $value = $result;
+        }
         return $value;
 
     }
@@ -221,7 +223,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * Атомарная операция.
      *
      * @param string $key Ключ
-     * @param mixed $vslue Данные
+     * @param mixed $value Данные
      * @return string|null Текущее значение ключа
      */
     public function getSet($key, $value)
