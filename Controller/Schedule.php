@@ -8,7 +8,7 @@
 class Controller_Schedule extends Controller_Abstract
 {
     protected $config = array(
-        'processLimit'  => 1
+        'processLimit'  => 3
     );
     
     /**
@@ -22,10 +22,16 @@ class Controller_Schedule extends Controller_Abstract
     {
         $config = $this->config();
         $schedules = $context->collectionManager->create('Schedule')
-            ->addOptions(array(
-                'name'  => '::Order_Desc',
-                'field' => 'priority'
-            ));
+            ->addOptions(
+                array(
+                    'name'  => '::Order_Desc',
+                    'field' => 'priority'
+                ),
+                array(
+                    'name'  => '::Order_Asc',
+                    'field' => 'lastDate'
+                )
+            );
         $currentTs = time();
         $helperDate = $this->getService('helperDate');
         $inProcessCount = 0;
@@ -38,6 +44,9 @@ class Controller_Schedule extends Controller_Abstract
             return false;
         }
         foreach ($schedules as $schedule) {
+            if ($inProcessCount >= $config->processLimit) {
+                break;
+            }
             if ($schedule['inProcess']) {
                 continue;
             }
@@ -53,6 +62,7 @@ class Controller_Schedule extends Controller_Abstract
                     );
                 $currentTs = (new DateTime($lastDate))->getTimestamp();
             }
+            $inProcessCount ++;
             $schedule->update(array(
                 'lastTs'    => $currentTs,
                 'lastDate'  => $lastDate,
