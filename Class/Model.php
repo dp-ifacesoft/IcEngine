@@ -939,7 +939,7 @@ abstract class Model implements ArrayAccess
     /**
      * Обертка для получения модели по ключу
      *
-     * @param $key
+     * @param $key айди
      * @return Model
      */
     public static function getModel($key)
