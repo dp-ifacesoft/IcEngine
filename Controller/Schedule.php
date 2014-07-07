@@ -22,10 +22,16 @@ class Controller_Schedule extends Controller_Abstract
     {
         $config = $this->config();
         $schedules = $context->collectionManager->create('Schedule')
-            ->addOptions(array(
-                'name'  => '::Order_Desc',
-                'field' => 'priority'
-            ));
+            ->addOptions(
+                array(
+                    'name'  => '::Order_Desc',
+                    'field' => 'priority'
+                ),
+                array(
+                    'name'  => '::Order_Desc',
+                    'field' => 'lastDate'
+                )
+            );
         $currentTs = time();
         $helperDate = $this->getService('helperDate');
         $inProcessCount = 0;
