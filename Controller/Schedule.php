@@ -28,7 +28,7 @@ class Controller_Schedule extends Controller_Abstract
                     'field' => 'priority'
                 ),
                 array(
-                    'name'  => '::Order_Desc',
+                    'name'  => '::Order_Asc',
                     'field' => 'lastDate'
                 )
             );
