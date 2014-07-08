@@ -3,7 +3,7 @@
 /**
  * Получить все связи модели
  * 
- * @author morph
+ * @author morph, apostle
  */
 class Link_Option_From extends Model_Option
 {
@@ -12,9 +12,12 @@ class Link_Option_From extends Model_Option
      */
     public function before()
     {
-        $this->query
-            ->where('Link.fromTable=?', $this->params['table'])
-            ->where('Link.fromRowId=?', $this->params['rowId']);
+        if(isset($this->params['table'])) {
+            $this->query->where('Link.fromTable=?', $this->params['table']);
+        }
+        if(isset($this->params['rowId'])) {
+            $this->query->where('Link.fromRowId=?', $this->params['rowId']);
+        }
     }
 
 }

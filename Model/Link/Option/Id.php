@@ -3,7 +3,7 @@
 /**
  * Для выбора Id линка
  * 
- * @author goorus, morph
+ * @author goorus, apostle
  */
 class Link_Option_Id extends Model_Option
 {
@@ -14,8 +14,8 @@ class Link_Option_Id extends Model_Option
 	{
 		$this->query
 			->where('toTable=?', $this->params['toTable'])
-			->where('toTableId=?', $this->params['toTableId'])
+			->where('toRowId=?', $this->params['toTableId'])
 			->where('fromTable=?', $this->params['fromTable'])
-			->where('fromTableId=?', $this->params['fromTableId']);
+			->where('fromRowId=?', $this->params['fromTableId']);
 	}
 }
