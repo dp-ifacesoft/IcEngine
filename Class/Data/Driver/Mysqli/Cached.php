@@ -266,7 +266,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             $endTime = microtime(true);
             $delta = $endTime - $startTime;
             if ($delta >= Tracer::LOW_QUERY_TIME) {
-                Tracer::addLowQuery($this->sql, $delta);
+                Tracer::addLowQuery($query, $delta);
             } else {
                 Tracer::incSelectQueryTime($delta);
             }
