@@ -271,7 +271,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
                 Tracer::incSelectQueryTime($delta);
             }
             Tracer::end(
-                    $this->sql, $this->numRows, memory_get_usage()
+                    $key . ' ' . $this->sql, $this->numRows, memory_get_usage()
             );
             Tracer::incDeltaQueryCount();
         }
