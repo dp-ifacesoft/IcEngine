@@ -1,6 +1,6 @@
-<?php
-
-class Acl_Resource_Type extends Model
-{
-    
+<?php
+
+class Acl_Resource_Type extends Model
+{
+    
 }

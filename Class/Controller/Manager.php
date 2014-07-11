@@ -702,16 +702,14 @@ class Controller_Manager extends Manager_Abstract
      */
     public function logError($e)
     {
-        $msg = 'url: ' . $_SERVER['REQUEST_URI'] . "\n" .
-            '[' . $e->getFile() . '@' .
+        $referer = isset($_SERVER['HTTP_REFERER']) ? '<i>referer: ' . $_SERVER['HTTP_REFERER'] . "</i>\n" : '';
+        $msg = '<i>url: ' . $_SERVER['REQUEST_URI'] . "</i>\n" .
+            $referer .
+            '<b style="color: red;">[' . $e->getFile() . '@' .
             $e->getLine() . ':' .
             $e->getCode() . '] ' .
-            $e->getMessage() . "\n" .
-            $e->getTraceAsString();
-        trigger_error(
-            $msg . PHP_EOL .
-            E_USER_ERROR, 3
-        );
+            $e->getMessage() . "</b>\n" .
+            $e->getTraceAsString() . "\n\n";
         $this->getService('debug')->log($msg);
     }
 

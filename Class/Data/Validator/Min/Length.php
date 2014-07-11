@@ -10,8 +10,8 @@ class Data_Validator_Min_Length extends Data_Validator_Abstract
     /**
      * @inheritdoc
      */
-	public function validate($data, $value)
+	public function validate($data, $value = null)
 	{
-		return is_string($data) && strlen($data) >= $value;
+        return is_string($data) && strlen($data) >= $value;
 	}
 }
