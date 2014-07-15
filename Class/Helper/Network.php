@@ -54,6 +54,43 @@ class Helper_Network
     }
     
     /**
+     * Выполнить get-запрос с отправкой HTTP-заголовков через curl
+     * 
+     * @param string $url
+     * @return array
+     */
+    public function getWithHeaders($url, $header, $userAgent = null, $cookieDir = null)
+    {
+        $userAgent = $userAgent ?: self::DEFAULT_USER_AGENT;
+        $cookieDir = $cookieDir ?: self::DEFAULT_COOKIE_DIR;
+        $handler = curl_init($url);
+        curl_setopt($handler, CURLOPT_URL, $url);
+        curl_setopt($handler, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($handler, CURLOPT_HEADER, 1);
+        curl_setopt($handler, CURLINFO_HEADER_OUT, 1);
+        curl_setopt($handler, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($handler, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($handler, CURLOPT_ENCODING, '');
+        curl_setopt($handler, CURLOPT_USERAGENT, $userAgent);
+        curl_setopt($handler, CURLOPT_TIMEOUT, 120);
+        curl_setopt($handler, CURLOPT_FAILONERROR, 1);
+        curl_setopt($handler, CURLOPT_AUTOREFERER, 1);
+        curl_setopt($handler, CURLOPT_COOKIEJAR, $cookieDir);
+        curl_setopt($handler, CURLOPT_COOKIEFILE, $cookieDir);
+        $content = curl_exec($handler);
+        $error = curl_errno($handler);
+        $errorMessage = curl_error($handler);
+        $headers = curl_getinfo($handler);
+        curl_close($handler);
+        return array(
+            'content'   => $content,
+            'error'     => $error,
+            'message'   => $errorMessage,
+            'headers'   => $headers
+        );
+    }
+    
+    /**
      * Выполнить post-запрос через curl
      * 
      * @param string $url
@@ -69,6 +106,43 @@ class Helper_Network
         curl_setopt($handler, CURLOPT_POST, 1);
         curl_setopt($handler, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($handler, CURLOPT_HEADER, 0);
+        curl_setopt($handler, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($handler, CURLOPT_ENCODING, '');
+        curl_setopt($handler, CURLOPT_USERAGENT, $userAgent);
+        curl_setopt($handler, CURLOPT_TIMEOUT, 120);
+        curl_setopt($handler, CURLOPT_FAILONERROR, 1);
+        curl_setopt($handler, CURLOPT_AUTOREFERER, 1);
+        curl_setopt($handler, CURLOPT_COOKIEJAR, $cookieDir);
+        curl_setopt($handler, CURLOPT_COOKIEFILE, $cookieDir);
+        $content = curl_exec($handler);
+        $error = curl_errno($handler);
+        $errorMessage = curl_error($handler);
+        $headers = curl_getinfo($handler);
+        curl_close($handler);
+        return array(
+            'content'   => $content,
+            'error'     => $error,
+            'message'   => $errorMessage,
+            'headers'   => $headers
+        );
+    }
+    
+    /**
+     * 
+     */
+    public function postWithHeaders($url, $header, $params, $userAgent = null, 
+        $cookieDir = null)
+    {
+        $userAgent = $userAgent ?: self::DEFAULT_USER_AGENT;
+        $cookieDir = $cookieDir ?: self::DEFAULT_COOKIE_DIR;
+        $handler = curl_init($url);
+        curl_setopt($handler, CURLOPT_URL, $url);
+        curl_setopt($handler, CURLOPT_POSTFIELDS, $params);
+        curl_setopt($handler, CURLOPT_POST, 1);
+        curl_setopt($handler, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($handler, CURLOPT_HEADER, 1);
+        curl_setopt($handler, CURLINFO_HEADER_OUT, 1);
+        curl_setopt($handler, CURLOPT_HTTPHEADER, $header);
         curl_setopt($handler, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($handler, CURLOPT_ENCODING, '');
         curl_setopt($handler, CURLOPT_USERAGENT, $userAgent);
