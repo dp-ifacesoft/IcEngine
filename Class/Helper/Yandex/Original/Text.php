@@ -8,11 +8,21 @@
  */
 class Helper_Yandex_Original_Text extends Service_Abstract
 {
-    protected $config = array(
-        'accessToken'  => '29b2cd9d036248c18ef7d066d56f57ad'
-    );
     /**
-     * 
+     * Токен доступа. Чтобы получить новый токен, необходимо перейти по ссылке
+     * https://oauth.yandex.ru/authorize?response_type=token&client_id=acec723f3b504fb4a91a60c75546e14a
+     * и подвердить разрешение приложению осуществлять доступ к данным.
+     * В ответе получим #access_token
+     */
+    protected $config = array(
+        'accessToken'  => '94f2d09a73e042f280fae50d9df83372'
+    );
+    
+    /**
+     * Отправка оригинального текста
+     * @param string $text оригинальный текст
+     * @param string $domain адрес сайта, на котором публикуется текст
+     * @return array ответ сервера яндекс
      */
     public function sendOriginalText($text, $domain)
     {
