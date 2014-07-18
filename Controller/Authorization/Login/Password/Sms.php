@@ -193,14 +193,15 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
         if ($count >= $config->sms_send_limit_10m && $deltaTime < 600) {
             return $this->sendError('smsLimit');
         }
-        $authozization = $modelManager->byOptions(
+        $authorization = $modelManager->byOptions(
             'Authorization',
             array(
                 'name'  => '::Name',
                 'value' => 'Login_Password_Sms'
             )
         );
-		$activation = $authozization->sendActivationSms(array(
+
+		$activation = $authorization->sendActivationSms(array(
 			'login'		=> $name,
 			'password'	=> $pass,
 			'phone'		=> $user->phone,
@@ -208,6 +209,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 			'provider'	=> $provider,
 			'send'		=> $send
 		));
+
 		if (!is_object($activation)) {
 			return $this->sendError(
 				'send activation code fail (' . (string) $activation . ')',

@@ -84,22 +84,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      */
     protected $query;
 
-    /**и
+    /**
      * Результат последнего выполненного запроса
      *
-	 * @var Query_Result
-	 */
-	protected $queryResult;
+     * @var Query_Result
+     */
+    protected $queryResult;
 
     /**
-     * Возвращает результат выполненного запроса и сам запрос с дополнительными 
-     * парамаетрами запроса
-     * @return \Query_Result
+     * Опции выполнения запроса для драйвера
+     *
+     * @var Query_Options
      */
-    public function getQueryResult()
-    {
-        return $this->queryResult;
-    }
+    protected $queryOptions;
 
     /**
      * Включенные для raw-запроса поля
@@ -192,7 +189,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         $this->data($source->data());
         $this->setItems($source->items());
 		return $this;
-	}
+    }
 
     /**
      * Возращает запрос незагруженной коллекции
@@ -204,6 +201,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             $this->beforeLoad();
         }
         return $this->query();
+    }
+
+    /**
+     * Возвращает результат выполненного запроса и сам запрос с дополнительными 
+     * парамаетрами запроса
+     * @return \Query_Result
+     */
+    public function getQueryResult()
+    {
+        return $this->queryResult;
     }
 
     /**
@@ -461,6 +468,16 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $this->paginator;
     }
 
+    /**
+     * Получить опции выполнения запроса датасорсом.
+     *
+     * @return Query_Options|null
+     */
+    public function getQueryOptions()
+    {
+        return $this->queryOptions;
+    }
+    
     /**
      * Получить сервис
      *
@@ -736,7 +753,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      * @param string $index
      * @return array
      */
-    public function raw($columns = array(), $index = null)
+    public function raw($columns = array(), $index = null, $addictMode = true)
     {
         $helperArray = $this->getService('helperArray');
         $keyField = $this->keyField();
@@ -820,6 +837,7 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
                 $result[$row] = array($columnName => $row);
             }
         }
+
         foreach ($this->items as $item) {
             if (!is_array($this->items) || !isset($item['data'])) {
                 continue;
@@ -836,40 +854,51 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
             $result[$item[$keyField]]['data'] = array_merge(
                 (array)$result[$item[$keyField]]['data'], $data
             );
-        }
 
-        if ($this->rawFields) {
-            foreach ($this->items as $item) {
-                $subColumns = $helperArray->column(
-                    $item, (array)$this->rawFields
-                );
-                if (empty($subColumns)) {
-                    continue;
-                }
-                if (!isset($result[$item[$keyField]])) {
-                    $result[$item[$keyField]] = array();
-                }
-
-                foreach ($this->rawFields as $i => $fieldName) {
-                    $result[$item[$keyField]][$fieldName] = null;
-
-                    if (!empty($subColumns[0])) {
-                        $result[$item[$keyField]][$fieldName] = isset($item[$fieldName])
-                        ? $item[$fieldName]
-                        : $item['data'][$fieldName];
-                    } else {
-                        $result[$item[$keyField]][$fieldName] = isset($item['data'][$fieldName])
-                        ? $item['data'][$fieldName]
-                            :$subColumns[0];
-                    }
-                  }
+            if (array_key_exists('data', $result[$item[$keyField]]) && empty($result[$item[$keyField]]['data'])) {
+                unset($result[$item[$keyField]]['data']);
             }
-            $this->rawFields = array();
         }
+
+        /* Наркоманы херовы */
+        if ($addictMode) {
+            if ($this->rawFields) {
+                foreach ($this->items as $item) {
+                    $subColumns = $helperArray->column($item, (array)$this->rawFields);
+                    if (empty($subColumns)) {
+                        continue;
+                    }
+                    if (!isset($result[$item[$keyField]])) {
+                        $result[$item[$keyField]] = array();
+                    }
+
+                    foreach ($this->rawFields as $fieldName) {
+                        $result[$item[$keyField]][$fieldName] = null;
+
+                        if (!empty($subColumns[0])) {
+                            $result[$item[$keyField]][$fieldName] = isset($item[$fieldName])
+                                ? $item[$fieldName]
+                                : (isset($item['data'][$fieldName])
+                                    ? $item['data'][$fieldName]
+                                    : null);
+                        } else {
+                            $result[$item[$keyField]][$fieldName] = isset($item['data'][$fieldName])
+                                ? $item['data'][$fieldName]
+                                : $subColumns[0];
+                        }
+                    }
+                }
+                $this->rawFields = array();
+            }
+        } else {
+            $result = $this->items;
+        }
+
         $readyResult = array_values((array)$result);
         if ($index) {
             $readyResult = $helperArray->reindex($readyResult, $index);
         }
+
         return $readyResult;
     }
 
@@ -933,6 +962,21 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $this;
     }
 
+    /**
+     * Установить опцию "время кэширования" для выполнения запроса датасорсом.
+     *
+     * @param  int $expiration
+     * @return Model_Collection Эта коллекция
+     */
+    public function setExpiration($expiration)
+    {
+        if (!$this->queryOptions instanceof Query_Options) {
+            $this->queryOptions = new Query_Options();
+        }
+        $this->queryOptions->setExpiration($expiration);
+        return $this;
+    }
+    
     /**
      * Изменить помощник коллекции моделей
      *
@@ -1005,6 +1049,18 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         $this->query = $query;
     }
 
+    /**
+     * Установить опции выполнения запроса датасорсом.
+     *
+     * @param  Query_Options $queryOptions
+     * @return Model_Collection Эта коллекция
+     */
+    public function setQueryOptions($queryOptions)
+    {
+        $this->queryOptions = $queryOptions;
+        return $this;
+    }
+    
     /**
      * Изменить локатор сервисов
      *
@@ -1129,17 +1185,31 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         }
         $unitOfWork->flush();
     }
-    
+
     /**
      * Обновляет как модели, чтобы вызывались Event Slot'ы
      * @param array $data данные для апдейта
      */
-    public function updateAsModel(array $data) {
+    public function updateAsModel(array $data)
+    {
         $modelCollection = $this->items();
-        foreach($modelCollection as $model){
+        foreach ($modelCollection as $model) {
             if (isset($model) && $model instanceof Model) {
                 $model->update($data);
             }
         }
+    }
+
+    /**
+     * Антидот для отравленой коллекции
+     */
+    public function rawAntidote()
+    {
+        array_walk($this->items, function (&$item, $key) {
+            if (is_array($item)) {
+                $item = IcEngine::modelManager()->create($this->modelName(), $item);
+            }
+        });
+        $this->isRaw(false);
     }
 }

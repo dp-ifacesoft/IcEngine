@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер транспортов данных
  *
@@ -46,14 +46,14 @@ class Data_Transport_Manager extends Manager_Abstract
 			'defaultOutput'	=> array()
 		)
 	);
-
+
 	/**
 	 * Инициализированные транспорты.
 	 *
      * @var array
 	 */
 	protected $transports = array();
-
+
 	/**
 	 * Получить конфигурация транспорта
      *
@@ -69,7 +69,7 @@ class Data_Transport_Manager extends Manager_Abstract
 		}
 		return $transportConfig;
 	}
-
+
 	/**
 	 * Получить транспорт по имени
      *
@@ -101,7 +101,7 @@ class Data_Transport_Manager extends Manager_Abstract
         $this->transorts[$name] = $transport;
 		return $transport;
 	}
-
+
     /**
      * Изменить транспорт по имени
      *

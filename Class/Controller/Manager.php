@@ -592,15 +592,14 @@ class Controller_Manager extends Manager_Abstract
      * @param string $controllerAction Название контроллера или контроллер и
      * экшен в формате "Controller/action".
      * @param array $args Параметры контроллера.
-     * @param mixed $options=true Параметры вызова.
+     * @param mixed $options =true Параметры вызова.
      * @return string Результат компиляции шабона.
      * @todo Это будет в Controller_Render
      * @tutorial
      *        html ('Controller', array ('param'    => 'val'));
      *        html ('Controller/action')
      */
-    public function html($controllerAction, $args = array(),
-                         $options = true)
+    public function html($controllerAction, $args = array(), $options = true, $forceRесасhe = false, $expiration = null)
     {
         $controllerAction = explode('/', $controllerAction);
         if (!isset($controllerAction[1])) {
@@ -609,6 +608,15 @@ class Controller_Manager extends Manager_Abstract
         $cacheConfig = $this->getCacheConfig(
             $controllerAction[0], $controllerAction[1]
         );
+        if ($forceRесасhe) {
+            if (null === $cacheConfig) {
+                $cacheConfig = new Objective();
+            }
+            $cacheConfig->forceRecache = (bool) $forceRесасhe;
+            if (is_numeric($expiration)) {
+                $cacheConfig->expiration = $expiration;
+            }
+        }
         if (is_bool($options)) {
             $options = $this->createEmptyOptions($options);
         }
@@ -626,7 +634,7 @@ class Controller_Manager extends Manager_Abstract
      *
      * @param $controllerAction
      * @param array $args Параметры контроллера.
-     * @param mixed $options=true Параметры вызова.
+     * @param mixed $options =true Параметры вызова.
      * @internal param string $action Название контроллера или контроллер и экшен
      * в формате "Controller/action".
      * @return string Результат компиляции шабона.
@@ -764,6 +772,7 @@ class Controller_Manager extends Manager_Abstract
      * Запустить задание на выполнение
      *
      * @param Controller_Task $task
+     * @throws ErrorException
      * @return Controller_Task
      */
     public function run($task)
@@ -772,12 +781,18 @@ class Controller_Manager extends Manager_Abstract
         $parentTask = $this->currentTask;
         $this->currentTask = $task;
         $action = $task->controllerAction();
-        $task = $this->call(
-            $action['controller'],
-            $action['action'],
-            $task->getInput(),
-            $task
-        );
+        try {
+            $task = $this->call(
+                $action['controller'],
+                $action['action'],
+                $task->getInput(),
+                $task
+            );
+        } catch (Exception $e) {
+            throw new ErrorException('Не удалось вызвать экшин "' .
+                $action['controller'] . '/' . $action['action'] . '"',
+                0, 1, __FILE__, __LINE__, $e);
+        }
         $this->currentTask = $parentTask;
         return $task;
     }

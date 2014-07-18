@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Фильтр преобразования данных к integer
  * Тоже что и Filter_Integer
@@ -15,7 +15,7 @@ class Data_Filter_Numeric extends Data_Filter_Abstract
 	{
 		return (int) $data;
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */

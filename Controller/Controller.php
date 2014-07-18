@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Контроллер контроллеров.
  *
@@ -48,7 +48,7 @@ class Controller_Controller extends Controller_Abstract
 			'result'	=> $result
 		));
 	}
-
+
 	/**
 	 * Вызов экшена контроллера по названию из входных параметров
 	 */
@@ -56,7 +56,7 @@ class Controller_Controller extends Controller_Abstract
 	{
 		$this->replaceAction($controller, $action);
 	}
-
+
     /**
 	 * Ajax вызов контроллера (синхронный)
      *

@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер алгоритмов шифрования.
  * 
@@ -14,14 +14,14 @@ class Crypt_Manager extends Manager_Abstract
      * @var string
 	 */
 	const PROFILE_DELIMETER = '://';
-
+
 	/**
 	 * Загруженные алгоритмы шифрования.
 	 * 
      * @var array
 	 */
 	protected $crypts = array();
-
+
 	/**
 	 * Автодекодирование строки.
 	 * 
@@ -41,7 +41,7 @@ class Crypt_Manager extends Manager_Abstract
 		}
 		return $input;
 	}
-
+
 	/**
 	 * Дешифрование указанными методом.
 	 * 
@@ -54,7 +54,7 @@ class Crypt_Manager extends Manager_Abstract
 	{
 		return $this->get($crypt)->decode($input, $key);
 	}
-
+
 	/**
 	 * Шифрование указанным методом.
 	 * 
@@ -67,7 +67,7 @@ class Crypt_Manager extends Manager_Abstract
 	{
 		return $this->get($crypt)->encode($input, $key);
 	}
-
+
 	/**
 	 * Возвращает экземпляр класс, реализующего алгоритм шифрования.
 	 * 
@@ -83,7 +83,7 @@ class Crypt_Manager extends Manager_Abstract
 		}
 		return $this->crypts[$name];
 	}
-
+
 	/**
 	 * Проверяет соответсвует ли строка заданному значению
 	 * 

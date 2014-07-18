@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Абстрактный класс рендера.
  * 
@@ -20,22 +20,22 @@ abstract class View_Render_Abstract
      * @var array <string>
 	 */
 	protected $templatesPathes = array();
-
-
+
+
 	/**
 	 * Переменные шаблонизатора.
 	 * 
      * @var array
 	 */
 	protected $vars = array();
-
+
 	/**
 	 * Стек переменных.
 	 * 
      * @var array
 	 */
 	protected $varsStack = array();
-
+
 	/**
 	 * Добавление хелпера
 	 * 
@@ -44,9 +44,9 @@ abstract class View_Render_Abstract
 	 */
 	public function addHelper($helper, $method)
 	{
-
+
 	}
-
+
 	/**
 	 * Добавление пути до директории с шаблонами
 	 * 
@@ -57,7 +57,7 @@ abstract class View_Render_Abstract
 		$dir = rtrim($path, '/');
 		$this->templatesPathes[] = $dir . '/';
 	}
-
+
 	/**
 	 * Устанавливает значение переменной в шаблоне
 	 * 
@@ -91,15 +91,15 @@ abstract class View_Render_Abstract
 		}
 		return $this->config;
 	}
-
-
+
+
 	/**
 	 * Выводит результат работы шаблонизатор в браузер.
 	 * 
      * @param string $tpl
 	 */
 	abstract public function display($tpl);
-
+
 	/**
 	 * Обрабатывает шаблон и возвращает результат.
 	 * 
@@ -107,7 +107,7 @@ abstract class View_Render_Abstract
 	 * @return mixed Результат работы шаблонизатора.
 	 */
 	abstract public function fetch($tpl);
-
+
     /**
      * Получить сервис по имени
      * 
@@ -128,7 +128,7 @@ abstract class View_Render_Abstract
 	{
 		return $this->templatesPathes;
 	}
-
+
 	/**
 	 * Возвращает значение переменной шаблонизатора.
 	 * 
@@ -139,7 +139,7 @@ abstract class View_Render_Abstract
 	{
 		return $this->vars[$key];
 	}
-
+
 	/**
 	 * Восстанавливает значения переменных шаблонизатора
 	 */
@@ -147,7 +147,7 @@ abstract class View_Render_Abstract
 	{
 		$this->vars = array_pop($this->varsStack);
 	}
-
+
 	/**
 	 * Сохраняет текущие значения переменных шаблонизатора и очищает их.
 	 */
@@ -156,7 +156,7 @@ abstract class View_Render_Abstract
 		$this->varsStack[] = $this->vars;
 		$this->vars = array();
 	}
-
+
 	/**
 	 * Обработка шаблонов из стека.
 	 * 

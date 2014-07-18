@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Регистр глобальных переменных
  *
@@ -14,7 +14,7 @@ class Registry
      * @var array
 	 */
 	protected $data = array();
-
+
 	/**
 	 * Возвращает true, если значение задано и отлично от null.
 	 * Иначе false.
@@ -26,7 +26,7 @@ class Registry
 	{
 		return isset($this->data[$index]);
 	}
-
+
 	/**
 	 * Чтение значения
 	 * 
@@ -37,7 +37,7 @@ class Registry
 	{
 		return $this->data[$index];
 	}
-
+
 	/**
 	 * Запись значения
 	 * 
@@ -48,7 +48,7 @@ class Registry
 	{
 		$this->data[$index] = $value;
 	}
-
+
 	/**
 	 * Silent get. Не вызывает ошибки, если значение не определено.
 	 * 
@@ -59,7 +59,7 @@ class Registry
 	{
 		return isset($this->data[$index]) ? $this->data[$index] : null;
 	}
-
+
 	/**
 	 * Получение по ссылке
 	 * 
@@ -70,7 +70,7 @@ class Registry
 	{
 		return $this->data[$index];
 	}
-
+
 	/**
 	 * Передача по ссылке
 	 * 

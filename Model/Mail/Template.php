@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Шаблоны сообщений.
  * 
@@ -49,7 +49,7 @@ class Mail_Template extends Model
 		'subject'	=> 'subj',
 		'body'	    => 'body'
 	);
-
+
     /**
 	 * Получение тела по шаблону.
 	 * 
@@ -105,7 +105,7 @@ class Mail_Template extends Model
 		}
 		return $template;
 	}
-
+
 	/**
 	 * Получение заголовка по шаблону.
 	 * 

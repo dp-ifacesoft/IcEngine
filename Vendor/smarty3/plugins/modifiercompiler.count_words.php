@@ -5,7 +5,7 @@
  * @package Smarty
  * @subpackage PluginsModifierCompiler
  */
-
+
 /**
  * Smarty count_words modifier plugin
  * 
@@ -27,5 +27,5 @@ function smarty_modifiercompiler_count_words($params, $compiler)
         return 'str_word_count(' . $params[0] . ')';
     } 
 } 
-
+
 ?>

@@ -13,22 +13,26 @@ class Helper_Phone extends Helper_Abstract
      * @desc Длина номера мобильного телефона.
      * @var integer
      */
-    public static $mobileLength = 11;
+    public static $mobileLength =
+        array(
+            11, // Россия
+            12, // Крым
+        );
 
     /**
      * @desc Возвращает номер мобильного телефона в формате "+7 123 456 78 90"
-     * @param string $phone 11 цифр номера
+     * @param string $phone 11/12 цифр номера
      * @return string Отформатированный номер телефона.
      */
     public function formatMobile($phone)
     {
         return
             '+' .
-            $phone [0] . ' ' .
-            substr($phone, 1, 3) . ' ' .
-            substr($phone, 4, 3) . ' ' .
-            substr($phone, 7, 2) . ' ' .
-            substr($phone, 9, 2);
+            substr($phone, 0, -10) . ' ' .
+            substr($phone, -10, 3) . ' ' .
+            substr($phone, -7, 3) . ' ' .
+            substr($phone, -4, 2) . ' ' .
+            substr($phone, -2, 2);
     }
 
     /**
@@ -42,7 +46,7 @@ class Helper_Phone extends Helper_Abstract
      */
     public static function parseMobile($str)
     {
-        if (strlen($str) < self::$mobileLength) {
+        if (strlen($str) < self::$mobileLength[0]) {
             return false;
         }
 
@@ -69,7 +73,7 @@ class Helper_Phone extends Helper_Abstract
             }
         }
 
-        return (strlen($result) == self::$mobileLength) ? $result : false;
+        return in_array(strlen($result), self::$mobileLength) ? $result : false;
     }
 
 }

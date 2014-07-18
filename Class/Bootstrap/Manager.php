@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер загрузчиков
  * 
@@ -13,14 +13,14 @@ class Bootstrap_Manager
      * @var array <Bootstrap_Abstract>
 	 */
 	protected $bootstraps;
-
+
 	/**
 	 * Текущий загрузчик
 	 * 
      * @var Bootstrab_Abstract
 	 */
 	protected $current;
-
+
     /**
 	 * Возвращает текущий загрузчик.
 	 * 

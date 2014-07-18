@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Рендер post-запросов
  * 
@@ -16,7 +16,7 @@ class View_Render_Post extends View_Render_Abstract
 		$this->vars = array();
 		return $result;
 	}
-
+
     /**
      * @inheritdoc
      */

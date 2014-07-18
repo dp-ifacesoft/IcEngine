@@ -14,35 +14,35 @@ class Helper_Header extends Helper_Abstract
      * @var integer
 	 */
 	const E301 = 301;
-
+
 	/**
 	 * Код ошибки "доступ закрыт"
 	 * 
      * @var integer
 	 */
 	const E403 = 403;
-
+
 	/**
 	 * Код ошибки "страница не найдена"
 	 * 
      * @var integer
 	 */
 	const E404 = 404;
-
+
 	/**
 	 * Код ошибки "страница удалена"
 	 * 
      * @var integer
 	 */
 	const E410 = 410;
-
+
 	/**
 	 * Флаг кодирования gzip
 	 * 
      * @var string
 	 */
 	const CONTENT_ENCODING_GZIP = 'gzip';
-
+
 	/**
 	 * Сообщения с ошибками
 	 * 
@@ -66,7 +66,7 @@ class Helper_Header extends Helper_Abstract
 			"Status: 301 Moved Remanently"
 		)
 	);
-
+
 	/**
 	 * Отправить статус в заголовке ответа
 	 * 
@@ -82,7 +82,7 @@ class Helper_Header extends Helper_Abstract
 			}
 		}
 	}
-
+
 	/**
 	 * Редирект по указанному адресу.
 	 * К переданному $uri при необходимости будет добавлено имя сервера
@@ -107,7 +107,7 @@ class Helper_Header extends Helper_Abstract
 			$this->jsRedirect($uri);
 		}
 	}
-
+
 	/**
 	 * Редирект через javascript.
 	 * 

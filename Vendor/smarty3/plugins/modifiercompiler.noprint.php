@@ -5,7 +5,7 @@
  * @package Smarty
  * @subpackage PluginsModifierCompiler
  */
-
+
 /**
  * Smarty noprint modifier plugin
  *
@@ -20,5 +20,5 @@ function smarty_modifiercompiler_noprint($params, $compiler)
 {
     return "''";
 }
-
+
 ?>

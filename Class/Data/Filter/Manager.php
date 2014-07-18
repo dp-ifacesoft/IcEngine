@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Менеджер фильтров
  *
@@ -14,7 +14,7 @@ class Data_Filter_Manager extends Manager_Abstract
      * @var array <Filter_Abstract>
 	 */
 	protected $filters = array();
-
+
 	/**
      * Получить фильтр по имени
      *
@@ -31,7 +31,7 @@ class Data_Filter_Manager extends Manager_Abstract
 		$this->filters[$name] = $filter;
         return $filter;
 	}
-
+
 	/**
 	 * Фильтрация
 	 *
@@ -43,7 +43,7 @@ class Data_Filter_Manager extends Manager_Abstract
 	{
 		return $this->get($name)->filter($data);
 	}
-
+
 	/**
 	 * Фильтрация с использованием схемы
 	 *

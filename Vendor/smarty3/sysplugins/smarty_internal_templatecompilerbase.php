@@ -8,7 +8,7 @@
  * @subpackage Compiler
  * @author Uwe Tews
  */
-
+
 /**
  * Main compiler class
  */
@@ -25,7 +25,7 @@ class Smarty_Internal_TemplateCompilerBase {
     public $template = null;
     // optional log of tag/attributes
     public $used_tags = array();
-
+
     /**
      * Initialize compiler
      */
@@ -33,7 +33,7 @@ class Smarty_Internal_TemplateCompilerBase {
     {
         $this->nocache_hash = str_replace('.', '-', uniqid(rand(), true));
     }
-
+
     /**
      * Methode to compile a Smarty template
      *
@@ -59,7 +59,7 @@ class Smarty_Internal_TemplateCompilerBase {
             $template_header .= "<?php /* Smarty version " . Smarty::SMARTY_VERSION . ", created on " . strftime("%Y-%m-%d %H:%M:%S") . "\n";
             $template_header .= "         compiled from \"" . $this->template->getTemplateFilepath() . "\" */ ?>\n";
         }
-
+
         do {
             // flag for aborting current and start recompile
             $this->abort_and_recompile = false;
@@ -94,7 +94,7 @@ class Smarty_Internal_TemplateCompilerBase {
             $template->compiled_template = Smarty_Internal_Filter_Handler::runFilter('post', $template->compiled_template, $template);
         }
     }
-
+
     /**
      * Compile Tag
      *
@@ -263,7 +263,7 @@ class Smarty_Internal_TemplateCompilerBase {
             $this->trigger_template_error ("unknown tag \"" . $tag . "\"", $this->lex->taglineno);
         }
     }
-
+
     /**
      * lazy loads internal compile plugin for tag and calls the compile methode
      *
@@ -296,7 +296,7 @@ class Smarty_Internal_TemplateCompilerBase {
         // no internal compile plugin for this tag
         return false;
     }
-
+
     /**
      * Check for plugins and return function name
      *
@@ -441,5 +441,5 @@ class Smarty_Internal_TemplateCompilerBase {
         throw new SmartyCompilerException($error_text);
     }
 }
-
+
 ?>
