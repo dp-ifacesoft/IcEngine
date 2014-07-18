@@ -12,12 +12,15 @@ class Helper_Class extends Helper_Abstract
      * получить имя класса без префикса пути
      * @param Class $class экземпляр некого класса
      */
-    public function getClassTail($class)
+    public function getClassTail($class, $lower = TRUE)
     {
         $pos = strripos($class, '_');
-        if ($pos !== false) {
-            return strtolower(substr($class, (int)($pos+1)));
-        }
+            if ($pos !== false) {
+                if ($lower) {
+                    return strtolower(substr($class, (int)($pos+1)));
+                }
+                return substr($class, (int)($pos+1));
+            }
         return $class;
     }
 }
