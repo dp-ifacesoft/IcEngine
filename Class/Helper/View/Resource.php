@@ -300,7 +300,7 @@ class Helper_View_Resource
 	 */
 	public function embedCss()
 	{
-        $key = $this->resourceKey();
+        $key = $this->resourceKey(self::CSS);
 		return $this->embed(self::CSS, $key);
 	}
 
@@ -364,7 +364,7 @@ class Helper_View_Resource
 				$this->appendJs($path . $source);
 			}
 		}
-		$key = $this->resourceKey();
+		$key = $this->resourceKey(self::JS);
         $out .= $this->embed(self::JS, $key);
 		return $out;
 	}
@@ -391,7 +391,7 @@ class Helper_View_Resource
 			}
 		}
 		if (isset($rules[$call])) {
-			$keys[] = $this->resourceKey();
+			$keys[] = $this->resourceKey(self::JS);
 		}
 		return $keys;
 	}
@@ -403,7 +403,7 @@ class Helper_View_Resource
 	 */
 	public function embedJtpl()
 	{
-        $key = $this->resourceKey();
+        $key = $this->resourceKey(self::JTPL);
 		return $this->embed(self::JTPL, $key . '_jtpl');
 	}
     
@@ -414,7 +414,7 @@ class Helper_View_Resource
 	 */
 	public function embedNgtpl()
 	{
-        $key = $this->resourceKey();
+        $key = $this->resourceKey(self::NGTPL);
 		return $this->embed(self::NGTPL, $key . '_ngtpl');
 	}
 
@@ -447,30 +447,17 @@ class Helper_View_Resource
 	 *
 	 * @return string
 	 */
-	public function resourceKey()
+	public function resourceKey($type)
 	{
-        $serviceLocator = IcEngine::serviceLocator();
-		$route = $serviceLocator->getService('router')->getRoute();
-        if (isset($route->params['resourceKey']) && isset($route->params) 
-            && isset($route->actions[0])) {
-            $resourceKeyNames = is_array($route->params['resourceKey']) ? 
-                $route->params['resourceKey'] : [$route->params['resourceKey']];
-            $requestParams = $serviceLocator->getService('request')->params();
-            $resourceKeys = [
-                $route->actions[0]
-            ];
-            foreach ($resourceKeyNames as $keyName) {
-                if (!isset($requestParams[$keyName])) {
-                    continue;
-                }
-                $resourceKeys[] = $requestParams[$keyName];
+        $data = self::$files[$type];
+        $hashArray = [];
+        foreach ($data as $item) {
+            if (!isset($item[0])) {
+                continue;
             }
-            return md5(implode('|', $resourceKeys)); 
+            $hashArray[] = $item[0];
         }
-		if (isset($route->params) && isset($route->params['resourceGroup'])) {
-			return $route->params['resourceGroup'];
-		}
-		return md5($route->route);
+        return md5(implode('|', $hashArray)); 
 	}
 
     /**
