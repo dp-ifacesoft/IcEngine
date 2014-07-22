@@ -23,7 +23,7 @@ abstract class Model_Mapper_Reference_Abstract
      * @var Model
      * @Generator
      */
-	protected $model;
+     protected $model;
     
     /**
      * Поле, в которое будет создана связь
@@ -32,6 +32,26 @@ abstract class Model_Mapper_Reference_Abstract
      * @Generator
      */
     protected $field;
+    
+    
+    /**
+     * Поле, в которое будет создана связь
+     * 
+     * @var string
+     * @Generator
+     */
+    protected $name;
+    
+    public function getName()
+    {
+        return $this->name;
+    }
+    
+    public function setName($name)
+    {
+         $this->name = $name;
+    }
+    
     
     /**
      * Выполнить необходимые действия для создания связи
@@ -112,4 +132,5 @@ abstract class Model_Mapper_Reference_Abstract
     {
         return IcEngine::serviceLocator()->getService($serviceName);
     }
+    
 }

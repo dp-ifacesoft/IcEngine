@@ -14,9 +14,13 @@ class Model_Mapper_Reference_OneToOne extends
 	 */
 	public function execute()
     {
-        return $this->getService('modelManager')->byKey(
-            $this->args['Target'], $this->model->key()
-        );
+        $dto = $this->getService('dto')->newInstance()
+            ->set(array(
+                'fromField'        => $this->args['links']['fromField'], 
+                'toField'    => $this->args['links']['toField'],
+                'modelName'  => $this->getName()
+            ));
+        return new Model_Mapper_Reference_State_OneToOne($this->model, $dto);
     }
     
     /**
@@ -24,10 +28,8 @@ class Model_Mapper_Reference_OneToOne extends
      */
     public function setArgs($args)
     {
-        if (!isset($args['Target'])) {
-            $args['Target'] = $this->getService('helperService')->normalizeName(
-                $this->field
-            );
+        if (!isset($args['links'])) {
+            $args  = $args['links'];
         }
         parent::setArgs($args);
     }

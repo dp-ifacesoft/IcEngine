@@ -16,8 +16,8 @@ class Model_Mapper_Reference
 	 */
 	public function get($name)
 	{
-		$className = 'Model_Mapper_Reference_' . $name;
-		$reference = new $className;
-        return $reference;
+	    $className = 'Model_Mapper_Reference_' . $name;
+	    $reference = new $className;
+            return $reference;
 	}
 }

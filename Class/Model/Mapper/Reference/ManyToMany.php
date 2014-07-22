@@ -16,9 +16,12 @@ class Model_Mapper_Reference_ManyToMany extends
     {
         $dto = $this->getService('dto')->newInstance()
             ->set(array(
-                'Target'        => $this->args['Target'], 
-                'JoinColumn'    => $this->args['JoinColumn'],
-                'JoinTable'     => $this->args['JoinTable']
+               'fromField'        => $this->args['links']['fromField'], 
+                'toField'    => $this->args['links']['toField'],
+                'modelName'  => $this->getName(),
+                'toJoinField' => $this->args['links']['toJoinField'],
+                'fromJoinField' => $this->args['links']['fromJoinField'],
+                'JoinTable' => $this->args['links']['JoinTable']
             ));
         return new Model_Mapper_Reference_State_ManyToMany($this->model, $dto);
     }
@@ -44,24 +47,8 @@ class Model_Mapper_Reference_ManyToMany extends
      */
     public function setArgs($args)
     {
-        if (!isset($args['Target'])) {
-            $args['Target'] = $this->getService('helperService')->normalizeName(
-                $this->field
-            );
-        }
-        if (!isset($args['JoinColumn'])) {
-            $modelName = $this->model->modelName();
-            $modelScheme = $this->getService('modelScheme');
-            $selfKeyField = $modelScheme->keyField($modelName);
-            $args['JoinColumn'] = array(
-                $modelName . '__' . $selfKeyField
-            );
-            $otherKeyField = $modelScheme->keyField($args['Target']);
-            $args['JoinColumn']['on'] = $args['Target'] . '__' . 
-                $otherKeyField;
-        }
-        if (!isset($args['JoinTable'])) {
-            $args['JoinTable'] = $this->getJoinTable($args['Target']);
+         if (!isset($args['links'])) {
+            $args  = $args['links'];
         }
         parent::setArgs($args);
     }  

@@ -16,18 +16,20 @@ class Model_Mapper_Reference_State_OneToMany extends
     public function collection()
     {
         return $this->getService('collectionManager')->create(
-            $this->dto->Target);
+            $this->dto->modelName);
     }
     
     /**
      * @inheritdoc
      */
-    public function load()
+    public function getCollection()
     {
+        $fromField = $this->dto->fromField; 
         $this->collection = $this->collection();
         $this->collection->query()->where(
-                $this->dto->JoinColumn, $this->model->key()
-            );
+                $this->dto->toField, $this->model->$fromField
+        );
         parent::load();
+        return $this->collection;
     }
 }

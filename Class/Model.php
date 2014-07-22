@@ -976,4 +976,18 @@ abstract class Model implements ArrayAccess
         $newModel->set($data);
         return $newModel;
     }
+    
+    public function getReference($name)
+    {
+        $className = get_class($this);
+        $referenceConfig = $this->getService('configManager')->get(
+            'Model_Mapper_'. $className . '_Reference_' . $name
+        );
+        $manager = $this->getService('modelMapperReference')->get($referenceConfig['links']['type']);
+        $manager->setArgs($referenceConfig);
+        $manager->setModel($this);
+        $manager->setName($name);
+        $reference = $manager->execute();
+        return $reference;
+    }
 }

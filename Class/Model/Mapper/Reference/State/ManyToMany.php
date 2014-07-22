@@ -33,7 +33,7 @@ class Model_Mapper_Reference_State_ManyToMany extends
     public function add($model, $mustLoad = false, $data = array())
     {
         $modelScheme = $this->getService('modelScheme');
-        $keyField = $modelScheme->keyField($this->dto->Target);
+        $keyField = $modelScheme->keyField($this->dto->modelName);
         if ($mustLoad) {
             if (!$this->collection) {
                 $this->load();
@@ -46,10 +46,10 @@ class Model_Mapper_Reference_State_ManyToMany extends
         $queryBuilder = $this->getService('query');
         $dds = $this->getService('dds');
         $existsQuery = $queryBuilder
-            ->select($this->dto->JoinColumn[0])
+            ->select($this->dto->toJoinField)
             ->from($this->dto->JoinTable)
-            ->where($this->dto->JoinColumn[0], $this->model->key())
-            ->where($this->dto->JoinColumn['on'], $model->key())
+            ->where($this->dto->fromJoinField, $this->model->$this->dto->fromField)
+            ->where($this->dto->toJoinField, $model->$this->dto->toField)
             ->limit(1);
         $exists = $dds->execute($existsQuery)->getResult()->asRow();
         if ($exists) {
@@ -59,8 +59,8 @@ class Model_Mapper_Reference_State_ManyToMany extends
             ->insert($this->dto->JoinTable)
             ->values(
                 array_merge($data, array(
-                    $this->dto->JoinColumn[0]       => $this->model->key(),
-                    $this->dto->JoinColumn['on']    => $model->key()
+                    $this->dto->fromJoinField   => $this->model->$this->dto->fromField,
+                    $this->dto->toJoinField   => $model->$this->dto->toField
                 ))
              );
         $dds->execute($query);
@@ -74,7 +74,7 @@ class Model_Mapper_Reference_State_ManyToMany extends
     {
         $collection = parent::all();
         if ($this->data) {
-            $fieldName = $this->dto->JoinColumn['on'];
+            $fieldName = $this->dto->toJoinField;
             foreach ($collection as $item) {
                 $item->data($this->data[$item[$fieldName]]);
             }
@@ -90,7 +90,7 @@ class Model_Mapper_Reference_State_ManyToMany extends
     public function collection()
     {
         return $this->getService('collectionManager')->create(
-            $this->dto->Target);
+            $this->dto->modelName);
     }
     
     /**
@@ -117,8 +117,7 @@ class Model_Mapper_Reference_State_ManyToMany extends
         $query = $queryBuilder
             ->delete()
             ->from($this->dto->JoinTable)
-            ->where($this->dto->JoinColumn[0], $this->model->key())
-            ->where($this->dto->JoinColumn['on'], $model->key());
+            ->where($this->dto->fromJoinField, $this->model->key());
         $dds->execute($query);
         return $this;
     }
@@ -139,13 +138,13 @@ class Model_Mapper_Reference_State_ManyToMany extends
                     'Auto_Increment'
                 )
             ),
-            $this->dto->JoinColumn[0]       => array(
+            $this->dto->toJoinField       => array(
                 'Int', array(
                     'Size'  => 11,
                     'Not_Null'
                 )
             ),
-            $this->dto->JoinColumn['on']    => array(
+            $this->dto->fromJoinField    => array(
                 'Int', array(
                     'Size'  => 11,
                     'Not_Null'
@@ -154,11 +153,11 @@ class Model_Mapper_Reference_State_ManyToMany extends
         ));
         $dto->setIndexes(array(
             'id'                            => array('Primary', array('id')),
-            $this->dto->JoinColumn[0]       => array(
-                'Key', array($this->dto->JoinColumn[0])
+            $this->dto->toJoinField       => array(
+                'Key', array($this->dto->toJoinField)
             ),
-            $this->dto->JoinColumn['on']    => array(
-                'Key', array($this->dto->JoinColumn['on'])
+            $this->dto->fromJoinField    => array(
+                'Key', array($this->dto->fromJoinField)
             )
         ));
         return $dto;
@@ -167,12 +166,13 @@ class Model_Mapper_Reference_State_ManyToMany extends
     /**
      * @inheritdoc
      */
-    public function load()
+    public function getCollection()
     {
         $modelScheme = $this->getService('modelScheme');
-        $keyField = $modelScheme->keyField($this->dto->Target);
+        $keyField = $modelScheme->keyField($this->dto->modelName);
         $this->collection = $this->collection();
         $joinTableFields = $modelScheme->scheme($this->dto->JoinTable)->fields;
+        
         if (!$joinTableFields) {
             $dto = $this->getSchemeForJoinTable();
             $this->getService('helperModelScheme')->create(
@@ -185,38 +185,31 @@ class Model_Mapper_Reference_State_ManyToMany extends
             $queryBuilder = $this->getService('query');
             $dds = $this->getService('dds');
             $fields = array_keys($joinTableFields->__toArray());
+
             unset($fields[$modelScheme->keyField($this->dto->JoinTable)]);
-            unset($fields[$this->dto->JoinColumn[0]]);
+            unset($fields[$this->dto->toField]);
             $query = $queryBuilder
-                ->select($fields)
+                ->select('*')
                 ->from($this->dto->JoinTable)
-                ->where($this->dto->JoinColumn[0], $this->model->key());
+                ->where($this->dto->fromJoinField, $this->model->key());
+        
             if ($this->preFilters) {
                 foreach ($this->preFilters as $fieldName => $value) {
                     $query->where($fieldName, $value);
                 }
             }
             $data = $dds->execute($query)->getResult()->asTable(
-                $this->dto->JoinColumn['on']
+                $this->dto->toJoinField
             );
+            
             $ids = array_keys($data);
+            
             $this->data = count($fields) > 1 ? $data : array();
+            
             $this->collection->query()->where($keyField, $ids);
         }
         parent::load();
-    }
-    
-    /**
-     * @inheritdoc
-     */
-    public function one()
-    {
-        $model = parent::one();
-        if ($this->data) {
-            $fieldName = $this->dto->JoinColumn['on'];
-            $model->data($this->data[$model[$fieldName]]);
-        }
-        return $model;
+        return $this->collection;
     }
     
     /**
@@ -226,13 +219,13 @@ class Model_Mapper_Reference_State_ManyToMany extends
     {
         $items = parent::raw($columns);
         if ($this->data) {
-            $fieldName = $this->dto->JoinColumn['on'];
+            $fieldName = $this->dto->toField;
             $modelScheme = $this->getService('modelScheme');
             $joinTableFields = $modelScheme->scheme($this->dto->JoinTable)
                 ->fields;
             $fields = array_keys($joinTableFields->__toArray());
             unset($fields[$modelScheme->keyField($this->dto->JoinTable)]);
-            unset($fields[$this->dto->JoinColumn[0]]);
+            unset($fields[$this->dto->toField]);
             $fieldsToSelect = array();
             if (!$columns) {
                 $fieldsToSelect = $fields;
@@ -291,8 +284,8 @@ class Model_Mapper_Reference_State_ManyToMany extends
         $query = $queryBuilder
             ->update($this->dto->JoinTable)
             ->values($data)
-            ->where($this->dto->JoinColumn[0], $this->model->key())
-            ->where($this->dto->JoinColumn['on'], $modelId);
+            ->where($this->dto->fromJoinField, $this->model->key())
+            ->where($this->dto->toJoinField, $modelId);
         $dds->execute($query);
         return $this;
     }
