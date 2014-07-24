@@ -332,6 +332,11 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     /**
      * Add one or more members to a sorted set or update its score if it already exists
      * Example: zAdd($key, $score1, $value1, $score2, $value2, ...)
+     * 
+     * @param string $key
+     * @param double $incValue
+     * @param string $member
+     * @return int  1 if the element is added. 0 otherwise.
      */
     public function zAdd($key, $score, $value)
     {
@@ -339,6 +344,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     }
     /**
      * Get the number of members in a sorted set
+     * 
+     * @param string $key
+     * @return long The set's cardinality
      */
     public function zSize($key)
     {
@@ -346,14 +354,30 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     }
     /**
      *  Count the members in a sorted set with scores within the given values
+     * 
+     * @param string $key
+     * @param double $start "+inf" or "-inf" string also valid, null is interpreted as "-inf"
+     * @param double $end   "+inf" or "-inf" string also valid, null is interpreted as "+inf"
+     * @return int The size of a corresponding zRangeByScore.
      */
-    public function zCount($key, $minScore, $maxScore)
+    public function zCount($key, $start, $end)
     {
-        return $this->getMainConnection()->zCount($key, $minScore, $maxScore);
+        if (is_null($start)) {
+            $start = '-inf';
+        }
+        if (is_null($end)) {
+            $end = '+inf';
+        }
+        return $this->getMainConnection()->zCount($key, $start, $end);
     }
     /**
      *
      * Increment the score of a member in a sorted set
+     * 
+     * @param string $key
+     * @param double $incValue
+     * @param string $member
+     * @return double The new value
      */
     public function zIncrBy($key, $incValue, $member)
     {
@@ -372,17 +396,24 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         return $this->getMainConnection()->zInter($keyOutput, $zSetKeys, $weights, $aggregateFunction);
     }
     /**
-     * Return a range of members in a sorted set, by index.
+     * Return a range of members in a sorted set, by index in the range [start, end].
      * Start and stop are interpreted as zero-based indices: 
      * 0 the first element, 1 the second ... -1 the last element, -2 the penultimate ...
+     * 
+     * @param string $key
+     * @param int $start
+     * @param int $end
+     * @param bool $withScores default=false
+     * @return array Values in specified range.
      */
     public function zRange($key, $start, $end, $withScores=false)
     {
         return $this->getMainConnection()->zRange($key, $start, $end, $withScores);
     }
     /**
-     * Return a range of members in a sorted set, by index, with scores ordered from high to low.
-     * Start and stop are interpreted as zero-based indices: 
+     * Return a range of members in a sorted set, by index in the range [start, end],
+     * with scores ordered from high to low.
+     * Start and stop are interpreted as zero-based indices:
      * 0 the first element, 1 the second ... -1 the last element, -2 the penultimate ...
      * 
      * @param string $key
@@ -398,6 +429,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     /**
      * Returns the elements of the sorted set stored at the specified key which have scores in the range [start,end]. 
      * Adding a parenthesis before start or end excludes it from the range. +inf and -inf are also valid limits. 
+     * 
+     * @param string $key
+     * @param double $start "+inf" or "-inf" string also valid, null is interpreted as "-inf"
+     * @param double $end   "+inf" or "-inf" string also valid, null is interpreted as "+inf"
+     * @param int $limit default no limit
+     * @param int $offset default zero offset
+     * @param bool $withScores default=false
+     * @return array containing the values in specified range.
      */
     public function zRangeByScore($key, $start, $end, $limit=null, $offset=null, $withScores=false)
     {
@@ -423,8 +462,16 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * Returns the elements of the sorted set stored at the specified key which have scores in the range [start,end]. 
      * Adding a parenthesis before start or end excludes it from the range. +inf and -inf are also valid limits. 
      * zRevRangeByScore returns items in reverse order, when the start and end parameters are swapped.     
+     * 
+     * @param string $key
+     * @param double $start "+inf" or "-inf" string also valid, null is interpreted as "+inf"
+     * @param double $end   "+inf" or "-inf" string also valid, null is interpreted as "-inf"
+     * @param int $limit default no limit
+     * @param int $offset default zero offset
+     * @param bool $withScores default=false
+     * @return array containing the values in specified range.
      */
-    public function zRevRangeByScore($key, $start, $end, $limit=null, $offset=null, $withScores=false)
+    public function zRevRangeByScore($key, $start, $end, $limit=null, $offset=0, $withScores=false)
     {
         $options = [];
         if (isset($limit, $offset)) {
@@ -459,6 +506,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     /**
      * Determine the index of a member in a sorted set.
      * zRevRank starts at 0 for the item with the largest score.
+     * 
+     * @param string $key
+     * @param string $member
+     * @return int
      */
     public function zRevRank($key, $member)
     {
@@ -470,7 +521,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * 
      * @param string $key
      * @param string $member
-     * @return int
+     * @return int 1 on success, 0 on failure.
      */
     public function zDelete($key, $member)
     {
@@ -478,6 +529,11 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     }
     /**
      * Remove all members in a sorted set within the given indexes
+     * 
+     * @param string $key
+     * @param int $start from 0
+     * @param int $end
+     * @return int The number of values deleted from the sorted set
      */
     public function zDeleteRangeByRank($key, $start, $end)
     {
@@ -487,8 +543,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * Remove all members in a sorted set within the given scores
      * 
      * @param string $key
-     * @param double $start  "+inf" or "-inf" string also valit
-     * @param double $end    "+inf" or "-inf" string also valit
+     * @param double $start  "+inf" or "-inf" string also valid
+     * @param double $end    "+inf" or "-inf" string also valid
+     * @return int The number of values deleted from the sorted set
      */
     public function zDeleteRangeByScore($key, $start, $end)
     {
