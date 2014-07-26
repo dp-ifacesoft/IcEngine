@@ -72,6 +72,9 @@ class Controller_Manager extends Manager_Abstract
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeSlot',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeTitle',
             'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeRedirect'
+        ),
+        'delegeesHtml'  => array(
+            'IcEngine\\Controller\\Manager\\ControllerManagerDelegeeStatic'
         )
     );
 
@@ -617,6 +620,15 @@ class Controller_Manager extends Manager_Abstract
             array($controllerAction, $args, $options),
             $cacheConfig
         );
+        $controller = $this->get($controllerAction[0]);
+        $context = $this->createControllerContext($controller, $controllerAction[1]);
+        $config = $this->config();
+        $delegees = $config->delegeesHtml;
+        if ($delegees) {
+            foreach ($delegees as $delegeeName) {
+                $this->delegee($delegeeName)->call($controller, $context);
+            }
+        }
         return $html;
     }
 
