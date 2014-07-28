@@ -50,7 +50,9 @@ class Model_Collection_Manager_Delegee_Defined
         if ($result && $sort) {
             $result = $helperArray->masort($result, implode(',', $sort));
         }
- 
+        if ($query->getPart(Query::CALC_FOUND_ROWS)) {
+			$collection->data('foundRows', count($result));
+		}
 		return array('items' => $result);
 	}
 }

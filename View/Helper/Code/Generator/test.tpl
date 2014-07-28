@@ -15,7 +15,7 @@ class {$name}Test extends {if $with_selenium}PHPUnit_Extensions_Selenium2TestCas
 	protected function setUp()
 	{
 		{if $with_selenium}$this->setBrowser ('{$browser}');
-		$this->setBrowserUrl ('http://' . Request::uri ());{/if}
+		$this->setBrowserUrl ('http://' . IcEngine::getServiceLocator()->getService('request')->uri ());{/if}
 
 	}
 
