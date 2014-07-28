@@ -451,7 +451,7 @@ class Helper_View_Resource
 	 */
 	public function resourceKey($type)
 	{
-        $data = self::$files[$type];
+        $data = isset(self::$files[$type]) ? self::$files[$type] : [];
         $hashArray = [];
         foreach ($data as $item) {
             if (!isset($item[0])) {
