@@ -35,9 +35,7 @@ class Helper_GeoIP
             if (!$sessionResource->cityId) {
                 return;
             }
-            return $locator->getService('modelManager')->byKey(
-                'City', $sessionResource->cityId
-            );
+            return City::getModel($sessionResource->cityId);
         }
         $netCity = $this->getNetCity($ip);
         if (!$netCity) {
