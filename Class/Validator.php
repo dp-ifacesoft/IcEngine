@@ -105,10 +105,12 @@ abstract class Validator
      * Устанавливает ошибку валидации
      *
      * @param Validator_Error $error
+     * @return $this
      */
     public function setValidatorError(Validator_Error $error)
     {
         $this->validatorError = $error;
+        return $this;
     }
 
     /**
@@ -125,10 +127,12 @@ abstract class Validator
      * Установить валидируемые данные
      *
      * @param Mixed $data
+     * @return $this
      */
     public function setData($data)
     {
         $this->data = $data;
+        return $this;
     }
 
     /**
