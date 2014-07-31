@@ -119,11 +119,12 @@ class Helper_Model
      */
     public function modelExists($table, $rowId)
     {
+        $serviceLocator = IcEngine::serviceLocator();
         if (empty($table) || empty($rowId) ||!class_exists($table) || !(in_array('Model', class_parents($table)))) {
             return false;
         }
         /** @var Model_Manager $modelManager */
-        $modelManager = $this->getService('modelManager');
+        $modelManager = $serviceLocator->getService('modelManager');
         /** @var Model $model */
         $model = $modelManager->byKey($table, $rowId);
         return ($model instanceof Model);
