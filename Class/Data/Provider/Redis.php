@@ -328,7 +328,67 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     {
         return json_encode($value, JSON_UNESCAPED_UNICODE);
     }
-
+    /**
+     * Удаляет один или несколько ключей, используя основное соединение.
+     * 
+     * @param string|array $keys
+     * @return int Количество удаленных ключей
+     */
+    public function mainDelete($keys)
+    {
+        return $this->getMainConnection()->delete($keys);
+    }
+    /**
+     * The time to live in seconds. 
+     * In Redis 2.6 or older the command returns -1 if the key does not exist or if the key exist but has no associated expire.
+     * Starting with Redis 2.8 if the key has no ttl, -1 will be returned, and -2 if the key doesn't exist.
+     * 
+     * @param string $key
+     * @return int
+     */
+    public function mainTtl($key)
+    {
+        $key = $this->keyEncode($key);
+        return $this->getMainConnection()->ttl($key);
+    }
+    /**
+     * Verify if the specified key exists.
+     * 
+     * @return bool
+     */
+    public function mainExists($key)
+    {
+        $key = $this->keyEncode($key);
+        return $this->getMainConnection()->exists($key);
+    }
+    /**
+     * Sets an expiration date (a timeout) on an item. 
+     * 
+     * @return bool
+     */
+    public function mainExpire($key, $expiration)
+    {
+        $key = $this->keyEncode($key);
+        return $this->getMainConnection()->expire($key, $expiration);
+    }
+    public function mainDiscard()
+    {
+        return $this->getMainConnection()->discard();
+    }
+    
+    public function mainExec()
+    {
+        return $this->getMainConnection()->exec();
+    }
+    /**
+     * Verify if the specified key exists.
+     * 
+     * @return bool
+     */
+    public function mainMulti()
+    {
+        return $this->getMainConnection()->multi();
+    }
     /**
      * Add one or more members to a sorted set or update its score if it already exists
      * Example: zAdd($key, $score1, $value1, $score2, $value2, ...)
@@ -340,7 +400,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function zAdd($key, $score, $value)
     {
-        return $this->getMainConnection()->zAdd(func_get_args());
+        $args = func_get_args();
+        $args[0] = $this->keyEncode($args[0]);
+        return call_user_func_array([$this->getMainConnection(), 'zAdd'], $args);
     }
     /**
      * Get the number of members in a sorted set
@@ -350,6 +412,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function zSize($key)
     {
+        $key = $this->keyEncode($key);
         return $this->getMainConnection()->zSize($key);
     }
     /**
@@ -360,8 +423,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param double $end   "+inf" or "-inf" string also valid, null is interpreted as "+inf"
      * @return int The size of a corresponding zRangeByScore.
      */
-    public function zCount($key, $start, $end)
+    public function zCount($key, $start=null, $end=null)
     {
+        $key = $this->keyEncode($key);
         if (is_null($start)) {
             $start = '-inf';
         }
@@ -381,6 +445,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function zIncrBy($key, $incValue, $member)
     {
+        $key = $this->keyEncode($key);
         return $this->getMainConnection()->zIncrBy($key, $incValue, $member);
     }
     /**
@@ -391,9 +456,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param array $weights
      * @param string $aggregateFunction ("SUM", "MIN", or "MAX"), "SUM" is default
      */
-    public function zIntersect($keyOutput, array $zSetKeys, array $weights, $aggregateFunction=null)
+    public function zIntersect($keyOutput, array $zSetKeys, array $weights=null, $aggregateFunction=null)
     {
-        return $this->getMainConnection()->zInter($keyOutput, $zSetKeys, $weights, $aggregateFunction);
+        $keyOutput = $this->keyEncode($keyOutput);
+        $keys = [];
+        foreach ($zSetKeys as $key) {
+            $keys[] = $this->keyEncode($key);
+        }
+        return $this->getMainConnection()->zInter($keyOutput, $keys, $weights, $aggregateFunction);
     }
     /**
      * Return a range of members in a sorted set, by index in the range [start, end].
@@ -406,9 +476,11 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param bool $withScores default=false
      * @return array Values in specified range.
      */
-    public function zRange($key, $start, $end, $withScores=false)
+    public function zRange($key, $start=0, $end=-1, $withScores=false)
     {
-        return $this->getMainConnection()->zRange($key, $start, $end, $withScores);
+        $key = $this->keyEncode($key);
+        $return = $this->getMainConnection()->zRange($key, $start, $end, $withScores);
+        return $return;
     }
     /**
      * Return a range of members in a sorted set, by index in the range [start, end],
@@ -422,8 +494,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param bool $withScores default=false
      * @return array Values in specified range.
      */
-    public function zRevRange($key, $start, $end, $withScores=false)
+    public function zRevRange($key, $start=0, $end=-1, $withScores=false)
     {
+        $key = $this->keyEncode($key);
         return $this->getMainConnection()->zRevRange($key, $start, $end, $withScores);
     }
     /**
@@ -438,8 +511,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param bool $withScores default=false
      * @return array containing the values in specified range.
      */
-    public function zRangeByScore($key, $start, $end, $limit=null, $offset=null, $withScores=false)
+    public function zRangeByScore($key, $start=0, $end=-1, $limit=null, $offset=null, $withScores=false)
     {
+        $key = $this->keyEncode($key);
         $options = [];
         if (isset($limit, $offset)) {
             $options['limit'] = [$offset, $limit];
@@ -471,8 +545,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param bool $withScores default=false
      * @return array containing the values in specified range.
      */
-    public function zRevRangeByScore($key, $start, $end, $limit=null, $offset=0, $withScores=false)
+    public function zRevRangeByScore($key, $start=0, $end=-1, $limit=null, $offset=0, $withScores=false)
     {
+        $key = $this->keyEncode($key);
         $options = [];
         if (isset($limit, $offset)) {
             $options['limit'] = [$offset, $limit];
@@ -501,6 +576,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function zRank($key, $member)
     {
+        $key = $this->keyEncode($key);
         return $this->getMainConnection()->zRank($key, $member);
     }
     /**
@@ -513,6 +589,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function zRevRank($key, $member)
     {
+        $key = $this->keyEncode($key);
         return $this->getMainConnection()->zRevRank($key, $member);
     }
     /**
@@ -525,7 +602,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function zDelete($key, $member)
     {
-        return $this->getMainConnection()->zDelete(func_get_args());
+        $args = func_get_args();
+        $args[0] = $this->keyEncode($args[0]);
+        return call_user_func_array([$this->getMainConnection(), 'zDelete'], $args);
     }
     /**
      * Remove all members in a sorted set within the given indexes
@@ -535,8 +614,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param int $end
      * @return int The number of values deleted from the sorted set
      */
-    public function zDeleteRangeByRank($key, $start, $end)
+    public function zDeleteRangeByRank($key, $start=0, $end=-1)
     {
+        $key = $this->keyEncode($key);
         return $this->getMainConnection()->zDeleteRangeByRank($key, $start, $end);
     }
     /**
@@ -547,8 +627,9 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param double $end    "+inf" or "-inf" string also valid
      * @return int The number of values deleted from the sorted set
      */
-    public function zDeleteRangeByScore($key, $start, $end)
+    public function zDeleteRangeByScore($key, $start=0, $end=-1)
     {
+        $key = $this->keyEncode($key);
         return $this->getMainConnection()->zDeleteRangeByScore($key, $start, $end);
     }
     /**
@@ -560,6 +641,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function zScore($key, $member)
     {
+        $key = $this->keyEncode($key);
         return $this->getMainConnection()->zScore($key, $member);
     }
     /**
@@ -575,6 +657,11 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function zUnion($keyOutput, array $zSetKeys, array $weights, $aggregateFunction=null)
     {
-        return $this->getMainConnection()->zUnion($keyOutput, $zSetKeys, $weights, $aggregateFunction);
+        $keyOutput = $this->keyEncode($keyOutput);
+        $keys = [];
+        foreach ($zSetKeys as $key) {
+            $keys[] = $this->keyEncode($key);
+        }
+        return $this->getMainConnection()->zUnion($keyOutput, $keys, $weights, $aggregateFunction);
     }
 }
