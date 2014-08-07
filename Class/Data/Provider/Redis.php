@@ -12,7 +12,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      *
      * @var Redis
      */
-    protected $connections = array();
+    protected $connection;
     /**
      * Добавление значения к ключу.
      * Атомарная операция.
@@ -26,7 +26,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         if ($this->tracer) {
             $this->tracer->add('append', $key);
         }
-        return $this->getConnection($key)->append($this->keyEncode($key), $value);
+        return $this->connection->append($this->keyEncode($key), $value);
     }
     /**
      * @inheritdoc
@@ -34,13 +34,15 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     protected function _setOption($key, $value)
     {
         switch ($key) {
-        case 'servers':
-            foreach ($value as $server) {
+            case 'servers':
+                $server = $value->__toArray();
+                if (isset($server[0])) {
+                    $server = reset($server);
+                }
                 $redis = new Redis();
-                $this->connections[$server['host']] = $redis;
+                $this->connection = $redis;
                 $redis->connect($server['host'], isset($server['port']) ? $server['post'] : null);
-            }
-            return true;
+                break;
         }
         return parent::_setOption($key, $value);
     }
@@ -49,7 +51,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function decrement($key, $value = 1)
     {
-        return $this->getConnection($key)->decrBy($this->keyEncode($key), $value);
+        return $this->connection->decrBy($this->keyEncode($key), $value);
     }
     /**
      * @inheritdoc
@@ -60,8 +62,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             if (Tracer::$enabled) {
                 $startTime = microtime(true);
             }
-            $connection = $this->getConnection($keys);
-            $result = $connection->delete($this->keyEncode($keys));
+            $result = $this->connection->delete($this->keyEncode($keys));
             if (Tracer::$enabled) {
                 $endTime = microtime(true);
                 Tracer::incRedisDeleteCount();
@@ -81,28 +82,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         $this->delete($this->keys($pattern));
     }
     /**
-     * Отфильтровать ключу для конкретного соединения
-     *
-     * @param array $keys
-     * @param integer $index
-     * return array
-     */
-    protected function filterKeys($keys, $index)
-    {
-        $count = count($this->connections);
-        if ($count == 1) {
-            return $keys;
-        }
-        $result = array();
-        foreach ($keys as $key) {
-            $keyIndex = abs(crc32($key)) % $count;
-            if ($keyIndex == $index) {
-                $result[] = $keys;
-            }
-        }
-        return $result;
-    }
-    /**
      * @inheritdoc
      */
     public function get($key, $plain = false)
@@ -110,8 +89,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         if (Tracer::$enabled) {
             $startTime = microtime(true);
         }
-        $connection = $this->getConnection($key);
-        $result = $connection->get($this->keyEncode($key));
+        $result = $this->connection->get($this->keyEncode($key));
         if (Tracer::$enabled) {
             $endTime = microtime(true);
             Tracer::incRedisGetCount();
@@ -124,30 +102,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
             $value = $result;
         }
         return $value;
-    }
-    /**
-     * Получить соединение (сокет)
-     *
-     * @param string $key
-     * @return resource
-     */
-    public function getConnection($key)
-    {
-        $count = count($this->connections);
-        if ($count == 1) {
-            return reset($this->connections);
-        }
-        $index = abs(crc32($key)) % $count;
-        return $this->connections[$index];
-    }
-    /**
-     * Получить основное соединение (сокет)
-     *
-     * @return resource
-     */
-    public function getMainConnection()
-    {
-        return reset($this->connections);
     }
     /**
      * @inheritdoc
@@ -163,25 +117,19 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         }
         $result = array();
         $keys = array_map(array($this, 'keyEncode'), $keys);
-        foreach ($this->connections as $i => $connection) {
-            $connectionKeys = $this->filterKeys($keys, $i);
-            if (!$connectionKeys) {
-                continue;
-            }
-            $items = $connection->mGet($connectionKeys);
-            if (!$items) {
-                return;
-            }
-            $result = array_merge($result, array_combine($connectionKeys, $items));
+        $items = $this->connection->mGet($keys);
+        if (!$items) {
+            return $result;
         }
-        $sortedItems = array();
+        $result = array_merge($result, array_combine($keys, $items));
+        $decodedItems = array();
         foreach ($keys as $key) {
-            $sortedItems[$key] = isset($result[$key]) ? $this->valueDecode($result[$key]) : null;
+            $decodedItems[$key] = isset($result[$key]) ? $this->valueDecode($result[$key]) : null;
         }
         if ($numericIndex) {
-            return array_values($sortedItems);
+            return array_values($decodedItems);
         }
-        return $sortedItems;
+        return $decodedItems;
     }
     /**
      * Получение текущего значения ключа с одновременной заменой на новое значение.
@@ -193,11 +141,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function getSet($key, $value)
     {
-        $connection = $this->getConnection($key);
         $keyEncoded = $this->keyEncode($key);
-        $value = $connection->getSet($keyEncoded, $value);
+        $value = $this->connection->getSet($keyEncoded, $value);
         if (0 < $this->expiration) {
-            $connection->expire($keyEncoded, $this->expiration);
+            $this->connection->expire($keyEncoded, $this->expiration);
         }
         return $value;
     }
@@ -206,7 +153,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function increment($key, $value = 1)
     {
-        return $this->getConnection($key)->incrBy($this->keyEncode($key), $value);
+        return $this->connection->incrBy($this->keyEncode($key), $value);
     }
     /**
      * @inheritdoc
@@ -230,18 +177,11 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         if (Tracer::$enabled) {
             $startTime = microtime(true);
         }
-        $keys = array();
-        foreach ($this->connections as $connection) {
-            if (strlen($pattern) > 1 && $pattern[strlen($pattern) - 1] === '*') {
-                $pattern = rtrim($pattern, '*');
-            }
-            $key = $this->keyEncode($pattern) . '*';
-            $connectionKeys = $connection->keys($key);
-            if (!$connectionKeys) {
-                continue;
-            }
-            $keys = array_merge($keys, $connectionKeys);
+        if (strlen($pattern) > 1 && $pattern[strlen($pattern) - 1] === '*') {
+            $pattern = rtrim($pattern, '*');
         }
+        $key = $this->keyEncode($pattern) . '*';
+        $keys = $this->connection->keys($key);
         if (Tracer::$enabled) {
             $endTime = microtime(true);
             Tracer::incRedisKeyCount();
@@ -254,9 +194,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function publish($channel, $message)
     {
-        foreach ($this->connections as $connection) {
-            $connection->publish($channel, $message);
-        }
+        $this->connection->publish($channel, $message);
     }
     /**
      * @inheritdoc
@@ -273,13 +211,12 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         if (Tracer::$enabled) {
             $startTime = microtime(true);
         }
-        $connection = $this->getConnection($key);
         $value = $this->valueEncode($value);
         $key = $this->keyEncode($key);
         if ($expiration) {
-            $result = $connection->setex($key, $expiration, $value);
+            $result = $this->connection->setex($key, $expiration, $value);
         } else {
-            $result = $connection->set($key, $value);
+            $result = $this->connection->set($key, $value);
         }
         if (Tracer::$enabled) {
             $endTime = microtime(true);
@@ -293,18 +230,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      */
     public function subscribe($channel)
     {
-        foreach ($this->connections as $connection) {
-            $connection->subscribe($channel);
-        }
+        $this->connection->subscribe($channel);
     }
     /**
      * @inheritdoc
      */
     public function unsubscribe($channel)
     {
-        foreach ($this->connections as $connection) {
-            $connection->unsubscribe($channel);
-        }
+        $this->connection->unsubscribe($channel);
     }
 
     /**
@@ -329,16 +262,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         return json_encode($value, JSON_UNESCAPED_UNICODE);
     }
     /**
-     * Удаляет один или несколько ключей, используя основное соединение.
-     * 
-     * @param string|array $keys
-     * @return int Количество удаленных ключей
-     */
-    public function mainDelete($keys)
-    {
-        return $this->getMainConnection()->delete($keys);
-    }
-    /**
      * The time to live in seconds. 
      * In Redis 2.6 or older the command returns -1 if the key does not exist or if the key exist but has no associated expire.
      * Starting with Redis 2.8 if the key has no ttl, -1 will be returned, and -2 if the key doesn't exist.
@@ -346,48 +269,48 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param string $key
      * @return int
      */
-    public function mainTtl($key)
+    public function ttl($key)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->ttl($key);
+        return $this->connection->ttl($key);
     }
     /**
      * Verify if the specified key exists.
      * 
      * @return bool
      */
-    public function mainExists($key)
+    public function exists($key)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->exists($key);
+        return $this->connection->exists($key);
     }
     /**
      * Sets an expiration date (a timeout) on an item. 
      * 
      * @return bool
      */
-    public function mainExpire($key, $expiration)
+    public function expire($key, $expiration)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->expire($key, $expiration);
+        return $this->connection->expire($key, $expiration);
     }
-    public function mainDiscard()
+    public function discard()
     {
-        return $this->getMainConnection()->discard();
+        return $this->connection->discard();
     }
     
-    public function mainExec()
+    public function exec()
     {
-        return $this->getMainConnection()->exec();
+        return $this->connection->exec();
     }
     /**
      * Verify if the specified key exists.
      * 
      * @return bool
      */
-    public function mainMulti()
+    public function multi()
     {
-        return $this->getMainConnection()->multi();
+        return $this->connection->multi();
     }
     /**
      * Add one or more members to a sorted set or update its score if it already exists
@@ -402,7 +325,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     {
         $args = func_get_args();
         $args[0] = $this->keyEncode($args[0]);
-        return call_user_func_array([$this->getMainConnection(), 'zAdd'], $args);
+        return call_user_func_array([$this->connection, 'zAdd'], $args);
     }
     /**
      * Get the number of members in a sorted set
@@ -413,7 +336,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zSize($key)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->zSize($key);
+        return $this->connection->zSize($key);
     }
     /**
      *  Count the members in a sorted set with scores within the given values
@@ -432,7 +355,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         if (is_null($end)) {
             $end = '+inf';
         }
-        return $this->getMainConnection()->zCount($key, $start, $end);
+        return $this->connection->zCount($key, $start, $end);
     }
     /**
      *
@@ -446,7 +369,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zIncrBy($key, $incValue, $member)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->zIncrBy($key, $incValue, $member);
+        return $this->connection->zIncrBy($key, $incValue, $member);
     }
     /**
      * Intersect multiple sorted sets and store the resulting sorted set in a new key
@@ -463,7 +386,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         foreach ($zSetKeys as $key) {
             $keys[] = $this->keyEncode($key);
         }
-        return $this->getMainConnection()->zInter($keyOutput, $keys, $weights, $aggregateFunction);
+        return $this->connection->zInter($keyOutput, $keys, $weights, $aggregateFunction);
     }
     /**
      * Return a range of members in a sorted set, by index in the range [start, end].
@@ -479,7 +402,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zRange($key, $start=0, $end=-1, $withScores=false)
     {
         $key = $this->keyEncode($key);
-        $return = $this->getMainConnection()->zRange($key, $start, $end, $withScores);
+        $return = $this->connection->zRange($key, $start, $end, $withScores);
         return $return;
     }
     /**
@@ -497,7 +420,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zRevRange($key, $start=0, $end=-1, $withScores=false)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->zRevRange($key, $start, $end, $withScores);
+        return $this->connection->zRevRange($key, $start, $end, $withScores);
     }
     /**
      * Returns the elements of the sorted set stored at the specified key which have scores in the range [start,end]. 
@@ -530,7 +453,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         if (is_null($end)) {
             $end = '+inf';
         }
-        return $this->getMainConnection()->zRangeByScore($key, $start, $end, $options);
+        return $this->connection->zRangeByScore($key, $start, $end, $options);
     }
     /**
      * Returns the elements of the sorted set stored at the specified key which have scores in the range [start,end]. 
@@ -564,7 +487,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         if (is_null($end)) {
             $end = '-inf';
         }
-        return $this->getMainConnection()->zRevRangeByScore($key, $start, $end, $options);
+        return $this->connection->zRevRangeByScore($key, $start, $end, $options);
     }
     /**
      * Determine the index of a member in a sorted set,
@@ -577,7 +500,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zRank($key, $member)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->zRank($key, $member);
+        return $this->connection->zRank($key, $member);
     }
     /**
      * Determine the index of a member in a sorted set.
@@ -590,7 +513,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zRevRank($key, $member)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->zRevRank($key, $member);
+        return $this->connection->zRevRank($key, $member);
     }
     /**
      * Remove one or more members from a sorted set.
@@ -604,7 +527,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     {
         $args = func_get_args();
         $args[0] = $this->keyEncode($args[0]);
-        return call_user_func_array([$this->getMainConnection(), 'zDelete'], $args);
+        return call_user_func_array([$this->connection, 'zDelete'], $args);
     }
     /**
      * Remove all members in a sorted set within the given indexes
@@ -617,7 +540,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zDeleteRangeByRank($key, $start=0, $end=-1)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->zDeleteRangeByRank($key, $start, $end);
+        return $this->connection->zDeleteRangeByRank($key, $start, $end);
     }
     /**
      * Remove all members in a sorted set within the given scores
@@ -630,7 +553,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zDeleteRangeByScore($key, $start=0, $end=-1)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->zDeleteRangeByScore($key, $start, $end);
+        return $this->connection->zDeleteRangeByScore($key, $start, $end);
     }
     /**
      * Get the score associated with the given member in a sorted set
@@ -642,7 +565,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
     public function zScore($key, $member)
     {
         $key = $this->keyEncode($key);
-        return $this->getMainConnection()->zScore($key, $member);
+        return $this->connection->zScore($key, $member);
     }
     /**
      * Add multiple sorted sets and store the resulting sorted set in a new key
@@ -662,6 +585,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
         foreach ($zSetKeys as $key) {
             $keys[] = $this->keyEncode($key);
         }
-        return $this->getMainConnection()->zUnion($keyOutput, $keys, $weights, $aggregateFunction);
+        return $this->connection->zUnion($keyOutput, $keys, $weights, $aggregateFunction);
     }
 }
