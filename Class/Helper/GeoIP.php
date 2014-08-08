@@ -39,8 +39,8 @@ class Helper_GeoIP
                 'City', $sessionResource->cityId
             );
         }
-        $netCity = $this->getNetCity($ip);
-        if (!$netCity) {
+        $netCityId = $this->getNetCityId($ip);
+        if (!$netCityId) {
             $sessionResource->cityId = false;
             return;
         }
@@ -48,7 +48,7 @@ class Helper_GeoIP
         $city = $modelManager->byOptions(
             'City', array(
                 'name'  => 'Net_City',
-                'id'    => $netCity['Net_City__id']
+                'id'    => $netCityId
             )
         );
         if ($city) {
@@ -63,23 +63,19 @@ class Helper_GeoIP
      * Получить город из таблицы Net_City
      *
      * @param string $ip
-     * @return array
+     * @return integer
      */
-    public function getNetCity($ip = null)
+    public function getNetCityId($ip = null)
     {
         $locator = IcEngine::serviceLocator();
         $request = $locator->getService('request');
-		$ip = $this->ip2int($ip !== null ? $ip : $request->ip());
-        $dds = $locator->getService('dds');
-		$queryBuilder = $locator->getService('query');
-        $netCityQuerySelect = $queryBuilder
-            ->select('*')
-            ->from('Net_City_Ip')
-            ->where('begin_ip <= ?', $ip)
-            ->where('end_ip >= ?', $ip);
-        $netCity = $dds->execute($netCityQuerySelect)
-            ->getResult()->asRow();
-        return $netCity;
+        $ip = $ip !== null ? $ip : $request->ip();
+        $netCityId = 0;
+        $netCity = geoip_record_by_name($ip);
+        if ($netCity && is_array($netCity) && isset($netCity['region'])) {
+            $netCityId = $netCity['region'];
+        }
+        return $netCityId;
     }
 
     /**
