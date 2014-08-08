@@ -68,13 +68,21 @@ class Helper_GeoIP
     public function getNetCityId($ip = null)
     {
         $locator = IcEngine::serviceLocator();
+        $queryBuilder = $locator->getService('query');
+        $dds = $locator->getService('dds');
         $request = $locator->getService('request');
         $ip = $ip !== null ? $ip : $request->ip();
-        $netCityId = 0;
-        $netCity = geoip_record_by_name($ip);
-        if ($netCity && is_array($netCity) && isset($netCity['region'])) {
-            $netCityId = $netCity['region'];
+        $regionId = 0;
+        $cityGeoip = geoip_record_by_name($ip);
+        if ($cityGeoip && is_array($cityGeoip) && isset($cityGeoip['region'])) {
+            $regionId = $cityGeoip['region'];
         }
+        $netCityQuery = $queryBuilder
+            ->select('id')
+            ->from('Net_City')
+            ->where('name_en', $cityGeoip['city'])
+            ->where('region', $cityGeoip['region']);
+        $netCityId = $dds->execute($netCityQuery)->getResult()->asValue();
         return $netCityId;
     }
 
