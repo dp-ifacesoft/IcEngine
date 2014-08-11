@@ -63,9 +63,9 @@ class Helper_GeoIP
      * Получить город из таблицы Net_City
      *
      * @param string $ip
-     * @return integer
+     * @return array
      */
-    public function getNetCityId($ip = null)
+    public function getNetCity($ip = null)
     {
         $locator = IcEngine::serviceLocator();
         $queryBuilder = $locator->getService('query');
@@ -78,12 +78,24 @@ class Helper_GeoIP
             $regionId = $cityGeoip['region'];
         }
         $netCityQuery = $queryBuilder
-            ->select('id')
+            ->select('*')
             ->from('Net_City')
             ->where('name_en', $cityGeoip['city'])
             ->where('region', $cityGeoip['region']);
-        $netCityId = $dds->execute($netCityQuery)->getResult()->asValue();
-        return $netCityId;
+        $netCity = $dds->execute($netCityQuery)->getResult()->asRow();
+        return $netCity;
+    }
+    
+    /**
+     * Получить id города из таблицы Net_City
+     *
+     * @param string $ip
+     * @return integer
+     */
+    public function getNetCityId($ip = null)
+    {
+        $netCity = $this->getNetCity();
+        return $netCity ? $netCity['id'] : 0;
     }
 
     /**
