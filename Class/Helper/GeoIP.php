@@ -35,10 +35,12 @@ class Helper_GeoIP
             if (!$sessionResource->cityId) {
                 return;
             }
-            return City::getModel($sessionResource->cityId);
+            return $locator->getService('modelManager')->byKey(
+                'City', $sessionResource->cityId
+            );
         }
-        $netCity = $this->getNetCity($ip);
-        if (!$netCity) {
+        $netCityId = $this->getNetCityId($ip);
+        if (!$netCityId) {
             $sessionResource->cityId = false;
             return;
         }
@@ -46,7 +48,7 @@ class Helper_GeoIP
         $city = $modelManager->byOptions(
             'City', array(
                 'name'  => 'Net_City',
-                'id'    => $netCity['Net_City__id']
+                'id'    => $netCityId
             )
         );
         if ($city) {
@@ -61,23 +63,27 @@ class Helper_GeoIP
      * Получить город из таблицы Net_City
      *
      * @param string $ip
-     * @return array
+     * @return integer
      */
-    public function getNetCity($ip = null)
+    public function getNetCityId($ip = null)
     {
         $locator = IcEngine::serviceLocator();
-        $request = $locator->getService('request');
-		$ip = $this->ip2int($ip !== null ? $ip : $request->ip());
+        $queryBuilder = $locator->getService('query');
         $dds = $locator->getService('dds');
-		$queryBuilder = $locator->getService('query');
-        $netCityQuerySelect = $queryBuilder
-            ->select('*')
-            ->from('Net_City_Ip')
-            ->where('begin_ip <= ?', $ip)
-            ->where('end_ip >= ?', $ip);
-        $netCity = $dds->execute($netCityQuerySelect)
-            ->getResult()->asRow();
-        return $netCity;
+        $request = $locator->getService('request');
+        $ip = $ip !== null ? $ip : $request->ip();
+        $regionId = 0;
+        $cityGeoip = geoip_record_by_name($ip);
+        if ($cityGeoip && is_array($cityGeoip) && isset($cityGeoip['region'])) {
+            $regionId = $cityGeoip['region'];
+        }
+        $netCityQuery = $queryBuilder
+            ->select('id')
+            ->from('Net_City')
+            ->where('name_en', $cityGeoip['city'])
+            ->where('region', $cityGeoip['region']);
+        $netCityId = $dds->execute($netCityQuery)->getResult()->asValue();
+        return $netCityId;
     }
 
     /**
