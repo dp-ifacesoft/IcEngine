@@ -73,7 +73,11 @@ class Helper_GeoIP
         $request = $locator->getService('request');
         $ip = $ip !== null ? $ip : $request->ip();
         $regionId = 0;
-        $cityGeoip = geoip_record_by_name($ip);
+        try {
+            $cityGeoip = geoip_record_by_name($ip);
+        } catch (Exception $e) {
+            $cityGeoip = null;
+        }
         if ($cityGeoip && is_array($cityGeoip) && isset($cityGeoip['region'])) {
             $regionId = $cityGeoip['region'];
         }
