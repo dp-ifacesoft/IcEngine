@@ -6,7 +6,7 @@
  * @author nastya
  * @Service("helperYandexOriginalText")
  */
-class Helper_Yandex_Original_Text extends Service_Abstract
+class Helper_Yandex_Original_Text extends Helper_Abstract
 {
     /**
      * Токен доступа. Чтобы получить новый токен, необходимо перейти по ссылке
@@ -17,7 +17,6 @@ class Helper_Yandex_Original_Text extends Service_Abstract
     protected $config = array(
         'accessToken'  => '94f2d09a73e042f280fae50d9df83372'
     );
-    
     /**
      * Отправка оригинального текста
      * @param string $text оригинальный текст

@@ -163,4 +163,20 @@ class Form implements IteratorAggregate
         $this->isValid = $isValid;
         return $isValid;
     }
+    
+    /**
+     * Возвращает последнюю ошибку валидации
+     * 
+     * @return string
+     */
+    public function getLastErrorMessage()
+    {
+        foreach ($this->elements as $element) {
+            if (!$element->errors) {
+                continue;
+            }
+            return $element->errors[0];
+        }
+        return '';
+    }
 }
