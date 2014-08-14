@@ -52,7 +52,7 @@ class Helper_Yandex_Map {
      * замена геокод пойнту
      * выпилить его нахуй и перейти на яндекс апи
      */
-    public function geocode($coordinates, $limit, $kind = null) {
+    public function geocode($coordinates, $limit = null, $kind = null) {
 
         $params = array(
             'geocode' => $coordinates, // адрес
@@ -142,6 +142,28 @@ class Helper_Yandex_Map {
                 ($fNu * pow(cos($fAlphaPrepared), 2))
                 );
         return $fz * $fR;
+    }
+    
+    public function getAddressByGeocode($geocodePoint)
+    {
+        foreach ($geocodePoint as $geoObject){
+            $kind = $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['kind'];     
+            if($kind == 'house' || $kind == 'street'){
+                return $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['text'];
+            }
+        }
+         return null;
+    }
+    
+     public function getCoordsByGeocode($geocodePoint)
+    {
+        foreach ($geocodePoint as $geoObject){
+            $kind = $geoObject['GeoObject']['metaDataProperty']['GeocoderMetaData']['kind'];     
+            if($kind == 'house' || $kind == 'street'){
+                return $geoObject['GeoObject']['Point']['pos'];
+            }
+        }
+         return null;
     }
 
 }
