@@ -264,7 +264,31 @@ body .redactor_air .redactor_toolbar {
 	background-repeat: no-repeat;
 	background-position: 0;
 }
-
+.redactor_toolbar .btn div {
+	border: 0 none;
+	color: white;
+	cursor: pointer;
+	font: bold 13px/25px 'Trebuchet MS',Arial,Verdana,sans-serif;
+	height: 25px;
+	outline: 0 none;
+	text-shadow: 1px 0 0 #7B282A;
+	text-align: center;
+	background: url("/img/main_page/add_offer.png") #d53a41 repeat-x;
+	background: -moz-linear-gradient(#d53a41, #970101);
+	background: -ms-linear-gradient(#d53a41, #970101);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d53a41), color-stop(100%, #970101));
+	background: -webkit-linear-gradient(#d53a41, #970101);
+	background: -o-linear-gradient(#d53a41, #970101);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d53a41', endColorstr='#970101');
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#d53a41', endColorstr='#970101')";
+	background: linear-gradient(#d53a41, #970101);
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	padding: 0px 20px;
+	line-height: 25px;
+	font-size: 13px;
+}
 
 
 
