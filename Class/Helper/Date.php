@@ -320,7 +320,7 @@ class Helper_Date
 	 */
 	public function monthName($monthNum, $form = 1)
 	{
-		return self::$monthesR[$form][(int) $monthNum];
+		return self::$monthesRu[$form][(int) $monthNum];
 	}
 
 	/**
