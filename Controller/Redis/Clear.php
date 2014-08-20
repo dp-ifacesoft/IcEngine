@@ -5,23 +5,40 @@
  *
  * @author Илья Колесников, Юрий Шведов
  */
-class Controller_Redis_Clear extends Controller_Abstract
+class Controller_Redis_Clear extends Controller_Abstract 
 {
-	/**
-	 * @inheritdoc
-	 */
-	protected $config = array(
-		// Роли, имеющие доступ
-		'access_roles'		=> array('admin', 'editor', 'cli'),
-		// Провайдеры, которые будут игнорироваться при очищение
-		'ignore_providers'	=> array('user_session', 'Session_Manager', 'temp_content', 'session', 'session_redis'),
-		// Обработчики провайдеров, которые будут чиститься
-		'provider_names'	=> array('Redis')
-	);
+    /**
+     * @inheritdoc
+     */
+    protected $config = array(
+        // Роли, имеющие доступ
+        'access_roles' => array('admin', 'editor', 'cli'),
+        // Провайдеры, которые будут игнорироваться при очищение
+        'ignore_providers' => array('user_session', 'Session_Manager',
+            'temp_content'),
+        // Обработчики провайдеров, которые будут чиститься
+        'provider_names' => array('Redis')
+    );
 
-	/**
-	 * Очистка контента, не затрагивающего сессии пользователей.
-	 * Будут очищены результаты запросов, конфиги, виджеты.
+    /**
+     * Очищает данные провайдера по имени
+     * 
+     * @Template(null)
+     * @Validator("User_CliOrEditor")
+     * @Context("dataProviderManager")
+     */
+    public function clearByProvider($name, $context) 
+    {
+        $provider = $context->dataProviderManager->get($name);
+        if (!$provider) {
+            return false;
+        }
+        $provider->deleteByPattern('');
+    }
+    
+    /**
+     * Очистка контента, не затрагивающего сессии пользователей.
+     * Будут очищены результаты запросов, конфиги, виджеты.
      *
      * @Template(null)
      * @Validator("User_CliOrEditor")

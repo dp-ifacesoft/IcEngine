@@ -108,6 +108,27 @@ class Helper_Model
     {
         return str_replace('_', '/', $modelName) . '.php';
     }
+
+    /**
+     * Проверить модель на существование
+     *
+     * @param   string  $table  Название класса модели, экземпляр которой требуется проверить на существование
+     * @param   integer $rowId  ID экземпляра модели, который требуется проверить
+     *
+     * @return  bool
+     */
+    public function modelExists($table, $rowId)
+    {
+        $serviceLocator = IcEngine::serviceLocator();
+        if (empty($table) || empty($rowId) ||!class_exists($table) || !(in_array('Model', class_parents($table)))) {
+            return false;
+        }
+        /** @var Model_Manager $modelManager */
+        $modelManager = $serviceLocator->getService('modelManager');
+        /** @var Model $model */
+        $model = $modelManager->byKey($table, $rowId);
+        return ($model instanceof Model);
+    }
     
     /**
      * Распаковать поле
@@ -127,7 +148,8 @@ class Helper_Model
      * 
      * @param Model $model
      * @param string $field
-     * @param mixed value
+     * @param mixed $value
+     * @throws ErrorException
      * @return boolean
      */
     public function validateField($model, $field, $value)

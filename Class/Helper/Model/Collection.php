@@ -76,4 +76,21 @@ class Helper_Model_Collection extends Helper_Abstract
 		$collection->setItems($items);
 		return $collection;
 	}
+
+    /**
+     * Получить колличество элементов, не загружая всю коллекцию
+     */
+    public function getCount($collection)
+    {
+        $tempCollection = clone $collection;
+        $modelOptionManager = $this->getService('modelOptionManager');
+        $options = $tempCollection->getOptions();
+        $modelOptionManager->executeBefore($tempCollection, $options);
+        $tempCollection->query()->limit(1)->calcFoundRows();
+        $query = $tempCollection->getQuery();
+        unset($tempCollection);
+        $dds = $this->getService('dds');
+        $count = $dds->execute($query)->getResult()->foundRows();
+        return $count;
+    }
 }
