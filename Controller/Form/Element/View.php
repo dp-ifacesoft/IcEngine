@@ -37,7 +37,8 @@ class Controller_Form_Element_View extends Controller_Abstract
         }
         $this->task->setTemplate($path);
         $this->output->send(array(
-            'element'   => $element
+            'element'   => $element,
+            'form'      => $form
         ));
     }
 }
