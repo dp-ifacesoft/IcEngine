@@ -199,9 +199,9 @@ class IcEngine
         self::$loader->addPathes(
             array(
                 'Class' => array(
+                    self::$path . 'Service/',
                     self::$path . 'Class/',
                     self::$path . 'Model/',
-                    self::$path . 'Service/',
                     self::$path
                 ),
                 'Controller' => array(
