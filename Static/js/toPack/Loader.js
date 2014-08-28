@@ -11,7 +11,8 @@ var Loader = {
     groups: {
         'engine':   '/IcEngine/Static/js/',
         'ice':      '/Ice/Static/js/noPack/',
-        'cache':    '/cache/'
+        'cache':    '/cache/',
+        'Vendor': '/Ice/Static/Vendor/'
     },
 
     /**

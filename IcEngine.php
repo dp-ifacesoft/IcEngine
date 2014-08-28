@@ -195,21 +195,24 @@ class IcEngine
 	{
 		require dirname(__FILE__) . '/Class/Loader.php';
         self::$loader = new Loader();
-        self::$loader->addPathes(array(
-			'Class'			=> array(
-				self::$path . 'Class/',
-				self::$path . 'Model/',
-				self::$path
-			),
-			'Controller'	=> array(
-				self::$path . 'Controller/'
-			),
-            'Form'          => array(
-                self::$path . 'View/'
-            ),
-			'Vendor'		=> self::$path . 'Vendor/'
-		));
-	}
+        self::$loader->addPathes(
+            array(
+                'Class' => array(
+                    self::$path . 'Service/',
+                    self::$path . 'Class/',
+                    self::$path . 'Model/',
+                    self::$path
+                ),
+                'Controller' => array(
+                    self::$path . 'Controller/'
+                ),
+                'Form' => array(
+                    self::$path . 'View/'
+                ),
+                'Vendor' => self::$path . 'Vendor/'
+            )
+        );
+    }
 
 	/**
 	 * Подключение класса Tracer

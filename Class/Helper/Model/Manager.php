@@ -129,7 +129,7 @@ class Helper_Model_Manager extends Helper_Abstract
         $modelScheme = $this->getService('modelScheme');
         $dataSource = $modelScheme->dataSource($modelName);
         $queryBuilder = $this->getService('query');
-        $modelFields = $model->getFields();
+        $modelFields = $model->getUpdatedFields();
         $schemeFields = $modelScheme->scheme($modelName)->fields;
         foreach (array_keys($modelFields) as $fieldName) {
             if (isset($schemeFields[$fieldName])) {
