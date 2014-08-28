@@ -18,7 +18,7 @@ class Service_Filter_Pool extends Service_Abstract
     {
         $table          = $collection->table();
         $config         = $this->_getConfig($table, $type);
-        $fields         = !empty($config['sort']['fields'])         ? $config['sort']['fields']         : '';
+        $fields         = !empty($config['sort']['fields'])         ? $config['sort']['fields']         : [];
         $fieldParamName = !empty($config['sort']['fieldParamName']) ? $config['sort']['fieldParamName'] : '';
         $orderParamName = !empty($config['sort']['orderParamName']) ? $config['sort']['orderParamName'] : '';
         /** @var Model_Collection_Sorter $modelCollectionSorter */
