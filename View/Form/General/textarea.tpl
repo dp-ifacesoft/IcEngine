@@ -1,0 +1,1 @@
+<textarea name="{$element->name}" {foreach from=$element->attributes item='attr' key='key'}{$key}="{$attr}" {/foreach} />{$element->value}</textarea>
