@@ -242,6 +242,7 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                         if (!$currentValue) {
                             $currentValue = $bufferValue;
                         }
+                        $currentValue = trim($currentValue, ' *');
                         $source = array_pop($stack);
                         if ($currentName) {
                             $source[$currentName] = $currentValue;
@@ -250,7 +251,7 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                             $index = array_pop($indexes);
                             array_push($indexes, 0);
                             $source[$index] = $currentValue;
-                        }
+                            }
                         $valueChanged = false;
                         $collectionValue = false; 
                         $hasClosed = true;
@@ -264,6 +265,8 @@ class Annotation_Source_Standart extends Annotation_Source_Simple
                         $bufferValue .= $ch;
                 }
             }
+            $lastValue = trim($lastValue, ' *');
+            $bufferValue = trim($bufferValue, ' *');
             if ($currentName) {
                 $source[$currentName] = $currentValue;
             } elseif ($lastValue !== '' || $bufferValue !== '') {

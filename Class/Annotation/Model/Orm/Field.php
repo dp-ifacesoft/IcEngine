@@ -24,6 +24,9 @@ class Annotation_Model_Orm_Field extends Annotation_Model_Abstract
         if (array_diff($annotationFieldsKeys, $schemeFieldsKeys)) {
             return false;
         }
+        if (count($annotationFieldsKeys) != count($schemeFieldsKeys)) {
+            return false;
+        }
         static $compareFieldArray = array(
             'Unsigned'          => Model_Field::ATTR_UNSIGNED, 
             'Binary'            => Model_Field::ATTR_BINARY, 

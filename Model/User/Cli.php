@@ -23,8 +23,9 @@ class User_Cli extends User
 
     /**
      * Создает новую схему
-     * 
+     *
      * @param array $fields
+     * @return int|string
      */
     protected function createScheme($fields)
     {

@@ -12,23 +12,23 @@ class Helper_Array extends Helper_Abstract
 	 * Возвращает массив
      *
 	 * @param array $input Двумерный массив.
-	 * @param string $columns Название колонки.
-	 * @param string $index Имя индекса
+	 * @param string $columnNames Название колонки.
+	 * @param string $indexName Имя индекса
 	 * @return array Колонка $column исходного массива
 	 */
-	public function column($input, $columns, $index = null)
+	public function column($input, $columnNames, $indexName = null)
 	{
-        if (!$columns) {
+        if (!$columnNames) {
             return $input;
         }
-        if (!is_array($input) || empty($input)) {
+        if (empty($input)) {
             return array();
         }
 		$result = array();
-        $count = count($columns);
+        $count = count($columnNames);
 		foreach ($input as $row) {
             $current = array();
-            foreach ((array) $columns as $column) {
+            foreach ((array) $columnNames as $column) {
                 $value = isset($row[$column]) ? $row[$column] : null;
                 if ($count > 1) {
                     $current[$column] = $value;
@@ -36,8 +36,8 @@ class Helper_Array extends Helper_Abstract
                     $current = $value;
                 }
             }
-			if ($index && isset($current[$index])) {
-				$result[$current[$index]] = $current;
+			if ($indexName && isset($row[$indexName])) {
+				$result[$row[$indexName]] = $current;
 			} else {
 				$result[] = $current;
 			}
@@ -56,20 +56,21 @@ class Helper_Array extends Helper_Abstract
     {
 		$firstFields = array();
 		foreach ($filter as $field => $value) {
-			$s = substr($field, -2, 2);
+			$s = substr(trim($field), -2, 2);
+            $s = trim($s);
 			if ($s[0] == '=' || ctype_alnum($s)) {
 				unset($filter[$field]);
 				$field = str_replace(' ', '', rtrim($field, '='));
 				$firstFields[$field] = $value;
 			}
 		}
-        $result = array();
+		$result = array();
 		foreach ($rows as $row) {
 			$valid = true;
 			if ($firstFields && !$this->validateRow($row, $firstFields)) {
                 continue;
             }
-			foreach ($filter as $field => $value) {
+            foreach ($filter as $field => $value) {
                 $fieldModificator = false;
                 if (strpos($field, '<') || strpos($field, '>') || strpos($field, '!')) {
                     $fieldModificator = true;
@@ -79,17 +80,14 @@ class Helper_Array extends Helper_Abstract
                     break;
                 }
                 $field = str_replace(' ', '', $field);
-                $s = substr($field, -2, 2);
-                $offset = 2;
-                if (ctype_alnum($s)) {
-                    $s = '=';
-                    $offset = 0;
-                } elseif(ctype_alnum($s [0])) {
-                    $s = $s[1];
+                $s = substr($field, -2);
+                $offset = 0;
+                if(ctype_alnum($s[0])) {
                     $offset = 1;
                 }
-                if ($offset) {
-                    $field = substr($field, 0, -1 * $offset);
+                $field = substr($field, 0, $offset - 2);
+                if($offset) {
+                    $s = substr($s, $offset);
                 }
                 $currentValid = 0;
                 switch ($s) {
@@ -97,7 +95,13 @@ class Helper_Array extends Helper_Abstract
                     case '>=': $currentValid = ($row[$field] >= $value); break;
                     case '<': $currentValid = ($row[$field] < $value); break;
                     case '<=': $currentValid = ($row[$field] <= $value); break;
-                    case '!=': $currentValid = ($row[$field] != $value); break;
+                    case '!=':
+                        if(!is_array($value)) {
+                            $currentValid = ($row[$field] != $value);
+                        } else {
+                            $currentValid = !in_array($row[$field], $value);
+                        }
+                        break;
                 }
                 $valid &= $currentValid;
                 if (!$valid) {
@@ -112,6 +116,25 @@ class Helper_Array extends Helper_Abstract
     }
 
     /**
+     * @desc Установить в качестве ключей массива значения из колонки $column
+     * @param array $input
+     * 		Входной массив.
+     * @param string $column
+     * 		Колонка, значения которой будут использованы в качестве ключей.
+     * @return array
+     */
+    public function setKeyColumn (array $input, $column)
+    {
+        if (!$input) {
+            return array();
+        }
+        return array_combine(
+            $this->column($input, $column),
+            $input
+        );
+    }
+
+     /**
      * Группировка по полю
      * 
      * @param array $array Массив
@@ -152,7 +175,7 @@ class Helper_Array extends Helper_Abstract
 	 *
      * @param array $data Массив
 	 * @param string $sortby Поля сортировки через запятую
-	 * @return boolean true если успешно, иначе false.
+	 * @return array результат.
 	 */
 	public function masort($data, $sortby)
 	{
@@ -195,7 +218,8 @@ class Helper_Array extends Helper_Abstract
      *
 	 * @param array $data Массив объектов
 	 * @param string $sortby Поля для сортировки
-	 */
+     * @return bool
+     */
 	public function mosort(&$data, $sortby)
 	{
 		if (count($data) <= 1) {
@@ -333,6 +357,7 @@ class Helper_Array extends Helper_Abstract
 			for ($i = 0; $i < count($list); $i++) {
 				$listIds[$list[$i][$keyField]] = $i;
 			}
+            $parentId = 0;
 			for ($i = 0; $i < count($result); $i++) {
 				if (!$result[$i][$parentField]) {
 					$parentId = $result[$i][$keyField];
@@ -365,7 +390,7 @@ class Helper_Array extends Helper_Abstract
      * @param type $parentField
      * @return type
      */
-    public function sortArrayByParent($array, $parentField = 'parentId', $childrenName = 'children') 
+    public function sortArrayByParent($array, $parentField = 'parentId') 
     {
         $arrayReindexed = array();
         foreach ($array as $item) {
@@ -397,7 +422,7 @@ class Helper_Array extends Helper_Abstract
                 if (!$item[$parentField]) {
                     continue;
                 }
-                $arrayReindexed[$item[$parentField]][$childrenName][] = 
+                $arrayReindexed[$item[$parentField]]['children'][] = 
                     $arrayReindexed[$item['id']];
             }
         }
@@ -410,50 +435,7 @@ class Helper_Array extends Helper_Abstract
         }
         return $arrayResult;
     }
-    
-    /**
-     * Рекурсивный поиск узла в дереве
-     * @param array $tree дерево
-     * @param string $nodeName имя узла
-     * @return array узел
-     */
-    public function findNodeInTreeRecursive($tree, $nodeValue, $nodeName = 'id', $childrenName = 'children')
-    {
-        foreach ($tree as $node) {
-            if ($node[$nodeName] == $nodeValue) {
-                if (isset($node[$childrenName])) {
-                    return $node[$childrenName];
-                } else {
-                    return null;
-                }
-            } elseif (isset($node[$childrenName])) {
-                $neededNode = $this->findNodeInTreeRecursive($node[$childrenName], $nodeValue, $nodeName, $childrenName);
-                if ($neededNode) {
-                    return $neededNode;
-                }
-            }
-        }
-        return null;
-    }
-    
-    public function treeToFlatArray($tree, $childrenName = 'children') 
-    {
-        $noChilds = 0;
-        foreach($tree as $key => $node) {
-            if (isset($node[$childrenName])) {
-                
-                $nodeRemoved = $node[$childrenName];
-                unset($tree[$key][$node[$childrenName]]);
-                array_push($tree, $nodeRemoved); 
-                $noChilds =1;
-                $this->treeToFlatArray($tree);
-            } 
-        }
-        if($noChilds == 0) {
-            return $tree;
-        }
-    }
-    
+
     /**
      * Проверить ячейку на соответствие фильтру
      *

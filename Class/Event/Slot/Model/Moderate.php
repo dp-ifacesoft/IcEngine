@@ -31,8 +31,9 @@ class Event_Slot_Model_Moderate extends Event_Slot
             );
         }
         $scheme = $model->scheme()->__toArray();
-        $afterSet = isset($scheme['signals']['afterSet']) ?
-            $scheme['signals']['afterSet'] : array();
+        $afterSet = isset($scheme['signals']['afterSet'])
+            ?$scheme['signals']['afterSet']
+            : array();
         $signalName = 'Model_Driver_Back_' . $modelName;
         if (!in_array($signalName, $afterSet)) {
             array_unshift($afterSet, $signalName);

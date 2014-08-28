@@ -10,7 +10,7 @@ class Data_Validator_Greater_Than extends Data_Validator_Abstract
     /**
      * @inheritdoc
      */
-    public function validate($data, $value)
+    public function validate($data, $value=NULL)
     {
         return (bool) ($data > $value);
     }

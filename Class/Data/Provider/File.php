@@ -12,9 +12,9 @@ class Data_Provider_File extends Data_Provider_Abstract
 	 */
 	public function get($key, $plain = false)
 	{
-        $filename = IcEngine::root() . $key;
+        $filename = IcEngine::root() . $this->prefix . md5($key);
         if (!is_file($filename)) {
-            return null;
+            return false;
         }
         $content = file_get_contents($filename);
         return json_decode($content, true);
@@ -25,7 +25,7 @@ class Data_Provider_File extends Data_Provider_Abstract
 	 */
 	public function set($key, $value, $expiration = 0, $tags = array())
 	{
-		$filename = IcEngine::root() . $key;
+		$filename = IcEngine::root() . $this->prefix . md5($key);
         $content = json_encode($value);
         file_put_contents($filename, $content);
 	}
