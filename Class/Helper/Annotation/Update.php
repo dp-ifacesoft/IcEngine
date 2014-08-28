@@ -27,6 +27,8 @@ class Helper_Annotation_Update extends Helper_Abstract
                 $loader->getPaths('Controller')
             );
         }
+        /** @var Helper_File $helperFile */
+        $helperFile = $this->getService('helperFile');
         foreach ($paths as $path) {
             if (!$path || !is_dir($path)) {
                 continue;
@@ -36,18 +38,23 @@ class Helper_Annotation_Update extends Helper_Abstract
                 strpos($path, 'Model') === false) {
                 continue;
             }
-            ob_start();
-            system('find ' . $path . '** | grep .php');
-            $content = ob_get_contents();
-            ob_end_clean();
-            $files = explode(PHP_EOL, $content);
+            $files = $helperFile->scan($path, true, true, false);
+//            ob_start();
+//            system('find ' . $path . '** | grep .php');
+//            $content = ob_get_contents();
+//            ob_end_clean();
+//            $files = explode(PHP_EOL, $content);
             foreach ($files as $file) {
                 if (!$file || !is_file($file)) {
                     continue;
                 }
-                if (substr($file, -4, 4) != '.php') {
+                if ($helperFile->extention($file) != 'php')
+                {
                     continue;
                 }
+//                if (substr($file, -4, 4) != '.php') {
+//                    continue;
+//                }
                 $content = file_get_contents($file);
                 if (strpos($content, 'namespace IcEngine\\') !== false) {
                     continue;

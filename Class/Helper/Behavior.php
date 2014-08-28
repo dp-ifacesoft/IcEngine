@@ -11,7 +11,7 @@ class Helper_Behavior
     /**
      * Путь к файлу окружения
      */
-    const PATH = 'Ice/Var/Site/Location.txt';
+    const PATH = 'Ice/Var/Helper/Site/Location.txt';
     
     /**
      * Привести строку с названием окружения к нормальному виду

@@ -15,8 +15,13 @@ class Controller_View_Resource extends Controller_Abstract
      */
 	public function index($type, $params, $name, $context)
 	{
+        $reses = array();
+        if (isset($params['reses'])) {
+            $reses = $params['reses'];
+            unset($params['reses']);
+        }
         $vars = array ();
-		if ($params) {
+        if ($params) {
 			foreach ($params as $key => $value) {
 				$vars['{$' . $key . '}'] = $value;
 			}
@@ -46,6 +51,9 @@ class Controller_View_Resource extends Controller_Abstract
                     continue;
                 }
                 if ($name && $name != $targetName) {
+                    continue;
+                }
+                if (count($reses) && in_array($targetName, $reses)) {
                     continue;
                 }
 				$resources = array();

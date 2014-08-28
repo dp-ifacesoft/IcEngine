@@ -25,6 +25,7 @@ class Model_Manager extends Manager_Abstract
 	);
 
 	/**
+     *
 	 * Получение модели по первичному ключу
      *
 	 * @param string $modelName Имя класса модели.
@@ -319,6 +320,7 @@ class Model_Manager extends Manager_Abstract
         $delegee->remove($model);
         if (isset($scheme['afterDelete'])) {
             $signalName = $scheme['afterDelete'];
+            /** @var Event_Signal $signal */
             $signal = $eventManager->getSignal($signalName);
             $signal->setData(array(
                 'model' => $model
@@ -336,6 +338,7 @@ class Model_Manager extends Manager_Abstract
 	public function set(Model $model, $hardInsert = false)
 	{
         $config = $this->config();
+        /** @var Helper_Model_Manager $helperModelManager */
         $helperModelManager = $this->getService('helperModelManager');
         $parent = $helperModelManager->getParentClass(
             $model->modelName(), $config
@@ -351,11 +354,21 @@ class Model_Manager extends Manager_Abstract
         $helperModelManager->notifySignal(
             $helperModelManager->getDefaultSignal(__METHOD__, $model), $model
         );
+        $eventManager = $this->getService('eventManager');
         if ($model->scheme()['signals']['beforeSet']) {
             $helperModelManager->notifySignal(
                 $model->scheme()['signals']['beforeSet']->__toArray(), $model
             );
         }
         $delegee->set($model, $hardInsert);
+        if (isset($scheme['afterSet'])) {
+            $signalName = $scheme['afterSet'];
+            /** @var Event_Signal $signal */
+            $signal = $eventManager->getSignal($signalName);
+            $signal->setData(array(
+                'model' => $model
+            ));
+            $signal->notify();
+        }
 	}
 }

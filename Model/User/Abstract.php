@@ -35,6 +35,8 @@ class User_Abstract extends Model
 	 */
 	public function authorize()
 	{
+        $session = $this->getService('userSession')->getCurrent();
+		$session->updateSession($this->key());
         $userService = $this->getService('user');
         $userService->setCurrent($this);
         $session = $this->getService('userSession')->getCurrent();
@@ -78,15 +80,14 @@ class User_Abstract extends Model
 		if (!isset($data['ip'])) {
 			$data['ip'] = $this->getService('request')->ip();
 		}
-        //иначе пароля не будет в RSAW2
-        if (strlen($data['password']) < 4) {
-            return;
-        }
-        if (!isset($data['login']) && !isset($data['email'])) {
+        if (!isset($data['login']) && !isset($data['email']) && !isset($data['phone'])) {
             return false;
         }
-        if (!isset($data['login'])) {
+        if (!isset($data['login']) && isset($data['email'])) {
             $data['login'] = $data['email'];
+        }
+        if (!isset($data['login']) && isset($data['phone'])) {
+             $data['login'] = $data['phone'];
         }
         $cryptManager = $this->getService('cryptManager');
         $configManager = $this->getService('configManager');

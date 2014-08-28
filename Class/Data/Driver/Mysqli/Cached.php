@@ -7,12 +7,13 @@
  */
 class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
 {
-	/**
-	 * Кэшер запросов.
-	 *
+
+    /**
+     * Кэшер запросов.
+     *
      * @var Data_Provider_Abstract
-	 */
-	protected $cacher;
+     */
+    protected $cacher;
 
     /**
      * Кэши, уже полученные из провайдера
@@ -37,6 +38,7 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
         if ($method != 'executeSelect') {
             $this->sql = $query->translate('Mysql');
         }
+
         return parent::callMethod($query, $options);
     }
 
@@ -49,95 +51,92 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
         self::$tagsCaches = array();
     }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function executeChange(Query_Abstract $query,
-        Query_Options $options)
-	{
-		if (!$this->handler) {
-			$this->connect();
-		}
-		if (Tracer::$enabled) {
-			$startTime = microtime(true);
-		}
+    /**
+     * @inheritdoc
+     */
+    protected function executeChange(Query_Abstract $query, Query_Options $options)
+    {
+        if (!$this->handler) {
+            $this->connect();
+        }
+        if (Tracer::$enabled) {
+            $startTime = microtime(true);
+        }
         $result = parent::executeChange($query, $options);
         if (!$result) {
             return false;
         }
-		if (Tracer::$enabled) {
-			$endTime = microtime(true);
-			$delta = $endTime - $startTime;
-			if ($query instanceof Query_Delete) {
-				Tracer::incDeleteQueryCount();
-				Tracer::incDeleteQueryTime($delta);
-			} else {
-				Tracer::incUpdateQueryCount();
-				Tracer::incUpdateQueryTime($delta);
-			}
-			Tracer::incDeltaQueryCount();
-		}
-		if ($this->affectedRows > 0) {
-			$tags = $query->getTags();
-			for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
+        if (Tracer::$enabled) {
+            $endTime = microtime(true);
+            $delta = $endTime - $startTime;
+            if ($query instanceof Query_Delete) {
+                Tracer::incDeleteQueryCount();
+                Tracer::incDeleteQueryTime($delta);
+            } else {
+                Tracer::incUpdateQueryCount();
+                Tracer::incUpdateQueryTime($delta);
+            }
+            Tracer::incDeltaQueryCount();
+        }
+        if ($this->affectedRows > 0) {
+            $tags = $query->getTags();
+            for ($i = 0, $count = sizeof($tags); $i < $count; ++$i) {
                 $tag = $tags[$i];
-				$this->cacher->tagDelete($tag);
+                $this->cacher->tagDelete($tag);
                 $this->tagDelete($tag);
-			}
-		}
-		return true;
-	}
+            }
+        }
+        return true;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function executeInsert(Query_Abstract $query,
-        Query_Options $options)
-	{
-		if (!$this->handler) {
-			$this->connect();
-		}
-		if (Tracer::$enabled) {
-			$startTime = microtime(true);
-		}
-		$result = parent::executeInsert($query, $options);
+    /**
+     * @inheritdoc
+     */
+    protected function executeInsert(Query_Abstract $query, Query_Options $options)
+    {
+        if (!$this->handler) {
+            $this->connect();
+        }
+        if (Tracer::$enabled) {
+            $startTime = microtime(true);
+        }
+        $result = parent::executeInsert($query, $options);
         if (!$result) {
             return false;
         }
-		if (Tracer::$enabled) {
-			$endTime = microtime(true);
-			$delta = $endTime - $startTime;
-			Tracer::incUpdateQueryCount();
-			Tracer::incUpdateQueryTime($delta);
-			Tracer::incDeltaQueryCount();
-		}
-		if ($this->affectedRows > 0) {
-			$tags = $query->getTags();
-			for ($i = 0, $count = sizeof($tags); $i < $count; $i++) {
-				$tag = $tags[$i];
+        if (Tracer::$enabled) {
+            $endTime = microtime(true);
+            $delta = $endTime - $startTime;
+            Tracer::incUpdateQueryCount();
+            Tracer::incUpdateQueryTime($delta);
+            Tracer::incDeltaQueryCount();
+        }
+        if ($this->affectedRows > 0) {
+            $tags = $query->getTags();
+            for ($i = 0, $count = sizeof($tags); $i < $count; $i++) {
+                $tag = $tags[$i];
                 $this->cacher->tagDelete($tag);
                 $this->tagDelete($tag);
-			}
-		}
-		return true;
-	}
+            }
+        }
+        return true;
+    }
 
-	/**
-	 * Выполняет запрос на получение данных.
-	 *
+    /**
+     * Выполняет запрос на получение данных.
+     *
      * @param Query_Abstract $query
-	 * @param Query_Options $options
-	 * @return null|array
-	 */
-	protected function executeSelect(Query_Abstract $query,
-        Query_Options $options)
-	{
-		if (Tracer::$enabled) {
-			Tracer::incSelectQueryCount();
-            Tracer::appendQueryToVector($query->translate('Mysql'));
-		}
-		$key = $this->sqlHash($query);
-		$expiration = $options->getExpiration();
+     * @param Query_Options $options
+     * @return null|array
+     */
+    protected function executeSelect(Query_Abstract $query, Query_Options $options)
+    {
+        if (Tracer::$enabled) {
+            Tracer::incSelectQueryCount();
+            Tracer::appendQueryToVector($query);
+        }
+        $key = $this->sqlHash($query);
+        $expiration = $options->getExpiration();
         $fromCache = false;
         if (!isset(self::$caches[$key])) {
             $cache = $this->cacher->get($key);
@@ -145,78 +144,94 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             $cache = self::$caches[$key];
             $fromCache = true;
         }
-		$cacheValid = false;
-		if ($cache) {
-            $tagsValid = $fromCache ?: $this->isTagsValid($cache['t']);
+        $cacheValid = false;
+        if ($cache) {
+            $tagsValid = $this->isTagsValid($cache['t']);
             $expiresValid = $cache['a'] + $expiration > time() || !$expiration;
-			$cacheValid = $expiresValid && $tagsValid;
-		}
-		if ($cacheValid) {
+            $cacheValid = $expiresValid && $tagsValid;
+        }
+        if ($cacheValid) {
             self::$caches[$key] = $cache;
-			$this->numRows = count($cache['v']);
-			$this->foundRows = $cache['f'];
-			if (Tracer::$enabled) {
-				Tracer::incCachedSelectQueryCount();
-			}
-			$rows = $cache['v'];
-		} else {
+            $this->numRows = count($cache['v']);
+            $this->foundRows = $cache['f'];
+            if (Tracer::$enabled) {
+                Tracer::incCachedSelectQueryCount();
+            }
+            $rows = $cache['v'];
+        } else {
             $rows = $this->getRows($query, $options);
+            if (!is_null($rows)) {
+                $tags = $query->getTags();
+                $providerTags = $this->cacher->getTags($tags);
+                if ($tags) {
+                    foreach (array_keys($providerTags) as $tag) {
+                        self::$tagsCaches[$tag][] = $key;
+                    }
+                }
+                $cache = array(
+                    'v' => $rows,
+                    'a' => time(),
+                    't' => $providerTags,
+                    'f' => $this->foundRows
+                );
+                self::$caches[$key] = $cache;
+                $this->cacher->set($key, $cache, $options->getExpiration());
+            }
             $this->numRows = count($rows);
         }
         return $rows;
-	}
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function execute(Query_Abstract $query, $options = null)
-	{
-		if (!($query instanceof Query_Abstract)) {
-			return new Query_Result(null);
-		}
-		$start = microtime(true);
-		$this->errno = 0;
-		$this->error = '';
-		$this->affectedRows = 0;
-		$this->foundRows = 0;
-		$this->numRows = 0;
-		$this->insertId = null;
-		if (!$options) {
-			$options = $this->getDefaultOptions();
-		}
-		$result = $this->callMethod($query, $options);
-		if ($this->errno) {
-			throw new Exception($this->error . "\n" . $this->sql, $this->errno);
-		}
-		if (!$this->errno && is_null($result)) {
-			$result = array();
-		}
-		$finish = microtime(true);
-		$queryResult = new Query_Result(array(
-			'error'			=> $this->error,
-			'errno'			=> $this->errno,
-			'query'			=> $query,
-			'startAt'		=> $start,
-			'finishedAt'	=> $finish,
-			'foundRows'		=> $this->foundRows,
-            'numRows'       => $this->numRows,
-			'result'		=> $result,
-			'touchedRows'	=> $this->touchedRows ?:
-                $this->numRows + $this->affectedRows,
-			'insertKey'		=> $this->insertId
-		));
+    /**
+     * @inheritdoc
+     */
+    public function execute(Query_Abstract $query, $options = null)
+    {
+        if (!($query instanceof Query_Abstract)) {
+            return new Query_Result(null);
+        }
+        $start = microtime(true);
+        $this->errno = 0;
+        $this->error = '';
+        $this->affectedRows = 0;
+        $this->foundRows = 0;
+        $this->numRows = 0;
+        $this->insertId = null;
+        if (!$options) {
+            $options = $this->getDefaultOptions();
+        }
+        $result = $this->callMethod($query, $options);
+        if ($this->errno) {
+            throw new Exception($this->error . "\n" . $this->sql, $this->errno);
+        }
+        if (!$this->errno && is_null($result)) {
+            $result = array();
+        }
+        $finish = microtime(true);
+        $queryResult = new Query_Result(array(
+            'error' => $this->error,
+            'errno' => $this->errno,
+            'query' => $query,
+            'startAt' => $start,
+            'finishedAt' => $finish,
+            'foundRows' => $this->foundRows,
+            'numRows' => $this->numRows,
+            'result' => $result,
+            'touchedRows' => $this->touchedRows ? : $this->numRows + $this->affectedRows,
+            'insertKey' => $this->insertId
+        ));
         return $queryResult;
-	}
+    }
 
-	/**
+    /**
      * Получить текущего кэшера
      *
-	 * @return Data_Provider_Abstract
-	 */
-	public function getCacher()
-	{
-		return $this->cacher;
-	}
+     * @return Data_Provider_Abstract
+     */
+    public function getCacher()
+    {
+        return $this->cacher;
+    }
 
     /**
      * Вернуть ряды из источника
@@ -228,49 +243,39 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
     protected function getRows($query, $options)
     {
         if (!$this->handler) {
-			$this->connect();
-		}
-		if (Tracer::$enabled) {
-			$startTime = microtime(true);
-			Tracer::begin(__CLASS__, __METHOD__, __LINE__);
-		}
+            $this->connect();
+        }
+        if (Tracer::$enabled) {
+            $startTime = microtime(true);
+            Tracer::begin(__CLASS__, __METHOD__, __LINE__);
+        }
         $key = $this->sqlHash($query);
-        $this->sql = $query->translate('Mysql');
-		$rows = parent::executeSelect($query, $options);
-		if (Tracer::$enabled) {
-			$endTime = microtime(true);
-			$delta = $endTime - $startTime;
-			if ($delta >= Tracer::LOW_QUERY_TIME) {
-				Tracer::addLowQuery($this->sql, $delta);
-			} else {
-				Tracer::incSelectQueryTime($delta);
-			}
-			Tracer::end(
-                $this->sql,
-                $this->numRows,
-				memory_get_usage()
-            );
-			Tracer::incDeltaQueryCount();
-		}
-        if (is_null($rows)) {
-            return null;
+        $queryTextKey = 'q_' . $key;
+        
+        $this->sql = $this->cacher->get($queryTextKey);
+        if (!$this->sql) {
+            $this->sql = $query->translate('Mysql');
+            // Для получения профита на малоизменяемых таблицах 
+            // время жизни транслированного запроса должно быть больше времени жизни результатов этого запроса, 
+            // т.к. наличие в кеше результатов проверяется до трансляции запроса.
+            $this->cacher->set($queryTextKey, $this->sql, $options->getExpiration() * 4);
         }
-		$tags = $query->getTags();
-        $providerTags = $this->cacher->getTags($tags);
-        if ($tags) {
-            foreach (array_keys($providerTags) as $tag) {
-                self::$tagsCaches[$tag][] = $key;
+        // родительский метод использует $this->sql для выполнения запроса
+        $rows = parent::executeSelect($query, $options);
+        if (Tracer::$enabled) {
+            $endTime = microtime(true);
+            $delta = $endTime - $startTime;
+            if ($delta >= Tracer::LOW_QUERY_TIME) {
+                Tracer::addLowQuery($query, $delta);
+            } else {
+                Tracer::incSelectQueryTime($delta);
             }
+            Tracer::end(
+                    $key . ' ' . $this->sql, $this->numRows, memory_get_usage()
+            );
+            Tracer::incDeltaQueryCount();
         }
-        $cache = array (
-            'v' => $rows,
-            'a' => time(),
-            't' => $providerTags,
-            'f'	=> $this->foundRows
-        );
-        self::$caches[$key] = $cache;
-		$this->cacher->set($key, $cache);
-		return $rows;
+        return $rows;
     }
 
     /**
@@ -285,45 +290,45 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
     }
 
     /**
-	 * Изменить текущего кэшера
+     * Изменить текущего кэшера
      *
-	 * @param Data_Provider_Abstract $cacher
-	 */
-	public function setCacher(Data_Provider_Abstract $cacher)
-	{
-		$this->cacher = $cacher;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function setOption($key, $value = null)
-	{
-		switch ($key) {
-			case 'cacher':
-                $serviceLocator = IcEngine::serviceLocator();
-                $dataProviderManager = $serviceLocator->getService(
-                    'dataProviderManager'
-                );
-                $provider = $dataProviderManager->get($value);
-				$this->setCacher($provider);
-				return;
-			case 'expiration':
-				$this->getDefaultOptions()->setExpiration($value);
-				return;
-		}
-		return parent::setOption($key, $value);
-	}
+     * @param Data_Provider_Abstract $cacher
+     */
+    public function setCacher(Data_Provider_Abstract $cacher)
+    {
+        $this->cacher = $cacher;
+    }
 
     /**
-	 * Получение хэша запроса
-	 *
+     * @inheritdoc
+     */
+    public function setOption($key, $value = null)
+    {
+        switch ($key) {
+            case 'cacher':
+                $serviceLocator = IcEngine::serviceLocator();
+                $dataProviderManager = $serviceLocator->getService(
+                        'dataProviderManager'
+                );
+                $provider = $dataProviderManager->get($value);
+                $this->setCacher($provider);
+                return;
+            case 'expiration':
+                $this->getDefaultOptions()->setExpiration($value);
+                return;
+        }
+        return parent::setOption($key, $value);
+    }
+
+    /**
+     * Получение хэша запроса
+     *
      * @return string
-	 */
-	protected function sqlHash($query)
-	{
-		return md5(serialize($query->getParts()));
-	}
+     */
+    protected function sqlHash($query)
+    {
+        return md5(serialize($query->getParts()));
+    }
 
     /**
      * Удаляет внутренние сохраненные тэги и запросы
@@ -342,4 +347,5 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             }
         }
     }
+
 }

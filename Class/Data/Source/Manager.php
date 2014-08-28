@@ -112,12 +112,14 @@ class Data_Source_Manager extends Manager_Abstract
      * Инициализация дата маппера
      *
      * @param Data_Source $dataSource
+     * @throws ErrorException
+     * @return null
      */
-    public function initDataDriver($source)
+    public function initDataDriver($dataSource)
     {
-        $sourceConfig = $source->getConfig();
+        $sourceConfig = $dataSource->getConfig();
         if (empty($sourceConfig['driver'])) {
-            return null;
+            throw new ErrorException('Не получен конфиг датасорса');
         }
         $driverManager = $this->getService('dataDriverManager');
         $driverConfig = isset($sourceConfig['options'])
@@ -125,7 +127,7 @@ class Data_Source_Manager extends Manager_Abstract
         $currentDriver = $driverManager->get(
             $sourceConfig['driver'], $driverConfig
         );
-        $source->setDataDriver($currentDriver);
+        $dataSource->setDataDriver($currentDriver);
     }
 
     /**

@@ -127,6 +127,7 @@ class Service_Source
      * Получить аргумент
      *
      * @param string $arg
+     * @return string
      */
     protected function getArg($arg)
     {
