@@ -1,0 +1,1 @@
+{foreach from=$roles item="role" name="roles" key="roleName"}{if is_numeric($roleName)}"{$role}"{else}"{$roleName}"={literal}{{/literal}{foreach from=$role item="accessType" name="accessTypes"}"{$accessType}"{if !$smarty.foreach.accessTypes.last}, {/if}{/foreach}{literal}}{/literal}{/if}{if !$smarty.foreach.roles.last}, {/if}{/foreach}
