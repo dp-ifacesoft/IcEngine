@@ -61,8 +61,8 @@ class Model_Manager_Delegee_Abstract
         $updatedFields = $model->getUpdatedFields();
         if (!$model->key() || $hardInsert) {
             $updatedFields = $model->getFields();
-            $model->setUpdatedFields($updatedFields);
         }
+        $model->setUpdatedFields($updatedFields);
         if ($updatedFields) {
             $helperModelManager = $locator->getService('helperModelManager');
             $helperModelManager->write($model, $hardInsert);

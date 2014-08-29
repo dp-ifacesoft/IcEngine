@@ -138,6 +138,7 @@ class Helper_Model_Manager extends Helper_Abstract
             unset($modelFields[$fieldName]);
         }
         if ($key && !$hardInsert) {
+            $modelFields[$keyField] = $key;
             $query = $queryBuilder
                 ->update($modelName)
                 ->values($modelFields)
