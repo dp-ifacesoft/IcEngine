@@ -400,7 +400,7 @@ class Paginator
      */
     public function buildPages()
     {
-        $page = $this->getPage();
+        $currentPage = $this->getPage();
         $pages = array();
         $pagesCount = $this->pagesCount();
         if ($pagesCount <= 1) {
@@ -415,7 +415,7 @@ class Paginator
             if ($i <= 3 ||							// первые 3 страницы
                 ($pagesCount - $i) < 3 ||			// последние 3 страницы
                 abs($halfPage - $i) < 3 ||			// середина
-                abs($page - $i) < 3			// возле текущей
+                abs($currentPage - $i) < 3			// возле текущей
             ) {
                 $pageHref = $href;
                 if (!($i == 1 && $notGet)) {
@@ -428,9 +428,9 @@ class Paginator
                 $page = array(
                     'href'	    => $pageHref,
                     'title'	    => $i,
-                    'next'		=> ($page == $i - 1),
-                    'prev'		=> ($page == $i + 1),
-                    'selected'	=> ($page == $i)
+                    'next'		=> ($currentPage == $i - 1),
+                    'prev'		=> ($currentPage == $i + 1),
+                    'selected'	=> ($currentPage == $i)
                 );
                 if ($page['selected']) {
                     if (!empty($pages)) {
