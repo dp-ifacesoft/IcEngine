@@ -980,15 +980,19 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
      *
      * @param Paginator $paginator
      */
-    public function setPaginator($paginator)
+	public function setPaginator(Paginator $paginator)
     {
         $this->paginator = $paginator;
         if ($paginator) {
-            $this->paginator->total = is_array($this->items)
-                ? count($this->items) : 0;
-
+            $total =
+                is_array($this->items)
+                ? count($this->items)
+                : 0
+            ;
+            $this->paginator->setTotal($total);
+            $perPage = $paginator->getPerPage();
             if ($this->items) {
-                $this->slice($paginator->offset(), $paginator->perPage);
+                $this->slice($paginator->offset(), $perPage);
             }
         }
     }
