@@ -13,14 +13,14 @@ class Paginator
      *
      * @var bool
      */
-    public $notGet = false;
+    protected $notGet = false;
 
     /**
      * Общее количество элементов
      *
      * @var integer
      */
-    public $total;
+    protected $total;
 
     /**
      * Ссылка на страницу.
@@ -28,28 +28,28 @@ class Paginator
      *
      * @var string
      */
-    public $href;
+    protected $href;
 
     /**
      * Текущая страница
      *
      * @var integer
      */
-    public $page;
+    protected $page;
 
     /**
      * Количество страниц
      *
      * @var integer
      */
-    public $pageCount;
+    protected $pageCount;
 
     /**
      * Количество элементов на странице
      *
      * @var integer
      */
-    public $perPage = 30;
+    protected $perPage = 30;
 
     /**
      * Сформированные для вывода номера страниц
@@ -60,35 +60,35 @@ class Paginator
      *
      * @var array
      */
-    public $pages;
+    protected $pages;
 
     /**
      * Предыдущая страница
      *
      * @var array
      */
-    public $prev;
+    protected $prev;
 
     /**
      * Предыдущая страница от выбранной
      *
      * @var array
      */
-    public $prevPage;
+    protected $prevPage;
 
     /**
      * Следующая страница
      *
      * @var array
      */
-    public $next;
+    protected $next;
 
     /**
      * Следующая страница от выбранной
      *
      * @var array
      */
-    public $nextPage;
+    protected $nextPage;
 
     /**
      * Конструктор
@@ -101,22 +101,252 @@ class Paginator
     public function __construct($page, $perPage = 30,
                                 $total = 0, $notGet = false)
     {
-        $this->page = $page;
-        $this->perPage = $perPage;
-        $this->prevPage = $page > 1 ? ($page - 1) : 1;
-        $pageCount = ceil($total / $perPage);
-        $this->nextPage = $page < $pageCount ? ($page + 1) : $pageCount;
-        $this->total = $total;
-        $this->notGet = $notGet;
+        $prevPage =
+            $page > 1
+                ? ($page - 1)
+                : 1
+        ;
+        $this
+            ->setNotGet($notGet)
+            ->setPage($page)
+            ->setPerPage($perPage)
+            ->setPrevPage($prevPage)
+            ->initHref()
+            ->setTotal($total);
+        $pageCount = $this->getPageCount();
+        $nextPage =
+            $page < $pageCount
+            ? ($page + 1)
+            : $pageCount
+        ;
+        $this->setNextPage($nextPage);
+    }
+
+    /**
+     * Получить значение private- или protected-поля класса
+     *
+     * Автор осознавал, что магические методы работают медленно, но отрефакторить пагинатор СРАЗУ на всех проектах
+     * не реально; реально лишь создать обработчики-сеттеры на свойства класса, чтобы все свойства обновлялись
+     * своевременно.
+     *
+     * @param  string $property Имя поля
+     *
+     * @return mixed            Значение поля
+     * @throws Exception        В случае, если запрошено несуществующее поле
+     */
+    public function __get($property)
+    {
+        $method = "get{$property}";
+        if (method_exists($this, $method))
+        {
+            return $this->$method();
+        }
+        throw new Exception($property . ' is not set in ' . __CLASS__);
+    }
+
+    /**
+     * Присвоить значение private- или protected-свойству класса
+     *
+     * Автор осознавал, что магические методы работают медленно, но отрефакторить пагинатор СРАЗУ на всех проектах
+     * не реально; реально лишь создать обработчики-сеттеры на свойства класса, чтобы все свойства обновлялись
+     * своевременно.
+     *
+     * @param string $property  Название свойства
+     * @param Mixed  $value     Присваиваемое значение
+     *
+     * @return $this|Mixed
+     */
+    public function __set($property, $value)
+    {
+        $method = "set{$property}";
+        if (method_exists($this, $method))
+        {
+            return $this->$method($value);
+        }
+        $this->$property = $value;
+        return $this;
+    }
+
+    /**
+     * Посчитать количество страниц пагинатора
+     *
+     * @return int
+     */
+    protected function _calcPageCount()
+    {
+        $total = $this->getTotal();
+
+        if ($this->perPage > 0) {
+            if ($total) {
+                return ceil($total / $this->perPage);
+            } elseif (isset($this->fullCount)) {
+                return ceil($this->fullCount / $this->perPage);
+            } else {
+                return 1;
+            }
+        } else {
+            return 1;
+        }
+    }
+
+    /**
+     * Установить количество страниц
+     *
+     * Автор понимает, что нельзя такой метод давать в публичный доступ. Однако, в коде каких-то из проектов
+     * может использоваться $paginator->pageCount=..., что вызовет через магию этот метод.
+     * Впилено публичным, чтобы не сломать говнокод на тех проектах, где это используется
+     * присвоение $paginator->pageCount=....
+     *
+     * @param int $count Новое количество элементов на страницу
+     *
+     * @return $this
+     */
+    public function setPageCount($count)
+    {
+        $this->pageCount = (int) $count;
+        return $this;
+    }
+
+    /**
+     * Установить новые страницы пагинатора
+     *
+     * @param $pages
+     *
+     * @return $this
+     */
+    public function setPages($pages)
+    {
+        $this->pages = $pages;
+        return $this;
+    }
+
+    /**
+     * Получить базовый урл пагинатора (без параметра $page)
+     *
+     * @return string
+     */
+    public function getHref()
+    {
+        if (!$this->href)
+        {
+            $this->initHref();
+        }
+        return $this->href;
+    }
+
+    /**
+     * Получить текущее значение свойства next
+     *
+     * @return array
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
+     * Получить текущее значение свойства nextPage
+     *
+     * @return array|float|int
+     */
+    public function getNextPage()
+    {
+        return $this->nextPage;
+    }
+
+    /**
+     * Получить текущее значение Paginator::$notGet
+     *
+     * @return bool
+     */
+    public function getNotGet()
+    {
+        return $this->notGet;
+    }
+
+    /**
+     * Получить значение текущей страницы
+     *
+     * @return int
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
+     * Получить количество страниц пагинатора
+     *
+     * @return float|int
+     */
+    public function getPageCount()
+    {
+        if (!$this->pageCount)
+        {
+            $this->refreshPageCount();
+        }
+        return $this->pageCount;
+    }
+
+    /**
+     * Получить страницы пагинатора
+     *
+     * @return array
+     */
+    public function getPages()
+    {
+        return $this->pages;
+    }
+
+    /**
+     * Получить количество элементов на страницу
+     *
+     * @return int
+     */
+    public function getPerPage()
+    {
+        return $this->perPage;
+    }
+
+    /**
+     * Получить значение свойства prev
+     *
+     * @return array
+     */
+    public function getPrev()
+    {
+        return $this->prev;
+    }
+
+    /**
+     * Получить значение свойства prevPage
+     *
+     * @return array|int
+     */
+    public function getPrevPage()
+    {
+        return $this->prevPage;
+    }
+
+    /**
+     * Получить количество записей пагинатора
+     *
+     * @return int
+     */
+    public function getTotal()
+    {
+        return $this->total;
     }
 
     /**
      * Возвращает новый экземпляр
      *
      * @param integer $page Текущая страница
-     * @param integer $page_limit Количество элементов на странице
-     * @param integer $full_count Полное количество элементов
+     * @param integer $perPage Количество элементов на странице
+     * @param integer $total Полное количество элементов
      * @param boolean $notGet ЧПУ стиль
+     *
+     * @return $this
      */
     public function newInstance($page, $perPage = 30,
                                 $total = 0, $notGet = false)
@@ -125,22 +355,18 @@ class Paginator
     }
 
     /**
-     * Заполнение массива страниц со ссылками.
+     * Инициализировать базовый урл пагинатора
+     *
+     * @return $this
      */
-    public function buildPages()
+    public function initHref()
     {
         $locator = IcEngine::serviceLocator();
+        /** @var Request $request */
         $request = $locator->getService('request');
-        $this->pages = array();
-        $pagesCount = $this->pagesCount();
-        if ($pagesCount <= 1) {
-            return;
-        }
-        $this->refreshPageCount();
-        $halfPage = round($pagesCount / 2);
-        $spaced = false;
         // Удаление из запроса GET параметра page
         $p = 'page';
+        $page = $this->getPage();
         $href = preg_replace(
             "/((?:\?|&)$p(?:\=[^&]*)?$)+|((?<=[?&])$p" .
             "(?:\=[^&]*)?&)+|((?<=[?&])$p" .
@@ -158,53 +384,75 @@ class Paginator
             } else {
                 $href .= '&page=';
             }
-        } elseif ($this->page > 1) {
+        } elseif ($page > 1) {
             $href = substr(
-                $href, 0, (int) (strlen((string) $this->page) + 1) * -1
+                $href, 0, (int) (strlen((string) $page) + 1) * -1
             );
         }
+        $this->setHref($href);
+        return $this;
+    }
+
+    /**
+     * Заполнение массива страниц со ссылками.
+     *
+     * @return $this
+     */
+    public function buildPages()
+    {
+        $page = $this->getPage();
+        $pages = array();
+        $pagesCount = $this->pagesCount();
+        if ($pagesCount <= 1) {
+            return $this;
+        }
+        $notGet = $this->getNotGet();
+        $this->refreshPageCount();
+        $halfPage = round($pagesCount / 2);
+        $spaced = false;
+        $href = $this->getHref();
         for ($i = 1; $i <= $pagesCount; $i++) {
             if ($i <= 3 ||							// первые 3 страницы
                 ($pagesCount - $i) < 3 ||			// последние 3 страницы
                 abs($halfPage - $i) < 3 ||			// середина
-                abs($this->page - $i) < 3			// возле текущей
+                abs($page - $i) < 3			// возле текущей
             ) {
                 $pageHref = $href;
-                if (!($i == 1 && $this->notGet)) {
+                if (!($i == 1 && $notGet)) {
                     $pageHref .= $i;
                 }
-                if ($this->notGet && $i != 1) {
+                if ($notGet && $i != 1) {
                     $pageHref .= '/';
                 }
                 // Ссылка с номером страницы
                 $page = array(
                     'href'	    => $pageHref,
                     'title'	    => $i,
-                    'next'		=> ($this->page == $i - 1),
-                    'prev'		=> ($this->page == $i + 1),
-                    'selected'	=> ($this->page == $i)
+                    'next'		=> ($page == $i - 1),
+                    'prev'		=> ($page == $i + 1),
+                    'selected'	=> ($page == $i)
                 );
                 if ($page['selected']) {
-                    if (!empty($this->pages)) {
-                        $this->prevPage = $this->pages[count($this->pages)-1];
+                    if (!empty($pages)) {
+                        $this->setPrevPage ($pages[count($pages)-1]);
                     }
                 }
-                if (!empty($this->pages)) {
-                    if ($this->pages[count($this->pages)-1]['selected']) {
-                        $this->nextPage = $page;
+                if (!empty($pages)) {
+                    if ($pages[count($pages)-1]['selected']) {
+                        $this->setNextPage($page);
                     }
                 }
-                $this->pages[] = $page;
+                $pages[] = $page;
                 if ($page['prev']) {
-                    $this->prev = $page;
+                    $this->setPrev($page);
                 } elseif ($page['next']) {
-                    $this->next = $page;
+                    $this->setNext($page);
                 }
                 $spaced = false;
                 continue ;
             }
             if (!$spaced) {
-                $this->pages[] = array(
+                $pages[] = array(
                     'href'		=> '',
                     'title'		=> '...',
                     'prev'		=> false,
@@ -214,6 +462,8 @@ class Paginator
                 $spaced = true;
             }
         }
+        $this->setPages($pages);
+        return $this;
     }
 
     /**
@@ -238,7 +488,7 @@ class Paginator
     /**
      * Создание пагинатора через транспорт
      *
-     * @param Data_Transport_Abstract $input Входные данные.
+     * @param Data_Transport $input Входные данные.
      * @param integer $total Общее количество элементов.
      * @param bool $notGet
      * @return Paginator
@@ -265,7 +515,8 @@ class Paginator
      */
     public function offset()
     {
-        $offset = max(($this->page - 1) * $this->perPage, 0);
+        $page = $this->getPage();
+        $offset = max(($page - 1) * $this->perPage, 0);
         return $offset;
     }
 
@@ -276,44 +527,154 @@ class Paginator
      */
     public function pagesCount()
     {
-        if ($this->perPage > 0) {
-            if ($this->total) {
-                return ceil($this->total / $this->perPage);
-            } elseif (isset($this->fullCount)) {
-                return ceil($this->fullCount / $this->perPage);
-            } else {
-                return 1;
-            }
-        } else {
-            return 1;
-        }
+        return $this->getPageCount();
     }
 
+    /**
+     * Обновить количество страниц пагинатора
+     *
+     * @return $this
+     */
     public function refreshPageCount()
     {
-        $this->pageCount = $this->pagesCount();
+        $pageCount = $this->_calcPageCount();
+        $this->setPageCount($pageCount);
+        return $this;
     }
 
     /**
-     * Установить число элементов на страницу
+     * Установить базовый урл пагинатора (без параметра $page)
      *
-     * @param int $value
+     * @param string $href
+     *
+     * @return $this
      */
-    public function setPerPage($value)
+    public function setHref($href)
     {
-        $this->perPage = $value;
-        $this->pageCount = ceil($this->total / $this->perPage);
-        $this->nextPage = $this->page < $this->pageCount ? $this->page + 1 :
-            $this->pageCount;
+        $this->href = $href;
+        return $this;
+    }
+
+    /**
+     * Установить значение свойства next
+     *
+     * Автор понимает, что нельзя такой метод давать в публичный доступ. Однако, в коде каких-то из проектов
+     * может использоваться $paginator->next=..., что вызовет через магию этот метод.
+     * Впилено публичным, чтобы не сломать говнокод на тех проектах, где это используется
+     * присвоение $paginator->next=....
+     *
+     * @param mixed $next
+     *
+     * @return $this
+     */
+    public function setNext($next)
+    {
+        $this->next = $next;
+        return $this;
+    }
+
+    /**
+     * Установить новое значение свойства nextPage
+     *
+     * @param $nextPage
+     *
+     * @return $this
+     */
+    public function setNextPage($nextPage)
+    {
+        $this->nextPage = $nextPage;
+        return $this;
+    }
+
+    /**
+     * Установить значение свойства notGet
+     *
+     * @param bool $notGet Новое значение
+     *
+     * @return $this
+     */
+    public function setNotGet($notGet)
+    {
+        $this->notGet = (bool) $notGet;
+        return $this;
     }
 
     /**
      * Установить число элементов на страницу
      *
      * @param int $value
+     *
+     * @return $this
      */
     public function setPage($value)
     {
         $this->page = $value;
+        return $this;
+    }
+
+    /**
+     * Установить число элементов на страницу
+     *
+     * @param int $value
+     *
+     * @return $this
+     */
+    public function setPerPage($value)
+    {
+        $this->perPage = $value;
+        $this->refreshPageCount();
+        $page = $this->getPage();
+        $pageCount = $this->getPageCount();
+        $nextPage =
+            $page < $pageCount
+            ? $page + 1
+            : $pageCount
+        ;
+        $this->setNextPage($nextPage);
+        return $this;
+    }
+
+    /**
+     * Установить значение свойства prev
+     *
+     * @param $prev
+     *
+     * @return $this
+     */
+    public function setPrev($prev)
+    {
+        $this->prev = $prev;
+        return $this;
+    }
+
+    /**
+     * Установить новое значение свойства prevPage
+     *
+     * @param $prevPage
+     *
+     * @return $this
+     */
+    public function setPrevPage($prevPage)
+    {
+        $this->prevPage = $prevPage;
+        return $this;
+    }
+
+
+    /**
+     * Установить количество записей пагинатора
+     *
+     * @param int $total
+     *
+     * @return $this
+     */
+    public function setTotal($total)
+    {
+        $this->total = (int) $total;
+        $this
+            ->buildPages()
+            ->refreshPageCount()
+        ;
+        return $this;
     }
 }
