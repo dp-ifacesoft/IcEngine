@@ -130,6 +130,17 @@ class Helper_Image
 		return $path;
 	}
 
+    /**
+     * Получить имя файла
+     * @param string $path путь
+     * @return string имя файла
+     */
+    public function getFilename($path)
+    {
+        $regExp = '/[a-z0-9-_]+\.[a-z0-9-_]+/';
+        preg_match_all($regExp, $path, $matches);
+        return end($matches[0]);
+    }
 	/**
 	 *
 	 * @param string $type
