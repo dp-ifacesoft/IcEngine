@@ -269,4 +269,15 @@ class Helper_String
         return mb_strtoupper(mb_substr($value, 0, 1)) .
             mb_substr($value, 1);
     }
+    
+    /**
+     * Оставляет дефолтные теги
+     * 
+     * @param string $text текст
+     * @return string
+     */
+    public function stripTagsDefault($text)
+    {
+        return strip_tags($text, '<p><strong><em><span><ul><ol><li><a><div><br>');
+    }
 }
