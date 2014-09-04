@@ -126,6 +126,49 @@ class Helper_Array extends Helper_Abstract
         }
         return $groups;
     }
+
+    /**
+     * Вставить в массив значение $what без изменения ключей
+     *
+     * @param array $array  Массив, в который требуется вставить элемент
+     * @param mixed $what   Вставляемый элемент
+     * @param int   $offset Смещение, после которого требуется вставить элемент
+     * @param string $index Индекс, который должен быть присвоен вставляемому элементу
+     *
+     * @return array
+     */
+    public function insertAfter(array $array, $what, $offset, $index = null)
+    {
+        $insert = $index ? [$index => $what] : $what;
+        $where  = $offset + 1;
+        $before = array_slice($array,   0,      $where,         TRUE);
+        $after  = array_slice($array,   $where, count($array),  TRUE);
+        $array  = $before + $insert + $after;
+        return $array;
+    }
+
+    /**
+     * Получить смещение элемента с определенным индексом от начала массива
+     *
+     * @param array $array          Просматриваемый массив
+     * @param int   $neededIndex    Индекс, чье смещение нас интересует
+     *
+     * @return bool|int
+     */
+    public function keyOffset(array $array, $neededIndex)
+    {
+        reset($array);
+        $currentPosition = 0;
+        while ($item = each($array))
+        {
+            if ($item['key'] == $neededIndex)
+            {
+                return $currentPosition;
+            }
+            $currentPosition++;
+        }
+        return false;
+    }
     
     /**
      * Переиндексировать массив по полю
@@ -491,5 +534,28 @@ class Helper_Array extends Helper_Abstract
             }
         }
         return $array;
+    }
+
+    /**
+     * Получить смещение определенного элемента от начала массива
+     *
+     * @param array $array          Просматриваемый массив
+     * @param mixed $neededValue    Элемент, чье смещение нас интересует
+     *
+     * @return bool|int
+     */
+    public function valueOffset(array $array, $neededValue)
+    {
+        reset($array);
+        $currentPosition = 0;
+        while ($item = each($array))
+        {
+            if ($item['value'] == $neededValue)
+            {
+                return $currentPosition;
+            }
+            $currentPosition++;
+        }
+        return false;
     }
 }
