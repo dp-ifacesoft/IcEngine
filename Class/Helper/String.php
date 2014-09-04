@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Помощник для работы со строками
@@ -91,6 +91,27 @@ class Helper_String
     {
         return preg_replace("/[^a-zA-ZА-Яа-я\d\s]/u",$value,$string);
     }
+    
+    
+    /**
+     * Заменяет указанные символы на указанные
+     * 
+     * @param string $string исходный текст
+     * @param mixed $search заменяемые символы
+     * @param mixed $replacement заменяющие символы
+     * @return string
+     */
+    public function superReplaceSpecialChars($string, $search, $replacement)
+    {
+        if (!is_array($search)) {
+            $search = explode('', $search);
+        }
+        if (!is_array($replacement)) {
+            $replacement = explode('', $replacement);
+        }
+        $value = str_replace($search, $replacement, $string);
+        return $value;
+    }
 
     /**
      * Нормализовать строку по шаблону
@@ -157,9 +178,9 @@ class Helper_String
     
     /**
      * Удаляет дублирующиеся пробелы
-     * @param type $text
-     * @param type $value
-     * @return type
+     * @param string $text исходный
+     * @param string $value чем заменить двойные пробелы
+     * @return sting итоговый текст
      */
     public function removeMultiWhiteSpace($text, $value=' ') 
     {
