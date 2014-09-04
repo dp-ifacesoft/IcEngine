@@ -434,9 +434,18 @@ class Debug
 				$path = rtrim (substr ($config, 4), '\\/') . '/';
 				$config = array (
 					'file_active'		=> true,
-					'file_error'		=> $path . 'error_' . date('Y_m') . '.log',
-					'file_warn'			=> $path . 'warning_' . date('Y_m') . '.log',
-					'file_log'			=> $path . 'notice_' . date('Y_m') . '.log'
+					'file_error'    => [
+                            $path . 'error_' . date('Y_m') . '.log',
+                            $path . 'error_' . date('Y_m_d') . '.log'
+                        ],
+					'file_warn'     => [
+                            $path . 'warning_' . date('Y_m') . '.log',
+                            $path . 'warning_' . date('Y_m_d') . '.log'
+                        ],
+					'file_log'      => [
+                            $path . 'notice_' . date('Y_m') . '.log',
+                            $path . 'notice_' . date('Y_m_d') . '.log'
+                        ]
 				);
 			}
 		}
@@ -550,14 +559,16 @@ class Debug
 		// В файл
 		if (self::$config['file_active']) {
 			if (isset(self::$config['file_' . $type])) {
-				$f = self::$config['file_' . $type];
+				$files = self::$config['file_' . $type];
 			} else {
-				$f = self::$config['file_log'];
+				$files = self::$config['file_log'];
 			}
-			if ($f) {
-				$fh = fopen($f, 'ab');
-				fwrite($fh, "$time $type $text");
-				fclose($fh);
+			if ($files) {
+                foreach ($files as $file) {
+                    $fileHendler = fopen($file, 'ab');
+                    fwrite($fileHendler, "$time $type $text");
+                    fclose($fileHendler);
+                }
 			}
 		}
         $locator = IcEngine::serviceLocator();
