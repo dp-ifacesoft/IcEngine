@@ -24,7 +24,7 @@
 	 * 
      * @var string
 	 */
-	public $model{if $modelName} = '{$modelName}'{/if};
+	public $model{if isset($modelName)} = '{$modelName}'{/if};
 
 	/**
 	 * @see Migration_Abstract::down()

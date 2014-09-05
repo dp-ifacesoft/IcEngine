@@ -42,7 +42,17 @@ class Controller_Migration extends Controller_Abstract
 	 */
 	public function create($name, $category, $context)
 	{
-        $context->helperMigration->create($name, $category);
+        if (!isset($name)) {
+            echo 'имя миграции name не задано. Миграция не создана.' . PHP_EOL;
+            return;
+        }
+        try {
+            $context->helperMigration->create($name, $category);
+        } catch (Exception $exeption) {
+            echo 'Мирграция не создана. ' . $exeption->getMessage() . PHP_EOL;
+            return;
+        }
+        echo 'Мирграция создана. ' . PHP_EOL;
 	}
 
 	/**
@@ -98,4 +108,28 @@ class Controller_Migration extends Controller_Abstract
         }
         $context->helperMigrationProcess->up($to, $category);
 	}
+    
+    /**
+     * вывести список миграций за последние $period дней
+     * @param string $period strtotime разбег
+     * @Template(null)
+     * @Context("helperMigration", "helperFile")
+     */
+    public function showLatest($context, $period = '-1 Months')
+    {
+        $list = [];
+        $filesPaths = $context->helperFile->getFileList('Ice/Model/Migration/');
+        $datePattern = '#\*.*?Created\sat:\s(\d{4}-\d{2}-\d{2})#';
+        $authorPattern = '#\*.*?Created\sat:\s(\d{4}-\d{2}-\d{2})#';
+        foreach ($filesPaths as $filePath) {
+            $fileContent = file_get_contents($filePath);
+            preg_match_all($datePattern, $fileContent, $dateMatches);
+            if(isset($dateMatches[1][0])){
+                if(strtotime($dateMatches[1][0]) >=  strtotime($period)) {
+                    $list[] = basename($filePath);
+                }
+            }
+        }
+        var_dump($list);
+    }
 }
