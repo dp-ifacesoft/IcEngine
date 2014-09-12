@@ -1,0 +1,1 @@
+<p style="text-align: center;"><a class="btn_gray"><span>Вход</span></a></p>
