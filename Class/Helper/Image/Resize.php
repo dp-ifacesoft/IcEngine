@@ -429,6 +429,9 @@ class Helper_Image_Resize extends Helper_Abstract
 		{
 			return false;
 		}
+        if (!file_exists($input)) {
+            return false;
+        }
 		$info = getimagesize ($input);
 		$image = '';
 		$final_width = 0;

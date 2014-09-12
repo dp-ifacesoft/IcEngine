@@ -115,7 +115,7 @@ class Controller_Migration extends Controller_Abstract
      * @Template(null)
      * @Context("helperMigration", "helperFile")
      */
-    public function showLatest($context, $period = '-1 Months')
+    public function show($context, $period = '-1 Months')
     {
         $list = [];
         $filesPaths = $context->helperFile->getFileList('Ice/Model/Migration/');
