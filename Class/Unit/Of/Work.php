@@ -43,6 +43,19 @@ class Unit_Of_Work
 	 * @deprecated
 	 */
 	private $loader = null;
+    
+    /**
+     * Вещать
+     * @var boolean 
+     */
+    private $verbose = false;
+    
+        
+    /**
+     * Крутильщик
+     * @var mixed
+     */
+    private $indicator = null;
 
 	/**
 	 * Максимальное число запросов в буфере
@@ -60,6 +73,9 @@ class Unit_Of_Work
 	private function build()
 	{
 		$locator = IcEngine::serviceLocator();
+        if ($this->verbose && !$this->indicator) {
+            $this->indicator = $locator->getService('helperCli');
+        }
 		$unitOfWorkManager = $locator->getService('unitOfWorkManager');
 		foreach ($this->raw as $type=>$array) {
 			foreach ($array as $key=>$data) {
@@ -89,7 +105,16 @@ class Unit_Of_Work
 	{
         //echo 'flush' . PHP_EOL;
 		$this->build();
+        if ($this->verbose) {
+            $queryCount = count($this->queries);
+            $currentQuery = 0;
+        }
 		foreach ($this->queries as $key=>$query) {
+            if ($this->verbose) {
+                $currentQuery++;
+                $this->indicator->say("Выполнено \e[1m$currentQuery\e[21m из"
+                    . " \e[1m$queryCount\e[21m запросов.");
+            }
 			$this->_execute($key, $query);
 		}
 		$this->reset();
@@ -225,4 +250,13 @@ class Unit_Of_Work
 		$this->rawCount = 0;
 		$this->rawModel = array();
 	}
+    
+    /**
+     * вещать ли
+     * @param boolean $verbose
+     */
+    public function setVerbose($verbose = true)
+    {
+        $this->verbose = $verbose;
+    }
 }

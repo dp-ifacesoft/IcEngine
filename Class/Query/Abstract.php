@@ -335,6 +335,15 @@ class Query_Abstract
 		return $queryTranslator->byName($translator . '_' . $this->getName())
 			->translate($this);
 	}
+    
+    /**
+     * Транслирует и печатает
+     * @param string $translator Транслятор.
+     */
+    public function printTranslate($translator = 'Mysql')
+    {
+        var_dump($this->translate($translator));
+    }
 
 	/**
 	 * Тип запроса

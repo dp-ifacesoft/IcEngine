@@ -498,6 +498,27 @@ class Helper_Array extends Helper_Abstract
     }
     
     /**
+     * 
+     * @param array $array многомерный массив
+     * @param boolean $keys включать ли в этоговой массив ключи
+     * @return \RecursiveIteratorIterator
+     */
+    public function flattenArray($array, $keys = false) 
+    {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveArrayIterator($array)
+        );
+        $flatArray = [];
+        foreach($iterator as $key => $value) {
+            $flatArray[] = $value;
+            if ($keys) {
+                $flatArray[] = $key;
+            }
+        }
+        return $flatArray;
+    }
+    
+    /**
      * Проверить ячейку на соответствие фильтру
      *
      * @param array $row
