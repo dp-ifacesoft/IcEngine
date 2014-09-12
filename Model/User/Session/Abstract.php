@@ -126,18 +126,16 @@ abstract class User_Session_Abstract extends Model
      * Обновляет данные сессии
      *
 	 * @param integer $new_user_id [optional] Изменить пользователя.
+     * #param array $params обновляемые данные
 	 * @return User_Session
 	 */
-	public function updateSession($newUserId = null)
+	public function updateSession($newUserId = null, $params = [])
 	{
 		$now = time();
         $url = $this->getService('request')->uri();
-        $updateData = array();
+        $updateData = $params;
         if ($this->url != $url) {
             $updateData['url'] = $url;
-        }
-        if($this->userRole) {
-            $updateData['userRole'] = $this->userRole;
         }
         if ($now - $this->lastActive > 300) {
             $updateData['lastActive'] = $now;
