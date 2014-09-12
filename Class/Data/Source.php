@@ -100,13 +100,14 @@ class Data_Source
         return $this->driver;
     }
 
-	/**
-	 * Выполняет запрос к источнику данных
+    /**
+     * Выполняет запрос к источнику данных
      *
-	 * @param Query_Abstract $query Запрос
-	 * @param Query_Options $options Опции запроса
-	 * @return Data_Source_Abstract
-	 */
+     * @param Query_Abstract $query Запрос
+     * @param Query_Options $options Опции запроса
+     * @throws Exception
+     * @return Data_Source_Abstract
+     */
 	public function execute(Query_Abstract $query, $options = null)
 	{
         $options = $options ?: new Query_Options();
