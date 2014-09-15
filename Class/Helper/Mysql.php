@@ -91,7 +91,7 @@ class Helper_Mysql extends Helper_Abstract
             die ();
         }
         return self::SQL_QUOTE .
-        addslashes(iconv('UTF-8', 'UTF-8//IGNORE', stripslashes ($value))) .
+            addslashes(iconv(mb_detect_encoding($value), 'UTF-8//IGNORE', stripslashes ($value))) .
         self::SQL_QUOTE;
     }
 
