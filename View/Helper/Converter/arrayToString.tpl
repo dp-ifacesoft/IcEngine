@@ -6,12 +6,14 @@
 array(
 {if $data}
     {foreach from=$data item="field" key="name" name="field"}
-    {$pad}{if !is_numeric($name)}'{$name}' => {/if}{Helper_Converter::arrayToString($field,$offs+1)}{if !$smarty.foreach.field.last},{/if}
+    {$pad}{if !is_numeric($name)}'{$name}' => {/if}{IcEngine::getServiceLocator()->getService('helperConverter')->arrayToString($field,$offs+1)}{if !$smarty.foreach.field.last},{/if}
 
     {/foreach}
 {/if}
 {$pad}){else}
 '{$data}'{/if}
+{elseif !$data && !is_null($data)}
+{$data}
 {else}
 null
 {/if}
