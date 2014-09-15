@@ -1097,6 +1097,17 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
         return $collection;
 	}
 
+    /**
+     * Удалить пагинатор коллекции
+     *
+     * @return $this
+     */
+    public function unsetPaginator()
+    {
+        $this->paginator = null;
+        return $this;
+    }
+
 	/**
 	 * Обновление всех элементов коллекции
      *
