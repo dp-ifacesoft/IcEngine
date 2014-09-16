@@ -1127,4 +1127,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
 		}
         $unitOfWork->flush();
 	}
+    
+    /**
+     * распечатать запрос
+     */
+    public function printQueryTranslate()
+    {
+        $query = $this->getQuery();
+        $queryTranslated = $query->translate();
+        var_dump($queryTranslated);
+    }
 }
