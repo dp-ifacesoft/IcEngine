@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Класс для создания моделей через фабрики
  *
@@ -13,7 +13,7 @@ class Model_Manager_Delegee_Factory extends Model_Manager_Delegee_Abstract
 	 * @var array
 	 */
 	protected static $factories;
-
+
 	/**
 	 * Находит фабрику модели
      *
@@ -36,7 +36,7 @@ class Model_Manager_Delegee_Factory extends Model_Manager_Delegee_Abstract
             return self::$factories[$factory];
 		}
 	}
-
+
 	/**
 	 * Получение данных модели
      *

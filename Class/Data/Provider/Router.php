@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Провайдер данных из адресной строки
  *
@@ -16,7 +16,7 @@ class Data_Provider_Router extends Data_Provider_Abstract
         $request = $locator->getService('request');
 		return $request->param($key);
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
@@ -26,7 +26,7 @@ class Data_Provider_Router extends Data_Provider_Abstract
         $request = $locator->getService('request');
 		return $request->params();
 	}
-
+
 	/**
 	 *@inheritdoc
 	 */

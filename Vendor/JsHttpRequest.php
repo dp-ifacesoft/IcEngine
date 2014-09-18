@@ -17,7 +17,7 @@
  * @author Dmitry Koterov
  * @version 5.x $Id$
  */
-
+
 class JsHttpRequest
 {
     var $SCRIPT_ENCODING = "windows-1251";
@@ -25,7 +25,7 @@ class JsHttpRequest
     var $LOADER = null;
     var $ID = null;
     var $RESULT = null;
-
+
     // Internal; uniq value.
     var $_uniqHash;
     // Magic number for display_error checking.
@@ -47,8 +47,8 @@ class JsHttpRequest
     var $_unicodeConvMethod = null;
     // Emergency memory buffer to be freed on memory_limit error.
     var $_emergBuffer = null;
-
-
+
+
     /**
      * Constructor.
      *
@@ -66,10 +66,10 @@ class JsHttpRequest
     function JsHttpRequest($enc)
     {
         global $JsHttpRequest_Active;
-
+
         // To be on a safe side - do not allow to drop reference counter on ob processing.
         $GLOBALS['_RESULT'] =& $this->RESULT;
-
+
         // Parse QUERY_STRING.
         if (preg_match('/^(.*)(?:&|^)JsHttpRequest=(?:(\d+)-)?([^&]+)((?:&|$).*)$/s', @$_SERVER['QUERY_STRING'], $m)) {
             $this->ID = $m[2];
@@ -84,11 +84,11 @@ class JsHttpRequest
             );
             // Detect Unicode conversion method.
             $this->_unicodeConvMethod = function_exists('mb_convert_encoding')? 'mb' : (function_exists('iconv')? 'iconv' : null);
-
+
             // Fill an emergency buffer. We erase it at the first line of OB processor
             // to free some memory. This memory may be used on memory_limit error.
             $this->_emergBuffer = str_repeat('a', 1024 * 200);
-
+
             // Intercept fatal errors via display_errors (seems it is the only way).
             $this->_uniqHash = md5('JsHttpRequest' . microtime() . getmypid());
             $this->_prevDisplayErrors = ini_get('display_errors');
@@ -96,14 +96,14 @@ class JsHttpRequest
             ini_set('error_prepend_string', $this->_uniqHash . ini_get('error_prepend_string'));
             ini_set('error_append_string',  ini_get('error_append_string') . $this->_uniqHash);
             if (function_exists('xdebug_disable')) xdebug_disable(); // else Fatal errors are not catched
-
+
             // Start OB handling early.
             ob_start(array(&$this, "_obHandler"));
             $JsHttpRequest_Active = true;
-
+
             // Set up the encoding.
             $this->setEncoding($enc);
-
+
             // Check if headers are already sent (see Content-Type library usage).
             // If true - generate a debug message and exit.
             $file = $line = null;
@@ -124,8 +124,8 @@ class JsHttpRequest
             $JsHttpRequest_Active = false;
         }
     }
-
-
+
+
     /**
      * Static function.
      * Returns true if JsHttpRequest output processor is currently active.
@@ -136,8 +136,8 @@ class JsHttpRequest
     {
         return !empty($GLOBALS['JsHttpRequest_Active']);
     }
-
-
+
+
     /**
      * string getJsCode()
      *
@@ -147,8 +147,8 @@ class JsHttpRequest
     {
         return file_get_contents(dirname(__FILE__) . '/JsHttpRequest.js');
     }
-
-
+
+
     /**
      * void setEncoding(string $encoding)
      *
@@ -169,8 +169,8 @@ class JsHttpRequest
         // Manually parse QUERY_STRING because of damned Unicode's %uXXXX.
         $this->_correctSuperglobals();
     }
-
-
+
+
     /**
      * string quoteInput(string $input)
      *
@@ -189,8 +189,8 @@ class JsHttpRequest
         else
             return htmlspecialchars($s);
     }
-
-
+
+
     /**
      * Convert a PHP scalar, array or hash to JS scalar/array/hash. This function is
      * an analog of json_encode(), but it can work with a non-UTF8 input and does not
@@ -240,12 +240,12 @@ class JsHttpRequest
             return '{ ' . join(', ', $result) . ' }';
         }
     }
-
-
+
+
     /**
      * Internal methods.
      */
-
+
     /**
      * Parse & decode QUERY_STRING.
      */
@@ -253,7 +253,7 @@ class JsHttpRequest
     {
         // In case of FORM loader we may go to nirvana, everything is already parsed by PHP.
         if ($this->LOADER == 'form') return;
-
+
         // ATTENTION!!!
         // HTTP_RAW_POST_DATA is only accessible when Content-Type of POST request
         // is NOT default "application/x-www-form-urlencoded"!!!
@@ -283,8 +283,8 @@ class JsHttpRequest
             // TODO?
         }
     }
-
-
+
+
     /**
      * Called in case of error too!
      */
@@ -292,7 +292,7 @@ class JsHttpRequest
     {
         unset($this->_emergBuffer); // free a piece of memory for memory_limit error
         unset($GLOBALS['JsHttpRequest_Active']);
-
+
         // Check for error & fetch a resulting data.
         if (preg_match("/{$this->_uniqHash}(.*?){$this->_uniqHash}/sx", $text, $m)) {
             if (!ini_get('display_errors') || (!$this->_prevDisplayErrors && ini_get('display_errors') == $this->_magic)) {
@@ -315,7 +315,7 @@ class JsHttpRequest
                 $this->RESULT = $_RESULT;
             }
         }
-
+
         $result = array(
             'id'   => $this->ID,
             'js'   => $this->RESULT,
@@ -324,7 +324,7 @@ class JsHttpRequest
         $text = null;
         $encoding = $this->SCRIPT_ENCODING;
         $status = $this->RESULT !== null? 200 : 500;
-
+
         // Try to use very fast json_encode: 3-4 times faster than a manual encoding.
         if (function_exists('array_walk_recursive') && function_exists('json_encode') && $this->_unicodeConvMethod) {
 			range (0, 1); // some PHP bug fix
@@ -338,12 +338,12 @@ class JsHttpRequest
                 $encoding = "UTF-8";
             }
         }
-
+
         // On failure, use manual encoding.
         if ($text === null) {
             $text = $this->php2js($result);
         }
-
+
         if ($this->LOADER != "xml") {
             // In non-XML mode we cannot use plain JSON. So - wrap with JS function call.
             // If top.JsHttpRequestGlobal is not defined, loading is aborted and
@@ -364,7 +364,7 @@ class JsHttpRequest
             {
                 $js_http_request = 'JsHttpRequest';
             }
-
+
             $text = ""
                 . $js_http_request
                 . ".dataReady(" . $text . ")\n"
@@ -372,12 +372,12 @@ class JsHttpRequest
             if ($this->LOADER == "form") {
                 $text = '<script type="text/javascript" language="JavaScript"><!--' . "\n$text" . '//--></script>';
             }
-
+
             // Always return 200 code in non-XML mode (else SCRIPT does not work in FF).
             // For XML mode, 500 code is okay.
             $status = 200;
         }
-
+
         // Status header. To be safe, display it only in error mode. In case of success
         // termination, do not modify the status (""HTTP/1.1 ..." header seems to be not
         // too cross-platform).
@@ -388,15 +388,15 @@ class JsHttpRequest
                 header("HTTP/1.1 $status");
             }
         }
-
+
         // In XMLHttpRequest mode we must return text/plain - damned stupid Opera 8.0. :(
         $ctype = !empty($this->_contentTypes[$this->LOADER])? $this->_contentTypes[$this->LOADER] : $this->_contentTypes[''];
         header("Content-type: $ctype; charset=$encoding");
 	$GLOBALS ['_RESULT_TEXT'] = $text;
         return $text;
     }
-
-
+
+
     /**
      * Internal function, used in array_walk_recursive() before json_encode() call.
      * If a key contains non-ASCII characters, this function sets $this->_toUtfFailed = true,
@@ -411,8 +411,8 @@ class JsHttpRequest
             $v = $this->_unicodeConv($fromEnc, 'UTF-8', $v);
         }
     }
-
-
+
+
     /**
      * Decode all %uXXXX entities in string or array (recurrent).
      * String must not contain %XX entities - they are ignored!
@@ -432,8 +432,8 @@ class JsHttpRequest
             return $data;
         }
     }
-
-
+
+
     /**
      * Decode one %uXXXX entity (RE callback).
      */
@@ -460,8 +460,8 @@ class JsHttpRequest
         }
         return $c;
     }
-
-
+
+
     /**
      * Wrapper for iconv() or mb_convert_encoding() functions.
      * This function will generate fatal error if none of these functons available!
@@ -475,13 +475,13 @@ class JsHttpRequest
         }
         return mb_convert_encoding($v, $toEnc, $fromEnc);
     }
-
-
+
+
     /**
      * If there is no ICONV, try to decode 1-byte characters and UTF-8 manually
      * (for most popular charsets only).
      */
-
+
     /**
      * Convert from UCS-2BE decimal to $toEnc.
      */
@@ -490,7 +490,7 @@ class JsHttpRequest
         // Little speedup by using array_flip($this->_encTables) and later hash access.
         static $flippedTable = null;
         if ($code < 128) return chr($code);
-
+
         if (isset($this->_encTables[$toEnc])) {
             if (!$flippedTable) $flippedTable = array_flip($this->_encTables[$toEnc]);
             if (isset($flippedTable[$code])) return chr(128 + $flippedTable[$code]);
@@ -505,11 +505,11 @@ class JsHttpRequest
                        chr(0x80 + ($code & 0x3F));
             }
         }
-
+
         return "";
     }
-
-
+
+
     /**
      * UCS-2BE -> 1-byte encodings (from #128).
      */

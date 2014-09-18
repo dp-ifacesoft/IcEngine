@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Модель, необходимая для организации фабрик.
  * Используется в случаях, когда модели могут быть реализованы
@@ -24,7 +24,7 @@ class Model_Factory extends Model
 		    return $modelName . '_' . $source['name'];
 	    }
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */

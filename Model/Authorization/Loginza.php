@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Авторизация через логинзу
  *
@@ -25,7 +25,7 @@ class Authorization_Loginza extends Authorization_Abstract
 		}
 		return $user instanceof User ? $user->authorize() : $user;
 	}
-
+
 	/**
 	 * Авторегистрация
 	 *
@@ -83,7 +83,7 @@ class Authorization_Loginza extends Authorization_Abstract
 		}
 		return $user ? $user : 0;
 	}
-
+
 	/**
 	 * @inheritdoc
 	 * @see Authorization_Abstract::isRegistered()
@@ -92,7 +92,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	{
 		return false;
 	}
-
+
 	/**
 	 * @inheritdoc
 	 * @see Authorization_Abstract::isValidLogin()
@@ -101,7 +101,7 @@ class Authorization_Loginza extends Authorization_Abstract
 	{
 		return false;
 	}
-
+
 	/**
 	 * @inheritdoc
 	 * @see Authorization_Abstract::findUser()

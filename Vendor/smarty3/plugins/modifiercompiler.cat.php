@@ -5,7 +5,7 @@
  * @package Smarty
  * @subpackage PluginsModifierCompiler
  */
-
+
 /**
  * Smarty cat modifier plugin
  *
@@ -25,5 +25,5 @@ function smarty_modifiercompiler_cat($params, $compiler)
 {
     return '('.implode(').(', $params).')';
 }
-
+
 ?>

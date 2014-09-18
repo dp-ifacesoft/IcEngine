@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Результат работы запроса
  *
@@ -13,7 +13,7 @@ class Query_Result
      * @var array
 	 */
 	private $result;
-
+
 	/**
 	 * Создает и возвращает результат запроса
 	 *
@@ -23,7 +23,7 @@ class Query_Result
 	{
 		$this->result = $result;
 	}
-
+
 	/**
 	 * Возвращает одну колонку результата.
 	 *
@@ -47,7 +47,7 @@ class Query_Result
 		}
 		return $result;
 	}
-
+
 	/**
 	 * Результат запроса - единственная запись таблицы.
 	 *
@@ -69,7 +69,7 @@ class Query_Result
 			return $result;
 		}
 	}
-
+
 	/**
 	 * Результат запроса - таблица записей.
 	 *
@@ -93,7 +93,7 @@ class Query_Result
         }
         return $this->result['result'];
 	}
-
+
 	/**
 	 * Результат запроса - единственное значение.
 	 *
@@ -107,7 +107,7 @@ class Query_Result
 		reset($this->result['result'][0]);
 		return current($this->result['result'][0]);
 	}
-
+
 	/**
 	 * Возвращает общее количество подходящих под условие строк.
 	 *
@@ -117,7 +117,7 @@ class Query_Result
 	{
 	    return $this->result['foundRows'];
 	}
-
+
 	/**
 	 * Значение последнего добавленого автоинкрементного ключа.
 	 *
@@ -127,7 +127,7 @@ class Query_Result
 	{
 		return $this->result['insertKey'];
 	}
-
+
 	/**
 	 * Проверяет является ли результат запроса нулевым сетом
      *
@@ -137,7 +137,7 @@ class Query_Result
 	{
 		return !empty($this->result['is_null']);
 	}
-
+
     /**
      * Получить источник данных результата
      *
@@ -147,7 +147,7 @@ class Query_Result
 	{
 		return $this->result['source'];
 	}
-
+
     /**
      * Получить запрос результата
      *
@@ -157,7 +157,7 @@ class Query_Result
     {
         return $this->result['query'];
     }
-
+
     /**
      * Получить количество рядов, полученных последним запросом
      *
@@ -167,7 +167,7 @@ class Query_Result
     {
         return isset($this->result['numRows']) ? $this->result['numRows'] : 0;
     }
-
+
     /**
      * Получить схему результата
      *
@@ -177,7 +177,7 @@ class Query_Result
 	{
 		return $this->result['result'];
 	}
-
+
     /**
      * Изменить результаты выборки
      *
@@ -187,7 +187,7 @@ class Query_Result
     {
         $this->result['result'] = $result;
     }
-
+
 	/**
 	 * Количество затронутых запросом записей.
 	 * Количество удаленных, измененных, добавленных или выбранных записей.

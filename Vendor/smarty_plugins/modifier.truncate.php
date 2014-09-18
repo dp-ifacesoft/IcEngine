@@ -4,8 +4,8 @@
  * @package Smarty
  * @subpackage plugins
  */
-
-
+
+
 /**
  * Smarty truncate modifier plugin
  *
@@ -29,7 +29,7 @@ function smarty_modifier_truncate($string, $length = 80, $etc = '...',
 {
     if ($length == 0)
         return '';
-
+
     if (strlen($string) > $length) {
         $length -= min($length, strlen($etc));
         if (!$break_words && !$middle) {
@@ -44,7 +44,7 @@ function smarty_modifier_truncate($string, $length = 80, $etc = '...',
         return $string;
     }
 }
-
+
 /* vim: set expandtab: */
-
+
 ?>

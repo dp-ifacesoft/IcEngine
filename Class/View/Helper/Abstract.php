@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Абстрактный класс хелпера представления.
  * 
@@ -26,7 +26,7 @@ abstract class View_Helper_Abstract extends Helper_Abstract
         $viewRenderManager = $serviceLocator->getService('viewRenderManager');
 	    $this->view = $view ? $view : $viewRenderManager->getView();
 	}
-
+
 	/**
 	 * Получить результат хелпера
      * 

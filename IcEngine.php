@@ -366,10 +366,10 @@ class IcEngine
                 self::$task
             );
         } catch (Exception $e) {
-            die;
+            Debug::outputErrors($e);
         }
 	}
-
+ 
     /**
      * Получить локатор сервисов
      *

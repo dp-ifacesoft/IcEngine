@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Smarty Internal Plugin Resource Eval
  * 
@@ -25,7 +25,7 @@ class Smarty_Internal_Resource_Eval {
     // properties
     public $usesCompiler = true;
     public $isEvaluated = true;
-
+
     /**
      * Return flag if template source is existing
      * 
@@ -35,7 +35,7 @@ class Smarty_Internal_Resource_Eval {
     {
         return true;
     } 
-
+
     /**
      * Get filepath to template source
      * 
@@ -48,7 +48,7 @@ class Smarty_Internal_Resource_Eval {
         // return "string" for compiler error messages
         return 'eval:';
     } 
-
+
     /**
      * Get timestamp to template source
      * 
@@ -60,7 +60,7 @@ class Smarty_Internal_Resource_Eval {
         // evaluated strings must always be compiled and have no timestamp
         return false;
     } 
-
+
     /**
      * Retuen template source from resource name
      * 
@@ -73,7 +73,7 @@ class Smarty_Internal_Resource_Eval {
         $_template->template_source = $_template->resource_name;
         return true;
     } 
-
+
     /**
      * Get filepath to compiled template
      * 

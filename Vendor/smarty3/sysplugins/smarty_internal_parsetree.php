@@ -13,7 +13,7 @@
 abstract class _smarty_parsetree {
   abstract public function to_smarty_php();
 }
-
+
 /**
  * A complete smarty tag.
  */
@@ -28,12 +28,12 @@ class _smarty_tag extends _smarty_parsetree
         $this->data = $data;
         $this->saved_block_nesting = $parser->block_nesting_level;
     } 
-
+
     public function to_smarty_php()
     {
         return $this->data;
     } 
-
+
     public function assign_to_var()
     {
         $var = sprintf('$_tmp%d', ++$this->parser->prefix_number);
@@ -42,7 +42,7 @@ class _smarty_tag extends _smarty_parsetree
         return $var;
     } 
 } 
-
+
 /**
  * Code fragment inside a tag.
  */
@@ -54,13 +54,13 @@ class _smarty_code extends _smarty_parsetree {
         $this->parser = $parser;
         $this->data = $data;
     } 
-
+
     public function to_smarty_php()
     {
         return sprintf("(%s)", $this->data);
     } 
 } 
-
+
 /**
  * Double quoted string inside a tag.
  */
@@ -75,7 +75,7 @@ class _smarty_doublequoted extends _smarty_parsetree {
             $this->parser->block_nesting_level = count($this->parser->compiler->_tag_stack);
         } 
     } 
-
+
     function append_subtree(_smarty_parsetree $subtree)
     {
         $last_subtree = count($this->subtrees)-1;
@@ -94,7 +94,7 @@ class _smarty_doublequoted extends _smarty_parsetree {
             $this->parser->block_nesting_level = count($this->parser->compiler->_tag_stack);
         } 
     } 
-
+
     public function to_smarty_php()
     {
         $code = '';
@@ -107,9 +107,9 @@ class _smarty_doublequoted extends _smarty_parsetree {
             } else {
                 $more_php = $subtree->to_smarty_php();
             } 
-
+
             $code .= $more_php;
-
+
             if (!$subtree instanceof _smarty_dq_content) {
                 $this->parser->compiler->has_variable_string = true;
             } 
@@ -117,7 +117,7 @@ class _smarty_doublequoted extends _smarty_parsetree {
         return $code;
     } 
 } 
-
+
 /**
  * Raw chars as part of a double quoted string.
  */
@@ -128,13 +128,13 @@ class _smarty_dq_content extends _smarty_parsetree {
         $this->parser = $parser;
         $this->data = $data;
     } 
-
+
     public function to_smarty_php()
     {
         return '"' . $this->data . '"';
     } 
 } 
-
+
 /**
  * Template element
  */
@@ -144,12 +144,12 @@ class _smarty_template_buffer extends _smarty_parsetree {
     {
         $this->parser = $parser;
     } 
-
+
     function append_subtree(_smarty_parsetree $subtree)
     {
         $this->subtrees[] = $subtree;
     } 
-
+
     public function to_smarty_php()
     {
         $code = '';
@@ -198,7 +198,7 @@ class _smarty_template_buffer extends _smarty_parsetree {
         return $code;
     } 
 }
-
+
 /**
  * template text
  */
@@ -209,13 +209,13 @@ class _smarty_text extends _smarty_parsetree {
         $this->parser = $parser;
         $this->data = $data;
     } 
-
+
     public function to_smarty_php()
     {
         return $this->data;
     } 
 } 
-
+
 /**
  * template linebreaks
  */
@@ -226,11 +226,11 @@ class _smarty_linebreak extends _smarty_parsetree {
         $this->parser = $parser;
         $this->data = $data;
     } 
-
+
     public function to_smarty_php()
     {
         return $this->data;
     } 
 } 
-
+
 ?>

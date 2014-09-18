@@ -7,12 +7,6 @@
  */
 class User_Abstract extends Model
 {
-	/**
-	 * Текущий пользователь.
-	 *
-     * @var User
-	 */
-	protected $current;
 
     /**
      * Текущая сессия.

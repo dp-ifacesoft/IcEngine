@@ -8,7 +8,7 @@
  * @subpackage Compiler
  * @author Uwe Tews 
  */
-
+
 /**
  * Smarty Internal Plugin Compile Modifier Class
  */
@@ -65,5 +65,5 @@ class Smarty_Internal_Compile_Private_Modifier extends Smarty_Internal_CompileBa
         return $output;
     } 
 } 
-
+
 ?>

@@ -15,7 +15,7 @@
 class Smarty_Internal_Compile_Private_Registered_Function extends Smarty_Internal_CompileBase {
 	// attribute definitions
     public $optional_attributes = array('_any'); 
-
+
     /**
      * Compiles code for the execution of a registered function
      * 
@@ -63,5 +63,5 @@ class Smarty_Internal_Compile_Private_Registered_Function extends Smarty_Interna
         return $output;
     } 
 } 
-
+
 ?>

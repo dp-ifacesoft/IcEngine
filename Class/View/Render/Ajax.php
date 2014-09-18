@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Рендер для AJAX запросов
  *
@@ -19,7 +19,7 @@ class View_Render_Ajax extends View_Render_Abstract
 		$this->vars = array();
 		return json_encode($result);
 	}
-
+
     /**
      * Отправить на вывод контент
      *

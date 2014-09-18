@@ -1,5 +1,5 @@
 <?php
-
+
 /**
  * Фильтр удаления начальных, конечных пробелов
  *
@@ -14,7 +14,7 @@ class Data_Filter_Trim extends Data_Filter_Abstract
 	{
 		return trim($data);
 	}
-
+
 	/**
 	 * @inheritdoc
 	 */
