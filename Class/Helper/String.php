@@ -157,9 +157,9 @@ class Helper_String
     
     /**
      * Удаляет дублирующиеся пробелы
-     * @param type $text
-     * @param type $value
-     * @return type
+     * @param string $text текст
+     * @param string $value чем заменять двойные пробелы, по умолчанию пробелом
+     * @return string
      */
     public function removeMultiWhiteSpace($text, $value=' ') 
     {
@@ -279,5 +279,42 @@ class Helper_String
     public function stripTagsDefault($text)
     {
         return strip_tags($text, '<p><strong><em><span><ul><ol><li><a><div><br>');
+    }
+    
+    /**
+     * Ищем слово в тексте по ливенштейну
+     * @param string|array $search что ищем
+     * @param string $text где ищем
+     * @param integer $neededDistance 
+     * @param char $delimiter
+     */
+    public function levenstein(
+        $search, $text, $neededDistance = 2, $delimiter=' '
+    )
+    {
+        if (!$search || !$text) {
+            return false;
+        }
+        $clearText = $this->replaceSpecialChars($text, '');
+        $clearTextFixedSpaces = $this->removeMultiWhiteSpace($clearText);
+        $words = explode($delimiter, $clearTextFixedSpaces);
+        if (!is_array($search)) {
+            foreach ($words as $word) {
+                $distance = levenshtein($search, $word);
+                if ($distance <= $neededDistance) {
+                    return true;
+                }
+            }
+        } else {
+            foreach ($words as $word) {
+                foreach($search as $searchWord) {
+                    $distance = levenshtein($searchWord, $word);
+                    if ($distance <= $neededDistance) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
