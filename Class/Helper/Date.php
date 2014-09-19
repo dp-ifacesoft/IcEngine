@@ -563,7 +563,7 @@ class Helper_Date
 		}
 
 		return $default;
-	} # function str_to_timestamp
+	}
 
 	/**
 	 * @desc Перевод строки в unix timestamp
