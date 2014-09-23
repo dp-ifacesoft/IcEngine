@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Базовый менеджер сущностей
@@ -10,7 +10,8 @@ class Manager_Simple extends Manager_Abstract
     /**
      * Стандратная функция получения эмземпляра по имени
      *
-     * @param string $name
+     * @param string $name      Часть названия требуемой сущности после get_class($this) и символа подчеркивания
+     * @param string $default   Часть названия по умолчанию - что вернуть, если ничего не нашлось по параметру $name
      * @return mixed
      */
     public function get($name, $default = null)
