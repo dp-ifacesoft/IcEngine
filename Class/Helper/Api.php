@@ -37,7 +37,12 @@ class Helper_Api extends Helper_Abstract
             $error = Api_Error::ACCESS_DENIED;
         } else {
             $apiCommand->setParams($params);
-            $response = $apiCommand->run();
+            if ($apiCommand->checkParams()) {
+                $response = $apiCommand->run();
+            } else {
+                $status = Api_Status::ERROR;
+                $error = Api_Error::NOT_ENOUGH_PARAMS;
+            }
         }
         return array(
             'status'            => $status,
