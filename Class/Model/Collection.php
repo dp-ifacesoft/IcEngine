@@ -1202,6 +1202,14 @@ class Model_Collection implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
+     * распечатать запрос
+     */
+    public function printQueryTranslate()
+    {
+        $query = $this->getQuery();
+        $queryTranslated = $query->translate();
+        var_dump($queryTranslated);
+    }
      * Обновляет как модели, чтобы вызывались Event Slot'ы
      * @param array $data данные для апдейта
      */
