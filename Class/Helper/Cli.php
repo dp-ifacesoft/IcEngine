@@ -59,11 +59,9 @@ class Helper_Cli extends Helper_Abstract
         $next = $this->next();
         $nextLength = strlen($next);
         if ($text) {
-            echo str_repeat("\r", $nextLength) . $text . $next
-                . str_repeat(' ', $nextLength+strlen($text))   . "\r";
+            echo str_repeat(' ', $nextLength)   . "\r" . chr(8) . $text . $next;
         } else {
-            echo "\r" . str_repeat("\r", $nextLength) . $next
-                . str_repeat(' ', $nextLength+80) . "\r";
+            echo str_repeat(' ', $nextLength) . "\r" . chr(8) .$next;
         }
     }
     
