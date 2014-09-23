@@ -184,6 +184,19 @@ class Request
     }
 
     /**
+     * Распарсить содержимое php://input для REST-запросов и выдать ассоциативный массив пар ['key'=>'value']
+     *
+     * @return array
+     */
+    public function parsePhpInput()
+    {
+        $data = (file_get_contents('php://input'));
+        $dataParsed = [];
+        parse_str($data, $dataParsed);
+        return $dataParsed;
+    }
+
+    /**
      * Получение параметра POST.
      *
      * @param string $name Имя параметра
