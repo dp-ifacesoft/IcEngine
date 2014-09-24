@@ -21,15 +21,15 @@ class Model_Factory extends Model
 	 */
 	public function delegateClass ($model, $key, $object)
 	{
-	    if (is_array ($object) && isset ($object ['name']))
-	    {
-		    return $model . '_' . $object ['name'];
-	    }
-		$query =  Query::instance ()
-			->select ('name')
-			->from ($this->table())
-			->where ('id', $key);
-	    $delegateName = DDS::execute ($query)->getResult ()->asValue();
+	    if (is_array ($object) && isset ($object ['name'])) {
+            $delegateName = $object ['name'];
+	    } else {
+            $query =  Query::instance ()
+                ->select ('name')
+                ->from ($this->table())
+                ->where ('id', $key);
+            $delegateName = DDS::execute ($query)->getResult ()->asValue();
+        }
 		$delegateName = $delegateName ?: 'Abstract';
 		return $model . '_' . $delegateName;
 	}
