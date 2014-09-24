@@ -7,8 +7,14 @@
  */
 class User_Abstract extends Model
 {
-
     /**
+     * Текущий пользователь.
+     *
+     * @var User
+     */
+    protected $current;
+    
+     /**
      * Текущая сессия.
      * 
      * @var Session
@@ -29,8 +35,6 @@ class User_Abstract extends Model
 	 */
 	public function authorize()
 	{
-        $session = $this->getService('userSession')->getCurrent();
-		$session->updateSession($this->key());
         $userService = $this->getService('user');
         $userService->setCurrent($this);
         $session = $this->getService('userSession')->getCurrent();
@@ -47,13 +51,13 @@ class User_Abstract extends Model
 
 	/**
 	 * Проверяет, авторизован ли пользователь.
+         * В действительности это лишь проверка на отличие от гостя.
 	 *
      * @return boolean True, если пользователь авторизован, иначе false.
 	 */
 	public function authorized()
 	{
-        $userService = $this->getService('user');
-		return $userService->current->id > 0 ? true : false;
+            return $this->key() > 0;
 	}
 
 	/**
@@ -129,10 +133,11 @@ class User_Abstract extends Model
 	 */
 	public function id()
 	{
-		if (!$this->current || !$this->current->key()) {
+            $currentUser = $this->getService('user')->getCurrent();
+		if (!$currentUser) {
 			return 0;
 		}
-		return $this->current->key();
+		return $currentUser->key();
 	}
 
 	/**
