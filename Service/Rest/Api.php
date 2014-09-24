@@ -63,7 +63,7 @@ abstract class Service_Rest_Api extends Service_Abstract
     protected $_requestData = [];
 
     /**
-     * Названия валидаторов для метода get()
+     * Названия валидаторов для HTTP-метода GET
      *
      * @var array
      */
@@ -75,7 +75,7 @@ abstract class Service_Rest_Api extends Service_Abstract
     ];
 
     /**
-     * Названия валидаторов для метода post()
+     * Названия валидаторов для HTTP-метода POST
      *
      * @var array
      */
@@ -111,6 +111,48 @@ abstract class Service_Rest_Api extends Service_Abstract
     }
 
     /**
+     * Получить текущий HTTP-метод в нижнем регистре
+     *
+     * Например, для HTTP-метода GET возвращаемым значением будет 'get',
+     * для запроса POST вернется значение 'post', и так далее.
+     *
+     * Метод требуется для конструирования названия $action.
+     * Например, если в REST-контроллер пришла переменная $action, равная 'current', а HTTP-запрос делается по GET,
+     * метод $this->setAction() получит отсюда префикс HTTP-метода, равный 'get',
+     * и сконструирует название целевого метода как 'getCurrent'.
+     *
+     * @return string
+     */
+    protected function _getHttpMethodPrefix()
+    {
+        /** @var Request $request */
+        $request = $this->getService('request');
+        $httpMethod = $request->requestMethod();
+        return strtolower($httpMethod);
+    }
+
+    /**
+     * Получить требуемые валидаторы для HTTP-метода и текущего значения $this->_action
+     *
+     * Метод объявлен финальным, чтобы не было возможности избежать начального набора валидаторов в сервисах-потомках.
+     *
+     * @return array
+     */
+    protected final function _getValidators()
+    {
+        $action = $this->getAction();
+        $httpMethod = $this->_getHttpMethodPrefix();
+        $validators = array_merge(
+            [
+                'Rest_Api_Action_Correct',
+            ],
+            $this->_getValidatorsFor($httpMethod),
+            $this->_getValidatorsFor($action)
+        );
+        return $validators;
+    }
+
+    /**
      * Получить имена валидаторов для определенного метода
      *
      * @param $method Название метода, для которого предназначены валидаторы
@@ -128,35 +170,6 @@ abstract class Service_Rest_Api extends Service_Abstract
     }
 
     /**
-     * Проверить, всё ли в порядке в настройках сервиса
-     *
-     * @return bool
-     * @throws Exception
-     */
-    protected function _isOk()
-    {
-        /**
-         * Проверим, установлено ли значение поля $_modelName у сервиса
-         */
-        $modelName = $this->getModelName();
-        if (empty($modelName))
-        {
-            $this->_raiseHttpStatus(404);
-            throw new Exception(__METHOD__ . ' requires a model name of a ' . get_class($this) . ' to be set');
-        }
-        /**
-         * Проверим, имеет ли право сервис работать с этой моделью (непустой массив имен полей модели в конфиге)
-         */
-        $modelFields = $this->getModelFields();
-        if (empty($modelFields))
-        {
-            $this->_raiseHttpStatus(500);
-            throw new Exception(__METHOD__ . ' requires a model name to be in ' . get_class($this) . ' config');
-        }
-        return TRUE;
-    }
-
-    /**
      * Получить URL для запроса данных модели
      *
      * @param int    $id            ID модели
@@ -166,7 +179,7 @@ abstract class Service_Rest_Api extends Service_Abstract
      */
     protected function _modelGetUri($id, $viewRender = 'json')
     {
-        return '/REST/v1/' . $this->getModelName() . '/get/' . $id . '.' . $viewRender;
+        return '/REST/v1/' . $this->getModelName() . '/get/byId/' . $id . '.' . $viewRender;
     }
 
     /**
@@ -191,28 +204,12 @@ abstract class Service_Rest_Api extends Service_Abstract
      * Метод объявлен финальным, чтобы в дочерних классах нельзя было избежать
      * обязательной валидации на корректность целевого метода.
      *
-     * @param array $methods Названия методов, для которых требуется провести самовалидацию
-     *
      * @return $this
      * @throws Exception в случае неудачной валидации
      */
-    protected final function _validateMeFor(array $methods)
+    protected final function _validateMe()
     {
-        $validators = [
-            'Rest_Api_Action_Correct',
-        ];
-        foreach ($methods as $methodName)
-        {
-            if (strpos($methodName, '::'))
-            {
-                $method = substr($methodName, strpos($methodName, '::') + 2, strlen($methodName));
-            }
-            else
-            {
-                $method = $methodName;
-            }
-            $validators = array_merge($validators, $this->_getValidatorsFor($method));
-        }
+        $validators = $this->_getValidators();
         if (empty($validators))
         {
             return $this;
@@ -287,15 +284,12 @@ abstract class Service_Rest_Api extends Service_Abstract
         if (!empty($action))
         {
             return $this
-                ->_validateMeFor([
-                    $this->_getHttpMethodPrefix(),
-                    $action,
-                ])
+                ->_validateMe()
                 ->$action()
             ;
         }
         $this->_raiseHttpStatus(500);
-        throw new Exception(__METHOD__ . ' requires an action name in data array to be set');
+        throw new Exception(__METHOD__ . ' requires an action name to be set');
     }
 
     /**
@@ -306,27 +300,6 @@ abstract class Service_Rest_Api extends Service_Abstract
     public function getAction()
     {
         return $this->_action;
-    }
-
-    /**
-     * Получить текущий HTTP-метод в нижнем регистре
-     *
-     * Например, для HTTP-метода GET возвращаемым значением будет 'get',
-     * для запроса POST вернется значение 'post', и так далее.
-     *
-     * Метод требуется для конструирования названия $action.
-     * Например, если в REST-контроллер пришла переменная $action, равная 'current', а HTTP-запрос делается по GET,
-     * метод $this->setAction() получит отсюда префикс HTTP-метода, равный 'get',
-     * и сконструирует название целевого метода как 'getCurrent'.
-     *
-     * @return string
-     */
-    protected function _getHttpMethodPrefix()
-    {
-        /** @var Request $request */
-        $request = $this->getService('request');
-        $httpMethod = $request->requestMethod();
-        return strtolower($httpMethod);
     }
 
     /**
@@ -369,74 +342,10 @@ abstract class Service_Rest_Api extends Service_Abstract
     }
 
     /**
-     * Единая точка входа для POST-запросов.
-     *
-     * Подходящий метод будет выбираться из значения $data['action'], а возвращаться будет результат его выполнения.
-     *
-     * Предполагается, что конкретные методы в реализациях будут protected,
-     * чтобы их не запускали непосредственно из контроллера.
-     *
-     * Это даст возможность вернуть соответствующий ситуации HTTP-заголовок и еще много вкусных плюшек, таких, как:
-     *  -   Валидация прав доступа. Например, мы хотим создать новый комментарий на сайте, но сервер должен проверить,
-     *      не забанены ли мы на сайте.
-     *  -   Валидация на подозрительную активность - не слишком ли много от клиента запросов в единицу времени.
-     *  -   Проверка на соблюдение каких-то еще условий. Вдруг, например, сайт находится на техобслуживании (выкладка)
-     *      и нам надо попросить контент-менеджера подождать пару минут, чтобы не потерялись данные.
-     *
-     * @internal param array $data   Ассоциативный массив данных, включая название требуемого метода
-     *
-     * @return array        Результат выполнения конкретного метода
-     * @throws Exception    В случае отсутствия значения action в аргументе
-     *                      или если указанный в action метод не существует
-     */
-    public function post()
-    {
-        $data = $this->getRequestData();
-        if (!empty($data['action']))
-        {
-            $actionName = 'post' . ucfirst($data['action']);
-            return $this
-                ->_validateMeFor([
-                    __METHOD__,
-                    $actionName,
-                ])
-                ->$actionName()
-            ;
-        }
-        $this->_raiseHttpStatus(500);
-        throw new Exception(__METHOD__ . ' requires an action name in data array to be set');
-//        if (!is_array($data) || empty($data['action']))
-//        {
-//            $this->_raiseHttpStatus(500);
-//            throw new Exception(__METHOD__ . ' requires an argument to be an array and to content an \'action\' item');
-//        }
-//        /**
-//         * Если указанный параметр action не ссылается на существующий в данном сервисе метод,
-//         * отправляем клиенту заголовок 406 Not Acceptable:
-//         * "запрошенный URI не может удовлетворить переданным в заголовке характеристикам".
-//         */
-//        if (!method_exists($this, $actionName))
-//        {
-//            $this->_raiseHttpStatus(406);
-//            throw new Exception(__METHOD__ . ' requires an action name to be a valid name of current REST API method');
-//        }
-
-    }
-
-    public function processNotAllowedMethod($methodName)
-    {
-        if (!$this->allowsMethod($methodName))
-        {
-            /** @var Service_Http_Header $httpHeader */
-            $httpHeader = $this->getService('serviceHttpHeader');
-            $httpHeader->sendHeaderHttpStatus(405, true, [
-                'Allow' => implode(',', $this->allowMethods()),
-            ]);
-        }
-    }
-
-    /**
      * Установить целевой метод для вызова
+     *
+     * Например, для HTTP-метода POST и экшена 'something' будет возвращено значение 'postSomething',
+     * для HTTP-метода GET и экшена 'current' будет возвращено значение 'getCurrent'.
      *
      * @param string $name
      *
