@@ -705,6 +705,8 @@ class Helper_Image_Resize extends Helper_Abstract
                 'error' =>  $this->error['NO_SIZE']
             ];
 		}
+         $inputFull = preg_replace('#http://.*?/#', '', $input);
+            $input = IcEngine::root() .  ltrim($inputFull,'/');
         if (!file_exists($input)) {
             return [
                 false,
