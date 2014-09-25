@@ -23,6 +23,6 @@ class Validator_Error_Rest_Api_Allows_Http_Method extends Validator_Error_Rest_A
      */
     public function errorMessage($value = null)
     {
-        return 'This HTTP method is not allowed in ' . $this->_getRestApiName();
+        return 'This HTTP method is not allowed in ' . $this->_getRestApiName() . '::' . $this->_getRestApiAction();
     }
 } 
