@@ -320,6 +320,37 @@ class Request
     }
 
     /**
+     * Получить входные данные из всех возможных источников в зависимости от текущего HTTP-метода
+     *
+     * @param array $input Ассоциативный массив всего, что содержится в Data_Transport
+     *
+     * @return array
+     */
+    public function receiveAllFromInput(array $input)
+    {
+        $id = !empty($input['id']) ? (int) $input['id'] : null;
+        $httpMethod = $this->requestMethod();
+        switch ($httpMethod) {
+            case 'DELETE':
+            case 'GET':
+                return [
+                    'id' => $id,
+                ];
+            case 'PATCH':
+            case 'POST':
+            case 'PUT':
+                return $this->parsePhpInput();
+            default:
+                return array_merge(
+                    [
+                        'id' => $id,
+                    ],
+                    $this->parsePhpInput()
+                );
+        }
+    }
+
+    /**
      * Получить реферер
      *
      * @return string

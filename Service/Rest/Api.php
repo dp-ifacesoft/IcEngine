@@ -25,6 +25,13 @@ abstract class Service_Rest_Api extends Service_Abstract
     protected $_allowMethods = ['GET'];
 
     /**
+     * HTTP-метод текущего запроса
+     *
+     * @var string
+     */
+    protected $_currentHttpMethod;
+
+    /**
      * Имя модели, с которой работает данный конкретный сервис
      *
      * @var string
@@ -86,6 +93,23 @@ abstract class Service_Rest_Api extends Service_Abstract
     ];
 
     /**
+     * Проверить, поддерживается ли сервисом указанный HTTP-метод.
+     *
+     * Мало указать поддержку метода в специальном поле $this->_allowMethods -
+     * надо еще и реализовать соответствующую функцию-метод в классе REST API.
+     *
+     * @param $httpMethod Название проверяемого HTTP-метода
+     *
+     * @return bool
+     */
+    protected function _allowsConcreteHttpMethod($httpMethod)
+    {
+        $actionName = $this->_getActionName();
+        $actionExists = method_exists($this, '_action' . ucfirst($httpMethod) . ucfirst($actionName));
+        return $actionExists && in_array($httpMethod, $this->_allowMethods);
+    }
+
+    /**
      * Отфильтровать запись по разрешенным полям
      *
      * Допустим, у нас есть запись вида ['id'=>1, 'name'=>'Валера', 'status'=>'ВедущийПрограммист'],
@@ -111,24 +135,35 @@ abstract class Service_Rest_Api extends Service_Abstract
     }
 
     /**
-     * Получить текущий HTTP-метод в нижнем регистре
-     *
-     * Например, для HTTP-метода GET возвращаемым значением будет 'get',
-     * для запроса POST вернется значение 'post', и так далее.
-     *
-     * Метод требуется для конструирования названия $action.
-     * Например, если в REST-контроллер пришла переменная $action, равная 'current', а HTTP-запрос делается по GET,
-     * метод $this->setAction() получит отсюда префикс HTTP-метода, равный 'get',
-     * и сконструирует название целевого метода как 'getCurrent'.
+     * Получить СЛУЖЕБНОЕ имя текущего экшена
      *
      * @return string
      */
-    protected function _getHttpMethodPrefix()
+    protected function _getActionName()
     {
-        /** @var Request $request */
-        $request = $this->getService('request');
-        $httpMethod = $request->requestMethod();
-        return strtolower($httpMethod);
+        return $this->_action;
+    }
+
+    /**
+     * Получить суффикс текущего экшена для конструирования названий методов и переменных
+     *
+     * @return string
+     */
+    protected function _getActionSuffix()
+    {
+        $httpMethod = $this->_getCurrentHttpMethod();
+        $actionName = $this->_getActionName();
+        return strtolower($httpMethod) . ucfirst($actionName);
+    }
+
+    /**
+     * Получить название текущего HTTP-метода
+     *
+     * @return string
+     */
+    protected function _getCurrentHttpMethod()
+    {
+        return $this->_currentHttpMethod;
     }
 
     /**
@@ -140,14 +175,11 @@ abstract class Service_Rest_Api extends Service_Abstract
      */
     protected final function _getValidators()
     {
-        $action = $this->getAction();
-        $httpMethod = $this->_getHttpMethodPrefix();
+        $httpMethod = $this->_getCurrentHttpMethod();
+        $actionSuffix = $this->_getActionSuffix();
         $validators = array_merge(
-            [
-                'Rest_Api_Action_Correct',
-            ],
-            $this->_getValidatorsFor($httpMethod),
-            $this->_getValidatorsFor($action)
+            $this->_getValidatorsFor(strtolower($httpMethod)),
+            $this->_getValidatorsFor($actionSuffix)
         );
         return $validators;
     }
@@ -167,6 +199,20 @@ abstract class Service_Rest_Api extends Service_Abstract
             return $this->$validators;
         }
         return [];
+    }
+
+    /**
+     * Инициализировать информацию об HTTP-методе текущего запроса
+     *
+     * @return $this
+     */
+    protected function _initCurrentHttpMethod()
+    {
+        /** @var Request $request */
+        $request = $this->getService('request');
+        $httpMethod = $request->requestMethod();
+        $this->_currentHttpMethod = $httpMethod;
+        return $this;
     }
 
     /**
@@ -230,28 +276,36 @@ abstract class Service_Rest_Api extends Service_Abstract
     }
 
     /**
-     * Получить список поддерживаемых сервисом HTTP-методов
+     * Получить список поддерживаемых HTTP-методов для данного API и экшена.
+     *
+     * Дело в том, что если для определенного URL не поддерживается запрошенный HTTP-метод,
+     * мы обязаны возвратить клиенту список HTTP-методов, которые точно поддерживаются.
      *
      * @return array
      */
-    public function allowMethods()
+    public function allowHttpMethods()
     {
-        return $this->_allowMethods;
+        $allowMethods = $this->_allowMethods;
+        $result = [];
+        foreach($allowMethods as $httpMethod)
+        {
+            if ($this->_allowsConcreteHttpMethod($httpMethod))
+            {
+                $result[] = $httpMethod;
+            }
+        }
+        return $result;
     }
 
     /**
-     * Проверить, поддерживается ли сервисом указанный HTTP-метод.
-     *
-     * Мало указать поддержку метода в специальном поле $this->_allowMethods -
-     * надо еще и реализовать соответствующую функцию-метод в классе REST API.
-     *
-     * @param $methodName Название проверяемого HTTP-метода
+     * Проверить, поддерживается ли текущий HTTP-метод для указанного экшена
      *
      * @return bool
      */
-    public function allowsMethod($methodName)
+    public function allowsHttpMethod()
     {
-        return in_array($methodName, $this->allowMethods());
+        $httpMethod = $this->_getCurrentHttpMethod();
+        return $this->_allowsConcreteHttpMethod($httpMethod);
     }
 
     /**
@@ -299,7 +353,8 @@ abstract class Service_Rest_Api extends Service_Abstract
      */
     public function getAction()
     {
-        return $this->_action;
+        $actionSuffix = $this->_getActionSuffix();
+        return '_action' . ucfirst($actionSuffix);
     }
 
     /**
@@ -353,7 +408,9 @@ abstract class Service_Rest_Api extends Service_Abstract
      */
     public function setAction($name)
     {
-        $this->_action = $this->_getHttpMethodPrefix() . ucfirst($name);
+        $this
+            ->_initCurrentHttpMethod()
+            ->_action = $name;
         return $this;
     }
 

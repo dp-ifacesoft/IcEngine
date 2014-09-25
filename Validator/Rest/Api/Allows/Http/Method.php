@@ -12,16 +12,13 @@ class Validator_Rest_Api_Allows_Http_Method extends Validator_Rest_Api
      */
     public function validate()
     {
-        /** @var Request $request */
-        $request = $this->getService('request');
-        $httpMethod = $request->requestMethod();
         $restApi = $this->getData();
-        $isOk = $restApi->allowsMethod($httpMethod);
+        $isOk = $restApi->allowsHttpMethod();
         if (!$isOk)
         {
             $error = $this->getValidatorError();
             $error->setParams([
-                'Allow' => implode(',', $restApi->allowMethods()),
+                'Allow' => implode(',', $restApi->allowHttpMethods()),
             ]);
             $this->extendErrorParams();
         }
