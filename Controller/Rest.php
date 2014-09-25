@@ -8,101 +8,9 @@
 class Controller_Rest extends Controller_Abstract
 {
     /**
-     * Получить одну модель
+     * Точка входа для REST-запросов
      *
-     * @Route(
-     *      "/REST/v1/{$service}/get/{$action}/{$id}.xml",
-     *      "name"="restGetByIdXml",
-     *      "weight"=100,
-     *      "params"={
-     *          "viewRender"="xml"
-     *      },
-     *      "components"={
-     *          "service"={
-     *              "pattern"="([^/]+)"
-     *          },
-     *          "action"={
-     *              "pattern"="([^/]+)"
-     *          },
-     *          "id"={
-     *              "pattern"="([0-9]+)"
-     *          }
-     *      }
-     * )
-     *
-     * @Route(
-     *      "/REST/v1/{$service}/get/{$action}/{$id}.json",
-     *      "name"="restGetByIdJson",
-     *      "weight"=100,
-     *      "params"={
-     *          "viewRender"="json"
-     *      },
-     *      "components"={
-     *          "service"={
-     *              "pattern"="([^/]+)"
-     *          },
-     *          "action"={
-     *              "pattern"="([^/]+)"
-     *          },
-     *          "id"={
-     *              "pattern"="([0-9]+)"
-     *          }
-     *      }
-     * )
-     *
-     * @Route(
-     *      "/REST/v1/{$service}/get/{$action}.json",
-     *      "name"="restGetJson",
-     *      "weight"=100,
-     *      "params"={
-     *          "viewRender"="json"
-     *      },
-     *      "components"={
-     *          "service"={
-     *              "pattern"="([^/]+)"
-     *          },
-     *          "action"={
-     *              "pattern"="([^/]+)"
-     *          }
-     *      }
-     * )
-     *
-     * @Route(
-     *      "/REST/v1/{$service}/get/{$action}.xml",
-     *      "name"="restGetXml",
-     *      "weight"=100,
-     *      "params"={
-     *          "viewRender"="xml"
-     *      },
-     *      "components"={
-     *          "service"={
-     *              "pattern"="([^/]+)"
-     *          },
-     *          "action"={
-     *              "pattern"="([^/]+)"
-     *          }
-     *      }
-     * )
-     */
-    public function get($service, $action, $id = null)
-    {
-        /** @var Service_Rest_Api_Manager $serviceRestApiManager */
-        $serviceRestApiManager = $this->getService('serviceRestApiManager');
-        $restApi = $serviceRestApiManager->get($service, 'Default');
-        $result = $restApi
-            ->setAction($action)
-            ->setRequestData([
-                'action'    => 'get' . ucfirst($action),
-                'id'        => $id,
-            ])
-            ->call();
-        $this->output->send($result);
-    }
-
-    /**
-     * Обработка POST-запроса
-     *
-     * Во избежание использования данного метода прикладными разработчиками не по назначению,
+     * Во избежание непонимания специфики HTTP-метода POST,
      * привожу здесь перевод главы 9.5 стандарта RFC2616, описывающего протокол HTTP v1.1.
      *
      * HTTP-метод POST используется, чтобы "попросить" основной сервер (не шлюз)
@@ -125,57 +33,65 @@ class Controller_Rest extends Controller_Abstract
      * В этом случае необходимо возвратить либо статус 200 (OK), либо 204 (No Content)
      * в зависимости от того, включает ли ответ сущность, описываемую результатом.
      *
-     *
-     * @param string $service   Название сервиса REST API, к которому стоит отправить обращение
-     * @param string $action    Название целевого метода сервиса $service
-     *
      * @Route(
-     *      "/REST/v1/{$service}/post/{$action}.json",
-     *      "name"="restPostJson",
+     *      "/REST/v1/{$service}/{$action}.{$viewRenderName}",
+     *      "name"="restIndex",
      *      "weight"=100,
-     *      "params"={
-     *          "viewRender"="json"
-     *      },
      *      "components"={
      *          "service"={
      *              "pattern"="([^/]+)"
      *          },
      *          "action"={
      *              "pattern"="([^/]+)"
+     *          },
+     *          "viewRenderName"={
+     *              "pattern"="(json|xml)"
      *          }
      *      }
      * )
      *
      * @Route(
-     *      "/REST/v1/{$service}/post/{$action}.xml",
-     *      "name"="restPostXml",
+     *      "/REST/v1/{$service}/{$action}/{$id}.{$viewRenderName}",
+     *      "name"="restIndexById",
      *      "weight"=100,
-     *      "params"={
-     *          "viewRender"="xml"
-     *      },
      *      "components"={
      *          "service"={
      *              "pattern"="([^/]+)"
      *          },
      *          "action"={
      *              "pattern"="([^/]+)"
+     *          },
+     *          "id"={
+     *              "pattern"="([0-9]+)"
+     *          },
+     *          "viewRenderName"={
+     *              "pattern"="(json|xml)"
      *          }
      *      }
      * )
      *
+     * @param string $service           Название сервиса Rest_Api
+     * @param string $action            Название экшена Rest_Api
+     * @param string $viewRenderName    Название viewRender для экшена
      */
-    public function post($service, $action)
+    public function index($service, $action, $viewRenderName)
     {
-        /** @var Service_Rest_Api_Manager $serviceRestApiManager */
-        $serviceRestApiManager = $this->getService('serviceRestApiManager');
-        $restApi = $serviceRestApiManager->get($service, 'Default');
+        /** @var View_Render_Manager $viewRenderManager */
+        $viewRenderManager = $this->getService('viewRenderManager');
+        $viewRender = $viewRenderManager->byName($viewRenderName);
+        $this->getTask()->setViewRender($viewRender);
+        $input = $this->input->receiveAll();
         /** @var Request $requestService */
         $requestService = $this->getService('request');
-        $data = $requestService->parsePhpInput();
+        $data = $requestService->receiveAllFromInput($input);
+        /** @var Service_Rest_Api_Manager $restApiManager */
+        $restApiManager = $this->getService('serviceRestApiManager');
+        $restApi = $restApiManager->get($service, 'Default');
         $result = $restApi
-            ->setAction($action)
             ->setRequestData($data)
-            ->call();
+            ->setAction($action)
+            ->call()
+        ;
         $this->output->send($result);
     }
 } 
