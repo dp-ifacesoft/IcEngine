@@ -25,7 +25,7 @@ class Helper_Api extends Helper_Abstract
     {
         $apiError = $this->getService('apiError');
         $apiCommand = $this->getService('apiCommandManager')
-            ->get(ucfirst($cmd));
+            ->get($cmd);
         $status = Api_Status::OK;
         $response = null;
         $error = 0;

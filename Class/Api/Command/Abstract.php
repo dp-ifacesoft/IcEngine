@@ -26,8 +26,9 @@ abstract class Api_Command_Abstract
     /**
      * Устанавливает параметры
      */
-    public function setParams($params)
+    public function setParams($jsonParams)
     {
+        $params = json_decode(urldecode($jsonParams), true);
         $this->params = $params;
     }
 
@@ -50,5 +51,10 @@ abstract class Api_Command_Abstract
             }
         }
         return $check;
+    }
+
+    protected function getService($serviceName)
+    {
+        return IcEngine::getServiceLocator()->getService($serviceName);
     }
 }
