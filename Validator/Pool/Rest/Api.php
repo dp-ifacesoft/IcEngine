@@ -5,7 +5,7 @@
  * @author LiverEnemy
  */
 
-class Validator_Pool_Rest_Api extends Validator_Pool_Abstract
+class Validator_Pool_Rest_Api extends Validator_Pool
 {
     /**
      * @inheritdoc
