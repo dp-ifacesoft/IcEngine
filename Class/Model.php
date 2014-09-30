@@ -316,7 +316,7 @@ abstract class Model implements ArrayAccess
             $joinedModel = $modelManager->byKey($modelName, $key);
 			$this->joints[$modelName] = $joinedModel;
 		}
-		return $this->joints[$modelName];
+		return isset($this->joints[$modelName]) ? $this->joints[$modelName] : null;
 	}
 
     /**
