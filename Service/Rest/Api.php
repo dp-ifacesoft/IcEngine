@@ -69,6 +69,19 @@ abstract class Service_Rest_Api extends Service_Abstract
      */
     protected $_requestData = [];
 
+
+    /**
+     * Названия валидаторов для HTTP-метода DELETE
+     *
+     * @var array
+     */
+    protected $_validatorsDelete = [
+        'Rest_Api_Allows_Http_Method',
+        'Rest_Api_Model_Not_Empty',
+        'Rest_Api_Model_Fields_Not_Empty',
+        'Rest_Api_Action_Exists',
+    ];
+
     /**
      * Названия валидаторов для HTTP-метода GET
      *
@@ -87,6 +100,17 @@ abstract class Service_Rest_Api extends Service_Abstract
      * @var array
      */
     protected $_validatorsPost = [
+        'Rest_Api_Allows_Http_Method',
+        'Rest_Api_Model_Not_Empty',
+        'Rest_Api_Action_Exists',
+    ];
+
+    /**
+     * Названия валидаторов для HTTP-метода PUT
+     *
+     * @var array
+     */
+    protected $_validatorsPut = [
         'Rest_Api_Allows_Http_Method',
         'Rest_Api_Model_Not_Empty',
         'Rest_Api_Action_Exists',
