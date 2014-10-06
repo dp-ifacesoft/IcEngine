@@ -98,6 +98,8 @@ class Helper_View_Resource
 	public function append($type, $filename = null, $pathName = null,
         $params = array())
 	{
+        $locator = IcEngine::serviceLocator();
+        $serviceViewResource = $locator->getService('serviceViewResource');
         $config = $this->config();
         $args = func_get_args();
         $type = $args[0];
@@ -119,8 +121,17 @@ class Helper_View_Resource
                 $paths = $config->defaultPaths;
                 if ($paths) {
                     $paths = $paths[$type];
-                    $filename = IcEngine::root() . trim($paths[$pathName], '/') .
-                        '/' . ltrim($filename, '/');
+                    if ($pathName == 'default') {
+                        $filename = $serviceViewResource->getFileNameByGroupDefault(
+                            $filename , $type
+                        );
+                        if (!$filename) {
+                            continue;
+                        }
+                    } else {
+                        $filename = IcEngine::root() . trim($paths[$pathName], '/') .
+                            '/' . ltrim($filename, '/');
+                    }
                 }
             }
             if (isset(self::$files[$type])) {
