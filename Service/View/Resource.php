@@ -17,7 +17,10 @@ class Service_View_Resource extends Service_Abstract
     public function getFileNameByGroupDefault($filename, $type) 
     {
         $modules = $this->getService('moduleManager')->getModules();
-        foreach (array_keys($modules) as $name) {
+        array_push($modules, 'IcEngine');
+        $names = array_keys($modules);
+        $names[] = 'IcEngine';
+        foreach ($names as $name) {
             $path = IcEngine::root() . $name . '/Static/' . $type . '/' .  ltrim($filename, '/');
             if (file_exists($path)) {
                 return $path;
