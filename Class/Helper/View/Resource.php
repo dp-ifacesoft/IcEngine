@@ -122,8 +122,7 @@ class Helper_View_Resource
                     $filename = IcEngine::root() . trim($paths[$pathName], '/') .
                         '/' . ltrim($filename, '/');
                 }
-            }
-            
+            }  
             if (isset(self::$files[$type])) {
                 self::$files[$type][$filename] = [$filename, $params];
             }
