@@ -23,7 +23,8 @@ class Helper_Image_Resize extends Helper_Abstract
         'vipgeo'    =>  [
             '../upload/vipgeo_product2/',
             '../upload/old_images/',
-            '/vipgeo/product/'
+            '/vipgeo/product/',
+            ''
         ]
     ];
 
