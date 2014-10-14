@@ -43,6 +43,7 @@ abstract class Api_Connector_Abstract
         );
         $jsonData = curl_exec($curlChannel);
         curl_close($curlChannel);
+        $jsonData = preg_replace("#^.*?{#", '{', $jsonData);
         $data = json_decode($jsonData, true);
         return $data;
     }
