@@ -79,4 +79,19 @@ class Bread_Crumb
     {
         return $this->rightHtml;
     }
+    
+    /**
+     * Вставить крошку до другой
+     * @param type $url
+     * @param type $breadCrumb
+     */
+    public function insertBefore($url, $breadCrumb)
+    {
+        foreach ($this->list as $key => $item) {
+            if ($url == $item['url']) {
+                array_splice($this->list, $key, 0, $breadCrumb);
+                continue;
+            }
+        }
+    }
 }
