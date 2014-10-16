@@ -179,4 +179,22 @@ class Form implements IteratorAggregate
         }
         return '';
     }
+    
+    /**
+     * Получить все ошибки
+     * 
+     * @return array
+     */
+    public function getErrors()
+    {
+        $errors = [];
+        foreach ($this->elements as $element) {
+            if (!$element->errors) {
+                continue;
+            }
+            $errors[$element->name] = $element->errors;
+        }
+        return $errors;
+    }
 }
+
