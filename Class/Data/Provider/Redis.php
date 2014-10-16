@@ -434,7 +434,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param bool $withScores default=false
      * @return array containing the values in specified range.
      */
-    public function zRangeByScore($key, $start=0, $end=-1, $limit=null, $offset=null, $withScores=false)
+    public function zRangeByScore($key, $start=null, $end=null, $limit=null, $offset=null, $withScores=false)
     {
         $key = $this->keyEncode($key);
         $options = [];
@@ -468,7 +468,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
      * @param bool $withScores default=false
      * @return array containing the values in specified range.
      */
-    public function zRevRangeByScore($key, $start=0, $end=-1, $limit=null, $offset=0, $withScores=false)
+    public function zRevRangeByScore($key, $start=null, $end=null, $limit=null, $offset=0, $withScores=false)
     {
         $key = $this->keyEncode($key);
         $options = [];
