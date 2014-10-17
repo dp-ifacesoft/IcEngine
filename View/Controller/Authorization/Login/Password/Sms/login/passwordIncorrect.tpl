@@ -1,0 +1,1 @@
+<p>{$error.text}</p>
