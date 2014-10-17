@@ -1,8 +1,9 @@
 <?php
 
 /**
- * копилка геттеров
+ * Автоматическое создание статических getter'ов для сервисов
  *
+ * @autor Apostle
  */
 class App
 {
@@ -13,7 +14,8 @@ class App
     */
     public static function get{$serviceName}()
     {
-        return $this->getService({lcfirst($serviceName)});
+        return IcEngine::serivceLocator()
+            ->getService('{lcfirst($serviceName)}');
     }
 {/foreach}
 }
