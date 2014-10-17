@@ -17,6 +17,7 @@ class Module_Manager extends Manager_Abstract
         'fromModel'         => false,
         'loaderPaths'       => array(
             'Class'         => 'Class',
+            'Service'       => 'Class',
             'Model'         => 'Class',
             ''              => 'Class',
             'Controller'    => 'Controller',
