@@ -12,10 +12,10 @@ class App
    /**
     * @return {$className}
     */
-    public static function get{$serviceName}()
+    public static function {$serviceName}()
     {
         return IcEngine::serivceLocator()
-            ->getService('{lcfirst($serviceName)}');
+            ->getService('{$serviceName}');
     }
 {/foreach}
 }

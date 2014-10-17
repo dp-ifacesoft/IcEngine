@@ -17,7 +17,7 @@ class Controller_App_Service_Getter extends Controller_Abstract
         $config = $context->configManager->get('Service_Source');
         $classes = [];
         foreach($config as $serviceName => $classObject) {
-            $classes[ucfirst($serviceName)] = $classObject->class;
+            $classes[$serviceName] = $classObject->class;
             
         }
         $this->output->send([
