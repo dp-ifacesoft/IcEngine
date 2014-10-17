@@ -24,7 +24,8 @@ class Helper_Annotation_Update extends Helper_Abstract
             $paths = array_merge(
                 $loader->getPaths('Class'),
                 $loader->getPaths('Model'),
-                $loader->getPaths('Controller')
+                $loader->getPaths('Controller'),
+                $loader->getPaths('Service')
             );
         }
         foreach ($paths as $path) {
@@ -33,7 +34,8 @@ class Helper_Annotation_Update extends Helper_Abstract
             }
             if (strpos($path, 'Class') === false &&
                 strpos($path, 'Controller') === false &&
-                strpos($path, 'Model') === false) {
+                strpos($path, 'Model') === false &&
+                strpos($path, 'Service') === false) {
                 continue;
             }
             ob_start();
