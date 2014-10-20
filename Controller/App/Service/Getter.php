@@ -18,7 +18,6 @@ class Controller_App_Service_Getter extends Controller_Abstract
         $classes = [];
         foreach($config as $serviceName => $classObject) {
             $classes[$serviceName] = $classObject->class;
-            
         }
         $this->output->send([
             'classes'   =>  $classes

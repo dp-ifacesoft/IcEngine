@@ -14,7 +14,7 @@ class App
     */
     public static function {$serviceName}()
     {
-        return IcEngine::serivceLocator()
+        return IcEngine::serviceLocator()
             ->getService('{$serviceName}');
     }
 {/foreach}
