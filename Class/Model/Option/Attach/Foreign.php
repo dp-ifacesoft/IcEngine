@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Прикручивает таблцу по внешнему ключу
+ *
+ * @author Apostle
+ */
+class Model_Option_Attach_Foreign extends Model_Option
+{
+    use Trait_Service_Locator;
+    /**
+     *
+     * @inheritdoc
+     */
+    public function after()
+    {
+        if (!isset($this->params['table']) && !isset($this->params['field']))
+        {
+            return;
+        }
+        $ids = [];
+        foreach ($this->collection as $model) {
+            $ids[] = $model['id'];
+        }
+        if (!$ids) {
+            return;
+        }
+        if (isset($this->params['table'])) {
+            $table = $this->params['table'];
+            if (!isset($this->params['field'])) {
+                $field = $table . '__id';
+            }
+        } 
+        if (isset($this->params['field'])) {
+            $field = $this->params['field'];
+            if (!isset($this->params['table'])) {
+                $pos = strpos($field, '__id');
+                $table = substr($field, 0, $pos);
+            }
+        }
+        $foreignTableQuery = $this->getService('queryBuilder')->select('*')
+            ->from($table)
+            ->where('id', $ids);
+        $foreignTable = $this->getService('dds')->execute($foreignTableQuery)
+            ->getResult()
+            ->asTable();
+        $foreignTableReindexed = $this->getService('helperArray')
+            ->reindex($foreignTable, 'id');
+        foreach ($this->collection as $model) {
+            if (isset($foreignTableReindexed[$model[$field]])) {
+                $model['data'][$field] = $foreignTableReindexed[$model[$field]];
+            }
+        }
+    }
+    
+}
