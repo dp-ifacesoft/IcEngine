@@ -5,7 +5,7 @@
  *
  * @autor Apostle
  */
-class App
+class App extends App_Abstract
 {
 {foreach from=$classes key='serviceName' item="className"}
 
