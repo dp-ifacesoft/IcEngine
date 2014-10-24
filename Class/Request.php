@@ -349,6 +349,11 @@ class Request
         $serviceLocator = IcEngine::serviceLocator();
         $sessionManager = $serviceLocator->getService('sessionManager');
         $sessionManager->init();
+        
+        // Здесь возможна инициализация альтернативного обработчки сессий.
+        // TODO: выбрать одно из двух - Session_Manager || Session.
+        Session::getId();
+
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
