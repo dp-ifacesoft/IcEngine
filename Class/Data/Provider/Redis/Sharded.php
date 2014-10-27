@@ -37,8 +37,11 @@ class Data_Provider_Redis_Sharded extends Data_Provider_Abstract
             case 'servers':
                 foreach ($value as $server) {
                     $redis = new Redis();
-                    $this->connections[] = $redis;
                     $redis->connect($server['host'], isset($server['port']) ? $server['post'] : null);
+                    if (isset($server['db'])) {
+                        $redis->select($server['db']);
+                    }
+                    $this->connection = $redis;
                 }
                 break;
         }

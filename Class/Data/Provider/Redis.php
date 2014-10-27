@@ -40,8 +40,11 @@ class Data_Provider_Redis extends Data_Provider_Abstract
                     $server = reset($server);
                 }
                 $redis = new Redis();
+                $redis->connect($server['host'], isset($server['port']) ? $server['port'] : null);
+                if (isset($server['db'])) {
+                    $redis->select($server['db']);
+                }
                 $this->connection = $redis;
-                $redis->connect($server['host'], isset($server['port']) ? $server['post'] : null);
                 break;
         }
         return parent::_setOption($key, $value);
