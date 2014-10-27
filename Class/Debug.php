@@ -575,7 +575,7 @@ class Debug
                     $fileText = "$time $type $text";
                     if ($type == 'user') {
                         $fileText = $time . ": Called from: \"" .
-                                debug_backtrace() . "\", " . $text;
+                                debug_print_backtrace() . "\", " . $text;
                     }
                     fwrite($fileHendler, $fileText);
 
@@ -619,13 +619,14 @@ class Debug
      *
      * @param mixed $var Переменная.
      * @param string $name Имя переменной.
+     * @param string|integer $type Тип события.
      */
-    public function logVar($var, $name = '')
+    public function logVar($var, $name = '', $type = 'log')
     {
         if (empty($name)) {
-            $this->log(print_r($var, true));
+            $this->log(print_r($var, true), $type);
         } else {
-            $this->log($name . ' => ' . print_r($var, true));
+            $this->log($name . ' => ' . print_r($var, true), $type);
         }
     }
 
