@@ -570,15 +570,16 @@ class Debug
                 $files = self::$config['file_log'];
             }
             if ($files) {
+                $exception = new Exception;
                 foreach ($files as $file) {
                     $fileHendler = fopen($file, 'ab');
                     $fileText = "$time $type $text";
                     if ($type == 'user') {
-                        $fileText = $time . ": Called from: \"" .
-                                debug_print_backtrace() . "\", " . $text;
+                        $fileText = $time . ': Called from: ' . PHP_EOL
+                                . $exception->getTraceAsString() . PHP_EOL
+                                . $text;
                     }
                     fwrite($fileHendler, $fileText);
-
                     fclose($fileHendler);
                 }
             }
