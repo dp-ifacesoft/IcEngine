@@ -577,7 +577,7 @@ class Debug
                     if ($type == 'user') {
                         $fileText = $time . ': Called from: ' . PHP_EOL
                                 . $exception->getTraceAsString() . PHP_EOL
-                                . $text;
+                                . $text . PHP_EOL;
                     }
                     fwrite($fileHendler, $fileText);
                     fclose($fileHendler);
