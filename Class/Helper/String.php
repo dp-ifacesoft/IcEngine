@@ -162,17 +162,18 @@ class Helper_String
      * @param string    $text
      * @param int       $length
      * @param bool      $wordsafe
-     * @param bool      $dots
+     * @param string    $etc
+     * @param bool      $middle
      * @return string   Длина превью с учетом кодировки.
      */
     public function superSmartPreview ($text, $length = 150,
-        $wordsafe = true, $dots = true)
+        $wordsafe = true, $etc = ' ...', $middle = false)
     {
         $text = htmlspecialchars_decode($text);
         $text = stripslashes($text);
         $text = $this->html2text($text);
         $text = trim($text);
-        return $this->truncateUtf8($text, $length, $wordsafe, $dots);
+        return $this->truncateUtf8($text, $length, $wordsafe, $etc, $middle);
 
     }
     
@@ -214,12 +215,14 @@ class Helper_String
      * 		Необходимая длина
      * @param boolean $wordsafe
      * 		Сохранение цельных слов. Если true, усечение произойдет по пробелу.
-     * @param boolean $dots
+     * @param string $etc
      * 		Вставить многоточие в конец строки, если строка была усечена.
+     * @param bool $middle
+     *      отрезать середину а не конец
      * @return string
      * 		Усеченная строка.
      */
-    public function truncateUtf8($string, $len, $wordsafe = false, $dots = false)
+    public function truncateUtf8($string, $len, $wordsafe = false, $etc = '', $middle = false)
     {
         $slen = strlen ($string);
 
@@ -239,7 +242,13 @@ class Helper_String
         }
         if ((ord($string[$len]) < 0x80) || (ord($string[$len]) >= 0xC0))
         {
-        	return substr($string, 0, $len) . ($dots ? ' ...' : '');
+            if (!$middle) {
+                $result = substr($string, 0, $len) . ($etc ? $etc : '');
+            } else {
+                $result = substr($string, 0, $len/2) . ($etc ? $etc : '')
+                    . substr($string, -$len / 2);
+            }
+        	return $result;
         }
         $p = 0;
         while ($len > 0 && $p < strlen ($string))
@@ -258,8 +267,13 @@ class Helper_String
         {
             $p++;
         }
-
-        return substr ($string, 0, $p) . ($dots ? ' ...' : '');
+        if (!$middle) {
+            $result = substr($string, 0, $len) . ($etc ? $etc : '');
+        } else {
+            $result = substr($string, 0, $p/2) . ($etc ? $etc : '')
+                . substr($string, -$p / 2);
+        }
+        return $result;
     }
 
     /**

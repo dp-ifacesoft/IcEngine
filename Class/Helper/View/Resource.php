@@ -133,9 +133,9 @@ class Helper_View_Resource
                             '/' . ltrim($filename, '/');
                     }
                 }
-            }
+            }  
             if (isset(self::$files[$type])) {
-                array_push(self::$files[$type], array($filename, $params));
+                self::$files[$type][$filename] = [$filename, $params];
             }
         }
 	}
