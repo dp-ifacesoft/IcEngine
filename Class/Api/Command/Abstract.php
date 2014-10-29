@@ -28,7 +28,7 @@ abstract class Api_Command_Abstract
      */
     public function setParams($jsonParams)
     {
-        $params = json_decode(urldecode($jsonParams));
+        $params = json_decode(urldecode($jsonParams), true);
         $this->params = $params;
     }
 
