@@ -18,13 +18,7 @@ class Model_Option_Attach_Foreign extends Model_Option
         {
             return;
         }
-        $ids = [];
-        foreach ($this->collection as $model) {
-            $ids[] = $model['id'];
-        }
-        if (!$ids) {
-            return;
-        }
+        
         if (isset($this->params['table'])) {
             $table = $this->params['table'];
             if (!isset($this->params['field'])) {
@@ -37,6 +31,13 @@ class Model_Option_Attach_Foreign extends Model_Option
                 $pos = strpos($field, '__id');
                 $table = substr($field, 0, $pos);
             }
+        }
+        $ids = [];
+        foreach ($this->collection as $model) {
+            $ids[] = $model[$field];
+        }
+        if (!$ids) {
+            return;
         }
         $foreignTableQuery = $this->getService('queryBuilder')->select('*')
             ->from($table)
