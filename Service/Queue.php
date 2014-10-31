@@ -22,6 +22,7 @@ class Service_Queue extends Service_Abstract
         $modelManager = App::modelManager();
         $helperDate = App::helperDate();
         $startTime = isset($data['startTime']) ? $data['startTime'] : $helperDate->toUnix();
+        $priority = isset($data['priority']) ? $data['priority'] : 0; 
         $serializeParams = serialize($data['params']);
         $task = $modelManager->create(
             'Queue', array(
@@ -29,7 +30,8 @@ class Service_Queue extends Service_Abstract
                 'startTime'         => $startTime,
                 'serviceName'       => $data['serviceName'],
                 'serviceMethod'     => $data['serviceMethod'],
-                'serializedParams'  => $serializeParams
+                'serializedParams'  => $serializeParams,
+                'priority'  => $priority
             )
         );
         $task->save();

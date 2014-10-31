@@ -44,6 +44,10 @@ class Controller_Queue extends Controller_Abstract
                         'field'     => 'startTime'
                     ],
                     [
+                        'name'  => '::Order_Desc',
+                        'field' => 'priority'
+                    ],
+                    [
                         'name'      => '::Order_Asc',
                         'field'     => 'createdAt'
                     ],
