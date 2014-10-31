@@ -16,8 +16,8 @@ class Controller_Queue extends Controller_Abstract
     
     /**
      * Запустить таски
+     * 
      * @Template("null")
-     * @Schedule("P1M")
      */
     public function index($context)
     {
