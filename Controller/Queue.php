@@ -21,39 +21,50 @@ class Controller_Queue extends Controller_Abstract
      */
     public function index($context)
     {
-        $tasksCount = $this->config['tasksCount'];
-        $tasks = $context->collectionManager->create(
+        $onGoingTasks = $context->collectionManager->create(
             'Queue'
         )
             ->addOptions(
                 [
-                    'name'      => '::Process_Status',
-                    'id'        => Helper_Process::NONE
-                ],
-                [
-                    'name'      => '::Expired_Time',
-                    'field'     => 'startTime'
-                ],
-                [
-                    'name'      => '::Order_Asc',
-                    'field'     => 'createdAt'
-                ],
-                [
-                    'name'      => '::Limit',
-                    'count'     => $tasksCount
+                    'name'  => '::Process_Status',
+                    'id'    => Helper_Process::ONGOING
                 ]
-            );
+            )
+            ->raw();
+        $tasksCount = $this->config['tasksCount'] - count($onGoingTasks);
+        if ($tasksCount > 0) {
+            $tasks = $context->collectionManager->create('Queue')
+                ->addOptions(
+                    [
+                        'name'      => '::Process_Status',
+                        'id'        => Helper_Process::NONE
+                    ],
+                    [
+                        'name'      => '::Expired_Time',
+                        'field'     => 'startTime'
+                    ],
+                    [
+                        'name'      => '::Order_Asc',
+                        'field'     => 'createdAt'
+                    ],
+                    [
+                        'name'      => '::Limit',
+                        'count'     => $tasksCount
+                    ]
+                );
+        }
         foreach ($tasks as $task) {
-            $task->update(
-                array(
-                    'Process_Status__id'    => Helper_Process::ONGOING
-                ));
+            $task->update([
+                'Process_Status__id'    => Helper_Process::ONGOING
+            ]);
             $service = $this->getService($task['serviceName']);
             $params = unserialize($task['serializedParams']);
-            print_r($task['serviceName'] . '->' . $task['serviceMethod'] . '()'
-                . PHP_EOL);
-            $service->$task['serviceMethod']($params, $task['id']);
+            echo $task['serviceName'] . '->' . $task['serviceMethod'] . PHP_EOL;
+            call_user_func_array([$service, $task['serviceMethod']], $params);
+            $task->update([
+                'Process_Status__id'    => Helper_Process::SUCCESS
+            ]);
         }
-        print_r('done' . PHP_EOL);
+        echo 'done' . PHP_EOL;
     }
 }
