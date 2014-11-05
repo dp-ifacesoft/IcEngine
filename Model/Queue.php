@@ -51,6 +51,12 @@ class Queue extends Model
     public $serializedParams;
 
     /**
+     * @Orm\Field\Int(Size=11, Not_Null)
+     * @Orm\Index\Key
+     */
+    public $priority;
+    
+    /**
      * Статус процесса
      *
      * @Orm\Field\Tinyint(Size=4, Not_Null)     
