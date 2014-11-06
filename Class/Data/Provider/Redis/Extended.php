@@ -341,12 +341,8 @@ class Data_Provider_Redis_Extended extends Data_Provider_Abstract
      */
     public function sAdd($key, $values)
     {
-        $params = [];
-        $params[] = $key;
-        foreach ($values as $value) {
-            $params[] = $value;
-        }
-        return call_user_func_array([$this->connection, 'sAdd'], $params);
+        array_unshift($values, $this->keyEncode($key));
+        call_user_func_array([$this->connection, 'sAdd'], $values);
     }
     
     /**
@@ -357,7 +353,11 @@ class Data_Provider_Redis_Extended extends Data_Provider_Abstract
      */
     public function sInter($keys)
     {
-        return call_user_func_array([$this->connection, 'sInter'], $keys);
+        $keysEncoded = [];
+        foreach ($keys as $key) {
+            $keysEncoded[] = $this->keyEncode($key);
+        }
+        return call_user_func_array([$this->connection, 'sInter'], $keysEncoded);
     }
     
     /**

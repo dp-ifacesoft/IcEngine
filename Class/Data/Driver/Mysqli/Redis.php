@@ -19,24 +19,30 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
      */
 	public function execute(\Query_Abstract $query, $options = null)
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(3600);
         $dataProvider = App::dataProviderManager()->get('Mysqli_Redis');
-        echo $query->translate();
+        echo $query->translate() . '<br>';
         $queryBase = App::queryBuilder()
             ->select('id');
         $from = $query->getPart(Query::FROM);
         $queryBase->setPart(Query::FROM, $from);
         $hashs = [];
+        $newQueries = [];
         foreach ($query->getPart(Query::WHERE) as $item) {
-            echo ' <pre>' . print_r($item, 1) . '</pre>'; 
             $newQuery = clone $queryBase;
             $newQuery->setPart(Query::WHERE, [
                 $item
             ]);
-            echo $newQuery->translate();
-            $hash = md5($newQuery->translate());
+            $newQueries[] = $newQuery;
+        }
+        foreach ($newQueries as $item) {
+            $hash = md5($item->translate());
             $hashs[] = $hash;
+            var_dump($dataProvider->exists($hash));
             if (!$dataProvider->exists($hash)) {
-                $values = $this->sourceDriver->execute($query, $options)->asColumn();
+                echo $item->translate() . '<br>';
+                $values = $this->sourceDriver->execute($item, $options)->asColumn();
                 $dataProvider->sAdd($hash, $values);
             }
         }
