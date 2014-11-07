@@ -29,8 +29,6 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $queryBase->setPart(Query::FROM, $from);
         $hashs = [];
         $newQueries = [];
-        echo '<pre>' . print_r($query->getPart(Query::LIMIT), 1) . '</pre>';
-        die();
         foreach ($query->getPart(Query::WHERE) as $item) {
             $newQuery = clone $queryBase;
             $newQuery->setPart(Query::WHERE, [
