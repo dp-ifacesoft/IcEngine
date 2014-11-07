@@ -34,30 +34,47 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             $newQuery->setPart(Query::WHERE, [
                 $item
             ]);
-            $newQueries[] = $newQuery;
+            $newQueries[] = [
+                'type'  => Order::WHERE,
+                'query' => $newQuery
+            ];
         }
         
         $orderQuery = clone $queryBase;
         $orderPart = $query->getPart(Query::ORDER);
         $orderQuery->setPart(Query::ORDER, $orderPart);
-        $newQueries[] = $orderQuery;
+        $newQueries[] = [
+            'type'  => Order::ORDER,
+            'query' => $orderQuery
+        ];
         
         foreach ($newQueries as $item) {
-            echo $item->translate() . '<br>';
-            $hash = md5($item->translate());
+            echo $item['query']->translate() . '<br>';
+            $hash = md5($item['query']->translate());
             $hashs[] = $hash;
             var_dump($dataProvider->exists($hash));
             if (!$dataProvider->exists($hash)) {
-                echo $item->translate() . '<br>';
-                $values = $this->sourceDriver->execute($item, $options)->asColumn();
+                echo $item['query']->translate() . '<br>';
+                $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
                 $zArrayValues = [];
-                $i = 0;
-                foreach ($values as $value) {
-                    $i ++;
-                    $zArrayValues[] = [
-                        'value' => $value,
-                        'score' => $i
-                    ];
+                if ($item['type'] == Query::ORDER) {
+                    $i = 0;
+                    foreach ($values as $value) {
+                        $i ++;
+                        $zArrayValues[] = [
+                            'value' => $value,
+                            'score' => $i
+                        ];
+                    }
+                }
+                if ($item['type'] == Query::ORDER) {
+                    foreach ($values as $value) {
+                        $i ++;
+                        $zArrayValues[] = [
+                            'value' => $value,
+                            'score' => 0
+                        ];
+                    }
                 }
                 $dataProvider->zAddArray($hash, $zArrayValues);
             }
