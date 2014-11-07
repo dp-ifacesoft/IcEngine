@@ -49,12 +49,11 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         ];
         
         foreach ($newQueries as $item) {
-            echo $item['query']->translate() . '<br>';
+            //echo $item['query']->translate() . '<br>';
             $hash = md5($item['query']->translate());
             $hashs[] = $hash;
-            var_dump($dataProvider->exists($hash));
             if (!$dataProvider->exists($hash)) {
-                echo $item['query']->translate() . '<br>';
+                //echo $item['query']->translate() . '<br>';
                 $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
                 $zArrayValues = [];
                 if ($item['type'] == Query::ORDER) {
@@ -89,7 +88,13 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             $start = $queryLimit['LIMITOFFSET'];
             $end = $start + $queryLimit['LIMITOFFSET'];
         }
-        
+        echo '----------------------------';
+        var_dump($start, $end);
+        print_r($dataProvider->zRange($keyOut, $start, $end, true));
+        print_r($dataProvider->zRange($keyOut, $start, $end, false));
+        print_r($dataProvider->zRevRange($keyOut, $start, $end, true));
+        print_r($dataProvider->zRevRange($keyOut, $start, $end, false));
+        echo '/----------------------------';
         $ids = $dataProvider->zRange($keyOut, $start, $end, true);
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
