@@ -50,7 +50,6 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
         $query->where('id', $ids);
-        echo $query->translate();
         return $this->sourceDriver->execute($query, $options);
     }
     
