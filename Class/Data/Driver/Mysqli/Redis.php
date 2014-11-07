@@ -105,7 +105,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         }
         $queryResult->setResult($queryResultDataSorted);
         $queryResult->setFoundRows($foundRows);
-        echo 'rows' . $queryResult->foundRows . '   ';
+        echo 'rows' . $queryResult->foundRows() . '   ';
         return $queryResult;
     }
     
