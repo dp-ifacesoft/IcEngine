@@ -85,13 +85,10 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $start = 0;
         $end = -1;
         if ($queryLimit) {
-            $start = $queryLimit['LIMITOFFSET'];
-            $end = $start + $queryLimit['LIMITOFFSET'] - 1;
+            $start = $queryLimit[Query::LIMIT_OFFSET];
+            $end = $start + $queryLimit[Query::LIMIT_COUNT] - 1;
+            var_dump($start, $end);
         }
-        echo '----------------------------';
-        var_dump($start, $end);
-        print_r($dataProvider->zRange($keyOut, $start, $end));
-        echo '/----------------------------';
         $ids = $dataProvider->zRange($keyOut, $start, $end);
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
