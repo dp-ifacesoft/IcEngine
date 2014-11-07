@@ -100,6 +100,8 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         echo $query->translate();
         $queryResult = $this->sourceDriver->execute($query, $options);
         $queryResultData = $queryResult->result();
+        var_dump($queryResultData);
+        die();
         $queryResultDataSorted = [];
         $queryResultDataReindexed = App::helperArray()->reindex($queryResultData, 'id');
         foreach ($ids as $id) {
@@ -108,8 +110,6 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             }
             $queryResultDataSorted[] = $queryResultDataReindexed[$id];
         }
-        var_dump($queryResultDataSorted);
-        die();
         $queryResult->setResult($queryResultDataSorted);
         $queryResult->setFoundRows($foundRows);
         return $queryResult;
