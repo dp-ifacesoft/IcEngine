@@ -35,7 +35,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
                 $item
             ]);
             $newQueries[] = [
-                'type'  => Order::WHERE,
+                'type'  => Query::WHERE,
                 'query' => $newQuery
             ];
         }
@@ -44,7 +44,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $orderPart = $query->getPart(Query::ORDER);
         $orderQuery->setPart(Query::ORDER, $orderPart);
         $newQueries[] = [
-            'type'  => Order::ORDER,
+            'type'  => Query::ORDER,
             'query' => $orderQuery
         ];
         
