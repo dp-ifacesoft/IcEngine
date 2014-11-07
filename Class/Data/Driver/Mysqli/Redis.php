@@ -29,6 +29,8 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $queryBase->setPart(Query::FROM, $from);
         $hashs = [];
         $newQueries = [];
+        echo '<pre>' . print_r($query->getPart(Query::LIMIT), 1) . '</pre>';
+        die();
         foreach ($query->getPart(Query::WHERE) as $item) {
             $newQuery = clone $queryBase;
             $newQuery->setPart(Query::WHERE, [
@@ -81,12 +83,25 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         }
         $keyOut = md5(implode('_', $hashs));
         $dataProvider->zIntersect($keyOut, $hashs);
-        $ids = $dataProvider->zRange($keyOut);
-        echo '<pre>' . print_r($ids, 1) . '</pre>';
+        $foundRows = $dataProvider->zCount($keyOut);
+        
+        $queryLimit = $query->getPart(Query::LIMIT);
+        $start = 0;
+        $end = -1;
+        if ($queryLimit) {
+            $start = $queryLimit['LIMITOFFSET'];
+            $end = $start + $queryLimit['LIMITOFFSET'];
+        }
+        
+        $ids = $dataProvider->zRange($keyOut, $start, $end);
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
+        $query->resetPart(Query::LIMIT);
+        $query->resetPart(Query::CALC_FOUND_ROWS);
         $query->where('id', $ids);
-        return $this->sourceDriver->execute($query, $options);
+        echo $query->translate();
+        $queryResult = $this->sourceDriver->execute($query, $options);
+        $queryResult->setFoundRows($foundRows);
     }
     
     public function __construct()

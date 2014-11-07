@@ -117,6 +117,16 @@ class Query_Result
 	{
 	    return $this->result['foundRows'];
 	}
+    
+    /**
+     * Устанавливает общее количество подходящих под условие строк
+     * 
+     * @param integer $foundRows общее количество подходящих под условие строк
+     */
+    public function setFoundRows($foundRows)
+    {
+        $this->result['foundRows'] = $foundRows;
+    }
 
 	/**
 	 * Значение последнего добавленого автоинкрементного ключа.
