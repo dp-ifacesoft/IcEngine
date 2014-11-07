@@ -108,6 +108,8 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             }
             $queryResultDataSorted[] = $queryResultDataReindexed[$id];
         }
+        var_dump($queryResultDataSorted);
+        die();
         $queryResult->setResult($queryResultDataSorted);
         $queryResult->setFoundRows($foundRows);
         return $queryResult;
