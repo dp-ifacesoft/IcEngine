@@ -83,14 +83,10 @@ class Helper_Model_Collection extends Helper_Abstract
     public function getCount($collection)
     {
         $tempCollection = clone $collection;
-        $modelOptionManager = $this->getService('modelOptionManager');
-        $options = $tempCollection->getOptions();
-        $modelOptionManager->executeBefore($tempCollection, $options);
         $tempCollection->query()->limit(1)->calcFoundRows();
-        $query = $tempCollection->getQuery();
+        $tempCollection->load();
+        $count = $tempCollection->data('foundRows');
         unset($tempCollection);
-        $dds = $this->getService('dds');
-        $count = $dds->execute($query)->getResult()->foundRows();
         return $count;
     }
 }
