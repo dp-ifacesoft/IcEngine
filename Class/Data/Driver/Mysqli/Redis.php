@@ -86,7 +86,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $end = -1;
         if ($queryLimit) {
             $start = $queryLimit['LIMITOFFSET'];
-            $end = $start + $queryLimit['LIMITOFFSET'];
+            $end = $start + $queryLimit['LIMITOFFSET'] - 1;
         }
         echo '----------------------------';
         var_dump($start, $end);
