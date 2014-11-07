@@ -46,9 +46,11 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
                 $dataProvider->sAdd($hash, $values);
             }
         }
-        $data = $dataProvider->sInter($hashs);
-        print_r($data);
-        die();
+        $ids = $dataProvider->sInter($hashs);
+        $query->resetPart(Query::WHERE);
+        $query->resetPart(Query::ORDER);
+        $query->where('id', $ids);
+        echo $query->translate();
         return $this->sourceDriver->execute($query, $options);
     }
     
