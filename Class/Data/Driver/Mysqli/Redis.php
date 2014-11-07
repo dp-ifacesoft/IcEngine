@@ -19,6 +19,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
      */
 	public function execute(\Query_Abstract $query, $options = null)
     {
+        echo $query->translate() . '   ';
         $dataProvider = App::dataProviderManager()->get('Mysqli_Redis');
         $queryBase = App::queryBuilder()
             ->select('id');
@@ -104,7 +105,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         }
         $queryResult->setResult($queryResultDataSorted);
         $queryResult->setFoundRows($foundRows);
-        echo 'rows' . $foundRows . '   ';
+        echo 'rows' . $queryResult->foundRows . '   ';
         return $queryResult;
     }
     
