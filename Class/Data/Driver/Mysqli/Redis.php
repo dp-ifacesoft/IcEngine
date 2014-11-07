@@ -100,6 +100,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         echo $query->translate();
         $queryResult = $this->sourceDriver->execute($query, $options);
         $queryResult->setFoundRows($foundRows);
+        return $queryResult;
     }
     
     public function __construct()
