@@ -43,10 +43,22 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             if (!$dataProvider->exists($hash)) {
                 echo $item->translate() . '<br>';
                 $values = $this->sourceDriver->execute($item, $options)->asColumn();
-                $dataProvider->sAdd($hash, $values);
+                $zArrayValues = [];
+                $i = 0;
+                foreach ($values as $value) {
+                    $i ++;
+                    $zArrayValues[] = [
+                        'value' => $value,
+                        'score' => $i
+                    ];
+                }
+                $dataProvider->zAddArray($hash, $zArrayValues);
             }
         }
-        $ids = $dataProvider->sInter($hashs);
+        $keyOut = md5(implode('_', $hashs));
+        $dataProvider->zIntersect($keyOut, $hashs);
+        $ids = $dataProvider->zRange($keyOut);
+        echo '<pre>' . print_r($ids, 1) . '</pre>';
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
         $query->where('id', $ids);

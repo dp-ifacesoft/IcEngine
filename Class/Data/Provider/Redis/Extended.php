@@ -370,7 +370,7 @@ class Data_Provider_Redis_Extended extends Data_Provider_Abstract
     public function zAddArray($key, $values)
     {
         $params = [];
-        $params[] = $key;
+        $params[] = $this->keyEncode($key);
         foreach ($values as $item) {
             $params[] = $item['score'];
             $params[] = $item['value'];
