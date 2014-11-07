@@ -69,7 +69,6 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
                 }
                 if ($item['type'] == Query::WHERE) {
                     foreach ($values as $value) {
-                        $i ++;
                         $zArrayValues[] = [
                             'value' => $value,
                             'score' => 0
@@ -91,7 +90,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             $end = $start + $queryLimit['LIMITOFFSET'];
         }
         
-        $ids = $dataProvider->zRange($keyOut, $start, $end);
+        $ids = $dataProvider->zRange($keyOut, $start, $end, true);
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
         $query->resetPart(Query::LIMIT);
