@@ -90,12 +90,9 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         }
         echo '----------------------------';
         var_dump($start, $end);
-        print_r($dataProvider->zRange($keyOut, $start, $end, true));
-        print_r($dataProvider->zRange($keyOut, $start, $end, false));
-        print_r($dataProvider->zRevRange($keyOut, $start, $end, true));
-        print_r($dataProvider->zRevRange($keyOut, $start, $end, false));
+        print_r($dataProvider->zRange($keyOut, $start, $end));
         echo '/----------------------------';
-        $ids = $dataProvider->zRange($keyOut, $start, $end, true);
+        $ids = $dataProvider->zRange($keyOut, $start, $end);
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
         $query->resetPart(Query::LIMIT);
