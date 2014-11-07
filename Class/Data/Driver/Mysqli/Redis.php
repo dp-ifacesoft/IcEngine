@@ -79,6 +79,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         }
         $keyOut = md5(implode('_', $hashs));
         $dataProvider->zIntersect($keyOut, $hashs);
+        echo $keyOut . '   ';
         $foundRows = $dataProvider->zCount($keyOut);
         
         $queryLimit = $query->getPart(Query::LIMIT);

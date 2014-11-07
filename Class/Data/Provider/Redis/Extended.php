@@ -436,7 +436,6 @@ class Data_Provider_Redis_Extended extends Data_Provider_Abstract
         $keys = [];
         foreach ($zSetKeys as $key) {
             $keys[] = $this->keyEncode($key);
-            echo $this->keyEncode($key) . '   ';
         }
         return $this->connection->zInter($keyOutput, $keys, $weights, $aggregateFunction);
     }
