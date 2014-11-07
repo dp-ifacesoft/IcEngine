@@ -36,7 +36,14 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             ]);
             $newQueries[] = $newQuery;
         }
+        
+        $orderQuery = clone $queryBase;
+        $orderPart = $query->getPart(Query::ORDER);
+        $orderQuery->setPart(Query::ORDER, $orderPart);
+        $newQueries[] = $orderQuery;
+        
         foreach ($newQueries as $item) {
+            echo $item->translate() . '<br>';
             $hash = md5($item->translate());
             $hashs[] = $hash;
             var_dump($dataProvider->exists($hash));
