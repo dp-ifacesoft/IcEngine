@@ -15,7 +15,7 @@ class Helper_Yandex_Original_Text extends Helper_Abstract
      * В ответе получим #access_token
      */
     protected $config = array(
-        'accessToken'  => '94f2d09a73e042f280fae50d9df83372'
+        'accessToken'  => '6479cceceb524b21ab64abe1ec4e77a3'
     );
     /**
      * Отправка оригинального текста

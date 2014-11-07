@@ -78,7 +78,7 @@ class Controller_Rest extends Controller_Abstract
     {
         /** @var View_Render_Manager $viewRenderManager */
         $viewRenderManager = $this->getService('viewRenderManager');
-        $viewRender = $viewRenderManager->byName($viewRenderName);
+        $viewRender = $viewRenderManager->byName(ucfirst($viewRenderName));
         $this->getTask()->setViewRender($viewRender);
         $input = $this->input->receiveAll();
         /** @var Request $requestService */
