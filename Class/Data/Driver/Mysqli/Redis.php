@@ -67,7 +67,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
                         ];
                     }
                 }
-                if ($item['type'] == Query::ORDER) {
+                if ($item['type'] == Query::WHERE) {
                     foreach ($values as $value) {
                         $i ++;
                         $zArrayValues[] = [
