@@ -596,6 +596,7 @@ class Paginator
     public function setNotGet($notGet)
     {
         $this->notGet = (bool) $notGet;
+        $this->setHref(null);
         return $this;
     }
 
