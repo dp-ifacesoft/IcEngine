@@ -92,13 +92,23 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         }
         
         $ids = $dataProvider->zRange($keyOut, $start, $end);
+        $query->where('id', $ids);
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
         $query->resetPart(Query::LIMIT);
         $query->resetPart(Query::CALC_FOUND_ROWS);
-        $query->where('id', $ids);
         echo $query->translate();
         $queryResult = $this->sourceDriver->execute($query, $options);
+        $queryResultData = $queryResult->result();
+        $queryResultDataSorted = [];
+        $queryResultDataReindexed = App::helperArray()->reindex($queryResultData, 'id');
+        foreach ($ids as $id) {
+            if (!isset($queryResultDataReindexed[$id])) {
+                continue;
+            }
+            $queryResultDataSorted[] = $queryResultDataReindexed[$id];
+        }
+        $queryResult->setResult($queryResultDataSorted);
         $queryResult->setFoundRows($foundRows);
         return $queryResult;
     }
