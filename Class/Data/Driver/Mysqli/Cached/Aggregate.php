@@ -20,8 +20,6 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
      * @var array
      */
     protected $params = [
-        'memoryLimit'  => '1G',
-        'timeLimit'    => 180
     ];
     
     /**
