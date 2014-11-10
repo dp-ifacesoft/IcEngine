@@ -141,7 +141,10 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
                 ];
             }
         }
-        $dataProvider->zAddArray($hash, $zArrayValues);
+        $zArrayValuesChunk = array_chunk($zArrayValues, 5000);
+        foreach ($zArrayValuesChunk as $item) {
+            $dataProvider->zAddArray($hash, $item);
+        }
     }   
     
     /**
