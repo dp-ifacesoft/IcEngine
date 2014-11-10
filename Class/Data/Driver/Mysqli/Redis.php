@@ -91,7 +91,6 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
         $query->resetPart(Query::LIMIT);
-        $query->resetPart(Query::CALC_FOUND_ROWS);
         $query->where('id', $ids);
         $queryResult = $this->sourceDriver->execute($query, $options);
         $queryResultData = $queryResult->result();
