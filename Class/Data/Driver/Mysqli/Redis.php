@@ -107,7 +107,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $dataProvider = $data['dataProvider'];
         $options = $data['options'];
         $hash = $data['hash'];
-        ini_set('memory_limit', '3GB');
+        ini_set('memory_limit', '1G');
         set_time_limit(3600);
         echo $item['query']->translate() . '    ';
         $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
@@ -151,9 +151,9 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             if (!$dataProvider->exists($hash)) {
                 $this->zAddItem([
                     'dataProvider'  => $dataProvider,
-                    'item'  => $item,
-                    'options'   => $options,
-                    'hash'  => $hash
+                    'item'          => $item,
+                    'options'       => $options,
+                    'hash'          => $hash
                 ]);
             }
         }
