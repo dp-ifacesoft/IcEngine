@@ -168,6 +168,7 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
                     'hash'          => $hash
                 ]);
                         echo $item['query']->translate();
+                        echo '  ' . $hash;
                         die();
             }
         }
