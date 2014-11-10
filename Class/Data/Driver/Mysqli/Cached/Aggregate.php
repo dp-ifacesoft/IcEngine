@@ -159,6 +159,7 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
         $queries = $this->getQueries($query);
         foreach ($queries as $item) {
             $hash = md5($item['query']->translate());
+            echo $item['query']->translate(). '   ';
             $hashs[] = $hash;
             if (!$dataProvider->exists($hash)) {
                 $this->zAddItem([
