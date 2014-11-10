@@ -5,7 +5,7 @@
  *
  * @author markov
  */
-class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
+class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
 {
     /**
      * Драйвер
@@ -13,6 +13,15 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
      * @var Data_Source
      */
     protected $sourceDriver;
+    
+    /**
+     * Параметры
+     *
+     * @var array
+     */
+    protected $params = [
+        'memory_limit'  => '1G'
+    ];
     
     /**
      * Возвращает базовый запрос для разбиения на части
@@ -107,9 +116,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $dataProvider = $data['dataProvider'];
         $options = $data['options'];
         $hash = $data['hash'];
-        ini_set('memory_limit', '1G');
-        set_time_limit(3600);
-        echo $item['query']->translate() . '    ';
+        ini_set('memory_limit', $this->params['memory_limit']);
         $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
         $zArrayValues = [];
         if ($item['type'] == Query::ORDER) {
@@ -142,7 +149,8 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
 	 */
     public function executeSelect(\Query_Abstract $query, $options = null) 
     {
-        $dataProvider = App::dataProviderManager()->get('Mysqli_Redis');
+        $providerName = $this->params['provider'];
+        $dataProvider = App::dataProviderManager()->get($providerName);
         $hashs = [];
         $queries = $this->getQueries($query);
         foreach ($queries as $item) {
@@ -162,7 +170,6 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $foundRows = $dataProvider->zCount($keyOut);
         $ids = $this->getIds($query, $dataProvider, $keyOut);
         $queryModified = $this->getResultQueryCreate($query, $ids);
-        echo $queryModified->translate() . '    ';
         $queryResult = $this->sourceDriver->execute($queryModified, $options);
         $queryResultData = $queryResult->result();
         $queryResultDataSorted = [];
@@ -208,4 +215,18 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             ? $sourceConfig['options'] : array();
         $this->sourceDriver = App::dataDriverManager()->get('Mysqli_Cached', $config);
     }
+    
+    /**
+	 * @inheritdoc
+	 */
+	public function setOption($key, $value = null)
+	{
+		if (!is_scalar($key)) {
+			foreach ($key as $optionName => $optionValue) {
+				$this->setOption($optionName, $optionValue);
+			}
+			return;
+		}
+		$this->params[$key] = $value;
+	}
 }
