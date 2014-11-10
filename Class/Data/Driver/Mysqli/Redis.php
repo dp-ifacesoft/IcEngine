@@ -109,6 +109,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $hash = $data['hash'];
         ini_set('memory_limit', '3GB');
         set_time_limit(3600);
+        echo $item['query']->translate() . '    ';
         $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
         $zArrayValues = [];
         if ($item['type'] == Query::ORDER) {
@@ -161,6 +162,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $foundRows = $dataProvider->zCount($keyOut);
         $ids = $this->getIds($query, $dataProvider, $keyOut);
         $queryModified = $this->getResultQueryCreate($query, $ids);
+        echo $queryModified->translate() . '    ';
         $queryResult = $this->sourceDriver->execute($queryModified, $options);
         $queryResultData = $queryResult->result();
         $queryResultDataSorted = [];
