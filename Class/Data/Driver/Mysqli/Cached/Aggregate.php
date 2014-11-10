@@ -121,6 +121,7 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
         if ($this->params['timeLimit']) {
             set_time_limit($this->params['timeLimit']);
         }
+        var_dump($this->params['memoryLimit'], $this->params['timeLimit']);
         $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
         $zArrayValues = [];
         if ($item['type'] == Query::ORDER) {
