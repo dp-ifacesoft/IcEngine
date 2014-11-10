@@ -15,71 +15,60 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
     protected $sourceDriver;
     
     /**
-     * @inheritdoc
+     * Возвращает базовый запрос для разбиения на части
+     * 
+     * @param Query_Abstract $query запрос
+     * @return Query_Abstract
      */
-	public function execute(\Query_Abstract $query, $options = null)
+    public function getQueryBase($query)
     {
-        echo $query->translate() . '   ';
-        $dataProvider = App::dataProviderManager()->get('Mysqli_Redis');
         $queryBase = App::queryBuilder()
             ->select('id');
         $from = $query->getPart(Query::FROM);
         $queryBase->setPart(Query::FROM, $from);
-        $hashs = [];
-        $newQueries = [];
+        return $queryBase;
+    }
+    
+    /**
+     * Возвращает подготовленные запросы
+     * 
+     * @param Query_Abstract $query запрос
+     * @return Query_Abstract
+     */
+    public function getQueries($query)
+    {
+        $queryBase = $this->getQueryBase($query);
+        $queries = [];
         foreach ($query->getPart(Query::WHERE) as $item) {
-            $newQuery = clone $queryBase;
-            $newQuery->setPart(Query::WHERE, [
+            $queryItem = clone $queryBase;
+            $queryItem->setPart(Query::WHERE, [
                 $item
             ]);
-            $newQueries[] = [
+            $queries[] = [
                 'type'  => Query::WHERE,
-                'query' => $newQuery
+                'query' => $queryItem
             ];
-        }
-        
+        } 
         $orderQuery = clone $queryBase;
         $orderPart = $query->getPart(Query::ORDER);
         $orderQuery->setPart(Query::ORDER, $orderPart);
-        $newQueries[] = [
+        $queries[] = [
             'type'  => Query::ORDER,
             'query' => $orderQuery
         ];
-        
-        foreach ($newQueries as $item) {
-            $hash = md5($item['query']->translate());
-            $hashs[] = $hash;
-            if (!$dataProvider->exists($hash)) {
-                ini_set('memory_limit', '2G');
-                set_time_limit(3600);
-                $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
-                $zArrayValues = [];
-                if ($item['type'] == Query::ORDER) {
-                    $i = 0;
-                    foreach ($values as $value) {
-                        $i ++;
-                        $zArrayValues[] = [
-                            'value' => $value,
-                            'score' => $i
-                        ];
-                    }
-                }
-                if ($item['type'] == Query::WHERE) {
-                    foreach ($values as $value) {
-                        $zArrayValues[] = [
-                            'value' => $value,
-                            'score' => 0
-                        ];
-                    }
-                }
-                $dataProvider->zAddArray($hash, $zArrayValues);
-            }
-        }
-        $keyOut = md5(implode('_', $hashs));
-        $dataProvider->zIntersect($keyOut, $hashs);
-        
-        $foundRows = $dataProvider->zCount($keyOut);
-        
+        return $queries;
+    }
+    
+    /**
+     * Возвращает id для окончательного запроса
+     * 
+     * @param Query_Abstract $query запрос
+     * @param Data_Provider_Abstract $dataProvider
+     * @param string $key ключ результирующего множества редиса
+     * @return Query_Abstract
+     */
+    public function getIds($query, $dataProvider, $key)
+    {
         $queryLimit = $query->getPart(Query::LIMIT);
         $start = 0;
         $end = -1;
@@ -87,12 +76,92 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             $start = $queryLimit[Query::LIMIT_OFFSET];
             $end = $start + $queryLimit[Query::LIMIT_COUNT] - 1;
         }
-        $ids = $dataProvider->zRange($keyOut, $start, $end);
+        $ids = $dataProvider->zRange($key, $start, $end);
+        return $ids;
+    }
+    
+    /**
+     * Возвращает результирующий запрос
+     * 
+     * @param Query_Abstract $query запрос
+     * @param array $ids айдишники
+     * @return Query_Abstract
+     */
+    public function getResultQueryCreate($query, $ids)
+    {
         $query->resetPart(Query::WHERE);
         $query->resetPart(Query::ORDER);
         $query->resetPart(Query::LIMIT);
         $query->where('id', $ids);
-        $queryResult = $this->sourceDriver->execute($query, $options);
+        return $query;
+    }
+    
+    /**
+     * Кладет в редис результат запроса
+     * 
+     * @param array $data
+     */
+    public function zAddItem($data)
+    {
+        $item = $data['item'];
+        $dataProvider = $data['dataProvider'];
+        $options = $data['options'];
+        $hash = $data['hash'];
+        ini_set('memory_limit', '512M');
+        set_time_limit(60);
+        $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
+        $zArrayValues = [];
+        if ($item['type'] == Query::ORDER) {
+            $i = 0;
+            foreach ($values as $value) {
+                $i ++;
+                $zArrayValues[] = [
+                    'value' => $value,
+                    'score' => $i
+                ];
+            }
+        }
+        if ($item['type'] == Query::WHERE) {
+            foreach ($values as $value) {
+                $zArrayValues[] = [
+                    'value' => $value,
+                    'score' => 0
+                ];
+            }
+        }
+        $dataProvider->zAddArray($hash, $zArrayValues);
+    }   
+    
+    /**
+	 * Выполнить запрос через драйвер данных на select
+     *
+	 * @param Query_Abstract $query
+	 * @param Query_Options $options
+	 * @return Query_Result
+	 */
+    public function executeSelect(\Query_Abstract $query, $options = null) 
+    {
+        $dataProvider = App::dataProviderManager()->get('Mysqli_Redis');
+        $hashs = [];
+        $queries = $this->getQueries($query);
+        foreach ($queries as $item) {
+            $hash = md5($item['query']->translate());
+            $hashs[] = $hash;
+            if (!$dataProvider->exists($hash)) {
+                $this->zAddItem([
+                    'dataProvider'  => $dataProvider,
+                    'item'  => $item,
+                    'options'   => $options,
+                    'hash'  => $hash
+                ]);
+            }
+        }
+        $keyOut = md5(implode('_', $hashs));
+        $dataProvider->zIntersect($keyOut, $hashs);
+        $foundRows = $dataProvider->zCount($keyOut);
+        $ids = $this->getIds($query, $dataProvider, $keyOut);
+        $queryModified = $this->getResultQueryCreate($query, $ids);
+        $queryResult = $this->sourceDriver->execute($queryModified, $options);
         $queryResultData = $queryResult->result();
         $queryResultDataSorted = [];
         $queryResultDataReindexed = App::helperArray()->reindex($queryResultData, 'id');
@@ -104,8 +173,30 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         }
         $queryResult->setResult($queryResultDataSorted);
         $queryResult->setFoundRows($foundRows);
-        echo 'rows' . $queryResult->foundRows() . '   ';
         return $queryResult;
+    }
+    
+    /**
+	 * Выполнить запрос через драйвер данных - все кроме select
+     *
+	 * @param Query_Abstract $query
+	 * @param Query_Options $options
+	 * @return Query_Result
+	 */
+    public function executeOther(\Query_Abstract $query, $options = null) 
+    {
+        return $this->sourceDriver->execute($query, $options);
+    }
+
+    /**
+     * @inheritdoc
+     */
+	public function execute(\Query_Abstract $query, $options = null)
+    {
+        if ($query->getPart(Query::SELECT)) {
+            return $this->executeSelect($query, $options);
+        }
+        return executeOther($query, $options);
     }
     
     public function __construct()
