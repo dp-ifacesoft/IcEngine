@@ -108,7 +108,6 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $options = $data['options'];
         $hash = $data['hash'];
         ini_set('memory_limit', '512M');
-        set_time_limit(60);
         $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
         $zArrayValues = [];
         if ($item['type'] == Query::ORDER) {
