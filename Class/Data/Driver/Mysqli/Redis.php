@@ -196,7 +196,7 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         if ($query->getPart(Query::SELECT)) {
             return $this->executeSelect($query, $options);
         }
-        return executeOther($query, $options);
+        return $this->executeOther($query, $options);
     }
     
     public function __construct()
