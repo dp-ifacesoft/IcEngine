@@ -20,7 +20,8 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
      * @var array
      */
     protected $params = [
-        'memory_limit'  => '1G'
+        'memoryLimit'  => '1G',
+        'timeLimit'    => 180
     ];
     
     /**
@@ -116,7 +117,12 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
         $dataProvider = $data['dataProvider'];
         $options = $data['options'];
         $hash = $data['hash'];
-        ini_set('memory_limit', $this->params['memory_limit']);
+        if ($this->params['memoryLimit']) {
+            ini_set('memory_limit', $this->params['memoryLimit']);
+        }
+        if ($this->params['timeLimit']) {
+            set_time_limit($this->params['timeLimit']);
+        }
         $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
         $zArrayValues = [];
         if ($item['type'] == Query::ORDER) {
