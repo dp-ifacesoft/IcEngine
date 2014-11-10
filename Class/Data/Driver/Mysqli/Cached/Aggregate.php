@@ -154,6 +154,7 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
     public function executeSelect(\Query_Abstract $query, $options = null) 
     {
         $providerName = $this->params['provider'];
+        var_dump($providerName);
         $dataProvider = App::dataProviderManager()->get($providerName);
         $hashs = [];
         $queries = $this->getQueries($query);
