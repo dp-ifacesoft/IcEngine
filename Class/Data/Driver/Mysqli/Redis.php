@@ -147,6 +147,8 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             $hash = md5($item['query']->translate());
             $hashs[] = $hash;
             if (!$dataProvider->exists($hash)) {
+                echo $item['query']->translate() . '  ';
+                die();
                 $this->zAddItem([
                     'dataProvider'  => $dataProvider,
                     'item'  => $item,
