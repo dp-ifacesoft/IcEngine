@@ -107,7 +107,8 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
         $dataProvider = $data['dataProvider'];
         $options = $data['options'];
         $hash = $data['hash'];
-        ini_set('memory_limit', '512M');
+        ini_set('memory_limit', '3GB');
+        set_time_limit(3600);
         $values = $this->sourceDriver->execute($item['query'], $options)->asColumn();
         $zArrayValues = [];
         if ($item['type'] == Query::ORDER) {
@@ -147,8 +148,6 @@ class Data_Driver_Mysqli_Redis extends Data_Driver_Abstract
             $hash = md5($item['query']->translate());
             $hashs[] = $hash;
             if (!$dataProvider->exists($hash)) {
-                echo $item['query']->translate() . '  ';
-                die();
                 $this->zAddItem([
                     'dataProvider'  => $dataProvider,
                     'item'  => $item,
