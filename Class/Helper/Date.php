@@ -427,25 +427,26 @@ class Helper_Date
         for ($i = $n; $i <= 5; ++$i) {
             $arr[$i] = (int) $arr[$i];
         }
+        $endOfUnixTime = 2037;
         if (strlen($arr[0]) == 4) {
             // Y-m-d H:i:s
             return mktime(
-                    $arr[3], $arr[4], $arr[5], $arr[1], $arr[2], min(2040, $arr[0])
+                    $arr[3], $arr[4], $arr[5], $arr[1], $arr[2], min($endOfUnixTime, $arr[0])
             );
         } elseif (strlen($arr[2]) == 4) {
             // d.m.Y H:i:s
             return mktime(
-                    $arr[3], $arr[4], $arr[5], $arr[1], $arr[0], min(2040, $arr[2])
+                    $arr[3], $arr[4], $arr[5], $arr[1], $arr[0], min($endOfUnixTime, $arr[2])
             );
         } elseif (strlen($arr[3]) == 4) {
             // H:i:s Y-m-d
             return mktime(
-                    $arr[0], $arr[1], $arr[2], $arr[4], $arr[5], min(2040, $arr[3])
+                    $arr[0], $arr[1], $arr[2], $arr[4], $arr[5], min($endOfUnixTime, $arr[3])
             );
         } elseif (strlen($arr[5]) == 4) {
             // H:i:s d.m.Y
             return mktime(
-                    $arr[0], $arr[1], $arr[2], $arr[4], $arr[3], min(2040, $arr[5])
+                    $arr[0], $arr[1], $arr[2], $arr[4], $arr[3], min($endOfUnixTime, $arr[5])
             );
         }
         return $default;
