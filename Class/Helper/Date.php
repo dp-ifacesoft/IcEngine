@@ -471,4 +471,22 @@ class Helper_Date
         return $date->format(self::UNIX_FORMAT);
     }
 
+    /**
+     * Перевод даты из любого распознаваемого формата в формат Unix "YYYY-MM-DD".
+     *
+     * @param string $date [optional] Если параметр не будет передан или будет
+     *                          передано null, будет использована текущая дата.
+     * @return string Дата в формате UNIX "YYYY-MM-DD"
+     */
+    public function toUnixDate($date = null)
+    {
+        if (!$date) {
+            return date(self::UNIX_DATE_FORMAT);
+        }
+        $date = $this->parseDateTime($date);
+        if (!$date) {
+            return null;
+        }
+        return $date->format(self::UNIX_DATE_FORMAT);
+    }
 }
