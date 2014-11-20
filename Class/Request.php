@@ -194,6 +194,16 @@ class Request
     {
         return isset($_POST[$name]) ? $_POST[$name] : $default;
     }
+    
+    public function time($float=false)
+    {
+        if ($float) {
+            $requestTime = $_SERVER['REQUEST_TIME_FLOAT'];
+        } else {
+            $requestTime = $_SERVER['REQUEST_TIME'];
+        }
+        return $requestTime;
+    }
 
     /**
      * Получить файл из запроса
