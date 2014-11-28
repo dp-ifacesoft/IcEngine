@@ -292,7 +292,7 @@ class Helper_String
      */
     public function stripTagsDefault($text)
     {
-        return strip_tags($text, '<p><strong><em><span><ul><ol><li><a><div><br><img><h1><h2><h3><h4><h5><h6>');
+        return strip_tags($text, '<table><td><tr><tbody><thead><p><strong><em><span><ul><ol><li><a><div><br><img><h1><h2><h3><h4><h5><h6>');
     }
     
     /**
