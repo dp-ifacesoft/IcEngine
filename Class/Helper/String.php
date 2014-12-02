@@ -313,6 +313,43 @@ class Helper_String
      */
     public function stripTagsDefault($text)
     {
-        return strip_tags($text, '<p><strong><em><span><ul><ol><li><a><div><br>');
+        return strip_tags($text, '<table><td><tr><tbody><thead><p><strong><em><span><ul><ol><li><a><div><br><img><h1><h2><h3><h4><h5><h6>');
+    }
+    
+    /**
+     * Ищем слово в тексте по ливенштейну
+     * @param string|array $search что ищем
+     * @param string $text где ищем
+     * @param integer $neededDistance 
+     * @param char $delimiter
+     */
+    public function levenstein(
+        $search, $text, $neededDistance = 2, $delimiter=' '
+    )
+    {
+        if (!$search || !$text) {
+            return false;
+        }
+        $clearText = $this->replaceSpecialChars($text, '');
+        $clearTextFixedSpaces = $this->removeMultiWhiteSpace($clearText);
+        $words = explode($delimiter, $clearTextFixedSpaces);
+        if (!is_array($search)) {
+            foreach ($words as $word) {
+                $distance = levenshtein($search, $word);
+                if ($distance <= $neededDistance) {
+                    return true;
+                }
+            }
+        } else {
+            foreach ($words as $word) {
+                foreach($search as $searchWord) {
+                    $distance = levenshtein($searchWord, $word);
+                    if ($distance <= $neededDistance) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
