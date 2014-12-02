@@ -35,7 +35,7 @@ class Helper_GeoIP
             if (!$sessionResource->cityId) {
                 return;
             }
-            return $locator->getService('modelManager')->byKey(
+            return App::modelManager()->byKey(
                 'City', $sessionResource->cityId
             );
         }
