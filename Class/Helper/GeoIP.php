@@ -27,9 +27,9 @@ class Helper_GeoIP
      * @return City|null
      */
 	public function getCity($ip = null)
-	{
-        $locator = IcEngine::serviceLocator();
-        $sessionResource = $locator->getService('sessionResource')
+	{;
+        $ip = $ip !== null ? $ip : App::request()->ip();
+        $sessionResource = App::sessionResource()
             ->newInstance('Geo');
         if (isset($sessionResource->cityId)) {
             if (!$sessionResource->cityId) {
