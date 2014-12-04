@@ -19,7 +19,7 @@ class Manager_Simple extends Manager_Abstract
         $className = get_class($this);
         $managerPos = strrpos($className, '_Manager');
         $plainName = substr($className, 0, $managerPos);
-        $objectClassName = $plainName . '_' . $name;
+        $objectClassName = $plainName . '_' . ucfirst($name);
         if (!class_exists($objectClassName) && $default) {
             $objectClassName = $plainName . '_' . $default;
         }
