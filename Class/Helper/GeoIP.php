@@ -27,36 +27,25 @@ class Helper_GeoIP
      * @return City|null
      */
 	public function getCity($ip = null)
-	{
-        $locator = IcEngine::serviceLocator();
-        $sessionResource = $locator->getService('sessionResource')
+	{;
+        $ip = $ip !== null ? $ip : App::request()->ip();
+        $sessionResource = App::sessionResource()
             ->newInstance('Geo');
         if (isset($sessionResource->cityId)) {
             if (!$sessionResource->cityId) {
                 return;
             }
-            return $locator->getService('modelManager')->byKey(
+            return App::modelManager()->byKey(
                 'City', $sessionResource->cityId
             );
         }
-        $netCityId = $this->getNetCityId($ip);
-        if (!$netCityId) {
+        $city = App::serviceSxGeoIp()->getCity($ip);
+        if (!$city) {
             $sessionResource->cityId = false;
-            return;
+            return null;
         }
-        $modelManager = $locator->getService('modelManager');
-        $city = $modelManager->byOptions(
-            'City', array(
-                'name'  => 'Net_City',
-                'id'    => $netCityId
-            )
-        );
-        if ($city) {
-            $sessionResource->cityId = $city->key();
-            return $city;
-        } else {
-            $sessionResource->cityId = false;
-        }
+        $sessionResource->cityId = $city->key();
+        return $city;
 	}
 
     /**
@@ -97,7 +86,7 @@ class Helper_GeoIP
      */
     public function getNetCityId($ip = null)
     {
-        $netCity = $this->getNetCity();
+        $netCity = $this->getNetCity($ip);
         return $netCity ? $netCity['id'] : 0;
     }
 
