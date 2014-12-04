@@ -1,0 +1,1 @@
+<div class="error-message" style="background-color: #a8a8a8;">{$errorMessage}</div>
