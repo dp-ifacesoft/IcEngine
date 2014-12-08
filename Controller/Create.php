@@ -21,11 +21,22 @@ class Controller_Create extends Controller_Abstract
             echo 'Конфиг Vo не найден';
             return false;
         }
-        $fields = isset($config['fields']) ? $config['fields'] : [];
+        $resultFields = [];
+        if (isset($config['fields'])) {
+            foreach ($config['fields']->__toArray() as $key => $field) {
+                if (is_array($field)) {
+                    $resultFields[$key] = $field;
+                } else {
+                    $resultFields[$field] = [];
+                }
+            }
+        }
         $output = App::helperCodeGenerator()->fromTemplate(
             'vo', [
                 'name'      => $nameClass,
-                'fields'    => $fields
+                'comment'   => $config['comment'] ? $config['comment'] : null, 
+                'author'   => $config['author'] ? $config['author'] : null,
+                'fields'    => $resultFields,
             ]
         );
         $filename = IcEngine::root() . 'Ice/Class/' . str_replace('_', '/', $nameClass) . '.php';
