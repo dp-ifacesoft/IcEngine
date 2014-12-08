@@ -19,7 +19,7 @@ class {$name} extends Vo
      */
     public function get{ucfirst($fieldName)}()
     {
-        return $this->getField('{$fieldName}');
+        return $this->field('{$fieldName}');
     }
     
 {/foreach}

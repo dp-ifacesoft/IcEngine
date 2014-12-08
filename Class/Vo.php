@@ -36,7 +36,7 @@ abstract class Vo
      * 
      * @return array
      */
-    public function getField($name)
+    public function field($name)
     {
         $field = isset($this->data[$name]) ? $this->data[$name] : null;
         return $field;
