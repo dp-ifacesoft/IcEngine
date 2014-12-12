@@ -7,7 +7,7 @@
 
 class Url
 {
-    public static function to($controllerAction, $params, $data)
+    public static function to($controllerAction, array $params = [], array $data = [])
     {
         return App::serviceRoute()->createUrl($controllerAction, $params, $data);
     }

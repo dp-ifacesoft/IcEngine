@@ -18,6 +18,9 @@ class Service_Route
      */
     protected function _checkRouteParams(array $route, array $params = [])
     {
+        if (!isset($route['components'])) {
+            return empty($params);
+        }
         /**
          * @var string $name Имя переменной - компонента маршрута
          * @var array  $data Массив данных о компоненте маршрута ($data['optional'] означает необязательность)
@@ -55,9 +58,11 @@ class Service_Route
             throw new Exception(__METHOD__ . ' requires a route URL to be a string');
         }
         $url = $route[0];
-        foreach ($route['components'] as $name => $data) {
-            $value = !empty($params[$name]) ? $params[$name] : '';
-            $url = str_replace('{$' . $name . '}', $value, $url);
+        if (!empty($route['components']) && is_array($route['components'])) {
+            foreach ($route['components'] as $name => $data) {
+                $value = !empty($params[$name]) ? $params[$name] : '';
+                $url = str_replace('{$' . $name . '}', $value, $url);
+            }
         }
         return $url;
     }
