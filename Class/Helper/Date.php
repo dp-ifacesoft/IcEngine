@@ -483,4 +483,10 @@ class Helper_Date
 		}
 		return $date->format(self::UNIX_FORMAT);
 	}
+    
+    public function daysCount($timestamp)
+    {
+        $daysCount = abs(round((time() - $timestamp) / (60 * 60 * 24)));
+        return $daysCount;
+    }
 }

@@ -40,17 +40,29 @@ class Model_Option_Attach_Foreign extends Model_Option
             return;
         }
         $foreignTableQuery = $this->getService('queryBuilder')->select('*')
-            ->from($table)
-            ->where('id', $ids);
+            ->from($table);
+        if (!isset($this->params['withParent'])) {
+            $foreignTableQuery->where('id', $ids);
+        }
         $foreignTable = $this->getService('dds')->execute($foreignTableQuery)
             ->getResult()
             ->asTable();
         $foreignTableReindexed = $this->getService('helperArray')
             ->reindex($foreignTable, 'id');
         foreach ($this->collection as $model) {
-            if (isset($foreignTableReindexed[$model[$field]])) {
-                $model['data'][$field] = $foreignTableReindexed[$model[$field]];
+            if (!isset($foreignTableReindexed[$model[$field]])) {
+                continue;
             }
+            $model['data'][$field] = $foreignTableReindexed[$model[$field]];
+            if (!isset($this->params['withParent']) || !$this->params['withParent'] 
+                || !isset($foreignTableReindexed[$model[$field]]['parentId'])) {
+                continue;
+            }
+            $parentId =  $foreignTableReindexed[$model[$field]]['parentId'];
+            if (!isset($foreignTableReindexed[$parentId])) {
+                continue;
+            }
+            $model['data'][$field]['data']['parent'] = $foreignTableReindexed[$parentId];
         }
     }
     
