@@ -322,7 +322,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
             $default = 'NULL';
         }
         if ($this->isNumeric($type)) {
-            $default = $default == 'NULL' ?: (int) $default;
+            $default = $default == 'NULL' ? $default : (int) $default;
         }
         if (strpos(strtolower($type), 'text') === false) {
             $helper = $this->helper();
@@ -356,7 +356,7 @@ class Query_Translator_Mysql_Alter_Table extends Query_Translator_Abstract
         if ($this->isText($type)) {
             $sql .= ' ' . $this->renderFieldCharset($params) . ' ';
         }
-        if (!empty($params[Model_Field::ATTR_DEFAULT]) &&
+        if (array_key_exists(Model_Field::ATTR_DEFAULT, $params) &&
             empty($params[Model_Field::ATTR_AUTO_INCREMENT])) {
             $sql .= ' ' . $this->renderFieldDefault($type, $params) . ' ';
         } elseif (!empty($params[Model_Field::ATTR_AUTO_INCREMENT])) {
