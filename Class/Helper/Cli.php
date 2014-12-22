@@ -23,13 +23,9 @@ class Helper_Cli extends Helper_Abstract
      * @var mixed последовтельность для каждого индикатора
      */
     protected $config = [
-        //по умолчанию
         'default'   =>  '/',
-        '/'     =>  ['-', '\\', '|', '/'],
-        '.'     =>  ['.', '..', '...', '....', '.....'],
-        '.2'     =>  ['.', '..', '...', '....', '.....', '....', '...', '..'],
-        ':)'    =>  [':)', ":|", ":(", ":|"],
-        ':0'    =>  [':0', ':I', ':/']
+        '/' =>  ['-', '\\', '|', '/'],
+        '.' =>  ['.', '..', '...', '....', '.....', '....', '...', '..']
     ];
     
     /**
@@ -59,9 +55,11 @@ class Helper_Cli extends Helper_Abstract
         $next = $this->next();
         $nextLength = strlen($next);
         if ($text) {
-            echo str_repeat(' ', $nextLength)   . "\r" . chr(8) . $text . $next;
+            echo str_repeat("\r", $nextLength) . $text . $next 
+                . str_repeat(' ', $nextLength);
         } else {
-            echo str_repeat(' ', $nextLength) . "\r" . chr(8) .$next;
+            echo $next . str_repeat(chr(8), $nextLength) 
+                . str_repeat(' ', $nextLength);
         }
     }
     
@@ -78,11 +76,8 @@ class Helper_Cli extends Helper_Abstract
      * Установить индикатор
      * @param type $indicator
      */
-    protected function getIndicatorType() 
+    public function getIndicatorType() 
     {
-        if (!$this->_indicatorType) {
-            $this->setIndicatorType($this->config['default']);
-        }
         return $this->_indicatorType;
     }
     
@@ -90,7 +85,7 @@ class Helper_Cli extends Helper_Abstract
      * установить текущий индикатор
      * @param integer $value
      */
-    protected function setCurrentIndicator($value)
+    public function setCurrentIndicator($value)
     {
         $this->_currentIndicatorIterator = $value;
     }
@@ -99,7 +94,7 @@ class Helper_Cli extends Helper_Abstract
      * получить текущий итератор
      * @return integer
      */
-    protected function getCurrentIndicator()
+    public function getCurrentIndicator()
     {
         return $this->_currentIndicatorIterator;
     }
