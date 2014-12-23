@@ -260,4 +260,30 @@ class Helper_Network
 		return $query;
 	}
 
+    /**
+     * Простое получение контента страницы
+     *
+     * @param string $url Ссылка на страницу
+     *
+     * @return string|bool
+     */
+    public static function getPage($url)
+    {
+        $resource = curl_init($url);
+        $userAgent = 'Mozilla/4.0'
+            . ' (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322)';
+        curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($resource, CURLOPT_USERAGENT, $userAgent);
+        curl_setopt($resource, CURLOPT_TIMEOUT, 120);
+        curl_setopt($resource, CURLOPT_FAILONERROR, true);
+        $content = curl_exec($resource);
+        $errorNumber = curl_errno($resource);
+
+        if ($errorNumber) {
+            return false;
+        }
+
+        return $content;
+    }
+
 }
