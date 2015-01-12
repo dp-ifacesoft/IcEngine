@@ -1,0 +1,16 @@
+syntax: regexp
+^log\.*
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$
+\.\#
+relre:\.svn
+
+syntax: glob
+
+nbproject/
+Model/newEmptyPHP.php
+.idea/**
+Vendor/SxGeo/SxGeoCity.dat
