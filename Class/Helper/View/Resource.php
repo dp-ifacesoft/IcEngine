@@ -133,7 +133,7 @@ class Helper_View_Resource
                             '/' . ltrim($filename, '/');
                     }
                 }
-            }
+            }  
             if (isset(self::$files[$type])) {
                 self::$files[$type][$filename] = [$filename, $params];
             }

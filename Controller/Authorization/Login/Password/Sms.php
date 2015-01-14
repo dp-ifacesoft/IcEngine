@@ -134,9 +134,15 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
 	public function sendSmsCode($provider, $name, $pass, $send)
 	{
         $modelManager = $this->getService('modelManager');
-        if (!$name || !$pass) {
-            return $this->sendError('empty login or password');
+        if (empty($name)) {
+            return $this->sendError('empty login',
+					'Data_Validator_Authorization_Login/invalid');
         }
+        if (empty($pass)) {
+            return $this->sendError('empty login',
+					'Data_Validator_Authorization_Password/invalid');
+        }
+		
 		$user = $modelManager->byOptions(
 			'User',
 			array(
