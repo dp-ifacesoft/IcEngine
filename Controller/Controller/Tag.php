@@ -9,7 +9,7 @@ class Controller_Controller_Tag extends Controller_Abstract
 {
     /**
      * @Template(null)
-     * @Context("controllerTagManager")
+     * @Context("controllerTagManager", "controllerManager")
      */
     public function run($tag, $context)
     {

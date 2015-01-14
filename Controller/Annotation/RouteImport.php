@@ -10,7 +10,7 @@ class Controller_Annotation_RouteImport extends Controller_Abstract
     /**
      * Распарсить аннотацию
      * 
-     * @Context("helperCodeGenerator")
+     * @Context("helperCodeGenerator", "configManager")
      * @Template(null)
      * @Validator("Not_Null"={"data"})
      */

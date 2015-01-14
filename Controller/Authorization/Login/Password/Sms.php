@@ -56,7 +56,7 @@ class Controller_Authorization_Login_Password_Sms extends Controller_Abstract
      * @Ajax
      * @Template(null)
      * 
-     * @Context("helperAdminRedirect")
+     * @Context("helperAdminRedirect", "modelManager")
 	 */
 	public function login($name, $pass, $a_id, $code, $context)
 	{

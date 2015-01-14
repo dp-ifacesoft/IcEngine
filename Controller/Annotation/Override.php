@@ -11,7 +11,7 @@ class Controller_Annotation_Override extends Controller_Abstract
      * Обновить аннотации
      * 
      * @Template(null)
-     * @Context("helperCodeGenerator")
+     * @Context("helperCodeGenerator", "configManager")
      * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context)

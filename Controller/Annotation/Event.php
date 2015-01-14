@@ -11,7 +11,7 @@ class Controller_Annotation_Event extends Controller_Abstract
      * Обновить аннотации
      * 
      * @Template(null)
-     * @Context("helperCodeGenerator", "helperConverter")
+     * @Context("helperCodeGenerator", "helperConverter", "configManager")
      * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context)
