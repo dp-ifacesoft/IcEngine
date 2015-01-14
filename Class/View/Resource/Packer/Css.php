@@ -80,6 +80,7 @@ class View_Resource_Packer_Css extends View_Resource_Packer_Abstract
     
     public function afterPack($file)
     {
+        App::serviceStaticSpriteOptimizator()->run($file);
         App::serviceStaticCssOptimizator()->run($file);
     }
 

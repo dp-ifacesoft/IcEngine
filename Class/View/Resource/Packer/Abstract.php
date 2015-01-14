@@ -236,8 +236,9 @@ abstract class View_Resource_Packer_Abstract
 		}
 		if ($resultFile) {
 			$this->saveValidState($resources, $resultFile);
+            $result = file_put_contents($resultFile, $packages);
             $this->afterPack($resultFile);
-			return file_put_contents($resultFile, $packages);
+            return $result;
 		}
 		return $packages;
 	}
