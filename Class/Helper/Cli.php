@@ -48,7 +48,8 @@ class Helper_Cli extends Helper_Abstract
     }
     
     /**
-     * вывести
+     * вывести с индикатором
+     * 
      * @param string $text текст для отображения
      */
     public function say($text ='')
@@ -63,6 +64,26 @@ class Helper_Cli extends Helper_Abstract
         } else {
             echo str_repeat(' ', $nextLength) . "\r" . chr(8) .$next;
         }
+    }
+    
+    /**
+     * вывести
+     * 
+     * @param string $text текст для отображения
+     */
+    public function printLine($text ='')
+    {
+        echo $text . PHP_EOL;
+    }
+    
+    /**
+     * вывести
+     * 
+     * @param string $text текст для отображения
+     */
+    public function linePrint($text ='')
+    {
+        echo PHP_EOL . $text;
     }
     
     /**
@@ -102,5 +123,35 @@ class Helper_Cli extends Helper_Abstract
     protected function getCurrentIndicator()
     {
         return $this->_currentIndicatorIterator;
+    }
+    
+    /**
+     * жирный текст
+     * 
+     * @param type $text
+     */
+    public function bold($text)
+    {
+        return "\033[1m" . $text . "\033[0m";
+    }
+    
+    /**
+     * Заполнить строку символом и перейти на новую
+     * 
+     * @param string $char символ
+     */
+    public function fillLine($char)
+    {
+        echo str_repeat($char, 80) . PHP_EOL;
+    }
+    
+    /**
+     * Перейти на новую и заполнить строку символом
+     * 
+     * @param string $char символ 
+     */
+    public function lineFill($char)
+    {
+        echo PHP_EOL . str_repeat($char, 80);
     }
 }
