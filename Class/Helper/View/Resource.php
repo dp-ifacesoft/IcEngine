@@ -133,7 +133,7 @@ class Helper_View_Resource
                             '/' . ltrim($filename, '/');
                     }
                 }
-            }  
+            }
             if (isset(self::$files[$type])) {
                 self::$files[$type][$filename] = [$filename, $params];
             }
@@ -295,10 +295,14 @@ class Helper_View_Resource
 			$provider->set($key, $lastPackedAt);
 		}
 		if ($this->createPackFile($type, $key, $compiledName)) {
-			$filename = rtrim($config->cdn[$type], '/') . '/' .
+			$fileNamePart = rtrim($config->cdn[$type], '/') . '/' .
 				ltrim($config->path) . $key .
 				(isset($config->packGroups[$type]) ?
-				$config->packGroups[$type] : '') . '?' . $lastPackedAt;
+				$config->packGroups[$type] : '');
+            if ($type == self::CSS) {
+                App::serviceStaticCssOptimizator()->run(rtrim(IcEngine::root(), '/') . $fileNamePart);
+            }
+            $filename = $fileNamePart . '?' . $lastPackedAt;
 			$html = str_replace(
 				'{$filename}', $filename, $config->packTemplates[$type]
 			);

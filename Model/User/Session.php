@@ -54,6 +54,11 @@ class User_Session extends User_Session_Abstract
     public $userRole;
     
     /**
+     * @Orm\Field\Tinyint(Size=1, Not_Null)
+     */
+    public $isCityRedirector;
+    
+    /**
      * @inheritdoc
      */
     public function getParams()
