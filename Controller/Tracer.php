@@ -50,6 +50,7 @@ class Controller_Tracer extends Controller_Abstract
 			'redisDeleteCount'		=> Tracer::getRedisDeleteCount(),
 			'redisGetTime'			=> Tracer::getRedisGetTime(),
 			'redisSetTime'			=> Tracer::getRedisSetTime(),
+			'redisSetVector'		=> Tracer::getRedisSetVector(),
 			'redisKeyTime'			=> Tracer::getRedisKeyTime(),
 			'redisDeleteTime'		=> Tracer::getRedisDeleteTime(),
 			'totalModelCount'		=> Tracer::getTotalModelCount(),

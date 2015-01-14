@@ -168,6 +168,13 @@ class Tracer
     protected static $redisSetTime = 0;
 
     /**
+     * set запросы к redis
+     *
+     * @var array
+     */
+    protected static $redisSetVector = [];
+    
+    /**
      * Время key запросов к redis
      *
      * @var decimal
@@ -566,6 +573,16 @@ class Tracer
     }
 
     /**
+     * Получить set запросы к redis
+     *
+     * @return decimal
+     */
+    public static function getRedisSetVector()
+    {
+            return self::$redisSetVector;
+    }
+
+    /**
      * Получить суммарное время keys запросов к redis
      *
      * @return decimal
@@ -921,6 +938,16 @@ class Tracer
         self::$redisKeyTime += $time;
     }
 
+    /**
+     * Добавить в список set запрос к redis
+     *
+     * @return decimal
+     */
+    public static function addRedisSet($key, $time)
+    {
+        self::$redisSetVector[] = [$key, $time];
+    }
+ 
     /**
      * Добавить медленный select запрос
      *
