@@ -31,7 +31,7 @@ class Controller_Queue extends Controller_Abstract
                 ]
             )
             ->raw();
-        $tasksCount = $this->config['tasksCount'] - count($onGoingTasks);
+        $tasksCount = $this->config()->tasksCount - count($onGoingTasks);
         if ($tasksCount > 0) {
             $tasks = $context->collectionManager->create('Queue')
                 ->addOptions(
