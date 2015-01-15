@@ -94,7 +94,7 @@ class IcEngine
      */
     public static function end()
     {
-        self::saveLocation();
+        
     }
 
     /**
@@ -265,16 +265,6 @@ class IcEngine
         );
     }
 
-
-    public static function saveLocation()
-    {
-        $routeActions = Router::getRoute()->actions;
-        $action = reset($routeActions);
-        $provider = Data_Provider_Manager::get('Redis');
-        $session = User_Session::getCurrent();
-        $key = $session->key() . '_locationUrl';
-        $provider->set($key, $action);
-    }
 
     public static function shutdownHandler()
     {
