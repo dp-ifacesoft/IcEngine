@@ -6,7 +6,7 @@
  * @author markov
  * @Service("staticSpriteManager")
  */
-class Static_Sprite_Manager 
+class Static_Sprite_Manager
 {
     /**
      * Возвращает спрайт

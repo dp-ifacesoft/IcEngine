@@ -300,7 +300,9 @@ class Helper_View_Resource
 				(isset($config->packGroups[$type]) ?
 				$config->packGroups[$type] : '');
             if ($type == self::CSS) {
-                App::serviceStaticCssOptimizator()->run(rtrim(IcEngine::root(), '/') . $fileNamePart);
+                $cssFile = rtrim(IcEngine::root(), '/') . $fileNamePart;
+                App::serviceStaticSpriteOptimizator()->run($cssFile);
+                App::serviceStaticCssOptimizator()->run($cssFile);
             }
             $filename = $fileNamePart . '?' . $lastPackedAt;
 			$html = str_replace(

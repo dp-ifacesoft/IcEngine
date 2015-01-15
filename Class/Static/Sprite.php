@@ -32,6 +32,37 @@ class Static_Sprite
     }
     
     /**
+     * Различны ли спрайты?
+     * 
+     * @param array $imagePaths
+     * @return type
+     */
+    public function isEqual($imagePaths)
+    {
+        $meta = $this->getMeta();
+        $metaImages = [];
+        foreach ($meta as $item) {
+            $metaImages[] = $item['path'];
+        }
+        $isEqual = !array_diff($metaImages, $imagePaths) && 
+            count($metaImages) == count($imagePaths);
+        return $isEqual;
+    }
+    
+    /**
+     * Возвращает нормализированный список урлов изображений
+     * 
+     * @param array $imagePaths
+     * @return array
+     */
+    protected function _normalize($imagePaths)
+    {
+        $imagesUnique = array_unique($imagePaths);
+        sort($imagesUnique);
+        return $imagesUnique;
+    }
+    
+    /**
      * Обновляет спрайт
      * 
      * @param array $imagePaths изображения
@@ -41,9 +72,13 @@ class Static_Sprite
         if (!$imagePaths) {
             return false;
         }
+        $imagePathsNormalized = $this->_normalize($imagePaths);
+        if ($this->isEqual($imagePathsNormalized)) {
+            return false;
+        }
         $images = [];
         $imagesUrlAssoc = [];
-        foreach ($imagePaths as $imagePath) {
+        foreach ($imagePathsNormalized as $imagePath) {
             $absoluteImagePath = rtrim(IcEngine::root(), '/') . $imagePath;
             $image = $this->getImage($absoluteImagePath);
             $imagesUrlAssoc[] = [
