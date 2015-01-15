@@ -490,6 +490,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$endTime = microtime(true);
 			Tracer::incRedisSetCount();
 			Tracer::incRedisSetTime($endTime - $startTime);
+			Tracer::addRedisSet($this->keyEncode($key), $endTime - $startTime);
 		}
 
 		return $result;

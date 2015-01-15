@@ -84,6 +84,22 @@
 			{/foreach}
 		</ul>
 	{/if}
+        <p><b>Команды Redis SET:</b></p>
+        <ul>
+            {foreach from=$redisSetVector item="redisSet"}
+                <li>
+                    <p><b>Ключ:</b> {$redisSet.{0}|htmlspecialchars} </p>
+                    <p>Затрачено времени: 
+                        {if 0.0001 <= $redisSet.{1}}
+                            <span style="color:red">{$redisSet.{1}} с.</span>
+                        {else}
+                            {$redisSet.{1}} с.
+                        {/if}
+                    </p>
+                </li>
+            {/foreach}
+        </ul>
+
 </div>
 <script type="text/javascript">
 	$(function() {
