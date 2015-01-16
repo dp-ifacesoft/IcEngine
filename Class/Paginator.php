@@ -678,4 +678,17 @@ class Paginator
         ;
         return $this;
     }
+    
+    /**
+     * Получить параметры
+     * 
+     */
+    public function getParams()
+    {
+       return [
+           'pageCount'   => $this->getPageCount(),  
+           'page'        => $this->getPage(),
+           'total'       => $this->getTotal()
+       ];
+    }
 }
