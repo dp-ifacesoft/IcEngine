@@ -935,6 +935,23 @@ abstract class Model implements ArrayAccess
         }
         return $result;
     }
+    
+    /**
+     * Обновить модель без вызова сигналов(чтобы не зацкливались сигнал слоты)
+     * 
+     * @todo По хорошему надо написать диспетчер event slot'ов, чтобы избежать безвыхдной рекурсии
+     * @param mixed $values данные для обновления
+     */
+    public function updateModelWithoutSignal($values)
+    {
+        $table = $this->table();
+        $queryUpdate = App::queryBuilder()
+            ->update($table)
+            ->values($values)
+            ->where('id', $this->key());
+        App::dds()->execute($queryUpdate);
+        return $this;
+    }
 
     /**
      * Обертка для получения модели по ключу
