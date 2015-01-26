@@ -15,6 +15,7 @@ class Service_Static_Css_Optimizator extends Service_Abstract
      */
     public function run($path)
     {
-        exec('cd IcEngine/Static/nodejs && node cssoRun "' . $path . '" > /dev/null &');
+        $path = IcEngine::root() . 'IcEngine/Static/nodejs';
+        exec('cd ' . $path . ' && node cssoRun "' . $path . '" > /dev/null &');
     }
 }
