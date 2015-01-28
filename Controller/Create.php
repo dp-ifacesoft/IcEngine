@@ -10,10 +10,13 @@ class Controller_Create extends Controller_Abstract
     /**
      * Генерирует класс vo с геттерами
      * 
-     * @param string $name название класса
+     * @param string $name      название класса
+     * @param string $module    Название модуля, в который надо положить файл класса
+     * @return bool
+     *
      * @Template(null)
      */
-    public function vo($name)
+    public function vo($name, $module = 'Ice')
     {
         $nameClass = 'Vo_' . $name;
         $config = App::configManager()->get($nameClass);
@@ -39,7 +42,8 @@ class Controller_Create extends Controller_Abstract
                 'fields'    => $resultFields,
             ]
         );
-        $filename = IcEngine::root() . 'Ice/Class/' . str_replace('_', '/', $nameClass) . '.php';
+        $filename = IcEngine::root() . $module . '/Class/' . str_replace('_', '/', $nameClass) . '.php';
         file_put_contents($filename, $output);
+        return true;
     }
 }
