@@ -91,7 +91,7 @@ class Static_Sprite
         $spriteHeight = $this->calculateSpriteHeight($images);
         $sprite = imagecreatetruecolor($spriteWidth, $spriteHeight);
         imagealphablending($sprite, false);
-        $color = imagecolorallocatealpha($sprite, 0, 0, 0, 100);
+        $color = imagecolorallocatealpha($sprite, 0, 0, 0, 127);
         imagefill($sprite, 0, 0, $color);
         imagesavealpha($sprite, true);
         $cursorX = 0;
