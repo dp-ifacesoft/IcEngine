@@ -8,29 +8,31 @@
  */
 class Helper_Csv extends Helper_Abstract
 {
+    /**
+     * Открыть или создать файл
+     * @param string $filePath путь к файлу
+     * @return указатель на файл
+     */
     public function getCsv($filePath)
     {
-        if (!file_exists($filePath)) {
-            return $this->createCsv($filePath);
-        }
-        else {
-            return $this->loadCsv($filePath);
-        }
-        return false;
-    }
-    
-    public function createCsv($filePath)
-    {
+        $csvFile = fopen($filePath, 'w');
         return $csvFile;
     }
     
-    public function loadCsv($filePath)
+    /**
+     * Записать данные в файл
+     * @param string $filePath путь к файлу
+     * @param array $data данные для записи
+     * @param string $delimeter разделитель
+     * @return bool
+     */
+    public function writeCsv($filePath, $data, $delimeter)
     {
-        return $csvFile;
-    }
-    
-    public function writeCsv($filePath)
-    {
-        return $result;
+        $csv = $this->getCsv($filePath);
+        foreach ($data as $row) {
+            fputcsv($csv, $row, $delimeter);
+        }
+        fclose($csv);
+        return true;
     }
 }
