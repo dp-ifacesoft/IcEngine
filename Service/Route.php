@@ -52,7 +52,7 @@ class Service_Route
      * @return string
      * @throws Exception В случае не-строкового URL, поданного на вход метода
      */
-    protected function _compileUrl(array $route, array $params = [])
+    public function _compileUrl(array $route, array $params = [])
     {
         if (!isset($route[0]) || !is_string($route[0])) {
             throw new Exception(__METHOD__ . ' requires a route URL to be a string');
@@ -61,7 +61,7 @@ class Service_Route
         if (!empty($route['components']) && is_array($route['components'])) {
             foreach ($route['components'] as $name => $data) {
                 $value = !empty($params[$name]) ? $params[$name] : '';
-                $url = str_replace('{$' . $name . '}', $value, $url);
+                $url = $this->_replacePart($name, $value, $url);
             }
         }
         return $url;
@@ -104,6 +104,19 @@ class Service_Route
             return [];
         }
         return $methodAnnotations['Route'];
+    }
+
+    /**
+     * Заменить переменную в шаблоне урла на значение этой переменной
+     *
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
+     * @return string
+     */
+    protected function _replacePart($search, $replace, $subject)
+    {
+        return str_replace('{$' . $search . '}', $replace, $subject);
     }
 
     /**
@@ -186,5 +199,44 @@ class Service_Route
             }
         }
         throw new Exception(__METHOD__ . ' has not found any routes for your params');
+    }
+
+    /**
+     * Скомпилировать URL из шаблона и массива значений переменных этого шаблона
+     *
+     * @param string $template
+     * @param array $values
+     * @return string
+     * @throws Exception
+     */
+    public function compile($template, array $values = [])
+    {
+        if (!is_string($template)) {
+            throw new Exception(__METHOD__ . ' requires a provided template to be a string');
+        }
+        foreach ($values as $key => $value) {
+            $template = $this->_replacePart($key, $value, $template);
+        }
+        return $template;
+    }
+
+    /**
+     * Получить ассоциативный массив имен классов полей выбора для компонентов маршрута
+     *
+     * @param array $route Массив данных о маршруте
+     * @return array|null  Ассоциативный массив имен Html_Form_Field'ов для компонентов маршрута или NULL
+     */
+    public function getFormFieldNames(array $route = [])
+    {
+        if (empty($route['patterns']) || !is_array($route['patterns'])) {
+            return NULL;
+        }
+        $result = [];
+        foreach ($route['patterns'] as $name => $data) {
+            if (!empty($data['formField'])) {
+                $result[$name] = $data['formField'];
+            }
+        }
+        return $result;
     }
 } 
