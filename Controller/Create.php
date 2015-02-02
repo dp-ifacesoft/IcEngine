@@ -374,6 +374,8 @@ class Controller_Create extends Controller_Abstract
     /**
      * создать хелпер
      * 
+     * @Validator("User_Cli")
+     * @Template(null)
      */
     public function helper($name, $method = null, $comment = null)
     {
@@ -398,8 +400,8 @@ class Controller_Create extends Controller_Abstract
                     'serviceName'   =>  $annotationServiceName
                 ]
             );
-            App::helperFile()->makeServiceDir($name);
-            $path = App::helperFile()->getFullPathToService($name);
+            App::helperFile()->makeHelperDir($name);
+            $path = App::helperFile()->getFullPathToHelper($name);
             file_put_contents($path, $output);
         }
         if ($method) {
@@ -413,6 +415,8 @@ class Controller_Create extends Controller_Abstract
     /**
      * создать класс
      * 
+     * @Validator("User_Cli")
+     * @Template(null)
      */
     public function simpleClass($name, $method = null, $comment = null)
     {
@@ -429,7 +433,7 @@ class Controller_Create extends Controller_Abstract
                 return;
             }
             $output = App::helperCodeGenerator()->fromTemplate(
-                'helper', [
+                'class', [
                     'name'          => App::helperClass()->getClassNameWithoutPrefix('', $name),
                     'comment'       => $comment,
                     'author'        => IcEngine::getAuthor(),
@@ -437,8 +441,8 @@ class Controller_Create extends Controller_Abstract
                     'serviceName'   =>  $annotationServiceName
                 ]
             );
-            App::helperFile()->makeServiceDir($name);
-            $path = App::helperFile()->getFullPathToService($name);
+            App::helperFile()->makeClassDir($name);
+            $path = App::helperFile()->getFullPathToClass($name);
             file_put_contents($path, $output);
         }
         if ($method) {
