@@ -37,4 +37,45 @@ class Helper_Service
 		}
 		return implode('_', array_map('ucfirst', $matches[1]));
     }
+    
+    /**
+     * Создать аннотационное имя
+     * 
+     * @param string $serviceName имя сервиса
+     */
+    public function makeAnnotationName($serviceName)
+    {
+        $words = explode('_', $serviceName);
+        array_map(function($word){
+            return ucfirst(strtolower($word));
+        }, $words);
+        $words[0] = lcfirst($words[0]);
+        return implode('', $words);
+    }
+    
+    /**
+     * Создать имя сервиса по аннотации
+     * 
+     * @param string $annotationName имя сервиса
+     */
+    public function makeNameByAnnotation($annotationName)
+    {
+        return ucfirst(preg_replace('#([A-Z])#', '_$1', $annotationName));
+    }
+    
+    /**
+     * Проверить, существует ли аннотация
+     * 
+     * @param string $annotationName имя аннотации сервиса
+     */
+    public function isAnnotationExists($annotationName)
+    {
+        $config = App::configManager()->get('Service_Source');
+        foreach($config as $serviceName => $classObject) {
+            if ($serviceName == $annotationName) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

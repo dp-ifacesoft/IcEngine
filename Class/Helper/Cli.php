@@ -154,4 +154,27 @@ class Helper_Cli extends Helper_Abstract
     {
         echo PHP_EOL . str_repeat($char, 80);
     }
+    
+    /**
+     * Спросить пользователя
+     * 
+     * @param string $question вопрос
+     * @param string $answer ответ
+     * @param string $acceptCallback колбек положительный ответ
+     * @param string $declineCallback колбек отрицательный ответ
+     */
+    public function confirm($question, $answer, $acceptCallback, $declineCallback = false)
+    {
+        $this->printLine($question);
+        $handle = fopen ("php://stdin","r");
+        $line = fgets($handle);
+        if (strtolower(trim($line)) == strtolower($answer)) {
+            call_user_func($acceptCallback);
+            return;
+        } elseif($declineCallback) {
+            call_user_func($declineCallback);
+            return;
+        }
+    }
+    
 }
