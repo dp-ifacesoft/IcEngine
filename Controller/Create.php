@@ -353,6 +353,10 @@ class Controller_Create extends Controller_Abstract
     {
         $missingServices = 
                 App::serviceCodeAnalyze()->getMissingServicesByClass($class);
+        if (!$missingServices) {
+            App::helperCli()->printLine('все хорошо:)');
+            return;
+        }
         foreach ($missingServices as $service) {
             App::helperCli()->confirm(
                 'нет сервиса ' . $service . '. Создать?[y/n]', 'y', 
@@ -368,15 +372,80 @@ class Controller_Create extends Controller_Abstract
     }
     
     /**
+     * создать хелпер
      * 
      */
-    public function helper()
+    public function helper($name, $method = null, $comment = null)
     {
-        
+        $helperNameWithPrefix = 
+        App::helperClass()->getHelperName($name);
+        $annotationServiceName = App::helperService()->makeAnnotationName($helperNameWithPrefix);
+        if (class_exists($helperNameWithPrefix)) {
+            App::helperCli()->printLine('Хелпер уже существует');
+            return;
+        } else {
+            $annotationServiceName = App::helperService()->makeAnnotationName($helperNameWithPrefix);
+            if (App::helperService()->isAnnotationExists($annotationServiceName)) {
+                App::helperCli()->printLine('Аннотация с именем "' . $annotationServiceName . '"уже существует');
+                return;
+            }
+            $output = App::helperCodeGenerator()->fromTemplate(
+                'helper', [
+                    'name'          => App::helperClass()->getClassNameWithoutPrefix('Helper_', $name),
+                    'comment'       => $comment,
+                    'author'        => IcEngine::getAuthor(),
+                    'date'          => App::helperDate()->toUnix(),
+                    'serviceName'   =>  $annotationServiceName
+                ]
+            );
+            App::helperFile()->makeServiceDir($name);
+            $path = App::helperFile()->getFullPathToService($name);
+            file_put_contents($path, $output);
+        }
+        if ($method) {
+            App::controllerManager()->call($this->name(), 'method', [
+                'serviceName'    =>  $name,
+                'methodName'        =>  $method
+            ]);
+        }
     }
     
-    public function simpleClass()
+    /**
+     * создать класс
+     * 
+     */
+    public function simpleClass($name, $method = null, $comment = null)
     {
-        
+        $classNameWithPrefix = 
+        App::helperClass()->getClassNameWithPrefix('', $name);
+         $annotationServiceName = App::helperService()->makeAnnotationName($classNameWithPrefix);
+         if (class_exists($classNameWithPrefix)) {
+            App::helperCli()->printLine('Класс уже существует');
+            return;
+        } else {
+            $annotationServiceName = App::helperService()->makeAnnotationName($classNameWithPrefix);
+            if (App::helperService()->isAnnotationExists($annotationServiceName)) {
+                App::helperCli()->printLine('Аннотация с именем "' . $annotationServiceName . '"уже существует');
+                return;
+            }
+            $output = App::helperCodeGenerator()->fromTemplate(
+                'helper', [
+                    'name'          => App::helperClass()->getClassNameWithoutPrefix('', $name),
+                    'comment'       => $comment,
+                    'author'        => IcEngine::getAuthor(),
+                    'date'          => App::helperDate()->toUnix(),
+                    'serviceName'   =>  $annotationServiceName
+                ]
+            );
+            App::helperFile()->makeServiceDir($name);
+            $path = App::helperFile()->getFullPathToService($name);
+            file_put_contents($path, $output);
+        }
+        if ($method) {
+            App::controllerManager()->call($this->name(), 'method', [
+                'serviceName'    =>  $name,
+                'methodName'        =>  $method
+            ]);
+        }
     }
 }
