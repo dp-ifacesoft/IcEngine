@@ -1,24 +1,13 @@
 <?php
 
 /**
- * @desc Помощник работы с файлами
- * @author Юрий, Apostle
- * @package IcEngine
+ * Описание File
+ *
+ * @author Apostle
  * @Service("helperFile")
  */
 class Helper_File extends Helper_Abstract
 {
-    
-    /**
-     * @desc Возвращает расширение файла
-     * @param $filename Имя файла
-     * @return string Расширение
-     */
-    public function extention ($filename)
-    {
-        return strtolower (substr (strrchr ($filename, '.'), 1));
-    }
-    
     /**
      * Удаляет файлы по путям
      * 
@@ -37,52 +26,6 @@ class Helper_File extends Helper_Abstract
                 $debug->log($ex->getMessage(), 'user');
             }
         }
-    }
-    
-    /**
-     * @desc Получает список файлов или папок в определенной папке (возможно, рекурсивно)
-     * @param string $dir путь к папке, в которой осуществлять поиск
-     * @param boolean $sortAsc Сортировать результаты по возрастанию
-     * @param boolean $recursive осуществлять ли поиск рекурсивно
-     * @param boolean $relative возвращать относительные, а не абсолютные, имена найденных элементов
-     * @param boolean $includingFiles включать в выборку найденные файлы
-     * @param boolean $includingDirs включать в выборку найденные файлы
-     * @return Array
-     */
-    public function scan($dir,
-                                $sortAsc = true,
-                                $recursive = false,
-                                $relative = true,
-                                $includingFiles = true,
-                                $includingDirs = false)
-    {
-        $dir = rtrim($dir, '/');
-        if (!is_dir($dir))
-        {
-            return NULL;
-        }
-        $elements = scandir($dir, !$sortAsc);
-        $return = array();
-        foreach ($elements as $item)
-        {
-            if ($item == '.' || $item == '..')
-            {
-                continue;
-            }
-            $path = $dir . '/' . $item;
-            if (($includingFiles && is_file($path))
-                ||
-                ($includingDirs  && is_dir($path)))
-            {
-                $return[] = $relative ? $item : $path;
-            }
-            if ($recursive && is_dir($path))
-            {
-                $return = array_merge($return,
-                    $this->scan($path, $sortAsc, $recursive, $relative, $includingFiles, $includingDirs));
-            }
-        }
-        return $return;
     }
     
     /**
@@ -227,7 +170,8 @@ class Helper_File extends Helper_Abstract
      */
     public function makeDir($path, $mode = 0755, $recursive = true)
     {
-        return is_dir(dirname($path)) ?: mkdir(dirname($path),$mode, $recursive);
+        return is_dir($path) 
+            ?: mkdir($path,$mode, $recursive);
     }
     
     /**
