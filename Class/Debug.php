@@ -301,31 +301,25 @@ class Debug
 	 */
 	public static function init ($config)
 	{
-		if ($config === false)
-		{
-			self::disable ();
-		}
-
+            if ($config === false)
+            {
+                    self::disable ();
+            }
 		error_reporting (E_ALL | E_STRICT);
-
-
-        if (defined('IS_PRODUCTION') && !IS_PRODUCTION) {
-            ini_set ('display_errors', true);
-        } else {
-            ini_set ('display_errors', false);
-        }
-
-		ini_set ('html_errors', true);
-		ini_set ('track_errors', true);
-
-		$memory_start = function_exists ('memory_get_usage') ? memory_get_usage(true) : 0;
-
-		foreach (func_get_args() as $cfg) {
-			self::setOptions ($cfg);
-		}
+            if (defined('IS_PRODUCTION') && !IS_PRODUCTION) {
+                ini_set ('display_errors', true);
+            } else {
+                ini_set ('display_errors', false);
+            }
+                ini_set ('html_errors', true);
+                ini_set ('track_errors', true);
+                $memory_start = function_exists ('memory_get_usage') ? memory_get_usage(true) : 0;
+                foreach (func_get_args() as $cfg) {
+                        self::setOptions ($cfg);
+                }
 		set_error_handler(array(__CLASS__, 'errorHandler'));
-		register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
-	}
+                register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
+            }
 
 	/**
 	 * @desc Форматированный вывод по средствам print_r.

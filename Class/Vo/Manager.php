@@ -16,6 +16,9 @@ class Vo_Manager
     public function create($name, $data) 
     {
         $className = 'Vo_' . $name;
+        if (!class_exists($className) && class_exists($name)) {
+            $className = $name;
+        }
         $vo = new $className($data);
         return $vo;
     }

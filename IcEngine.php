@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Класс необходимый для инициализации фреймворка.
  *
@@ -7,40 +6,53 @@
  */
 class IcEngine
 {
-	/**
+    /**
 	 * Загрузчик
 	 *
      * @var Bootstrap_Abstract
 	 */
-	protected static $bootstrap;
+    protected static $bootstrap;
+    
+    /**
+     * Конфиг приложения
+     * 
+     * @var type 
+     */
+    protected static $config;
 
-	/**
+    /**
+     * Включен ли трейсер
+     * 
+     * @var type 
+     */
+    protected static $tracing = false;
+    /**
 	 * Экшин фронт контролера по умолчанию
 	 *
      * @var string
 	 */
-	protected static $frontAction = 'index';
+    protected static $frontAction = 'index';
 
-	/**
+    /**
 	 * Фронт контролер по умолчанию
 	 *
      * @var string
 	 */
-	protected static $frontController = 'Front';
+    protected static $frontController = 'Front';
 
-	/**
+    /**
 	 * Название транспорта по умолчанию
 	 *
      * @var string
 	 */
-	protected static $frontInput = 'defaultInput';
+    protected static $frontInput = 'defaultInput';
 
-	/**
+    /**
 	 * Рендер по умолчанию
 	 *
      * @var string
 	 */
-	protected static $frontRender = 'Front';
+    protected static $frontRender = 'Front';
 
     /**
      * Загрузчик
@@ -49,33 +61,33 @@ class IcEngine
      */
     protected static $loader;
 
-	/**
+    /**
 	 * Зарегистрированные менеджеры
 	 *
      * @var array
 	 */
-	protected static $managers = array();
+    protected static $managers = array();
 
     /**
 	 * Путь до движка
 	 *
      * @var string
 	 */
-	protected static $path;
+    protected static $path;
 
-	/**
+    /**
 	 * Путь до корня сайта.
 	 *
      * @var string
 	 */
-	protected static $root;
+    protected static $root;
 
     /**
 	 * Задача фронт контроллера.
 	 *
      * @var Controller_Task
 	 */
-	protected static $task;
+    protected static $task;
 
     /**
      * Сервис локатор
@@ -83,16 +95,24 @@ class IcEngine
      * @var Service_Locator
      */
     protected static $serviceLocator;
+    
+    /**
+     * Время запуска
+     *
+     * @var Service_Locator
+     */
+    protected static $startTime;
 
-	/**
+    /**
 	 * Получить текущий бутстрап
 	 *
      * @desc Bootstrap_Abstract
 	 */
-	public static function bootstrap()
-	{
-		return self::$bootstrap;
-	}
+    public static function bootstrap()
+    {
+        return self::$bootstrap;
+    }
+    
     
     /**
      * Создать задание для front-контроллера
@@ -105,7 +125,7 @@ class IcEngine
         $task = new Controller_Front_Task($action);
         $viewRenderManager = self::getManager('View_Render');
         $viewRender = $viewRenderManager->byName(self::$frontRender);
-		$task->setViewRender($viewRender);
+        $task->setViewRender($viewRender);
         return $task;
     }
 
@@ -116,41 +136,47 @@ class IcEngine
      */
     protected static function createTaskAction()
     {
-        $action = new Controller_Action(array (
-            'id'			=> null,
-            'controller'	=> self::$frontController,
-            'action'		=> self::$frontAction
-        ));
+        $action = new Controller_Action(
+            array(
+                'id' => null,
+                'controller' => self::$frontController,
+                'action' => self::$frontAction
+            )
+        );
         return $action;
     }
 
-	/**
-	 * Вывод результата работы.
-	 */
-	public static function flush()
-	{
+    /**
+     * Вывод результата работы.
+     */
+    public static function flush()
+    {
         $controllerManager = self::getManager('Controller');
-		$controllerManager->call('Render', 'index', array(
-            'task'  => self::$task
-        ));
-	}
+        $controllerManager->call(
+            'Render', 'index', array('task' => self::$task)
+        );
+        if (self::$tracing) {
+            self::renderTracer();
+        }
+    }
 
-	/**
+    /**
 	 * Инициализация лоадера.
 	 *
      * @param string $root Путь до корня сайта.
 	 * @param string $bootstap Путь до загрузчика.
 	 */
-	public static function init($root = null, $bootstap = null)
-	{
-		// Запоминаем путь до движка
-		self::$path = dirname(__FILE__) . '/';
-		if (strlen(self::$path) < 2) {
-			self::$path = '';
-		}
-		// путь до корня сайта
-		self::$root = $root ? rtrim($root, '/\\') . '/' : self::getRoot();
-		self::initLoader();
+    public static function init($root = null, $bootstap = null)
+    {
+
+        // Запоминаем путь до движка
+        self::$path = dirname(__FILE__) . '/';
+        if (strlen(self::$path) < 2) {
+            self::$path = '';
+        }
+        // путь до корня сайта
+        self::$root = $root ? rtrim($root, '/\\') . '/' : self::getRoot();
+        self::initLoader();
         self::$loader->load('Loader_Auto');
         $autoLoader = new Loader_Auto();
         $autoLoader->register();
@@ -158,42 +184,58 @@ class IcEngine
         self::$loader->setProvider($loaderProvider);
         $configProvider = self::getManager('Data_Provider')->get('Config');
         self::getManager('Config')->setProvider($configProvider);
-		if ($bootstap) {
-			self::initBootstrap($bootstap);
-		}
+        if ($bootstap) {
+            self::initBootstrap($bootstap);
+        }
         self::serviceLocator()->registerService('loader', self::$loader);
-		register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
-	}
+        register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
+        
+    }
 
-	/**
-	 * Подключает загрузчик и запускает его.
-	 *
+    /**
+     * Подключает загрузчик и запускает его.
+     *
      * @param string $path Путь до загрузчика.
-	 */
-	public static function initBootstrap($path)
-	{
-		require $path;
-		$name = basename($path, '.php');
-		require_once __DIR__ . '/Class/Bootstrap/Manager.php';
+     */
+    public static function initBootstrap($path)
+    {
+        require $path;
+        $name = basename($path, '.php');
+        require_once __DIR__ . '/Class/Bootstrap/Manager.php';
         $bootstrapManager = self::getManager('Bootstrap');
-		self::$bootstrap = $bootstrapManager->get($name, $path);
-	}
+        self::$bootstrap = $bootstrapManager->get($name, $path);
+    }
 
-	/**
-	 * Подключение класса Debug
-	 */
-	public static function initDebug()
-	{
-		require dirname(__FILE__) . '/Class/Debug.php';
-		call_user_func_array(array('Debug', 'init'), func_get_args());
-	}
+    /**
+     * Подключение класса Debug
+     */
+    public static function initDebug()
+    {
+        require dirname(__FILE__) . '/Class/Debug.php';
+        call_user_func_array(array('Debug', 'init'), func_get_args());
+    }
+    
+    /**
+     * Меняет опции в зависиомсти от агрументов
+     * 
+     */
+    public static function debugStrategy()
+    {
+        if (isset ($_SERVER['argv'], $_SERVER['argc'])) {
+            IcEngine::initDebug('dir:' . self::$config['log']);
+        } else {
+            ob_start();
+            IcEngine::initDebug('dir:' . self::$config['log'], 'fb');
+        }
+    }
 
-	/**
-	 * Инициализация лоадера.
-	 */
-	public static function initLoader()
-	{
-		require dirname(__FILE__) . '/Class/Loader.php';
+    /**
+     * Инициализация лоадера.
+     * 
+     */
+    public static function initLoader()
+    {
+        require dirname(__FILE__) . '/Class/Loader.php';
         self::$loader = new Loader();
         self::$loader->addPathes(
             array(
@@ -214,13 +256,14 @@ class IcEngine
         );
     }
 
-	/**
-	 * Подключение класса Tracer
-	 */
-	public static function initTracer()
-	{
+    /**
+     * Подключение класса Tracer
+     */
+    public static function initTracer()
+    {
         require dirname(__FILE__) . '/Class/Tracer.php';
-	}
+    }
+
     /**
      * Получить frontTamplate
      *
@@ -254,15 +297,15 @@ class IcEngine
         return self::$loader;
     }
 
-	/**
-	 * Получить менеджера по имени
-	 *
+    /**
+     * Получить менеджера по имени
+     *
      * @param string $name
-	 * @return Manager_Abstract
-	 */
-	public static function getManager($name)
-	{
-		if (!isset (self::$managers[$name])) {
+     * @return Manager_Abstract
+     */
+    public static function getManager($name)
+    {
+        if (!isset(self::$managers[$name])) {
             $fromServiceLocator = false;
             $serviceName = self::getNameForServiceLocator($name . '_Manager');
             $manager = self::serviceLocator()->getService($serviceName);
@@ -273,22 +316,21 @@ class IcEngine
                 $className = $name . '_Manager';
                 $manager = new $className;
             }
-			self::registerManager($name, $manager, $fromServiceLocator);
-		}
-		return self::$managers[$name];
-	}
+            self::registerManager($name, $manager, $fromServiceLocator);
+        }
+        return self::$managers[$name];
+    }
 
     /**
-	 * Возвращает путь до корня сайта.
-	 *
+     * Возвращает путь до корня сайта.
+     *
      * @return string
-	 */
-	protected static function getRoot()
-	{
-		return isset ($_SERVER['DOCUMENT_ROOT'])
-            ? rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/'
+     */
+    protected static function getRoot()
+    {
+        return isset($_SERVER['DOCUMENT_ROOT']) ? rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/' 
             : rtrim(realpath(self::$path . '..'), '/') . '/';
-	}
+    }
 
     /**
      * Получить сервис локатор
@@ -299,7 +341,7 @@ class IcEngine
     {
         return self::$serviceLocator;
     }
-    
+
     /**
      * Получить задание фронт контроллера
      * 
@@ -310,49 +352,49 @@ class IcEngine
         return self::$task;
     }
 
-	/**
-	 * Путь до корня движка
-	 *
+    /**
+     * Путь до корня движка
+     *
      * @return string
-	 */
-	public static function path()
-	{
-		return self::$path;
-	}
+     */
+    public static function path()
+    {
+        return self::$path;
+    }
 
-	/**
-	 * Зарегистрировать нового менеджера по имени
-	 *
+    /**
+     * Зарегистрировать нового менеджера по имени
+     *
      * @param string $name
-	 * @param Manager_Abstract $manager
+     * @param Manager_Abstract $manager
      * @param boolean $fromServiceLocator
-	 */
-	public static function registerManager($name, $manager,
-        $fromServiceLocator = false)
-	{
-		self::$managers[$name] = $manager;
+     */
+    public static function registerManager($name, $manager, $fromServiceLocator = false)
+    {
+        self::$managers[$name] = $manager;
         if (!$fromServiceLocator) {
             $serviceName = self::getNameForServiceLocator($name);
             self::$serviceLocator->registerService($serviceName, $manager);
         }
-	}
+    }
 
-	/**
-	 * Путь до корня сайта.
-	 *
+    /**
+     * Путь до корня сайта.
+     *
      * @return string
-	 */
-	public static function root()
-	{
-		return self::$root;
-	}
+     */
+    public static function root()
+    {
+        return self::$root;
+    }
 
-	/**
-	 * Запуск рабочего цикла и вывод результата.
-	 */
-	public static function run()
-	{
-		self::$bootstrap->run();
+    /**
+     * Запуск рабочего цикла и вывод результата.
+     */
+    public static function run()
+    {
+        self::setSession();
+        self::$bootstrap->run();
         if (!self::$task) {
             self::$task = self::createFrontControllerTask();
         }
@@ -362,13 +404,25 @@ class IcEngine
         self::$task->setStrategies(self::$bootstrap->getStrategies());
         try {
             $controllerManager->call(
-                self::$frontController, self::$frontAction, $transport,
-                self::$task
+                self::$frontController, self::$frontAction, $transport, self::$task
             );
         } catch (Exception $e) {
             die;
         }
-	}
+    }
+    
+    /**
+     * Установить сессию
+     * 
+     */
+    public static function setSession()
+    {
+        $domain = explode('.', $_SERVER['HTTP_HOST']);
+        array_splice($domain, 0, -2);
+        $mainHost = implode('.', $domain);
+        session_set_cookie_params(0, '/', '.' . $mainHost);
+        self::serviceLocator()->getService('registry')->set('domain', $mainHost);
+    }
 
     /**
      * Получить локатор сервисов
@@ -476,52 +530,198 @@ class IcEngine
     /**
      * Обрабочик завершения приложения
      */
-	public static function shutdownHandler ()
-	{
-		$error = error_get_last();
+    public static function shutdownHandler()
+    {
+        $error = error_get_last();
         $resourceManager = self::getManager('Resource');
-		if (!$error) {
-			$resourceManager->save();
+        if (!$error) {
+            $resourceManager->save();
             $shutdownManager = self::getManager('Shutdown');
             $shutdownManager->process();
-		} else {
-			$errno = $error['type'];
-			if ($errno == E_ERROR || $errno == E_USER_ERROR) {
-				if (!headers_sent()) {
-					header('HTTP/1.0 500 Internal Server Error');
-				}
-			}
-		}
-	}
+        } else {
+            $errno = $error['type'];
+            if ($errno == E_ERROR || $errno == E_USER_ERROR) {
+                if (!headers_sent()) {
+                    header('HTTP/1.0 500 Internal Server Error');
+                }
+            }
+        }
+    }
+    
+    /**
+     * Включить трейсер
+     * 
+     */
+    public static function enableTracer($startTime)
+    {
+        self::$startTime = $startTime;
+        self::$tracing = true;
+    }
+    
+    /**
+     * Отключить трейсер
+     * 
+     */
+    public static function disableTracer()
+    {
+        self::$tracing = false;
+    }
+    
+    /**
+     * распечатать трейсер
+     * 
+     */
+    public static function renderTracer()
+    {
+        $request = self::serviceLocator()->getService('request');
+        if ($request->get('TRACER') || isset($_GET ['TRACER'])) {
+                $endTime = microtime(true);
+                Tracer::setTotalTime($endTime - self::$startTime);
+                echo self::serviceLocator()->getService('controllerManager')
+                ->html('Tracer/index');
+        }
+    }
 
     /**
-     * Белая магия на службе добра // dp
-     *
-     * IcEngine::modelManager(array('byKey'=>array('City', 1)));
-     * IcEngine::modelManager()->byKey('City', 1);
-     *
-     * @param $name
-     * @param $arguments
+     * Сеттер для конфига приложения
+     * 
+     * @param mixed $config
+     */
+    public static function setConfig($config)
+    {
+        self::$config = $config;
+    }
+    
+    /**
+     * геттер для конфига приложения
+     * 
      * @return mixed
      */
-    public static function __callStatic($name, $arguments) {
-        $service = IcEngine::getServiceLocator()->getService($name);
-
-        if (empty($arguments)) {
-            return $service;
+    public static function getConfig()
+    {
+        return self::$config;
+    }
+    
+    /**
+     * Установить сайт локейшн
+     * 
+     */
+    public static function setSiteLocation($params)
+    {
+        $helperSiteLocation = IcEngine::serviceLocator()
+                ->getService('helperSiteLocation');
+        if (!empty($params['host'])) {
+            $host = $params['host'];
         }
-
-        $arguments = reset($arguments);
-
-        if (is_array($arguments)) {
-
-            $method = key($arguments);
-            $params = $arguments[$method];
-            return is_array($params)
-                ? call_user_func_array(array($service, $method), $params)
-                : call_user_func(array($service, $method), $params);
+        if (empty($host)) {
+                $host = $helperSiteLocation->get('host') ? 
+                $helperSiteLocation->get('host') : 
+                    $helperSiteLocation->getLocation();
+        }
+        if (empty($host)) {
+                $host = self::$config['host'];
+        }
+        $_SERVER['HTTP_HOST'] = $host;
+        $_SERVER['SERVER_NAME'] = $host;
+        $registry = IcEngine::serviceLocator()->getService('registry');
+        $registry->set('host', $host);
+    }
+    
+    /**
+     * Инициализация кли
+     * 
+     */
+    public static function initCli($config)
+    {
+        self::setConfig($config);
+        $argv = $config['argv'];
+        $argc = $config['argc'];
+        if (empty($argv) || $argc < 2) {
+            echo 'Usage: ./ic "Controller/action"' . PHP_EOL;
+            echo 'Default Controller/action is "'.  $config['cli']['defaultControllerAction'] . '"' . PHP_EOL;
+            array_push($argv, $config['cli']['defaultControllerAction']);
+        }
+        if (!isset($argv) || !isset($argc)) {
+            echo 'This script is for console use only.' . PHP_EOL;
+            die;
+        }
+        $params = self::replaceArgs($argv);
+        $_SERVER['DOCUMENT_ROOT'] = realpath('.');
+        self::init(
+            $config['application']['path'],
+            $config['cli']['bootstrap']
+        );
+        self::setSiteLocation($params);
+        self::setFrontController('Cli_Simple');
+        self::setFrontRender('Cli');
+        self::setFrontInput('cliInput');
+        $userCliService = IcEngine::getServiceLocator()->getService('userCli');
+        $userCliService->init();
+        $sessionService = IcEngine::getServiceLocator()->getService('session');
+        $sessionService->setDefaultUserId($userCliService->id());
+    }
+    
+    /**
+     * Заменить аргументы
+     * 
+     */
+    public static function replaceArgs($argv)
+    {
+        $inputArgs = $argv;
+               array_shift($argv);
+        $controllerAction = array_shift($argv);
+        $params = array();
+        $param = null;
+        foreach ($argv as $arg) {
+            if (substr($arg, 0, 2) == '--') {
+                $param = substr($arg, 2);
+                if (!isset($params[$param])) {
+                    $params[$param] = true;
+                }
+            } elseif ($param) {
+                if (isset($params[$param]) && !is_bool($params[$param])) {
+                    if (!is_array($params[$param])) {
+                        $params[$param] = array($params[$param]);
+                    }
+                    $params[$param][] = $arg;
+                } else {
+                    $params[$param] = $arg;
+                }
+                $param = null;
+            }
+        }
+        $argv = array_values($argv);
+        $args = array(null, $controllerAction);
+        foreach ($params as $param => $value) {
+            foreach ((array) $value as $theValue) {
+                $args[] = $param . '=' . $theValue;
+            }
+        }
+        if (is_file(self::$config['author'])) {
+            $author = file_get_contents(self::$config['author']);
+            $args[] = 'author=' . $author;
+        }
+        if (end($inputArgs) == self::$config['cli']['help']) {
+            $strpos = strpos($args[1], '/');
+            if ($strpos !== false) {
+                $controller = substr($args[1], 0, $strpos);
+                $action = substr($args[1], $strpos + 1);
+                $_SERVER['argv'] =  [
+                    '1' =>  'Help',
+                    '2' =>  strpos($controller, '_') ? $controller 
+                        : 'name=Controller_' . $controller,
+                    '3' =>  'method=' . $action
+                ];
+            } else {
+                $_SERVER['argv'] = [
+                    '1' =>  'Help',
+                    '2' =>  strpos($args[1], '_') ? $args[1] 
+                        : 'name=Controller_' . $args[1],
+                ];
+            }
         } else {
-            return $service->$arguments();
+            $_SERVER['argv'] = $args;
         }
+        return $params;
     }
 }

@@ -5,7 +5,8 @@
  * @author LiverEnemy
  */
 
-class Model_Collection_Filter_Pool {
+class Model_Collection_Filter_Pool extends Html_Form
+{
     /**
      * Фильтруемая коллекция
      *
@@ -26,13 +27,6 @@ class Model_Collection_Filter_Pool {
      * @var Model_Collection_Sorter
      */
     protected $_collectionSorter;
-
-    /**
-     * Входные данные для фильтрации
-     *
-     * @var Mixed
-     */
-    protected $_input;
 
     /**
      * Результат фильтрации
@@ -87,14 +81,13 @@ class Model_Collection_Filter_Pool {
     {
         $collection = $this->getCollection();
         $filters = $this->getFilters();
-        $input = $this->getInput();
         $this->_setResult($collection);
         /** @var Model_Collection_Filter $filter */
         foreach ($filters as $filter)
         {
             $result = $this->getResult();
             $filter
-                ->setInput($input)
+                ->init()
                 ->setCollection($result)
                 ->apply();
             $this->_setResult(
@@ -142,16 +135,6 @@ class Model_Collection_Filter_Pool {
     }
 
     /**
-     * Получить входные данные для фильтрации
-     *
-     * @return Mixed
-     */
-    public function getInput()
-    {
-        return $this->_input;
-    }
-
-    /**
      * Получить результат фильтрации
      *
      * @return Model_Collection
@@ -164,7 +147,7 @@ class Model_Collection_Filter_Pool {
     /**
      * Получить экземпляр сервиса
      *
-     * @param $name Имя требуемого сервиса
+     * @param string $name Имя требуемого сервиса
      *
      * @return mixed
      */
@@ -221,19 +204,6 @@ class Model_Collection_Filter_Pool {
             $filter = $filterManager->get($filterName);
             $this->_addFilter($filter);
         }
-        return $this;
-    }
-
-    /**
-     * Установить входные данные для фильтрации
-     *
-     * @param Data_Transport $input
-     *
-     * @return $this
-     */
-    public function setInput(Data_Transport $input)
-    {
-        $this->_input = $input;
         return $this;
     }
 } 
