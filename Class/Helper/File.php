@@ -133,7 +133,7 @@ class Helper_File extends Helper_Abstract
     public function makeControllerDir($name, $mode = 0755)
     {
         $fullPathName = $this->getFullPathToController($name, false);
-        return mkdir($fullPathName, $mode, true);
+        return $this->makeDir($fullPathName, $mode, true);
     }
     
       
@@ -151,7 +151,7 @@ class Helper_File extends Helper_Abstract
                 $action, 
                 false
         ); 
-        return mkdir($fullPathName, $mode, true);
+        return $this->makeDir($fullPathName, $mode, true);
     }
     
     /**
@@ -167,7 +167,7 @@ class Helper_File extends Helper_Abstract
                 $action, 
                 false
         ); 
-        return mkdir($fullPathName, $mode, true);
+        return $this->makeDir($fullPathName, $mode, true);
     }
     
     /**
@@ -182,7 +182,31 @@ class Helper_File extends Helper_Abstract
                 App::helperClass()->getControllerName($controller), 
                 $action, false
         );
-        return mkdir($fullPathName, $mode, true);
+        return $this->makeDir($fullPathName, $mode, true);
+    }
+    
+    /**
+     * Добавить хелпер
+     * 
+     * @param string $name
+     * @return bool
+     */
+    public function makeHelperDir($name, $mode = 0755)
+    {
+        $fullPathName = $this->getFullPathToHelper($name, false);
+        return $this->makeDir($fullPathName, $mode, true);
+    }
+    
+    /**
+     * Добавить сервис
+     * 
+     * @param string $name
+     * @return bool
+     */
+    public function makeServiceDir($name, $mode = 0755)
+    {
+        $fullPathName = $this->getFullPathToService($name, false);
+        return $this->makeDir($fullPathName, $mode, true);
     }
     
     /**
@@ -191,22 +215,10 @@ class Helper_File extends Helper_Abstract
      * @param string $name
      * @return bool
      */
-    public function makeHelperDir($path, $name, $mode = 0755)
+    public function makeClassDir($name, $mode = 0755)
     {
-        $fullPathName = $this->getFullPathToHelper($path, $name, false);
-        return mkdir($fullPathName, $mode, true);
-    }
-    
-    /**
-     * Добавить цсс
-     * 
-     * @param string $name
-     * @return bool
-     */
-    public function makeServiceDir($path, $name, $mode = 0755)
-    {
-        $fullPathName = $this->getFullPathToService($path, $name, false);
-        return mkdir($fullPathName, $mode, true);
+        $fullPathName = $this->getFullPathToClass($name, false);
+        return $this->makeDir($fullPathName, $mode, true);
     }
     
     /**
@@ -327,9 +339,9 @@ class Helper_File extends Helper_Abstract
             $reflectionClass = new ReflectionClass($name);
             $path = $reflectionClass->getFileName();
             return $includeFileName ? $path : dirname($path);
-        }
+        } 
         $dir = IcEngine::getClassDir();
-        $fileName = $dir . trim($path, '/') . $name . '.php';
+        $fileName = $dir . $name . '.php';
         return $includeFileName ? $fileName : dirname($fileName);
     }
 }

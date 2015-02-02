@@ -15,7 +15,9 @@
 {if isset($author)}
  * @author {$author}
 {/if}
+{if isset($serviceName)}
  * @Service("{$serviceName}")
+ {/if}
  */
 class Helper_{$name} extends Helper_Abstract
 {

@@ -195,6 +195,13 @@ class Helper_Class extends Helper_Abstract
      */
     public function getClassNameWithPrefix($prefix, $name, $normalize = true)
     {
+        if (!isset($prefix) || !$prefix) {
+            if ($normalize) {
+                return ucfirst(strtolower(ucfirst(strtolower($name))));
+            } else {
+                return $name;
+            }
+        }
         $normalizedPrefix = $prefix;
         if ($normalize) {
             $normalizedPrefix = ucfirst(strtolower($prefix));
@@ -215,6 +222,13 @@ class Helper_Class extends Helper_Abstract
      */
     public function getClassNameWithoutPrefix($prefix, $name, $normalize = true)
     {
+        if (!isset($prefix) || !$prefix) {
+            if ($normalize) {
+                return ucfirst(strtolower(ucfirst(strtolower($name))));
+            } else {
+                return $name;
+            }
+        }
         $normalizedPrefix = $prefix;
         if ($normalize) {
             $normalizedPrefix = ucfirst(strtolower($prefix));
