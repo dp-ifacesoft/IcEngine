@@ -170,7 +170,8 @@ class Helper_File extends Helper_Abstract
      */
     public function makeDir($path, $mode = 0755, $recursive = true)
     {
-        return is_dir(dirname($path)) ?: mkdir(dirname($path),$mode, $recursive);
+        return is_dir($path) 
+            ?: mkdir($path,$mode, $recursive);
     }
     
     /**
