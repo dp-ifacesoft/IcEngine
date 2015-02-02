@@ -19,11 +19,18 @@ class IcEngine
      * @var type 
      */
     protected static $config;
+    
+    /**
+     * Конфиг приложения по умолчанию(в движке)
+     * 
+     * @var array 
+     */
+    protected static $defaultConfig;
 
     /**
      * Включен ли трейсер
      * 
-     * @var type 
+     * @var array 
      */
     protected static $tracing = false;
     /**
@@ -589,7 +596,7 @@ class IcEngine
      */
     public static function setConfig($config)
     {
-        self::$config = $config;
+        self::$config = array_merge(self::getDefaultConfig(),$config);
     }
     
     /**
@@ -601,6 +608,20 @@ class IcEngine
     {
         return self::$config;
     }
+    
+    /**
+     * геттер для конфига приложения
+     * 
+     * @return mixed
+     */
+    public static function getDefaultConfig()
+    {
+        if (!isset(self::$defaultConfig) || empty(self::$defaultConfig)) {
+            self::$defaultConfig = require realpath(__DIR__ . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'Application.php');
+        }
+        return self::$defaultConfig;
+    }
+    
     
     /**
      * Установить сайт локейшн
@@ -724,4 +745,102 @@ class IcEngine
         }
         return $params;
     }
+    
+    /**
+     * Получить автора
+     * 
+     */
+    public function getAuthor()
+    {
+        return file_exists(self::$config['author']) 
+            ? file_get_contents(self::$config['author']) 
+            : null;
+    }
+    
+    /**
+     * Получить папку контроллеров
+     * 
+     * @return string
+     */
+    public function getControllersDir()
+    {
+        return isset(self::$config['application']['controllersDir']) 
+            ? self::$config['application']['controllersDir'] 
+            : __DIR__ . '/../Ice/Controller/';
+    }
+    
+    /**
+     * Получить папку вьюшек
+     * 
+     * @return string
+     */
+    public function getViewsDir()
+    {
+        return isset(self::$config['application']['viewsDir']) 
+            ? self::$config['application']['viewsDir'] 
+            : __DIR__ . '/../Ice/View/';
+    }
+    
+    /**
+     * Получить папку js'ок
+     * 
+     * @return string
+     */
+    public function getJsDir($pack = 'noPack')
+    {
+        $dir = isset(self::$config['application']['jsDir']) 
+            ? self::$config['application']['jsDir'] 
+            : __DIR__ . '/../Ice/Static/js/';
+        return $dir . $pack . DIRECTORY_SEPARATOR;
+    }
+    
+    /**
+     * Получить папку ccs'ок
+     * 
+     * @param type $pack
+     * @return type
+     */
+    public function getCssDir($pack = 'noPack')
+    {
+        $dir = isset(self::$config['application']['cssDir']) 
+            ? self::$config['application']['cssDir'] 
+            : __DIR__ . '/../Ice/Static/css/';
+        return $dir . $pack . DIRECTORY_SEPARATOR;
+    }
+    
+    /**
+     * Получить папку классов
+     * 
+     */
+    public function getClassDir()
+    {
+        return isset(self::$config['application']['classesDir']) 
+            ? self::$config['application']['classesDir'] 
+            : __DIR__ . '/../Ice/Class/';
+    }
+    
+    /**
+     * Получить папку классов
+     * 
+     */
+    public function getHelpersDir()
+    {
+        return isset(self::$config['application']['helpersDir']) 
+            ? self::$config['application']['helpersDir'] 
+            : __DIR__ . '/../Ice/Class/Helper/';
+    }
+    
+    /**
+     * Получить папку классов
+     * 
+     */
+    public function getServicesDir()
+    {
+        return isset(self::$config['application']['servicesDir']) 
+            ? self::$config['application']['servicesDir'] 
+            : __DIR__ . '/../Ice/Service/';
+    }
+    
+    
+    
 }

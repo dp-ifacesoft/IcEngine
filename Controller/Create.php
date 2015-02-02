@@ -368,19 +368,14 @@ class Controller_Create extends Controller_Abstract
     }
     
     /**
-     * создать хелпер
      * 
      */
-    public function helper($name)
+    public function helper()
     {
         
     }
     
-    /**
-     * создать класс
-     * 
-     */
-    public function createClass($name)
+    public function simpleClass()
     {
         
     }

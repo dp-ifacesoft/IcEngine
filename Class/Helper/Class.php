@@ -31,7 +31,7 @@ class Helper_Class extends Helper_Abstract
      */
     public function getClassType($class)
     {
-        $pos = strripos($class, '_');
+        $pos = stripos($class, '_');
             if ($pos !== false) {
                 return substr($class, 0, (int)($pos));
             }
@@ -127,6 +127,147 @@ class Helper_Class extends Helper_Abstract
             $paramsCli .= ' --' . $param;
         }
         return $paramsCli;
+    }
+    
+    /**
+     * Возвращает имя контроллера с префиксом
+     * 
+     * @param string $name имя класса 
+     * @param boolean $prefix дописывать ли Controller_
+     */
+    public function getControllerName($name, $prefix = true)
+    {
+        if ($prefix) {
+            return $this->getClassNameWithPrefix('Controller_', $name);
+        }
+        return $this->getClassNameWithoutPrefix('Controller_', $name);
+    }
+    
+    /**
+     * Возвращает имя сервиса с префиксом
+     * 
+     * @param string $name имя класса 
+     * @param boolean $prefix дописывать ли Service_
+     */
+    public function getServiceName($name, $prefix = true)
+    {
+        if ($prefix) {
+            return $this->getClassNameWithPrefix('Service_', $name);
+        }
+        return $this->getClassNameWithoutPrefix('Service_', $name);
+    }
+    
+    /**
+     * Возвращает имя хелпера с префиксом
+     * 
+     * @param string $name имя класса 
+     * @param boolean $prefix дописывать ли Helper_
+     */
+    public function getHelperName($name, $prefix = true)
+    {
+        if ($prefix) {
+            return $this->getClassNameWithPrefix('Helper_', $name);
+        }
+        return $this->getClassNameWithoutPrefix('Helper_', $name);
+    }
+    
+    /**
+     * Получить имя модели
+     * 
+     * @param string $name
+     * @param boolean $prefix дописывать ли Model_
+     */
+    public function getModelName($name, $prefix = true)
+    {
+        if ($prefix) {
+            return $this->getClassNameWithPrefix('Model_', $name);
+        }
+        return $this->getClassNameWithoutPrefix('Model_', $name);
+    }
+    
+    /**
+     * Получить имя класса с префиксом
+     * 
+     * @param string $prefix префикс
+     * @param string $name имя класса
+     * @param boolean $normalize привести ли к CamelCase
+     * @return string
+     */
+    public function getClassNameWithPrefix($prefix, $name, $normalize = true)
+    {
+        $normalizedPrefix = $prefix;
+        if ($normalize) {
+            $normalizedPrefix = ucfirst(strtolower($prefix));
+        }
+        if (strpos($name, $normalizedPrefix) === 0) {
+            return $name;
+        }
+        return $normalizedPrefix . $name;
+    }
+    
+        /**
+     * Получить имя класса с префиксом
+     * 
+     * @param string $prefix префикс
+     * @param string $name имя класса
+     * @param boolean $normalize привести ли к CamelCase
+     * @return string
+     */
+    public function getClassNameWithoutPrefix($prefix, $name, $normalize = true)
+    {
+        $normalizedPrefix = $prefix;
+        if ($normalize) {
+            $normalizedPrefix = ucfirst(strtolower($prefix));
+        }
+        if (strpos($name, $normalizedPrefix) === 0) {
+            return substr($name, strlen($prefix));
+        }
+        return $name;
+    }
+    
+    /**
+     * Получить абсолютный путь класса по имени
+     * 
+     * @param string $name имя класса 
+     */
+    public function getPath($name)
+    {
+        if (!class_exists($name)) {
+            return;
+        }
+        $class = new ReflectionClass($name);
+        return $class->getFileName();
+    }
+    
+    /**
+     * Получить абсолютный путь класса без имени файла
+     * 
+     * @param string $name имя класса 
+     */
+    public function getDir($name)
+    {
+        $fullpath = $this->getPath($name);
+        return dirname($fullpath) . '/';
+    }
+    
+    /**
+     * Вставить метод созданный кодогенератором 
+     * 
+     */
+    public function insertTextMethod($name, $text, $line  = null)
+    {
+        if(!class_exists($name)) {
+            return;
+        }
+        $path = $this->getPath($name);
+        $dir = $this->getDir($name);
+        if (!$line) {
+            $class = new ReflectionClass($name);
+            $line = $class->getEndLine()-1;
+        }
+        $lines = explode(PHP_EOL, file_get_contents($path));
+        array_splice($lines, $line, 0, explode(PHP_EOL, $text));
+        file_put_contents($path, implode(PHP_EOL, $lines));
     }
     
 }
