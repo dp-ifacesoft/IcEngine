@@ -394,20 +394,8 @@ class Request
             $sessionManager = $serviceLocator->getService('serviceManager');
             $sessionManager->init();
         }
-        if (isset($_COOKIE['PHPSESSID'])) {
-            session_id($_COOKIE['PHPSESSID']);
-        } elseif (isset($_GET['PHPSESSID'])) {
-            session_id($_GET['PHPSESSID']);
-        }
-        if (!isset($_COOKIE)) {
-            $_COOKIE = array();
-        }
         if (!isset($_SESSION)) {
             session_start();
-        }
-        if (!isset($_COOKIE['PHPSESSID'])) {
-            setcookie('PHPSESSID', session_id(), 86400);
-            $_COOKIE['PHPSESSID'] = session_id();
         }
         return session_id();
     }
