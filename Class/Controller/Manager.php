@@ -454,17 +454,14 @@ class Controller_Manager extends Manager_Abstract
     {
         $selfConfig = $this->config();
         $controllerAction = $controller . '::' . $action;
-        $controllerConfig = $selfConfig->actions[$controllerAction];
-        if (!$controllerConfig) {
-            if (!$selfConfig->actions[$controller]) {
-                return;
-            }
-            $controllerConfig = $selfConfig->actions[$controller];
+        $controllerConfig = null;
+        if (isset($selfConfig->actions[$controllerAction])) {
+            $controllerConfig = clone $selfConfig->actions[$controllerAction];
+        } elseif(isset($selfConfig->actions[$controller])) {
+            $controllerConfig = clone $selfConfig->actions[$controller];
         }
-        if ($controllerConfig->cache_config) {
-            return call_user_func(
-                $controllerConfig->cache_config, $controllerConfig
-            );
+        if (!$controllerConfig) {
+            return;
         }
         if ($controllerConfig->tags && $controllerConfig->tag_provider) {
             $provider = $this->getService('dataProviderManager')->get(

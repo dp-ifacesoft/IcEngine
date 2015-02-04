@@ -226,8 +226,6 @@ class Helper_Image_Resize extends Helper_Abstract
                     $scale = min($inputWidth / $width, $inputHeight / $height);
                 }
             }
-            echo 'width ' . $width . PHP_EOL;
-            echo 'height ' . $height . PHP_EOL;
             $newWidth = ceil($inputWidth / $scale);
             $newHeight = ceil($inputHeight / $scale);
             $widthIsLow = $newWidth < $width;

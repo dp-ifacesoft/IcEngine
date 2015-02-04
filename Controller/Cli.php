@@ -9,7 +9,9 @@ class Controller_Cli extends Controller_Abstract
 {
     /**
      * Выполняет комманду
-     * 
+     * @Context(
+     *      "user"
+     * )
      * @Validator("User_Cli")
      */
     public function index($command, $context)

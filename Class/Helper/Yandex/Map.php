@@ -102,6 +102,26 @@ class Helper_Yandex_Map {
         }
         return $y;
     }
+    
+    /**
+     * 
+     * @param array $response
+     * @return array
+     * 
+     * Упорядочивание полученного от геоапи ответа
+     */
+    public function getAddressFromResponce($response)
+    {
+        $data = [];
+        $kind = $response[0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['kind'];
+        $data['city'] = $response[0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['AdministrativeArea']['SubAdministrativeArea']['Locality']['LocalityName'];
+        $data['street'] = $response[0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['AdministrativeArea']['SubAdministrativeArea']['Locality']['Thoroughfare']['ThoroughfareName'];
+        $data['coords'] = $response[0]['GeoObject']['Point']['pos'];
+        if ($kind == 'house') {
+            $data['house'] = $response[0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['AddressDetails']['Country']['AdministrativeArea']['SubAdministrativeArea']['Locality']['Thoroughfare']['Premise']['PremiseNumber'];
+        }
+        return $data;
+    }
 
     /**
      * Альтернативный метод расчета расстояния

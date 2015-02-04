@@ -151,7 +151,6 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
             $cacheValid = $expiresValid && $tagsValid;
         }
         if ($cacheValid) {
-            self::$caches[$key] = $cache;
             $this->numRows = count($cache['v']);
             $this->foundRows = $cache['f'];
             if (Tracer::$enabled) {
@@ -174,7 +173,6 @@ class Data_Driver_Mysqli_Cached extends Data_Driver_Mysqli
                     't' => $providerTags,
                     'f' => $this->foundRows
                 );
-                self::$caches[$key] = $cache;
                 $this->cacher->set($key, $cache, $options->getExpiration());
             }
             $this->numRows = count($rows);

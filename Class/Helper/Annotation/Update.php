@@ -24,7 +24,8 @@ class Helper_Annotation_Update extends Helper_Abstract
             $paths = array_merge(
                 $loader->getPaths('Class'),
                 $loader->getPaths('Model'),
-                $loader->getPaths('Controller')
+                $loader->getPaths('Controller'),
+                $loader->getPaths('Service')
             );
         }
         /** @var Helper_File $helperFile */
@@ -35,7 +36,8 @@ class Helper_Annotation_Update extends Helper_Abstract
             }
             if (strpos($path, 'Class') === false &&
                 strpos($path, 'Controller') === false &&
-                strpos($path, 'Model') === false) {
+                strpos($path, 'Model') === false &&
+                strpos($path, 'Service') === false) {
                 continue;
             }
             $files = $helperFile->scan($path, true, true, false);
