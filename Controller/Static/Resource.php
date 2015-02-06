@@ -75,4 +75,30 @@ class Controller_Static_Resource extends Controller_Abstract
             unlink($dir . $filename);
         }
 	}
+    
+    /**
+	 * Пересобрать статику (для контентов)
+     *
+     * @Context("dataProviderManager")
+     * @Ajax
+     * @Template(null)
+     * @Validator("User_CliOrEditor")
+	 */
+	public function stubRecache()
+	{
+        $user = App::user()->getCurrent();
+        $dto = App::dto()->newInstance('Mail_Message')
+            ->setAddress('79609260063')
+            ->setToName('')
+            ->setData([
+                'text'  => 'Контент ' . $user['login'] . ' делает рекэш'
+            ])
+            ->setTemplate('sms_static_recache')
+            ->setMailProviderParams(['Sms_Littlesms,Sms_Dcnk,Sms_Yakoon'])
+            ->setMailProvider('First_Success');
+        $message = App::mailMessage()->create($dto);
+        $message->send();
+        
+		sleep(rand(0, 4));
+	}
 }
