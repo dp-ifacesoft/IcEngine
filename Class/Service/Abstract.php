@@ -27,6 +27,7 @@ class Service_Abstract
     public function config()
     {
         if (is_array($this->config)) {
+            /** @var Config_Manager $configManager */
             $configManager = $this->getService('configManager');
             $this->config = $configManager->get(
                 get_class($this), $this->config

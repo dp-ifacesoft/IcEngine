@@ -3,6 +3,10 @@
  * Сервис недостающего функционала по Data_Transport
  *
  * @author LiverEnemy
+ *
+ * @Service("serviceDataTransport")
+ *
+ * upd: Аннотация Service была добавлена ради совместимости с функционалом статического класса App
  */
 
 class Service_Data_Transport extends Service_Abstract {

@@ -26,6 +26,7 @@ class Bread_Crumb
 	 *
 	 * @param string $title Текст ссылки
 	 * @param string $url Href ссылки
+     * @return  Bread_Crumb для цепных вызовов
 	 */
 	public function append($title, $url = null)
 	{
@@ -33,15 +34,18 @@ class Bread_Crumb
 			'url'	=> $url,
 			'title'	=> $title
 		);
+        return $this;
 	}
 
 	/**
 	 * Очистить хлебные крошки
+     * @return  Bread_Crumb  для цепных вызовов
 	 */
 	public function clear()
 	{
 		$this->list = array();
         $this->rightHtml = '';
+        return $this;
 	}
 
 	/**

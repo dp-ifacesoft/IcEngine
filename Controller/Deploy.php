@@ -17,7 +17,9 @@ class Controller_Deploy extends Controller_Abstract
                 'cityId'    => 1
             ),
             'Annotation_Tag/flush',
-            'Redis_Clear/clearContent'
+            'Redis_Clear/clearContent',
+            'App_Service_Getter/update'
+
         )
     );
     

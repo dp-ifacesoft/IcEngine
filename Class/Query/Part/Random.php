@@ -12,9 +12,11 @@ class Query_Part_Random extends Query_Part
 	 */
 	public function query()
 	{
-		$this->query->order('rand()'. '+' . rand(1, 1000))
-            ->limit($this->modelName . '.parentId',
+		$this->query->order('rand()'. '+' . rand(1, 1000));
+        if (isset($this->params['count'])) {
+            $this->query->limit(
                 $this->params['count']);
+        }
 	}
 }
 

@@ -13,8 +13,28 @@ class IcEngine
      * @var Bootstrap_Abstract
 	 */
 	protected static $bootstrap;
-
+    
 	/**
+     * Конфиг приложения
+     * 
+     * @var type 
+     */
+    protected static $config;
+    
+    /**
+     * Конфиг приложения по умолчанию(в движке)
+     * 
+     * @var array 
+     */
+    protected static $defaultConfig;
+
+    /**
+     * Включен ли трейсер
+     * 
+     * @var array 
+     */
+    protected static $tracing = false;
+    /**
 	 * Экшин фронт контролера по умолчанию
 	 *
      * @var string
@@ -83,8 +103,15 @@ class IcEngine
      * @var Service_Locator
      */
     protected static $serviceLocator;
-
+    
 	/**
+     * Время запуска
+     *
+     * @var Service_Locator
+     */
+    protected static $startTime;
+
+    /**
 	 * Получить текущий бутстрап
 	 *
      * @desc Bootstrap_Abstract
@@ -93,6 +120,7 @@ class IcEngine
 	{
 		return self::$bootstrap;
 	}
+    
     
     /**
      * Создать задание для front-контроллера
@@ -133,6 +161,9 @@ class IcEngine
 		$controllerManager->call('Render', 'index', array(
             'task'  => self::$task
         ));
+        if (self::$tracing) {
+            self::renderTracer();
+        }
 	}
 
 	/**
@@ -143,6 +174,7 @@ class IcEngine
 	 */
 	public static function init($root = null, $bootstap = null)
 	{
+
 		// Запоминаем путь до движка
 		self::$path = dirname(__FILE__) . '/';
 		if (strlen(self::$path) < 2) {
@@ -163,6 +195,7 @@ class IcEngine
 		}
         self::serviceLocator()->registerService('loader', self::$loader);
 		register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
+        
 	}
 
 	/**
@@ -187,9 +220,24 @@ class IcEngine
 		require dirname(__FILE__) . '/Class/Debug.php';
 		call_user_func_array(array('Debug', 'init'), func_get_args());
 	}
-
+    
 	/**
+     * Меняет опции в зависиомсти от агрументов
+     * 
+     */
+    public static function debugStrategy()
+    {
+        if (isset ($_SERVER['argv'], $_SERVER['argc'])) {
+            IcEngine::initDebug('dir:' . self::$config['log']);
+        } else {
+            ob_start();
+            IcEngine::initDebug('dir:' . self::$config['log'], 'fb');
+        }
+    }
+
+    /**
 	 * Инициализация лоадера.
+     * 
 	 */
 	public static function initLoader()
 	{
@@ -352,6 +400,7 @@ class IcEngine
 	 */
 	public static function run()
 	{
+        self::setSession();
 		self::$bootstrap->run();
         if (!self::$task) {
             self::$task = self::createFrontControllerTask();
@@ -369,7 +418,20 @@ class IcEngine
             Debug::outputErrors($e);
         }
 	}
- 
+    
+    /**
+     * Установить сессию
+     * 
+     */
+    public static function setSession()
+    {
+        $domain = explode('.', $_SERVER['HTTP_HOST']);
+        array_splice($domain, 0, -2);
+        $mainHost = implode('.', $domain);
+        session_set_cookie_params(0, '/', '.' . $mainHost);
+        self::serviceLocator()->getService('registry')->set('domain', $mainHost);
+    }
+
     /**
      * Получить локатор сервисов
      *
@@ -493,35 +555,293 @@ class IcEngine
 			}
 		}
 	}
-
+    
     /**
-     * Белая магия на службе добра // dp
-     *
-     * IcEngine::modelManager(array('byKey'=>array('City', 1)));
-     * IcEngine::modelManager()->byKey('City', 1);
-     *
-     * @param $name
-     * @param $arguments
-     * @return mixed
+     * Включить трейсер
+     * 
      */
-    public static function __callStatic($name, $arguments) {
-        $service = IcEngine::getServiceLocator()->getService($name);
-
-        if (empty($arguments)) {
-            return $service;
-        }
-
-        $arguments = reset($arguments);
-
-        if (is_array($arguments)) {
-
-            $method = key($arguments);
-            $params = $arguments[$method];
-            return is_array($params)
-                ? call_user_func_array(array($service, $method), $params)
-                : call_user_func(array($service, $method), $params);
-        } else {
-            return $service->$arguments();
+    public static function enableTracer($startTime)
+    {
+        self::$startTime = $startTime;
+        self::$tracing = true;
+    }
+    
+    /**
+     * Отключить трейсер
+     * 
+     */
+    public static function disableTracer()
+    {
+        self::$tracing = false;
+    }
+    
+    /**
+     * распечатать трейсер
+     * 
+     */
+    public static function renderTracer()
+    {
+        $request = self::serviceLocator()->getService('request');
+        if ($request->get('TRACER') || isset($_GET ['TRACER'])) {
+                $endTime = microtime(true);
+                Tracer::setTotalTime($endTime - self::$startTime);
+                echo self::serviceLocator()->getService('controllerManager')
+                ->html('Tracer/index');
         }
     }
+
+    /**
+     * Сеттер для конфига приложения
+     * 
+     * @param mixed $config
+     */
+    public static function setConfig($config)
+    {
+        self::$config = array_merge(self::getDefaultConfig(),$config);
+    }
+    
+    /**
+     * геттер для конфига приложения
+     * 
+     * @return mixed
+     */
+    public static function getConfig()
+    {
+        return self::$config;
+    }
+    
+    /**
+     * геттер для конфига приложения
+     * 
+     * @return mixed
+     */
+    public static function getDefaultConfig()
+    {
+        if (!isset(self::$defaultConfig) || empty(self::$defaultConfig)) {
+            self::$defaultConfig = require realpath(__DIR__ . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'Application.php');
+        }
+        return self::$defaultConfig;
+    }
+    
+    
+    /**
+     * Установить сайт локейшн
+     * 
+     */
+    public static function setSiteLocation($params)
+    {
+        $helperSiteLocation = IcEngine::serviceLocator()
+                ->getService('helperSiteLocation');
+        if (!empty($params['host'])) {
+            $host = $params['host'];
+        }
+        if (empty($host)) {
+                $host = $helperSiteLocation->get('host') ? 
+                $helperSiteLocation->get('host') : 
+                    $helperSiteLocation->getLocation();
+        }
+        if (empty($host)) {
+                $host = self::$config['host'];
+        }
+        $_SERVER['HTTP_HOST'] = $host;
+        $_SERVER['SERVER_NAME'] = $host;
+        $registry = IcEngine::serviceLocator()->getService('registry');
+        $registry->set('host', $host);
+    }
+    
+    /**
+     * Инициализация кли
+     * 
+     */
+    public static function initCli($config)
+    {
+        self::setConfig($config);
+        $argv = $config['argv'];
+        $argc = $config['argc'];
+        if (empty($argv) || $argc < 2) {
+            echo 'Usage: ./ic "Controller/action"' . PHP_EOL;
+            echo 'Default Controller/action is "'.  $config['cli']['defaultControllerAction'] . '"' . PHP_EOL;
+            array_push($argv, $config['cli']['defaultControllerAction']);
+        }
+        if (!isset($argv) || !isset($argc)) {
+            echo 'This script is for console use only.' . PHP_EOL;
+            die;
+        }
+        $params = self::replaceArgs($argv);
+        $_SERVER['DOCUMENT_ROOT'] = realpath('.');
+        self::init(
+            $config['application']['path'],
+            $config['cli']['bootstrap']
+        );
+        self::setSiteLocation($params);
+        self::setFrontController('Cli_Simple');
+        self::setFrontRender('Cli');
+        self::setFrontInput('cliInput');
+        $userCliService = IcEngine::getServiceLocator()->getService('userCli');
+        $userCliService->init();
+        $sessionService = IcEngine::getServiceLocator()->getService('session');
+        $sessionService->setDefaultUserId($userCliService->id());
+    }
+    
+    /**
+     * Заменить аргументы
+     * 
+     */
+    public static function replaceArgs($argv)
+    {
+        $inputArgs = $argv;
+               array_shift($argv);
+        $controllerAction = array_shift($argv);
+        $params = array();
+        $param = null;
+        foreach ($argv as $arg) {
+            if (substr($arg, 0, 2) == '--') {
+                $param = substr($arg, 2);
+                if (!isset($params[$param])) {
+                    $params[$param] = true;
+                }
+            } elseif ($param) {
+                if (isset($params[$param]) && !is_bool($params[$param])) {
+                    if (!is_array($params[$param])) {
+                        $params[$param] = array($params[$param]);
+                    }
+                    $params[$param][] = $arg;
+                } else {
+                    $params[$param] = $arg;
+                }
+                $param = null;
+            }
+        }
+        $argv = array_values($argv);
+        $args = array(null, $controllerAction);
+        foreach ($params as $param => $value) {
+            foreach ((array) $value as $theValue) {
+                $args[] = $param . '=' . $theValue;
+            }
+        }
+        if (is_file(self::$config['author'])) {
+            $author = file_get_contents(self::$config['author']);
+            $args[] = 'author=' . $author;
+        }
+        if (end($inputArgs) == self::$config['cli']['help']) {
+            $strpos = strpos($args[1], '/');
+            if ($strpos !== false) {
+                $controller = substr($args[1], 0, $strpos);
+                $action = substr($args[1], $strpos + 1);
+                $_SERVER['argv'] =  [
+                    '1' =>  'Help',
+                    '2' =>  strpos($controller, '_') ? $controller 
+                        : 'name=Controller_' . $controller,
+                    '3' =>  'method=' . $action
+                ];
+            } else {
+                $_SERVER['argv'] = [
+                    '1' =>  'Help',
+                    '2' =>  strpos($args[1], '_') ? $args[1] 
+                        : 'name=Controller_' . $args[1],
+                ];
+            }
+        } else {
+            $_SERVER['argv'] = $args;
+        }
+        return $params;
+    }
+    
+    /**
+     * Получить автора
+     * 
+     */
+    public function getAuthor()
+    {
+        return file_exists(self::$config['author']) 
+            ? file_get_contents(self::$config['author']) 
+            : null;
+    }
+    
+    /**
+     * Получить папку контроллеров
+     * 
+     * @return string
+     */
+    public function getControllersDir()
+    {
+        return isset(self::$config['application']['controllersDir']) 
+            ? self::$config['application']['controllersDir'] 
+            : __DIR__ . '/../Ice/Controller/';
+    }
+    
+    /**
+     * Получить папку вьюшек
+     * 
+     * @return string
+     */
+    public function getViewsDir()
+    {
+        return isset(self::$config['application']['viewsDir']) 
+            ? self::$config['application']['viewsDir'] 
+            : __DIR__ . '/../Ice/View/';
+    }
+    
+    /**
+     * Получить папку js'ок
+     * 
+     * @return string
+     */
+    public function getJsDir($pack = 'noPack')
+    {
+        $dir = isset(self::$config['application']['jsDir']) 
+            ? self::$config['application']['jsDir'] 
+            : __DIR__ . '/../Ice/Static/js/';
+        return $dir . $pack . DIRECTORY_SEPARATOR;
+    }
+    
+    /**
+     * Получить папку ccs'ок
+     * 
+     * @param type $pack
+     * @return type
+     */
+    public function getCssDir($pack = 'noPack')
+    {
+        $dir = isset(self::$config['application']['cssDir']) 
+            ? self::$config['application']['cssDir'] 
+            : __DIR__ . '/../Ice/Static/css/';
+        return $dir . $pack . DIRECTORY_SEPARATOR;
+    }
+    
+    /**
+     * Получить папку классов
+     * 
+     */
+    public function getClassDir()
+    {
+        return isset(self::$config['application']['classesDir']) 
+            ? self::$config['application']['classesDir'] 
+            : __DIR__ . '/../Ice/Class/';
+    }
+    
+    /**
+     * Получить папку классов
+     * 
+     */
+    public function getHelpersDir()
+    {
+        return isset(self::$config['application']['helpersDir']) 
+            ? self::$config['application']['helpersDir'] 
+            : __DIR__ . '/../Ice/Class/Helper/';
+    }
+    
+    /**
+     * Получить папку классов
+     * 
+     */
+    public function getServicesDir()
+    {
+        return isset(self::$config['application']['servicesDir']) 
+            ? self::$config['application']['servicesDir'] 
+            : __DIR__ . '/../Ice/Service/';
+    }
+    
+    
+    
 }

@@ -133,6 +133,18 @@ class Form_Builder
     }
     
     /**
+     * Устанавливает дополнительные данные для элемента формы
+     * 
+     * @param array $value активные значения
+     * @return $this
+     */
+    public function setData($value)
+    {
+        $this->currentElement->setData($value);
+        return $this;
+    }
+    
+    /**
      * Устанавливает значение элемента формы
      * 
      * @param array $value активные значения

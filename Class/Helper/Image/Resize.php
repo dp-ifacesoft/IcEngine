@@ -18,6 +18,15 @@ class Helper_Image_Resize extends Helper_Abstract
 	 * @var integer
 	 */
 	public static $jpegQuality = 90;
+    
+    protected $imagePaths = [
+        'vipgeo'    =>  [
+            '../upload/vipgeo_product2/',
+            '../upload/old_images/',
+            '/vipgeo/product/',
+            ''
+        ]
+    ];
 
     
     public function superCrop($params)
@@ -427,6 +436,11 @@ class Helper_Image_Resize extends Helper_Abstract
 		{
 			return false;
 		}
+            $input = $this->getService('helperFile')
+                ->fileExists($input, $this->imagePaths['vipgeo']);
+            if (!$input) {
+                return false;
+            }
 		$info = getimagesize ($input);
 		$image = '';
 		$final_width = 0;

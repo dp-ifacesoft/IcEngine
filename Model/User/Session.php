@@ -103,6 +103,11 @@ class User_Session extends User_Session_Abstract
     public $userRole;
 
     /**
+     * @Orm\Field\Tinyint(Size=1, Not_Null)
+     */
+    public $isCityRedirector;
+    
+    /**
 
      * @Orm\Field\Varchar(Size=255, Not_Null)
 

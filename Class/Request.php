@@ -184,6 +184,19 @@ class Request
     }
 
     /**
+     * Распарсить содержимое php://input для REST-запросов и выдать ассоциативный массив пар ['key'=>'value']
+     *
+     * @return array
+     */
+    public function parsePhpInput()
+    {
+        $data = (file_get_contents('php://input'));
+        $dataParsed = [];
+        parse_str($data, $dataParsed);
+        return $dataParsed;
+    }
+
+    /**
      * Получение параметра POST.
      *
      * @param string $name Имя параметра
@@ -317,6 +330,37 @@ class Request
     }
 
     /**
+     * Получить входные данные из всех возможных источников в зависимости от текущего HTTP-метода
+     *
+     * @param array $input Ассоциативный массив всего, что содержится в Data_Transport
+     *
+     * @return array
+     */
+    public function receiveAllFromInput(array $input)
+    {
+        $id = !empty($input['id']) ? (int) $input['id'] : null;
+        $httpMethod = $this->requestMethod();
+        switch ($httpMethod) {
+            case 'DELETE':
+            case 'GET':
+                return [
+                    'id' => $id,
+                ];
+            case 'PATCH':
+            case 'POST':
+            case 'PUT':
+                return $this->parsePhpInput();
+            default:
+                return array_merge(
+                    [
+                        'id' => $id,
+                    ],
+                    $this->parsePhpInput()
+                );
+        }
+    }
+
+    /**
      * Получить реферер
      *
      * @return string
@@ -360,11 +404,7 @@ class Request
         $sessionManager = $serviceLocator->getService('sessionManager');
         $sessionManager->init();
         
-        // Здесь возможна инициализация альтернативного обработчки сессий.
-        // TODO: выбрать одно из двух - Session_Manager || Session.
-        Session::getId();
-
-        if (session_status() == PHP_SESSION_NONE) {
+        if (!isset($_SESSION)) {
             session_start();
         }
         return session_id();

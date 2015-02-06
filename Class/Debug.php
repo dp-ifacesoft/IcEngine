@@ -320,13 +320,10 @@ class Debug
         if ($config === false) {
             self::disable();
         }
-
         error_reporting(E_ALL | E_STRICT);
-
         if (!defined('IS_PRODUCTION')) {
             define('IS_PRODUCTION', false);
-        }
-
+            }
         if (IS_PRODUCTION) {
             ini_set('display_errors', false);
         } else {
@@ -335,9 +332,7 @@ class Debug
             ini_set('html_errors', true);
             ini_set('track_errors', true);
         }
-
         $memory_start = function_exists('memory_get_usage') ? memory_get_usage(true) : 0;
-
         foreach (func_get_args() as $cfg) {
             self::setOptions($cfg);
                 }

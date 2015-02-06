@@ -13,3 +13,4 @@ syntax: glob
 nbproject/
 Model/newEmptyPHP.php
 .idea/**
+Vendor/SxGeo/SxGeoCity.dat

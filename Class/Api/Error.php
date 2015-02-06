@@ -11,7 +11,7 @@ class Api_Error
     const COMMAND_NOT_FOUND = 1;
     const ACCESS_DENIED = 2;
     const NOT_ENOUGH_PARAMS = 3;
-    
+
     /**
      * Получить описание ошибки
      * 

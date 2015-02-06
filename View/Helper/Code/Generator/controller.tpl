@@ -1,24 +1,36 @@
 <?php
 
 /**
- * @desc {$comment}
+ * 
+{if isset($comment)}@desc {$comment}{/if}
+ *
+{if isset($date)}
  * Created at: {$date}
+{/if}
+{if isset($author)}
  * @author {$author}
+{/if}
  * @category Controllers
+{if isset($package)}
  * @package {$package}
- * @copyright i-complex.ru
+{/if}
+{if isset($copyright)}
+ * @copyright {$copyright}
+{/if}
  */
 class Controller_{$name} extends Controller_Abstract
 {
+        {if isset($actions)}
 	{foreach from=$actions item="action"}
-/**
-	 * @desc Your desc here
+        /**
+	 * 
+         *
 	 */
 	public function {$action} ()
 	{
 
 	}
-
 	{/foreach}
+        {/if}
 
 }

@@ -98,6 +98,8 @@ class Helper_View_Resource
 	public function append($type, $filename = null, $pathName = null,
         $params = array())
 	{
+        $locator = IcEngine::serviceLocator();
+        $serviceViewResource = $locator->getService('serviceViewResource');
         $config = $this->config();
         $args = func_get_args();
         $type = $args[0];
@@ -119,12 +121,21 @@ class Helper_View_Resource
                 $paths = $config->defaultPaths;
                 if ($paths) {
                     $paths = $paths[$type];
-                    $filename = IcEngine::root() . trim($paths[$pathName], '/') .
-                        '/' . ltrim($filename, '/');
+                    if ($pathName == 'default') {
+                        $filename = $serviceViewResource->getFileNameByGroupDefault(
+                            $filename , $type
+                        );
+                        if (!$filename) {
+                            continue;
+                        }
+                    } else {
+                        $filename = IcEngine::root() . trim($paths[$pathName], '/') .
+                            '/' . ltrim($filename, '/');
+                    }
                 }
             }
             if (isset(self::$files[$type])) {
-                array_push(self::$files[$type], array($filename, $params));
+                self::$files[$type][$filename] = [$filename, $params];
             }
         }
 	}
@@ -284,10 +295,16 @@ class Helper_View_Resource
 			$provider->set($key, $lastPackedAt);
 		}
 		if ($this->createPackFile($type, $key, $compiledName)) {
-			$filename = rtrim($config->cdn[$type], '/') . '/' .
+			$fileNamePart = rtrim($config->cdn[$type], '/') . '/' .
 				ltrim($config->path) . $key .
 				(isset($config->packGroups[$type]) ?
-				$config->packGroups[$type] : '') . '?' . $lastPackedAt;
+				$config->packGroups[$type] : '');
+            if ($type == self::CSS) {
+                $cssFile = rtrim(IcEngine::root(), '/') . $fileNamePart;
+                App::serviceStaticSpriteOptimizator()->run($cssFile);
+                App::serviceStaticCssOptimizator()->run($cssFile);
+            }
+            $filename = $fileNamePart . '?' . $lastPackedAt;
 			$html = str_replace(
 				'{$filename}', $filename, $config->packTemplates[$type]
 			);

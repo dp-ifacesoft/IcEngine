@@ -315,10 +315,10 @@ abstract class Model implements ArrayAccess
     {
         if (!is_null($key)) {
             $modelManager = $this->getService('modelManager');
-            $joinedModel = $modelName::getModel($key);
-            $this->joints[$modelName] = $joinedModel;
-        }
-        return $this->joints[$modelName];
+            $joinedModel = $modelManager->byKey($modelName, $key);
+			$this->joints[$modelName] = $joinedModel;
+		}
+		return isset($this->joints[$modelName]) ? $this->joints[$modelName] : null;
     }
 
     /**
@@ -378,35 +378,28 @@ abstract class Model implements ArrayAccess
     /**
      * Устанавливает или получает связанные данные объекта
      *
-     * @param string $key [optional] Ключ
-     * @param mixed $value [optional]
-     *        Значение (не обязательно)
-     * @return mixed
-     *        Текущее значение
-     */
-    public function data($key = null, $value = null)
-    {
-        $numArgs = func_num_args();
-        if (!$numArgs) {
-            return $this->data;
+	 * @param string $key Ключ.
+	 * @param mixed $value [optional] Значение (не обязательно).
+	 * @return mixed Текущее значение или null.
+	 */
+	public function &data($key = null, $value = null)
+	{
+        if (!is_object($this->data)) {
+            $this->data = $this->getData();
         }
-
-        if ($numArgs == 1) {
-            if (is_object($key)) {
-                return;
-            }
-            if (is_array($key)) {
-                $data = is_object($this->data()) ? $this->data()->__toArray() : $this->data();
-                $this->data = array_merge($data, $key);
-            } else {
-                return isset($this->data[$key])
-                    ? $this->data[$key]
-                    : null;
-            }
-        } else {
-            $this->data[$key] = $value;
-        }
-    }
+		if (func_num_args() == 1) {
+			if (is_scalar($key)) {
+                $data = isset($this->data[$key]) ? $this->data[$key] : null;
+				$result = $data instanceof Objective
+                    ? $data->__toArray() : $data;
+                return $result;
+			}
+			$this->data = array_merge($this->data->__toArray(), $key);
+		} elseif (func_num_args() == 2) {
+			$this->data[$key] = $value;
+		}
+        return $this->data;
+	}
 
     /**
      * Удаление модели
