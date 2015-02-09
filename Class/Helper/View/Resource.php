@@ -310,6 +310,7 @@ class Helper_View_Resource
 			);
 			return $html;
 		}
+        return '';
 	}
 
 	/**
