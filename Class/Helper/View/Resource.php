@@ -272,6 +272,10 @@ class Helper_View_Resource
 		}
 		$resultContent = str_replace('$jsEmbedKey', $key, $content);
 		file_put_contents($fileName, $resultContent);
+        if ($type == self::CSS) {
+            App::serviceStaticSpriteOptimizator()->run($fileName);
+            App::serviceStaticCssOptimizator()->run($fileName);
+        }
 		return true;
 	}
 
