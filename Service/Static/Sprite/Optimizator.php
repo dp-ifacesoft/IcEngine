@@ -28,7 +28,6 @@ class Service_Static_Sprite_Optimizator extends Service_Abstract
      */
     public function run($cssFile)
     {
-        return true;
         $cssText = file_get_contents($cssFile);
         $images = App::serviceStaticCssParser()->parseImages($cssText);
         $commonSprite = $this->getCommon();

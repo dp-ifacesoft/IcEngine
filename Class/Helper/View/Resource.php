@@ -272,6 +272,10 @@ class Helper_View_Resource
 		}
 		$resultContent = str_replace('$jsEmbedKey', $key, $content);
 		file_put_contents($fileName, $resultContent);
+        if ($type == self::CSS) {
+            App::serviceStaticSpriteOptimizator()->run($fileName);
+            App::serviceStaticCssOptimizator()->run($fileName);
+        }
 		return true;
 	}
 
@@ -299,11 +303,6 @@ class Helper_View_Resource
 				ltrim($config->path) . $key .
 				(isset($config->packGroups[$type]) ?
 				$config->packGroups[$type] : '');
-            if ($type == self::CSS) {
-                $cssFile = rtrim(IcEngine::root(), '/') . $fileNamePart;
-                App::serviceStaticSpriteOptimizator()->run($cssFile);
-                App::serviceStaticCssOptimizator()->run($cssFile);
-            }
             $filename = $fileNamePart . '?' . $lastPackedAt;
 			$html = str_replace(
 				'{$filename}', $filename, $config->packTemplates[$type]
