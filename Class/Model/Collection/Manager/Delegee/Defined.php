@@ -18,7 +18,7 @@ class Model_Collection_Manager_Delegee_Defined
 		$where = $query->getPart(Query::WHERE);
 		$filter = array();
 		foreach ($where as $w) {
-			$field = rtrim($w[Query::WHERE], '?');
+			$field = rtrim($w[Query::WHERE], ' ?');
 			if (strpos($field, '.') !== false) {
 				list(,$plainField) = explode('.', $field, 2);
 				$field = trim($plainField, '`');
