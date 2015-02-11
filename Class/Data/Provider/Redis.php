@@ -1,9 +1,5 @@
 <?php
 
-if (!class_exists ('Data_Provider_Abstract'))
-{
-	include dirname (__FILE__) . '/Abstract.php';
-}
 /**
  *
  * @desc Провайдер данных Redis
@@ -13,24 +9,11 @@ if (!class_exists ('Data_Provider_Abstract'))
  */
 class Data_Provider_Redis extends Data_Provider_Abstract
 {
-
-	/**
-	 * @desc Файл с классом соединения.
-	 * @var string
-	 */
-	const DEFAULT_CONNECTION_CLASS_FILE = 'imemcacheclient/Redis22.class.php';
-
 	/**
 	 * @desc Подключение к редису
 	 * @var Redis
 	 */
 	public $conn = null;
-
-	/**
-	 * @desc Сервера
-	 * @var array
-	 */
-	public $servers = array ();
 
 	/**
 	 * @desc Максимальное количество выбираемых за раз значений.
@@ -46,14 +29,10 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function __construct ($config = array ())
 	{
-		$file =
-			isset ($config ['connection_class_file']) ?
-				$config ['connection_class_file'] :
-				self::DEFAULT_CONNECTION_CLASS_FILE;
-
-		Loader::requireOnce ($file, 'includes');
-		$this->conn = Redis_Wrapper::instance ();
+		$redis = new Redis();
+		$this->conn = $redis;
 		parent::__construct ($config);
+		$redis->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);    // use built-in serialize/unserialize
 	}
 
 	/**
@@ -71,11 +50,12 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			case 'servers':
 				foreach ($value as $server)
 				{
-					$this->addServer (
+                            // используем старый формат конфига с множетсвом серверов, но используем только первый
+					$this->conn->connect(
 						$server ['host'],
-						isset ($server ['port']) ? $server ['port'] : null,
-						isset ($server ['weight']) ? $server ['weight'] : null
+						isset ($server ['port']) ? $server ['port'] : null
 					);
+					break;
 				}
 				return true;
 		}
@@ -98,36 +78,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$expiration = 0;
 		}
 
-		return $this->conn->add (
+		$result = $this->conn->setnx (
 			$this->keyEncode ($key),
-			$value, $expiration
+			$value
 		);
-	}
-
-	/**
-	 * @desc Добавление сервера
-	 * @param string $host
-	 * @param integer $port
-	 * @param integer $weight
-	 * @return boolean
-	 */
-	public function addServer ($host, $port = null, $weight = null)
-	{
-		$this->servers [] = array ($host, $port, $weight);
-		return $this->conn->addServer ($host, $port, $weight);
-	}
-
-	/**
-	 * @desc Добавление списка серверов
-	 * @param array $a
-	 */
-	public function addServers (array $a)
-	{
-		foreach ($a as $s)
-		{
-			$this->addServer ($s[0], $s[1], isset ($s[2]) ? $s[2] : null);
+		if ($expiration) {
+			$this->expire($key, $expiration);
 		}
-		return true;
+		return $result;
 	}
 
 	/**
@@ -155,7 +113,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('decrement', $key);
 		}
 
-		return $this->conn->decrement ($this->keyEncode ($key), $value);
+		return $this->conn->decrBy ($this->keyEncode ($key), $value);
 	}
 
 	/**
@@ -252,23 +210,20 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('deleteByPattern', $pattern);
 		}
 
-		$this->conn->clearByPattern ($this->prefix . $pattern);
+		$this->delete($this->keys($pattern));
 	}
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::flush()
-	 */
-	public function flush ($delay = 0)
-	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('flush', $delay);
-		}
-
-		return $this->conn->flush ($delay);
-	}
-
+    /**
+     * Sets an expiration date (a timeout) on an item. 
+     * 
+     * @return bool
+     */
+    public function expire($key, $expiration)
+    {
+        $key = $this->keyEncode($key);
+        return $this->conn->expire($key, $expiration);
+    }
+    
 	/**
 	 * (non-PHPdoc)
 	 * @see Data_Provider_Abstract::get()
@@ -284,7 +239,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$startTime = microtime(true);
 		}
 
-		$result = $this->conn->get ($this->keyEncode ($key), $plain);
+                $result = $this->conn->get($this->keyEncode($key));
 
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
@@ -293,15 +248,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @desc Получить соединение (сокет)
-	 * @return resource
-	 */
-	public function getConnection ()
-	{
-		return $this->conn->getConnection ('tcp://127.0.0.1:6379');
 	}
 
 	/**
@@ -332,14 +278,14 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 				$subkeys = array_slice ($keys, $start, $this->mget_limit);
 				$r = array_merge (
 					$r,
-					$this->conn->getMulti ($subkeys)
+					$this->conn->getMultiple($subkeys)
 				);
 				$start += $this->mget_limit;
 			}
 		}
 		else
 		{
-			$r = $this->conn->getMulti ($keys);
+			$r = $this->conn->getMultiple($keys);
 		}
 
 		if ($numeric_index)
@@ -348,15 +294,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
 
 		return array_combine ($keys, array_values ($r));
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::getStats()
-	 */
-	public function getStats ()
-	{
-		return $this->conn->getStats ();
 	}
 
 	/**
@@ -370,7 +307,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('increment', $key);
 		}
 
-		return $this->conn->increment ($this->keyEncode ($key), $value);
+		return $this->conn->incrBy($this->keyEncode ($key), $value);
 	}
 
 	/**
@@ -380,7 +317,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function keyEncode ($key)
 	{
-		return urlencode ($this->prefix . $key);
+		return $this->prefix . $key;
 	}
 
 	/**
@@ -390,7 +327,7 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 	 */
 	public function keyDecode ($key)
 	{
-		return substr (urldecode ($key), strlen ($this->prefix));
+		return substr($key, strlen($this->prefix));
 	}
 
 	/**
@@ -404,14 +341,13 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$this->tracer->add ('keys', $pattern);
 		}
 
-		$mask = $this->keyEncode ($pattern);
-		$mask = str_replace ('%2A', '*', $mask);
+		$mask = $this->keyEncode(rtrim($pattern, '*')) . '*';
 
 		if (Tracer::$enabled) {
 			$startTime = microtime(true);
 		}
 
-		$r = $this->conn->keys ($mask, empty ($server) ? '' : $server);
+		$r = $this->conn->keys($mask);
 
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
@@ -425,30 +361,6 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 		}
 
 		return array_map (array ($this, 'keyDecode'), $r);
-//		$l = strlen ($this->prefix);
-//		if ($l > 0 && is_array ($r))
-//		{
-//			foreach ($r as &$k)
-//			{
-//				$k = substr ($k, $l);
-//			}
-//		}
-//
-//		return $r;
-	}
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Data_Provider_Abstract::prepend()
-	 */
-	public function prepend ($key, $value)
-	{
-		if ($this->tracer)
-		{
-			$this->tracer->add ('prepend', $key);
-		}
-
-		return $this->conn->prepend ($this->keyEncode ($key), $value);
 	}
 
 	/**
@@ -483,13 +395,13 @@ class Data_Provider_Redis extends Data_Provider_Abstract
 			$startTime = microtime(true);
 		}
 
-
-		$result = $this->conn->set ($this->keyEncode ($key), $value, $expiration, $tags);
+		$result = $this->conn->set ($this->keyEncode ($key), $value, $expiration);
 
 		if (Tracer::$enabled) {
 			$endTime = microtime(true);
 			Tracer::incRedisSetCount();
 			Tracer::incRedisSetTime($endTime - $startTime);
+			Tracer::addRedisSet($this->keyEncode($key), $endTime - $startTime);
 		}
 
 		return $result;

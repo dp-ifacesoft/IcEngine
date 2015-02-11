@@ -228,9 +228,9 @@ var Helper_Form = {
 					}
 				}
 				if ($(this).attr ('placeholder') == $(this).val ()) {
-					_setValue (this.name, '');
+					data[this.name] = '';
 				} else {
-					_setValue (this.name, $(this).val ());
+					data[this.name] = $(this).val();
 				}
 			}
 		});

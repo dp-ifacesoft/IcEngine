@@ -16,7 +16,7 @@ class Query_Part_Not_Key extends Query_Part
 		$keyField = Model_Scheme::keyField($modelName);
 		if (!is_array($key)) {
 			$this->query->where($modelName . '.' . $keyField . ' != ?',
-				array($key));
+				$key);
 		} else {
 			$this->query->where($modelName . '.' . $keyField . ' NOT IN (?)',
 				array($key));

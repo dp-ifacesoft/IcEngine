@@ -24,7 +24,10 @@ class Controller_Paginator extends Controller_Abstract
 			'template',
 			'tpl'
 		);
-
+                if (!$paginator) {
+                    $this->_task->setTemplate(null);
+                    return;
+                }
 	    /* @var $paginator Paginator */
 		$paginator->buildPages ();
 		

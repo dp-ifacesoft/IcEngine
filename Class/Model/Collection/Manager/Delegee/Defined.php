@@ -18,7 +18,7 @@ class Model_Collection_Manager_Delegee_Defined
 		$where = $query->getPart(Query::WHERE);
 		$filter = array();
 		foreach ($where as $w) {
-			$field = rtrim($w[Query::WHERE], '?');
+			$field = rtrim($w[Query::WHERE], ' ?');
 			if (strpos($field, '.') !== false) {
 				list(,$plainField) = explode('.', $field, 2);
 				$field = trim($plainField, '`');
@@ -28,7 +28,11 @@ class Model_Collection_Manager_Delegee_Defined
 		$order = $query->getPart(Query::ORDER);
 		$sort = array();
 		foreach ($order as $o) {
-			$sort[] = $o[0];
+			$column = $o[0];
+			if ($o[1] == Query::DESC) {
+				$column = $column . ' ' . Query::DESC;
+			}
+			$sort[] = $column;
 		}
         $result = $rows;
         if ($filter) {
