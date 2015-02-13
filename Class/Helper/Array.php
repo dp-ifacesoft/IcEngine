@@ -21,7 +21,7 @@ class Helper_Array extends Helper_Abstract
         if (!$columnNames) {
             return $input;
         }
-        if (!is_array($input) || empty($input)) {
+        if (!count($input)) {
             return array();
         }
 		$result = array();

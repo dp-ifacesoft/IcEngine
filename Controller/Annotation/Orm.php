@@ -12,7 +12,7 @@ class Controller_Annotation_Orm extends Controller_Abstract
      *
      * @Context(
      *      "helperAnnotationOrm", "modelScheme", "helperModelMigrateSync",
-     *      "helperModelTable"
+     *      "helperModelTable", "configManager"
      * )
      * @Template(null)
      * @Validator("Not_Null"={"data"})

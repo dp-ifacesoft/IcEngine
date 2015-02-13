@@ -90,9 +90,8 @@ class Helper_Mysql extends Helper_Abstract
             debug_print_backtrace();
             die ();
         }
-        return self::SQL_QUOTE .
-            addslashes(iconv(mb_detect_encoding($value), 'UTF-8//IGNORE', stripslashes ($value))) .
-        self::SQL_QUOTE;
+
+        return $this->driver()->linkIdentifier()->quote($value);
     }
 
     /**

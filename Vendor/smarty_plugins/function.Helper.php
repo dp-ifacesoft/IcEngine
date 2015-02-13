@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * Вызов хелпера представления
  * 
@@ -9,7 +10,8 @@
 function smarty_function_Helper(array $params)
 {
     $helper = $params['call'];
-	$locator = IcEngine::serviceLocator();
-	$viewHelperManager = $locator->getService('viewHelperManager');
+    $locator = IcEngine::serviceLocator();
+    $viewHelperManager = $locator->getService('viewHelperManager');
+
     return $viewHelperManager->get($helper, $params);
 }

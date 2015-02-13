@@ -226,8 +226,6 @@ class Helper_Image_Resize extends Helper_Abstract
                     $scale = min($inputWidth / $width, $inputHeight / $height);
                 }
             }
-            echo 'width ' . $width . PHP_EOL;
-            echo 'height ' . $height . PHP_EOL;
             $newWidth = ceil($inputWidth / $scale);
             $newHeight = ceil($inputHeight / $scale);
             $widthIsLow = $newWidth < $width;
@@ -431,9 +429,11 @@ class Helper_Image_Resize extends Helper_Abstract
 		{
 			return false;
 		}
-        if (!file_exists($input)) {
-            return false;
-        }
+            $input = $this->getService('helperFile')
+                ->fileExists($input, (array)$this->config()->imagePaths);
+            if (!$input) {
+                return false;
+            }
 		$info = getimagesize ($input);
 		$image = '';
 		$final_width = 0;
@@ -637,25 +637,33 @@ class Helper_Image_Resize extends Helper_Abstract
 			);
 		}
 
-		switch ($info [2])
-		{
-			case IMAGETYPE_GIF:
-				imagegif ($image_resized, $output);
-				break;
-			case IMAGETYPE_JPEG:
-				imagejpeg ($image_resized, $output, $quality);
-				break;
-			case IMAGETYPE_PNG:
-				imagepng ($image_resized, $output);
-				break;
-			default:
-				return false;
-		}
+
+        switch ($info [2])
+        {
+            case IMAGETYPE_GIF:
+                $result = imagegif ($image_resized, $output);
+                break;
+            case IMAGETYPE_JPEG:
+                $result = imagejpeg ($image_resized, $output, $quality);
+                break;
+            case IMAGETYPE_PNG:
+                $result = imagepng ($image_resized, $output);
+                break;
+            default:
+                return false;
+        }
 
         imagedestroy($image);
         imagedestroy($image_resized);
 
-		return array ($final_width, $final_height, $info [2]);
-	}
+        if (!$result)
+        {
+            return false;
+        }
+        else
+        {
+            return array ($final_width, $final_height, $info [2]);
+        }
+    }
 
 }

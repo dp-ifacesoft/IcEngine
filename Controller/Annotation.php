@@ -25,7 +25,9 @@ class Controller_Annotation extends Controller_Abstract
 
     /**
      * Сброк аннотации
-     *
+     * @Context(
+     *      "configManager", "controllerManager"
+     * )
      * @Template(null)
      * @Validator("User_Cli")
      */
@@ -42,7 +44,9 @@ class Controller_Annotation extends Controller_Abstract
 
     /**
      * Обновить аннотации
-     *
+     * @Context(
+     *      "controllerManager"
+     * )
      * @Template(null)
      * @Validator("User_Cli")
      */

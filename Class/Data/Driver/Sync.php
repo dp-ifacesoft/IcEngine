@@ -55,7 +55,7 @@ class Data_Driver_Sync extends Data_Driver_Abstract
 	 * @return Query_Result
 	 */
 	protected function executeStatic(Query_Abstract $query,
-        Query_Options $options)
+        Query_Options $options=null)
 	{
 		$modelName = $this->getModelName($query);
         $rows = $modelName::$rows;

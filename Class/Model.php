@@ -7,6 +7,7 @@
  */
 abstract class Model implements ArrayAccess
 {
+
     /**
      * Название мета-поля с данными модели
      */
@@ -175,12 +176,12 @@ abstract class Model implements ArrayAccess
         } elseif (isset($references[$field])) {
             if (!$this->modelMapperScheme) {
                 $this->modelMapperScheme = $this->getService('modelMapper')
-                    ->scheme($this);
+                        ->scheme($this);
             }
             return $this->modelMapperScheme->get($field);
         } elseif (array_key_exists($field, $this->fields)) {
             $field = $this->helper()->unserializeValue(
-                $this, $field, $this->fields[$field]
+                    $this, $field, $this->fields[$field]
             );
             return $field;
         } elseif (array_key_exists($joinField, $this->fields)) {
@@ -315,10 +316,10 @@ abstract class Model implements ArrayAccess
     {
         if (!is_null($key)) {
             $modelManager = $this->getService('modelManager');
-            $joinedModel = $modelName::getModel($key);
+            $joinedModel = $modelManager->byKey($modelName, $key);
             $this->joints[$modelName] = $joinedModel;
         }
-        return $this->joints[$modelName];
+        return isset($this->joints[$modelName]) ? $this->joints[$modelName] : null;
     }
 
     /**
@@ -355,7 +356,7 @@ abstract class Model implements ArrayAccess
                     'name' => '::Row',
                     'id' => $this->key()
                 )
-            );
+        );
         return !is_null($index) ? $collection->item($index) : $collection;
     }
 
@@ -378,35 +379,27 @@ abstract class Model implements ArrayAccess
     /**
      * Устанавливает или получает связанные данные объекта
      *
-     * @param string $key [optional] Ключ
-     * @param mixed $value [optional]
-     *        Значение (не обязательно)
-     * @return mixed
-     *        Текущее значение
+     * @param string $key Ключ.
+     * @param mixed $value [optional] Значение (не обязательно).
+     * @return mixed Текущее значение или null.
      */
-    public function data($key = null, $value = null)
+    public function &data($key = null, $value = null)
     {
-        $numArgs = func_num_args();
-        if (!$numArgs) {
-            return $this->data;
-        }
-
-        if ($numArgs == 1) {
-            if (is_object($key)) {
-                return;
+        $this->getData();
+        if (func_num_args() == 1) {
+            if(is_object($key)) {
+                $this->data = $key;
+            } elseif (is_scalar($key)) {
+                $data = isset($this->data[$key]) ? $this->data[$key] : null;
+                $result = $data instanceof Objective ? $data->__toArray() : $data;
+                return $result;
             }
-
-            if (is_array($key)) {
-                $data = is_object($this->data()) ? $this->data()->__toArray() : $this->data();
-                $this->data = array_merge($data, $key);
-            } else {
-                return isset($this->data[$key])
-                    ? $this->data[$key]
-                    : null;
-            }
-        } else {
+            $this->data = array_merge($this->data->__toArray(), $key);
+        } elseif (func_num_args() == 2) {
             $this->data[$key] = $value;
         }
+        $this->getData();
+        return $this->data;
     }
 
     /**
@@ -438,7 +431,7 @@ abstract class Model implements ArrayAccess
                 'name' => '::External',
                 'model' => $this->modelName(),
                 'id' => $this->key()
-            ));
+        ));
         return !is_null($index) ? $collection->item($index) : $collection;
     }
 
@@ -579,8 +572,7 @@ abstract class Model implements ArrayAccess
     public function key()
     {
         $keyField = $this->keyField();
-        return isset($this->fields[$keyField])
-            ? $this->fields[$keyField] : null;
+        return isset($this->fields[$keyField]) ? $this->fields[$keyField] : null;
     }
 
     /**
@@ -751,7 +743,7 @@ abstract class Model implements ArrayAccess
             if (!$schemeFields || in_array($field, $schemeFields)) {
                 $value = $helper->filterValue($this, $field, $value);
                 if (array_key_exists($field, $this->fields) &&
-                    !$helper->validateField($this, $field, $value)
+                        !$helper->validateField($this, $field, $value)
                 ) {
                     $this->errors[$field] = true;
                 } else {
@@ -768,7 +760,7 @@ abstract class Model implements ArrayAccess
         if ($updatedFields) {
             $oldUpdatedFields = $this->getUpdatedFields();
             $this->setUpdatedFields(
-                array_merge($oldUpdatedFields, $updatedFields)
+                    array_merge($oldUpdatedFields, $updatedFields)
             );
         }
         if ($data) {
@@ -935,49 +927,21 @@ abstract class Model implements ArrayAccess
         }
         return $result;
     }
-    
-    /**
-     * Обновить модель без вызова сигналов(чтобы не зацкливались сигнал слоты)
-     * 
-     * @todo По хорошему надо написать диспетчер event slot'ов, чтобы избежать безвыхдной рекурсии
-     * @param mixed $values данные для обновления
-     */
-    public function updateModelWithoutSignal($values)
-    {
-        $table = $this->table();
-        $queryUpdate = App::queryBuilder()
-            ->update($table)
-            ->values($values)
-            ->where('id', $this->key());
-        App::dds()->execute($queryUpdate);
-        return $this;
-    }
 
     /**
      * Обертка для получения модели по ключу
-     *
+     * 
+     * @deprecated
      * @param $key айди
      * @return Model
      */
     public static function getModel($key)
     {
         return IcEngine::getServiceLocator()
-            ->getService('modelManager')
-            ->byKey(get_called_class(), $key);
+                ->getService('modelManager')
+                ->byKey(get_called_class(), $key);
     }
 
-    /**
-     * Обертка для создания коллекции моделей
-     *
-     * @return Model_Collection
-     */
-    public static function getCollection()
-    {
-        return IcEngine::getServiceLocator()
-            ->getService('collectionManager')
-            ->create(get_called_class());
-    }
-    
     /**
      * дублирование модели
      * @param @data
@@ -987,7 +951,7 @@ abstract class Model implements ArrayAccess
         $modelManager = $this->getService('modelManager');
         $table = $this->table();
         $currentData = $this->asRow();
-        
+
         $currentData[$this->keyField()] = NULL;
         $newModel = $modelManager->create($table, $currentData);
         $newModel->set($data);

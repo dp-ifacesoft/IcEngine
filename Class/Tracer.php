@@ -124,6 +124,12 @@ class Tracer
      */
     protected static $allQueryVector = array();
     
+    /**
+     * @desc Хешировать трассируемые запросы, а не транслировать.
+     * @var boolean
+     */
+    public static $hashQuery = false;
+        
 	/**
 	 * Время на запросы
 	 *
@@ -401,11 +407,18 @@ class Tracer
     /**
      * Добавить запрос в вектор
      * 
-     * @param string $query
+     * @param string|Query_Abstract $query
      */
     public static function appendQueryToVector($query)
     {
-        self::$allQueryVector[] = $query;
+        if (is_string($query)) {
+            self::$allQueryVector[] = $query;
+        } else {
+            /** @see Data_Driver_Mysqli_Cached::sqlHash() */
+            self::$allQueryVector[] = self::$hashQuery ? 
+                    md5(serialize($query->getParts())) :
+                    'HASH:' . md5(serialize($query->getParts())) . ' ' . $query->translate('Mysql');
+        }
     }
     
     /**
@@ -1034,16 +1047,24 @@ class Tracer
 		self::$redisKeyTime += $time;
 	}
 
-	/**
-	 * Добавить медленный select запрос
-	 *
-	 * @param string $query
-	 * @param decimal $time
-	 */
-	public static function addLowQuery($query, $time)
-	{
-		self::$lowQueryVector[] = array($query, $time);
-	}
+        /**
+         * Добавить медленный select запрос
+         *
+         * @param string $query
+         * @param decimal $time
+         */
+        public static function addLowQuery($query, $time)
+        {
+            if (is_string($query)) {
+                $queryText = $query;
+            } else {
+                /** @see Data_Driver_Mysqli_Cached::sqlHash() */
+                $queryText = self::$hashQuery
+                        ? md5(serialize($query->getParts()))
+                        : 'HASH:' . md5(serialize($query->getParts())) . ' ' . $query->translate('Mysql');
+            }
+            self::$lowQueryVector[] = array($queryText, $time);
+        }
 
 	/**
 	 * Увеличить количество запросов select к mysql
