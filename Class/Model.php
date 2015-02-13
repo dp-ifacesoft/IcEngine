@@ -7,6 +7,7 @@
  */
 abstract class Model implements ArrayAccess
 {
+
     /**
      * Название мета-поля с данными модели
      */
@@ -175,12 +176,12 @@ abstract class Model implements ArrayAccess
         } elseif (isset($references[$field])) {
             if (!$this->modelMapperScheme) {
                 $this->modelMapperScheme = $this->getService('modelMapper')
-                    ->scheme($this);
+                        ->scheme($this);
             }
             return $this->modelMapperScheme->get($field);
         } elseif (array_key_exists($field, $this->fields)) {
             $field = $this->helper()->unserializeValue(
-                $this, $field, $this->fields[$field]
+                    $this, $field, $this->fields[$field]
             );
             return $field;
         } elseif (array_key_exists($joinField, $this->fields)) {
@@ -316,9 +317,9 @@ abstract class Model implements ArrayAccess
         if (!is_null($key)) {
             $modelManager = $this->getService('modelManager');
             $joinedModel = $modelManager->byKey($modelName, $key);
-			$this->joints[$modelName] = $joinedModel;
-		}
-		return isset($this->joints[$modelName]) ? $this->joints[$modelName] : null;
+            $this->joints[$modelName] = $joinedModel;
+        }
+        return isset($this->joints[$modelName]) ? $this->joints[$modelName] : null;
     }
 
     /**
@@ -355,7 +356,7 @@ abstract class Model implements ArrayAccess
                     'name' => '::Row',
                     'id' => $this->key()
                 )
-            );
+        );
         return !is_null($index) ? $collection->item($index) : $collection;
     }
 
@@ -378,28 +379,28 @@ abstract class Model implements ArrayAccess
     /**
      * Устанавливает или получает связанные данные объекта
      *
-	 * @param string $key Ключ.
-	 * @param mixed $value [optional] Значение (не обязательно).
-	 * @return mixed Текущее значение или null.
-	 */
-	public function &data($key = null, $value = null)
-	{
-        if (!is_object($this->data)) {
-            $this->data = $this->getData();
-        }
-		if (func_num_args() == 1) {
-			if (is_scalar($key)) {
+     * @param string $key Ключ.
+     * @param mixed $value [optional] Значение (не обязательно).
+     * @return mixed Текущее значение или null.
+     */
+    public function &data($key = null, $value = null)
+    {
+        $this->getData();
+        if (func_num_args() == 1) {
+            if(is_object($key)) {
+                $this->data = $key;
+            } elseif (is_scalar($key)) {
                 $data = isset($this->data[$key]) ? $this->data[$key] : null;
-				$result = $data instanceof Objective
-                    ? $data->__toArray() : $data;
+                $result = $data instanceof Objective ? $data->__toArray() : $data;
                 return $result;
-			}
-			$this->data = array_merge($this->data->__toArray(), $key);
-		} elseif (func_num_args() == 2) {
-			$this->data[$key] = $value;
-		}
+            }
+            $this->data = array_merge($this->data->__toArray(), $key);
+        } elseif (func_num_args() == 2) {
+            $this->data[$key] = $value;
+        }
+        $this->getData();
         return $this->data;
-	}
+    }
 
     /**
      * Удаление модели
@@ -430,7 +431,7 @@ abstract class Model implements ArrayAccess
                 'name' => '::External',
                 'model' => $this->modelName(),
                 'id' => $this->key()
-            ));
+        ));
         return !is_null($index) ? $collection->item($index) : $collection;
     }
 
@@ -571,8 +572,7 @@ abstract class Model implements ArrayAccess
     public function key()
     {
         $keyField = $this->keyField();
-        return isset($this->fields[$keyField])
-            ? $this->fields[$keyField] : null;
+        return isset($this->fields[$keyField]) ? $this->fields[$keyField] : null;
     }
 
     /**
@@ -743,7 +743,7 @@ abstract class Model implements ArrayAccess
             if (!$schemeFields || in_array($field, $schemeFields)) {
                 $value = $helper->filterValue($this, $field, $value);
                 if (array_key_exists($field, $this->fields) &&
-                    !$helper->validateField($this, $field, $value)
+                        !$helper->validateField($this, $field, $value)
                 ) {
                     $this->errors[$field] = true;
                 } else {
@@ -760,7 +760,7 @@ abstract class Model implements ArrayAccess
         if ($updatedFields) {
             $oldUpdatedFields = $this->getUpdatedFields();
             $this->setUpdatedFields(
-                array_merge($oldUpdatedFields, $updatedFields)
+                    array_merge($oldUpdatedFields, $updatedFields)
             );
         }
         if ($data) {
@@ -930,29 +930,18 @@ abstract class Model implements ArrayAccess
 
     /**
      * Обертка для получения модели по ключу
-     *
+     * 
+     * @deprecated
      * @param $key айди
      * @return Model
      */
     public static function getModel($key)
     {
         return IcEngine::getServiceLocator()
-            ->getService('modelManager')
-            ->byKey(get_called_class(), $key);
+                ->getService('modelManager')
+                ->byKey(get_called_class(), $key);
     }
 
-    /**
-     * Обертка для создания коллекции моделей
-     *
-     * @return Model_Collection
-     */
-    public static function getCollection()
-    {
-        return IcEngine::getServiceLocator()
-            ->getService('collectionManager')
-            ->create(get_called_class());
-    }
-    
     /**
      * дублирование модели
      * @param @data
@@ -962,7 +951,7 @@ abstract class Model implements ArrayAccess
         $modelManager = $this->getService('modelManager');
         $table = $this->table();
         $currentData = $this->asRow();
-        
+
         $currentData[$this->keyField()] = NULL;
         $newModel = $modelManager->create($table, $currentData);
         $newModel->set($data);

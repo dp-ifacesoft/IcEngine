@@ -187,11 +187,6 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
                     'options'       => $options,
                     'hash'          => $hash
                 ]);
-            // время жизни транслированного запроса должно быть больше времени жизни результатов этого запроса, 
-            // т.к. наличие в кеше результатов проверяется до трансляции запроса.
-            $this->cacher->set($queryTextKey, $this->sql, $options->getExpiration() * 4);
-        }
-        // родительский метод использует $this->sql для выполнения запроса
             }
         }
         $keyOut = md5(implode('_', $hashs));
