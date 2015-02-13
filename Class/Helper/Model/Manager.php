@@ -179,6 +179,19 @@ class Helper_Model_Manager extends Helper_Abstract
                 ));
                 $signal->notify();
             }
+
+            $scheme = $model->scheme();
+            if (isset($scheme['signals']) && !empty($scheme['signals']['afterInsert'])) {
+                $signalName = $scheme['signals']['afterInsert'];
+                /** @var Event_Manager $eventManager */
+                $eventManager = $this->getService('eventManager');
+                /** @var Event_Signal $signal */
+                $signal = $eventManager->getSignal($signalName);
+                $signal->setData(array(
+                    'model' => $model
+                ));
+                $signal->notify();
+            }
         }
 	}
 }

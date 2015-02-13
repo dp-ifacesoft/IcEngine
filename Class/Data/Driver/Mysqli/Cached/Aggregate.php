@@ -7,6 +7,7 @@
  */
 class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
 {
+
     /**
      * Драйвер
      *
@@ -117,6 +118,22 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
         $hash = $data['hash'];
         if ($this->params['memoryLimit']) {
             ini_set('memory_limit', $this->params['memoryLimit']);
+            if (!is_null($rows)) {
+                $tags = $query->getTags();
+                $providerTags = $this->cacher->getTags($tags);
+                if ($tags) {
+                    foreach (array_keys($providerTags) as $tag) {
+                        self::$tagsCaches[$tag][] = $key;
+                    }
+                }
+                $cache = array(
+                    'v' => $rows,
+                    'a' => time(),
+                    't' => $providerTags,
+                    'f' => $this->foundRows
+                );
+                $this->cacher->set($key, $cache, $options->getExpiration());
+            }
         }
         if ($this->params['timeLimit']) {
             set_time_limit($this->params['timeLimit']);
@@ -198,7 +215,7 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
 	 * @param Query_Abstract $query
 	 * @param Query_Options $options
 	 * @return Query_Result
-	 */
+     */
     public function executeOther(\Query_Abstract $query, $options = null) 
     {
         return $this->sourceDriver->execute($query, $options);
@@ -236,4 +253,5 @@ class Data_Driver_Mysqli_Cached_Aggregate extends Data_Driver_Abstract
 		}
 		$this->params[$key] = $value;
 	}
+
 }

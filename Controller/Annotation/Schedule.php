@@ -12,7 +12,7 @@ class Controller_Annotation_Schedule extends Controller_Abstract
      * 
      * @Template(null)
      * @Validator("Not_Null"={"data"})
-     * @Context("helperAnnotationSchedule", "helperArray", "unitOfWork")
+     * @Context("helperAnnotationSchedule", "helperArray", "unitOfWork", "collectionManager", "queryBuilder", "dds")
      */
     public function update($data, $context)
     {

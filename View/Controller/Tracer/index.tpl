@@ -33,7 +33,7 @@
         <p><b>Созданые модели:</b></p>
         <ul>
             {foreach from=$models item="model"}
-                <li>{$model->table()}, {$model->key()}</li>
+                {if $model}<li>{$model->table()}, {$model->key()}</li>{/if}
             {/foreach}
         </ul>
     {/if}

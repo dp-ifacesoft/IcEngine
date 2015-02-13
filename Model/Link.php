@@ -1,11 +1,11 @@
-<?php
+<?php
 
-/**
- * Модель ссылки
- * 
- * @author morph, goorus
- */
-class Link extends Model
-{
-    
+/**
+ * Модель ссылки
+ * 
+ * @author morph, goorus
+ */
+class Link extends Model
+{
+    
 }

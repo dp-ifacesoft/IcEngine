@@ -122,9 +122,21 @@ class Controller_Annotation_Route extends Controller_Abstract
                 }
             }
         }
-        $config = $context->configManager->get('Route')->__toArray();
-        $emptyRoute = isset($config['emptyRoute']) 
-            ? $config['emptyRoute'] : array();
+//        $config = $context->configManager->get('Route')->__toArray();
+//        $emptyRoute = isset($config['emptyRoute'])
+//            ? $config['emptyRoute'] : array();
+        $config = [];
+        $emptyRoute = array(
+            'route'          => '',
+            'params'          => array(
+                'viewRender'   => 'Smarty'
+            ),
+            'patterns'          => array(
+            ),
+            'actions'          => array(
+            ),
+            'weight'          => 0
+        );
         if (!empty($config['routes'])) {
             foreach ($config['routes'] as $routeName => $route) {
                 if (!isset($route['weight'])) {
