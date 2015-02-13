@@ -105,6 +105,17 @@ class Service_Route
         }
         return $methodAnnotations['Route'];
     }
+    
+    /**
+     * Получить текущий controllerAction
+     * 
+     * @return string
+     */
+    public function getCurrentAction()
+    {
+        $route = App::router()->getRoute();
+        return $route['actions'][0];
+    }
 
     /**
      * Заменить переменную в шаблоне урла на значение этой переменной
