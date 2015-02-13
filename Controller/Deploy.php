@@ -25,7 +25,9 @@ class Controller_Deploy extends Controller_Abstract
     
     /**
      * Запускает процесс выкладки
-     * 
+     * @Context(
+     *      "controllerManager"
+     * )
      * @Validator("User_Cli")
      * @Template(null)
      */

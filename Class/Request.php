@@ -79,7 +79,7 @@ class Request
     {
         return (
             isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-            $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
         );
     }
 
@@ -158,7 +158,7 @@ class Request
      * Получение или установка параметра.
      *
      * @param string $key Название параметра.
-     * @param string $value[optional] Значение.
+     * @param string $value [optional] Значение.
      * Если передано значение, до оно будет установлено.
      * @return string|null Если указано только название параметра, то
      * возращается его значение.
@@ -207,6 +207,16 @@ class Request
     {
         return isset($_POST[$name]) ? $_POST[$name] : $default;
     }
+    
+    public function time($float=false)
+    {
+        if ($float) {
+            $requestTime = $_SERVER['REQUEST_TIME_FLOAT'];
+        } else {
+            $requestTime = $_SERVER['REQUEST_TIME'];
+        }
+        return $requestTime;
+    }
 
     /**
      * Получить файл из запроса
@@ -228,7 +238,7 @@ class Request
      *
      * @param integer $index Индекс.
      * @return Request_File Переданный файл.
-     * 		Если файлов меньше, чем указанный индекс - null.
+     *        Если файлов меньше, чем указанный индекс - null.
      */
     public function fileByIndex($index)
     {
@@ -245,7 +255,7 @@ class Request
         }
         if (is_array($files[$index]['name'])) {
             $file = array();
-            foreach ($files[$index] as $field=> $values) {
+            foreach ($files[$index] as $field => $values) {
                 $file[$field] = reset($values);
             }
             return new Request_File($file);
@@ -261,7 +271,7 @@ class Request
     public static function files()
     {
         $result = array();
-        foreach ($_FILES as $name=> $file) {
+        foreach ($_FILES as $name => $file) {
             $result[$name] = new Request_File($file);
         }
         return $result;
@@ -298,7 +308,7 @@ class Request
             return '';
         }
         $url = $_SERVER['REQUEST_URI'];
-        $p   = strpos($url, '?');
+        $p = strpos($url, '?');
         if ($p !== false) {
             return substr($url, $p + 1);
         }
@@ -385,15 +395,15 @@ class Request
     /**
      * Получить id сессии
      *
+     * @throws ErrorException
      * @return string
      */
     public function sessionId()
     {
-        if (!class_exists('Session_Manager')) {
-            $serviceLocator = IcEngine::serviceLocator();
-            $sessionManager = $serviceLocator->getService('serviceManager');
-            $sessionManager->init();
-        }
+        $serviceLocator = IcEngine::serviceLocator();
+        $sessionManager = $serviceLocator->getService('sessionManager');
+        $sessionManager->init();
+        
         if (!isset($_SESSION)) {
             session_start();
         }

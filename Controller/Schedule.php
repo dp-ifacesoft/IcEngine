@@ -16,7 +16,7 @@ class Controller_Schedule extends Controller_Abstract
      * 
      * @Template(null)
      * @Validator("User_Cli")
-     * @Context("helperSchedule")
+     * @Context("helperSchedule", "collectionManager")
      */
     public function index($context)
     {
@@ -72,7 +72,7 @@ class Controller_Schedule extends Controller_Abstract
             $params = $schedule['paramsJson'] 
                 ? $context->helperSchedule->get($schedule['paramsJson']) : null;
             exec(
-                './ice ' . $schedule['controllerAction'] . 
+                './ic ' . $schedule['controllerAction'] . 
                 ($params ? ' ' . $params : '')
             );
             $schedule->update(array(

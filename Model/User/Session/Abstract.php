@@ -137,6 +137,9 @@ abstract class User_Session_Abstract extends Model
         if ($this->url != $url) {
             $updateData['url'] = $url;
         }
+        if($this->userRole) {
+            $updateData['userRole'] = $this->userRole;
+        }
         if ($now - $this->lastActive > 300) {
             $updateData['lastActive'] = $now;
         }

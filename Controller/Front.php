@@ -7,25 +7,25 @@
  */
 class Controller_Front extends Controller_Abstract
 {
-	/**
-	 * Запускаем фронт контролер
-	 */
-	public function index()
-	{
+    /**
+     * Запускаем фронт контролер
+     */
+    public function index()
+    {
         if (Tracer::$enabled) {
-			$subStartTime = microtime(true);
-		}
-		$route = $this->getService('router')->getRoute();
+            $subStartTime = microtime(true);
+        }
+        $route = $this->getService('router')->getRoute();
         $this->task->setRoute($route);
         $this->task->setOutput($this->output);
         if (Tracer::$enabled) {
-			$subEndTime = microtime(true);
-			Tracer::setRoutingTime($subEndTime - $subStartTime);
-		}
-		try {
+            $subEndTime = microtime(true);
+            Tracer::setRoutingTime($subEndTime - $subStartTime);
+        }
+        try {
             if (Tracer::$enabled) {
-				$startTime = microtime(true);
-			}
+                $startTime = microtime(true);
+            }
             // Получаем стратегию для фронт контроллера
             $strategy = $this->task->getStrategy();
             if ($strategy) {
@@ -43,9 +43,9 @@ class Controller_Front extends Controller_Abstract
                 $dispatcher = $this->getService('controllerDispatcher');
                 $routeActions = $route
                     ? (is_string($route->actions)
-                    ? array($route->actions) : $route->actions) : array();
+                        ? array($route->actions) : $route->actions) : array();
                 $actions = $dispatcher->loop(
-                    $this->task->getActions() ?: $routeActions
+                    $this->task->getActions() ? : $routeActions
                 );
                 $controllerManager = $this->getService('controllerManager');
                 // Создаем задания для выполнения. В них отдает входные данные.
@@ -58,14 +58,15 @@ class Controller_Front extends Controller_Abstract
                 }
                 // Выполненяем задания
                 $resultTasks = $controllerManager->runTasks($tasks);
+
             }
-			$this->output->send('tasks', $resultTasks);
+            $this->output->send('tasks', $resultTasks);
             if (Tracer::$enabled) {
-				$endTime = microtime(true);
-				Tracer::setFrontControllerTime($endTime - $subStartTime);
-			}
-		} catch (Exception $e) {
+                $endTime = microtime(true);
+                Tracer::setFrontControllerTime($endTime - $subStartTime);
+            }
+        } catch (Exception $e) {
             $this->getService('errorRender')->render($e);
-		}
-	}
+        }
+    }
 }

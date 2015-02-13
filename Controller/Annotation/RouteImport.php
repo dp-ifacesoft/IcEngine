@@ -10,15 +10,26 @@ class Controller_Annotation_RouteImport extends Controller_Abstract
     /**
      * Распарсить аннотацию
      * 
-     * @Context("helperCodeGenerator")
+     * @Context("helperCodeGenerator", "configManager")
      * @Template(null)
      * @Validator("Not_Null"={"data"})
      */
     public function update($data, $context) 
     {
-        $routeConfig = $context->configManager->get('Route');
-        $routes = $routeConfig->routes->__toArray();
-        $emptyRoute = $routeConfig->emptyRoute;
+//        $routeConfig = $context->configManager->get('Route');
+//        $routes = $routeConfig->routes->__toArray();
+        $routes = [];
+        $emptyRoute = array(
+            'route'          => '',
+            'params'          => array(
+                'viewRender'   => 'Smarty'
+            ),
+            'patterns'          => array(
+            ),
+            'actions'          => array(
+            ),
+            'weight'          => 0
+        );
         foreach ($data as $id => $currentData) {
             list($className,) = explode('/', $id, 2);
             if (empty($currentData['RouteImport']['data'])) {

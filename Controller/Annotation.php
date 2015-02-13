@@ -25,7 +25,9 @@ class Controller_Annotation extends Controller_Abstract
 
     /**
      * Сброк аннотации
-     *
+     * @Context(
+     *      "configManager", "controllerManager"
+     * )
      * @Template(null)
      * @Validator("User_Cli")
      */
@@ -42,12 +44,15 @@ class Controller_Annotation extends Controller_Abstract
 
     /**
      * Обновить аннотации
-     *
+     * @Context(
+     *      "controllerManager"
+     * )
      * @Template(null)
      * @Validator("User_Cli")
      */
     public function update($path, $name, $verbose, $author, $context)
     {
+        /** @var Helper_Annotation_Update $helperAnnotationUpdate */
         $helperAnnotationUpdate = $this->getService('helperAnnotationUpdate');
         $classes = $helperAnnotationUpdate->getClasses($path);
         $delegees = $this->config();

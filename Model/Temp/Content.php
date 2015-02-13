@@ -106,7 +106,7 @@ class Temp_Content extends Model
             'table'      => $table,
             'rowId'      => (int) $row_id,
             'day'        => $helperDate->eraDayNum(),
-            'User__id'   => $userService->id()
+            'User__id'   => $userService->getCurrent()->key()
         ));
         return $tc->save();
     }

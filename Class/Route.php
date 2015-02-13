@@ -22,7 +22,8 @@ class Route extends Objective
             'patterns'  => array(),
             'actions'   => array(), 
             'weight'    => 0
-        )
+        ),
+        'routes'    => []
     );
     
 	/**
@@ -79,10 +80,10 @@ class Route extends Objective
         $request = $this->getService('request');
         $host = $request->host();
         $cacheKey = $host . $url;
-		$route = $this->provider->get($cacheKey);
-		if ($route) {
-			return $route ? new self($route) : null;
-		}
+//		$route = $this->provider->get($cacheKey);
+//		if ($route) {
+//			return $route ? new self($route) : null;
+//		}
         $configManager = $this->getService('configManager');
         if (is_array($this->config)) {
             $this->config = $configManager->get(__CLASS__, $this->config);
@@ -131,7 +132,7 @@ class Route extends Objective
                 }
 			}
 		}
-		$this->provider->set($cacheKey, $row);
+//		$this->provider->set($cacheKey, $row);
 		return $row ? new self($row) : null;
 	}
 
@@ -149,7 +150,6 @@ class Route extends Objective
         }
         return preg_match($pattern, $host);
     }
-
 	/**
 	 * Получить список роутов
 	 *

@@ -18,15 +18,6 @@ class Helper_Image_Resize extends Helper_Abstract
 	 * @var integer
 	 */
 	public static $jpegQuality = 90;
-    
-    protected $imagePaths = [
-        'vipgeo'    =>  [
-            '../upload/vipgeo_product2/',
-            '../upload/old_images/',
-            '/vipgeo/product/',
-            ''
-        ]
-    ];
 
     
     public function superCrop($params)
@@ -235,8 +226,6 @@ class Helper_Image_Resize extends Helper_Abstract
                     $scale = min($inputWidth / $width, $inputHeight / $height);
                 }
             }
-            echo 'width ' . $width . PHP_EOL;
-            echo 'height ' . $height . PHP_EOL;
             $newWidth = ceil($inputWidth / $scale);
             $newHeight = ceil($inputHeight / $scale);
             $widthIsLow = $newWidth < $width;
@@ -431,20 +420,20 @@ class Helper_Image_Resize extends Helper_Abstract
 	 */
 	public function resize(
 		$input, $output, $width = 0, $height = 0,
-		$proportional = false, $crop = true, $fit = false
+		$proportional = false, $crop = true, $fit = false,
+        $quality = 0
 	)
 	{
+        $quality = $quality ? $quality : self::$jpegQuality;
 		if ($height <= 0 && $width <= 0 && !is_array($crop))
 		{
 			return false;
 		}
-        if (!file_exists($input)) {
             $input = $this->getService('helperFile')
-                ->fileExists($input, $this->imagePaths['vipgeo']);
+                ->fileExists($input, (array)$this->config()->imagePaths);
             if (!$input) {
                 return false;
             }
-        }
 		$info = getimagesize ($input);
 		$image = '';
 		$final_width = 0;
@@ -492,7 +481,7 @@ class Helper_Image_Resize extends Helper_Abstract
 
 		if (is_array($crop)) {
             $scale = 1;
-            if (!$crop['noScale']) {
+            if (!isset($crop['noScale']) || !$crop['noScale']) {
                 $scale = $info[0] / $crop['width'];
                 if ($scale < 1) {
                     $scale = 1;
@@ -648,25 +637,33 @@ class Helper_Image_Resize extends Helper_Abstract
 			);
 		}
 
-		switch ($info [2])
-		{
-			case IMAGETYPE_GIF:
-				imagegif ($image_resized, $output);
-				break;
-			case IMAGETYPE_JPEG:
-				imagejpeg ($image_resized, $output, self::$jpegQuality);
-				break;
-			case IMAGETYPE_PNG:
-				imagepng ($image_resized, $output);
-				break;
-			default:
-				return false;
-		}
+
+        switch ($info [2])
+        {
+            case IMAGETYPE_GIF:
+                $result = imagegif ($image_resized, $output);
+                break;
+            case IMAGETYPE_JPEG:
+                $result = imagejpeg ($image_resized, $output, self::$jpegQuality);
+                break;
+            case IMAGETYPE_PNG:
+                $result = imagepng ($image_resized, $output);
+                break;
+            default:
+                return false;
+        }
 
         imagedestroy($image);
         imagedestroy($image_resized);
 
-		return array ($final_width, $final_height, $info [2]);
-	}
+        if (!$result)
+        {
+            return false;
+        }
+        else
+        {
+            return array ($final_width, $final_height, $info [2]);
+        }
+    }
 
 }

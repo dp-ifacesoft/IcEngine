@@ -147,14 +147,15 @@ class Loader
 		return isset($this->required[$type][$file]) 
             ? $this->required[$type][$file] : false;
 	}
-    
+
     /**
-	 * Подключение класса.
-	 *
-     * @param string $class_name Название класса.
-	 * @param string $type [optional]
-	 * @return boolean true, если удалось подключить, иначе false.
-	 */
+     * Подключение класса.
+     *
+     * @param $class
+     * @param string $type [optional]
+     * @internal param string $class_name Название класса.
+     * @return boolean true, если удалось подключить, иначе false.
+     */
 	public function load($class, $type = 'Class')
 	{
 		if (class_exists($class, false)) {
@@ -164,14 +165,15 @@ class Loader
 		return $this->requireOnce($filename, $type);
 	}
 
-	/**
-	 * Подключение файла.
-	 *
+    /**
+     * Подключение файла.
+     *
      * @param string $file
-	 * @param string $type
+     * @param string $type
      * @param boolean $exceptionThrow
-	 * @return boolean
-	 */
+     * @throws Exception
+     * @return boolean
+     */
 	public function requireOnce($file, $type, $exceptionThrow = true)
 	{
 		if (isset($this->required[$type], $this->required[$type][$file])) {
@@ -183,7 +185,7 @@ class Loader
         if ($this->provider) {
             $key = $type . '/' . $file;
             $filename = $this->provider->get($key);
-            if (is_bool($filename)) {
+            if (!$filename) {
                 $filename = $this->findFile($file, $type);
                 $this->provider->set($key, $filename ?: null);
             }

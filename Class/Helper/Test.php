@@ -14,7 +14,7 @@ class Helper_Test
 	{
 		if (!self::$_config)
 		{
-			self::$_config = Config_Manager::get (
+			self::$_config = IcEngine::getServiceLocator()->getService('configManager')->get (
 				__CLASS__, self::$_config
 			);
 		}
@@ -44,7 +44,7 @@ class Helper_Test
 	{
 		$input = $situation ['input'];
 		$output = $situation ['output'];
-		$result = Controller_Manager::htmlUncached (
+		$result = IcEngine::getServiceLocator()->getService('controllerManager')->htmlUncached (
 			$controller, $action,
 			$input, array ('with_buffer' => true)
 		);
@@ -195,7 +195,7 @@ class Helper_Test
 		}
 		else
 		{
-			$collection = Model_Collection_Manager::create ($model_name);
+			$collection = IcEngine::getServiceLocator()->getService('collectionManager')->create ($model_name);
 			foreach ($input as $option_name => $params)
 			{
 				if (is_numeric ($option_name))
@@ -213,10 +213,10 @@ class Helper_Test
 		}
 		$fields = $situation ['output']['fields'];
 		$rows = $situation ['output']['value'];
-		$output = Model_Collection_Manager::create ($model_name)->reset ();
+		$output = IcEngine::getServiceLocator()->getService('collectionManager')->create ($model_name)->reset ();
 		foreach ($rows as $model)
 		{
-			$model = Model_Manager::create (
+			$model = IcEngine::getServiceLocator()->getService('modelManager')->create (
 				$model_name,
 				$model
 			);
@@ -281,7 +281,7 @@ class Helper_Test
 			}
 			else
 			{
-				$model = Model_Manager::byOption (
+				$model = IcEngine::getServiceLocator()->getService('modelManager')->byOption (
 					$model_name,
 					array_merge (
 						array ('name'	=> $name),
@@ -292,7 +292,7 @@ class Helper_Test
 		}
 		else
 		{
-			$collection = Model_Collection_Manager::create ($model_name);
+			$collection = IcEngine::getServiceLocator()->getService('collectionManager')->create ($model_name);
 			foreach ($input as $option_name => $params)
 			{
 				if (is_numeric ($option_name))
@@ -311,7 +311,7 @@ class Helper_Test
 		}
 		$fields = $situation ['output']['fields'];
 		$row = $situation ['output']['value'];
-		$output = Model_Manager::create (
+		$output = IcEngine::getServiceLocator()->getService('modelManager')->create (
 			$model_name,
 			$row
 		);
@@ -332,7 +332,7 @@ class Helper_Test
 	 */
 	public static function test (PHPUnit_Framework_TestCase $test, $method)
 	{
-		DDS::setDataSource (Data_Source_Manager::get ('UnitTest'));
+        IcEngine::getServiceLocator()->getService('dds')->setDataSource (IcEngine::getServiceLocator()->getService('dataSourceManager')->get ('UnitTest'));
 		self::prepareBehavior ($method);
 		$data = self::getData ($method);
 		$situations = $data ['situations'];
@@ -361,7 +361,7 @@ class Helper_Test
 			}
 		}
 
-		DDS::setDataSource (Data_Source_Manager::get ('default'));
+        IcEngine::getServiceLocator()->getService('dds')->setDataSource (IcEngine::getServiceLocator()->getService('dataSourceManager')->get ('default'));
 	}
 
 	/**
@@ -385,11 +385,11 @@ class Helper_Test
 		{
 			foreach ($data ['models'] as $model_name => $suite)
 			{
-				$query = Query::instance ()->truncateTable ($model_name);
-				DDS::execute ($query);
+				$query = IcEngine::getServiceLocator()->getService('query')->truncateTable ($model_name);
+				DIcEngine::getServiceLocator()->getService('dds')->execute ($query);
 				foreach ($suite as $model)
 				{
-					Model_Manager::create (
+                    IcEngine::getServiceLocator()->getService('modelManager')->create (
 						$model_name,
 						$model
 					)->save (true);
@@ -412,16 +412,16 @@ class Helper_Test
 		foreach (array_keys ($models) as $model_name)
 		{
 			echo $model_name . PHP_EOL;
-			$table = Model_Scheme::table ($model_name);
+			$table = IcEngine::getServiceLocator()->getService('modelScheme')->table ($model_name);
 			echo $table . PHP_EOL;
 			$info = Helper_Data_Source::table ($table);
 			if ($info)
 			{
-				$query = Query::instance ()->dropTable ($model_name);
+				$query = IcEngine::getServiceLocator()->getService('query')->dropTable ($model_name);
 				echo $query->translate () . PHP_EOL;
-				DDS::execute ($query);
+                IcEngine::getServiceLocator()->getService('dds')->execute ($query);
 			}
-			Controller_Manager::call (
+            IcEngine::getServiceLocator()->getService('controllerManager')->call (
 				'Model', 'create',
 				array (
 					'name'	=> $model_name

@@ -62,10 +62,23 @@ class Cache_Block_Manager extends Manager_Abstract
      * Удалить блок
      *
      * @param string $controllerAction
-     * @param array  $params
-     * @param bool   $throwUnitOfWork
+     * @param array $params
+     * @deprecated
      */
-    public function reset($controllerAction, $params = array(),
+    public function reset($controllerAction, $params = array())
+    {
+        return null;
+    }
+
+    /**
+     * Изменить блок
+     *
+     * @param string $controllerAction
+     * @param array $json
+     * @param array $params
+     * @param boolean $throwUnitOfWork
+     */
+    public function set($controllerAction, $json, $params = array(),
         $throwUnitOfWork = false)
     {
         $hash = $this->getHash($params);
@@ -82,31 +95,12 @@ class Cache_Block_Manager extends Manager_Abstract
         } else {
             $dds->execute($deleteQuery);
         }
-    }
-
-    /**
-     * Изменить блок
-     *
-     * @param string $controllerAction
-     * @param array $data
-     * @param array $params
-     * @param boolean $throwUnitOfWork
-     */
-    public function set($controllerAction, $data, $params = array(),
-        $throwUnitOfWork = false)
-    {
-        $this->reset($controllerAction, $params,
-            $throwUnitOfWork);
-        $hash = $this->getHash($params);
-        $queryBuilder = $this->getService('query');
-        $dds = $this->getService('dds');
-        $unitOfWork = $this->getService('unitOfWork');
         $insertQuery = $queryBuilder
             ->insert('Cache_Block')
             ->values(array(
                 'controllerAction'  => $controllerAction,
                 'hash'              => $hash,
-                'json'              => urlencode(json_encode($data)),
+                'json'              => urlencode(json_encode($json)),
                 'createdAt'         => date('Y-m-d H:i:s')
             ));
         if ($throwUnitOfWork) {

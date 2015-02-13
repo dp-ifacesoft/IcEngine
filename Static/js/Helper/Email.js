@@ -45,10 +45,11 @@ var Helper_Email = {
      */
     isValid: function(email)
     {
-        if (!Helper_Email.parseEmail(email)) {
-            return false;
-        }
-        return true;
+        var norm = (/^([a-z0-9-_]+[.])*[a-z0-9-_]+([@]{1})[a-z0-9][a-z0-9-_]*[a-z0-9]([.]{1})([a-z]{2,6})$/i).test(email);
+        var long = (/^([a-z0-9-_]+[.])*[a-z0-9-_]+([@]{1})[a-z0-9][a-z0-9-_]*[a-z0-9]([.]{1})[a-z0-9][a-z0-9-_]*[a-z0-9]([.]{1})([a-z]{2,6})$/i).test(email);
+        var mega = (/^([a-z0-9-_]+[.])*[a-z0-9-_]+([@]{1})[a-z0-9][a-z0-9-_]*[a-z0-9]([.]{1})[a-z0-9][a-z0-9-_]*[a-z0-9]([.]{1})[a-z0-9][a-z0-9-_]*[a-z0-9]([.]{1})([a-z]{2,6})$/i).test(email);
+
+        return norm || long || mega;
     },
 
 	/**

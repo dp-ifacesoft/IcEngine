@@ -30,7 +30,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 		'sms_provider'			=> 'First_Success',
 		// Параметры для провайдера
 		'sms_provider_params'	=> array (
-			'providers'			=> 'Sms_Littlesms,Sms_Dcnk,Sms_Yakoon'
+			'providers'			=> 'Sms_Smsru,Sms_Littlesms,Sms_Yakoon'
 		),
 		// Шабон СМСок
 		'sms_mail_template'		=> 'sms_activate',
@@ -120,7 +120,8 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	protected function _userHasRole(User $user)
 	{
-		$roles = explode(',', $this->config()->auth_roles_names);
+		
+        $roles = explode(',', $this->config()->auth_roles_names);
 		if (!$roles) {
 			// Ролей не задано, авторизуем всех
 			return true;
@@ -218,9 +219,9 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function isValidLogin($login)
 	{
-		return $this->getService('dataValidatorManager')->validate(
-			$this->config()->login_validator, $login
-		);
+		return $this->getService('dataValidatorManager')
+            ->get($this->config()->login_validator)
+            ->validate($login);
 	}
 
 	/**
@@ -266,7 +267,7 @@ class Authorization_Login_Password_Sms extends Authorization_Abstract
 	 */
 	public function sendActivationSms(array $data)
 	{
-		$user = $data['user'];
+        $user = $data['user'];
 		if (strcasecmp($user->login, $data['login']) != 0) {
 			return 'Data_Validator_Authorization_User/unexists';
 		}

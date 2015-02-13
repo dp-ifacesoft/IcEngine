@@ -18,7 +18,7 @@ class Helper_Abstract
      * @var array
      */
     protected $config = array();
-    
+
     /**
      * Загружает и возвращает конфиг для хелпера
      *

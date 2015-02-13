@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Помощник для работы со строками
@@ -91,6 +91,27 @@ class Helper_String
     {
         return preg_replace("/[^a-zA-ZА-Яа-я\d\s]/u",$value,$string);
     }
+    
+    
+    /**
+     * Заменяет указанные символы на указанные
+     * 
+     * @param string $string исходный текст
+     * @param mixed $search заменяемые символы
+     * @param mixed $replacement заменяющие символы
+     * @return string
+     */
+    public function superReplaceSpecialChars($string, $search, $replacement)
+    {
+        if (!is_array($search)) {
+            $search = explode('', $search);
+        }
+        if (!is_array($replacement)) {
+            $replacement = explode('', $replacement);
+        }
+        $value = str_replace($search, $replacement, $string);
+        return $value;
+    }
 
     /**
      * Нормализовать строку по шаблону
@@ -158,9 +179,9 @@ class Helper_String
     
     /**
      * Удаляет дублирующиеся пробелы
-     * @param string $text текст
-     * @param string $value чем заменять двойные пробелы, по умолчанию пробелом
-     * @return string
+     * @param string $text исходный
+     * @param string $value чем заменить двойные пробелы
+     * @return sting итоговый текст
      */
     public function removeMultiWhiteSpace($text, $value=' ') 
     {
@@ -330,19 +351,5 @@ class Helper_String
             }
         }
         return false;
-    }
-    
-    /**
-     * ucfirst для мультибайта
-     * 
-     * @param string $string текст
-     * @param string $encoding кодировка
-     */
-    function mb_ucfirst($string, $encoding = 'UTF-8')
-    {
-        $len = mb_strlen($string, $encoding);
-        return mb_strtoupper(
-            mb_substr($string, 0, 1, $encoding)
-        ) . mb_substr($string, 1, $len - 1, $encoding);
     }
 }

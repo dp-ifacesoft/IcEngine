@@ -9,7 +9,7 @@ var Helper_Phone = {
 	 * Длина номера мобильного телефона.
 	 * @var {integer}
 	 */
-	mobileLength: 11,
+	mobileLength: [11, 12],
 
 	/**
 	 * Разбор номера мобильного
@@ -17,11 +17,11 @@ var Helper_Phone = {
 	 * @tutorial
 	 * 		parseMobile ("+7 123 456 78 90") = 71234567890
 	 * 		parseMobile ("8-123(456)78 90") = 71234567890
-	 * @returns {string|false} Телефонный номер (11 цифр без "+") или false.
+	 * @returns {string|false} Телефонный номер (11/12 цифр без "+") или false.
 	 */
 	isValid: function (str)
 	{
-		if (str.length < Helper_Phone.mobileLength) {
+		if (str.length < Helper_Phone.mobileLength[0]) {
 			return false;
 		}
 		var i = 0;
@@ -43,6 +43,6 @@ var Helper_Phone = {
 				return false;
 			}
 		}
-		return (result.length == Helper_Phone.mobileLength) ? result : false;
+		return (jQuery.inArray(result.length, Helper_Phone.mobileLength) > -1) ? result : false;
 	}
 };

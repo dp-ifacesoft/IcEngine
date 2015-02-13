@@ -303,13 +303,17 @@ class Helper_View_Resource
 				ltrim($config->path) . $key .
 				(isset($config->packGroups[$type]) ?
 				$config->packGroups[$type] : '');
+            if ($type == self::CSS) {
+                $cssFile = rtrim(IcEngine::root(), '/') . $fileNamePart;
+                App::serviceStaticSpriteOptimizator()->run($cssFile);
+                App::serviceStaticCssOptimizator()->run($cssFile);
+            }
             $filename = $fileNamePart . '?' . $lastPackedAt;
 			$html = str_replace(
 				'{$filename}', $filename, $config->packTemplates[$type]
 			);
 			return $html;
 		}
-        return '';
 	}
 
 	/**
