@@ -23,7 +23,6 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
         'password' => '',
         'database' => 'unknown',
         'charset' => 'utf8',
-        'port' => '3306'
     );
 
     /**
@@ -191,9 +190,6 @@ class Data_Driver_Mysqli extends Data_Driver_Abstract
         }
         $dsn = 'mysql:dbname=' . $this->connectionOptions['database'] .
             ';host=' . $this->connectionOptions['host'];
-        if (isset($this->connectionOptions['port'])) {
-            $dsn .= ';port=' . $this->connectionOptions['port'];
-        }         
 
         try {
             $this->handler = new \PDO(
