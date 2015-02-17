@@ -44,7 +44,7 @@ class Controller_Model_Migrate extends Controller_Abstract
      * @Validator("User_Cli")
      * @Context("migrationManager", "helperMigrationQueue", "configManager")
      * @Context("controllerManager", "helperMigrationMark")
-     * @Context("helperMigrationModel")
+     * @Context("helperMigrationModel","dds")
      * @ConfigMerge("Controller_Model_Diff")
      */
     public function index($name, $context, $mark = false)

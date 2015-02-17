@@ -16,7 +16,7 @@ class Controller_Schedule extends Controller_Abstract
      * 
      * @Template(null)
      * @Validator("User_Cli")
-     * @Context("helperSchedule")
+     * @Context("helperSchedule", "collectionManager")
      */
     public function index($context)
     {

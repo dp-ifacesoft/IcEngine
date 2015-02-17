@@ -10,7 +10,7 @@ class Controller_Annotation_Cache extends Controller_Abstract
     /**
      * Распарсить аннотацию
      * 
-     * @Context("helperCodeGenerator")
+     * @Context("helperCodeGenerator", "configManager")
      * @Template(null)
      * @Validator("Not_Null"={"data"})
      */
@@ -84,33 +84,23 @@ class Controller_Annotation_Cache extends Controller_Abstract
             }
             $key = $controllerName . '::' . $methodName;
             $theCache = array(
-                'action'        => $key,
-                'expiration'    => $expiration, 
-                'cacheKey'      => $cacheKey,
-                'tags'          => $tags,
-                'vars'          => $vars
+                'expiration'    => $expiration,
             );
-            $caches[$key] = $theCache;
-        }
-        $profiles = $config['profiles'];
-        if ($profiles) {
-            $profiles = $profiles->__toArray();
-        }
-        if (!empty($config['actions'])) {
-            foreach ($config['actions']->__toArray() as $actionName => $data) {
-                if (isset($caches[$actionName])) {
-                    continue;
-                }
-                $data['action'] = $actionName;
-                $caches[$actionName] = $data;
+            if (!empty($cacheKey)) {
+                $theCache['cacheKey'] = $cacheKey;
             }
+            if (!empty($tags)) {
+                $theCache['tags'] = $tags;
+            }
+            if (!empty($vars)) {
+                $theCache['vars'] = $vars;
+            }
+            $config['actions'][$key] = $theCache;
         }
-        ksort($caches);
         $output = $context->helperCodeGenerator->fromTemplate(
             'controllerCache',
             array (
-                'actions'   => $caches,
-                'profiles'  => $profiles
+                'config'    => $config->__toArray(),
             )
         );
         $result = array();

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Помощник работы с массивами
@@ -21,7 +21,7 @@ class Helper_Array extends Helper_Abstract
         if (!$columnNames) {
             return $input;
         }
-        if (!is_array($input) || empty($input)) {
+        if (empty($input)) {
             return array();
         }
 		$result = array();

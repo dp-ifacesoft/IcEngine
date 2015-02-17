@@ -19,7 +19,9 @@ class Controller_Static_Resource extends Controller_Abstract
 
 	/**
 	 * Упаковать
-     * 
+     * @Context(
+     *      "collectionManager", "controllerManager"
+     * )
      * @Template(null)
 	 */
 	public function pack($context)
@@ -48,7 +50,7 @@ class Controller_Static_Resource extends Controller_Abstract
 	/**
 	 * Пересобрать статику
      *
-     * @Context("dataProviderManager")
+     * @Context("dataProviderManager", "controllerManager")
      * @Ajax
      * @Template(null)
      * @Validator("User_CliOrEditor")

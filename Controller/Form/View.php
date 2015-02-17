@@ -9,6 +9,9 @@ class Controller_Form_View extends Controller_Abstract
 {
     /**
      * Отрисовывает форму
+     * @Context(
+     *     "controllerManager"
+     * )
      */
     public function index($form, $content, $context)
     {

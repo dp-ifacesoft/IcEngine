@@ -7,6 +7,9 @@ class Controller_Admin_Action extends Controller_Abstract
 {
     /**
      * @Template(null)
+     * @Context(
+     *      "queryBuilder", "dds"
+     * )
      */
     public function index($table, $rowId, $context)
     {
